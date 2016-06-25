@@ -1,0 +1,17 @@
+[package]
+authors = ["Vincent Esche <regexident@gmail.com>"]
+description = "A cargo plugin for showing a tree-like overview of a crate's modules."
+documentation = "https://regexident.github.io/cargo-modules"
+homepage = "https://github.com/regexident/cargo-modules"
+keywords = ["cargo", "plugin", "module", "mod", "tree"]
+license = "MPL-2.0"
+name = "cargo-modules"
+readme = "README.md"
+repository = "https://github.com/regexident/cargo-modules"
+version = "0.1.0"
+
+[dependencies]
+clap = "2.6.0"
+colored = "1.2.0"
+json = "0.7.1"
+syntex_syntax = "0.36.0"
