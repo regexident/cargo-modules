@@ -129,14 +129,22 @@ fn main() {
         .short("p")
         .long("plain")
         .help("Plain uncolored output.");
+    let dir_arg = Arg::with_name("crate_dir")
+        .value_name("CRATE_DIR")
+        .help("Sets an explicit crate path (ignored)")
+        .takes_value(true); // required as `cargo modules` will otherwise throw an error!
     let arguments = App::new("cargo-modules")
-        .about("Print a crate's module tree.\n\
-        \n\
-        (On 'Windows' systems coloring is disabled. Sorry. PRs welcome.)")
+        .about("Print a crate's module tree.")
+        .after_help("If neither `--bin` nor `--example` are given,\n\
+        then if the project only has one bin target it will be run.\n\
+        Otherwise `--bin` specifies the bin target to run.\n\
+        At most one `--bin` can be provided.\n\
+        \n(On 'Windows' systems coloring is disabled. Sorry.)\n")
         .arg(orphans_arg)
         .arg(lib_arg)
         .arg(bin_arg)
         .arg(plain_arg)
+        .arg(dir_arg)
         .get_matches();
     if let Err(error) = run(&arguments) {
         let error_string = match error {
