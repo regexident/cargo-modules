@@ -4,10 +4,11 @@ extern crate colored;
 extern crate clap;
 extern crate json;
 
-mod module;
-mod visit;
+mod builder;
+mod printer;
+mod tree;
 
-use std::{env, io, ffi, path};
+use std::{io, path};
 use std::process::Command;
 
 use syntax::parse::{self, ParseSess};
@@ -17,7 +18,11 @@ use clap::{App, Arg};
 
 use colored::*;
 
-use visit::{Visitor as ModulesVisitor, Config as VisitorConfig};
+use builder::Builder;
+use builder::Config as BuilderConfig;
+
+use printer::Printer;
+use printer::Config as PrinterConfig;
 
 pub enum Error {
     CargoExecutionFailed(io::Error),
@@ -73,14 +78,6 @@ fn get_build_scripts(target_cfgs: &[json::JsonValue]) -> Vec<path::PathBuf> {
         .collect()
 }
 
-fn has_colors() -> bool {
-    fn is_good(var: Option<ffi::OsString>) -> bool {
-        var.is_none() || var != Some("0".into())
-    }
-    (env::var_os("CLICOLOR_FORCE").or_else(|| Some("0".into())) != Some("0".into())) ||
-    is_good(env::var_os("CLICOLOR"))
-}
-
 fn run(args: &clap::ArgMatches) -> Result<(), Error> {
     let json = try!(get_manifest());
     let target_cfgs: Vec<_> = json["targets"].members().cloned().collect();
@@ -96,40 +93,28 @@ fn run(args: &clap::ArgMatches) -> Result<(), Error> {
             Err(e) => Err(Some(e)),
         }
         .map_err(|e| Error::Syntax(format!("{:?}", e))));
-    let visitor_config = VisitorConfig {
-        target_name: target_name.to_string(),
-        include_tests: args.is_present("tests"),
+    let builder_config = BuilderConfig {
         include_orphans: args.is_present("orphans"),
         ignored_files: build_scripts,
     };
-    let mut visitor = ModulesVisitor::new(visitor_config);
-    visitor.visit_mod(&krate.module, krate.span, 0);
-    if has_colors() {
-        println!("");
-        if args.is_present("tests") {
-            println!("{}", "Test modules".cyan().bold());
-        }
-        println!("{}", "Public modules".green().bold());
-        println!("{}", "Private modules".yellow().bold());
-        if args.is_present("orphans") {
-            println!("{}", "Orphaned modules".red().bold());
-        }
-    }
+    let mut builder = Builder::new(builder_config,
+                                   target_name.to_string(),
+                                   parse_session.codemap());
+    builder.visit_mod(&krate.module, krate.span, 0);
+    let printer_config = PrinterConfig { colored: !args.is_present("plain") };
+    let printer = Printer::new(printer_config);
     println!("");
-    visitor.print_tree();
+    let tree = builder.tree();
+    tree.accept(&mut vec![], &printer);
     println!("");
     Ok(())
 }
 
 fn main() {
-    let tests_arg = Arg::with_name("tests")
-        .short("t")
-        .long("tests")
-        .help("Include modules with `#[cfg(test)]` attribute.");
     let orphans_arg = Arg::with_name("orphans")
         .short("o")
         .long("orphans")
-        .help("Include orphaned modules (unused files in /src).");
+        .help("Include orphaned modules (i.e. unused files in /src).");
     let lib_arg = Arg::with_name("lib")
         .short("l")
         .long("lib")
@@ -140,19 +125,18 @@ fn main() {
         .value_name("NAME")
         .help("List modules of the specified binary")
         .takes_value(true);
-    let dir_arg = Arg::with_name("path")
-        .value_name("CRATE_DIR")
-        .help("Sets an explicit crate path (optional)")
-        .takes_value(true);
+    let plain_arg = Arg::with_name("plain")
+        .short("p")
+        .long("plain")
+        .help("Plain uncolored output.");
     let arguments = App::new("cargo-modules")
         .about("Print a crate's module tree.\n\
         \n\
-        (Set environment variable `CLICOLOR=0` to disable colors.)")
-        .arg(tests_arg)
+        (On 'Windows' systems coloring is disabled. Sorry. PRs welcome.)")
         .arg(orphans_arg)
         .arg(lib_arg)
         .arg(bin_arg)
-        .arg(dir_arg)
+        .arg(plain_arg)
         .get_matches();
     if let Err(error) = run(&arguments) {
         let error_string = match error {

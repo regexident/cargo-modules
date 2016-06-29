@@ -1,35 +1,34 @@
 use std::{fs, io, path};
 
-use syntax::{ast, attr, visit, codemap};
+use syntax::{ast, visit, codemap};
 
-use module::{Module, Kind as ModuleKind};
+use tree::{Tree, Visibility};
 
 pub struct Config {
-    pub target_name: String,
-    pub include_tests: bool,
     pub include_orphans: bool,
     pub ignored_files: Vec<path::PathBuf>,
 }
 
-pub struct Visitor {
-    root: Module,
+pub struct Builder<'a> {
+    tree: Tree,
     path: Vec<String>,
     config: Config,
+    codemap: &'a codemap::CodeMap,
 }
 
-impl Visitor {
-    pub fn new(config: Config) -> Self {
-        let root_kind = ModuleKind::Public;
-        let root_module = Module::new(config.target_name.clone(), root_kind);
-        Visitor {
-            root: root_module,
+impl<'a> Builder<'a> {
+    pub fn new(config: Config, crate_name: String, codemap: &'a codemap::CodeMap) -> Self {
+        let tree = Tree::new_crate(crate_name);
+        Builder {
+            tree: tree,
             path: vec![],
             config: config,
+            codemap: codemap,
         }
     }
 
-    pub fn print_tree(&self) {
-        self.root.print_tree(&mut vec![]);
+    pub fn tree(&self) -> &Tree {
+        &self.tree
     }
 
     fn find_orphan_candidates(path: &[String],
@@ -69,31 +68,27 @@ impl Visitor {
     }
 }
 
-impl<'v> visit::Visitor<'v> for Visitor {
+impl<'v, 'a> visit::Visitor<'v> for Builder<'a> {
     fn visit_item(&mut self, item: &ast::Item) {
-        let is_test_cfg = item.attrs.iter().fold(false, |flag, attr| {
-            match attr.node.value.node {
-                ast::MetaItemKind::List(ref n, ref items) if (n == "cfg") => {
-                    flag | attr::contains_name(items.as_slice(), "test")
+        let condition = item.attrs
+            .iter()
+            .find(|attr| {
+                match attr.node.value.node {
+                    ast::MetaItemKind::List(ref n, _) if (n == "cfg") => true,
+                    _ => false,
                 }
-                _ => flag,
-            }
-        });
-        if !self.config.include_tests && is_test_cfg {
-            return;
-        }
-        let kind = if is_test_cfg {
-            ModuleKind::Test
-        } else if item.vis == ast::Visibility::Public {
-            ModuleKind::Public
-        } else {
-            ModuleKind::Private
-        };
+            })
+            .map(|attr| self.codemap.span_to_snippet(attr.span).unwrap_or("".to_string()));
         if let ast::ItemKind::Mod(_) = item.node {
             let name = item.ident.to_string();
             {
-                let mut module = self.root.submodule_at_path(&self.path).unwrap();
-                module.insert(name.clone(), kind);
+                let mut tree = self.tree.subtree_at_path(&self.path).unwrap();
+                let visibility = if item.vis == ast::Visibility::Public {
+                    Visibility::Public
+                } else {
+                    Visibility::Private
+                };
+                tree.insert(Tree::new_module(name.clone(), visibility, condition));
             }
             self.path.push(name);
             visit::walk_item(self, item);
@@ -109,12 +104,12 @@ impl<'v> visit::Visitor<'v> for Visitor {
             return;
         }
         let path = &self.path;
-        if let Ok(candidates) = Visitor::find_orphan_candidates(path, &self.config.ignored_files) {
-            let mut module = self.root.submodule_at_path(path).unwrap();
-            let names: Vec<_> = module.submodule_names();
+        if let Ok(candidates) = Builder::find_orphan_candidates(path, &self.config.ignored_files) {
+            let mut tree = self.tree.subtree_at_path(path).unwrap();
+            let names: Vec<_> = tree.subtree_names();
             for candidate in candidates {
                 if !names.contains(&candidate) {
-                    module.insert(candidate.clone(), ModuleKind::Orphaned);
+                    tree.insert(Tree::new_orphan(candidate.clone()));
                 }
             }
         }

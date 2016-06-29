@@ -37,15 +37,6 @@ cargo install cargo-modules
 cargo modules
 ```
 
-### Test Modules
-
-By default `cargo-modules` will not list any modules annotated with `#[cfg(test)]`.  
-If you wish to also list test modules, then add a `--tests` argument:
-
-```bash
-cargo modules --tests
-```
-
 ### Orphaned Modules
 
 If you want to also list of potentially orphaned modules,
@@ -60,6 +51,14 @@ Any file `src/../foo.rs` or `src/../foo/mod.rs` that is not linked by its
 
 To keep false positives to a minimum `cargo-modules` excludes all build scripts
 as well as `lib.rs` and `main.rs` from the selection of potential orphans.
+
+### Plain Mode
+
+If you, for some reason, need to remove the coloring, use:
+
+```bash
+cargo modules --plain
+```
 
 ### Help
 
