@@ -68,30 +68,8 @@ impl<'a> Builder<'a> {
     }
 
     fn sanitize_condition(condition: String) -> String {
-        // this basically strips newlines and redundant whitespace:
-        let mut sanitized = String::with_capacity(condition.len());
-        let mut last_char_was_whitespace = false;
-        for c in condition.chars() {
-            let is_whitespace = (c == ' ') | (c == '\t');
-            let is_newline = (c == '\n') | (c == '\r');
-            match (last_char_was_whitespace, is_whitespace, is_newline) {
-                (true, _, true) => {
-                    last_char_was_whitespace = true;
-                }
-                (_, _, true) => {
-                    last_char_was_whitespace = true;
-                    sanitized.push(' ');
-                }
-                (true, true, _) => {
-                    last_char_was_whitespace = true;
-                }
-                _ => {
-                    last_char_was_whitespace = is_whitespace;
-                    sanitized.push(c);
-                }
-            }
-        }
-        sanitized
+        let words: Vec<&str> = condition.split_whitespace().collect();
+        words.join(" ")
     }
 }
 
