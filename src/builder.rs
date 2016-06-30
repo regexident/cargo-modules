@@ -66,6 +66,33 @@ impl<'a> Builder<'a> {
         }
         Ok(orphans)
     }
+
+    fn sanitize_condition(condition: String) -> String {
+        // this basically strips newlines and redundant whitespace:
+        let mut sanitized = String::with_capacity(condition.len());
+        let mut last_char_was_whitespace = false;
+        for c in condition.chars() {
+            let is_whitespace = (c == ' ') | (c == '\t');
+            let is_newline = (c == '\n') | (c == '\r');
+            match (last_char_was_whitespace, is_whitespace, is_newline) {
+                (true, _, true) => {
+                    last_char_was_whitespace = true;
+                }
+                (_, _, true) => {
+                    last_char_was_whitespace = true;
+                    sanitized.push(' ');
+                }
+                (true, true, _) => {
+                    last_char_was_whitespace = true;
+                }
+                _ => {
+                    last_char_was_whitespace = is_whitespace;
+                    sanitized.push(c);
+                }
+            }
+        }
+        sanitized
+    }
 }
 
 impl<'v, 'a> visit::Visitor<'v> for Builder<'a> {
@@ -78,7 +105,12 @@ impl<'v, 'a> visit::Visitor<'v> for Builder<'a> {
                     _ => false,
                 }
             })
-            .map(|attr| self.codemap.span_to_snippet(attr.span).unwrap_or("".to_string()));
+            .map(|attr| {
+                self.codemap
+                    .span_to_snippet(attr.span)
+                    .map(|string| Builder::sanitize_condition(string))
+                    .unwrap_or("".to_string())
+            });
         if let ast::ItemKind::Mod(_) = item.node {
             let name = item.ident.to_string();
             {
