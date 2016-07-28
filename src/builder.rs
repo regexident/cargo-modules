@@ -54,17 +54,11 @@ impl<'a> Builder<'a> {
         fn file_name(entry: &fs::DirEntry) -> Option<String> {
             entry.path().file_stem().map_or(None, |s| s.to_str().map(|s| s.to_string()))
         }
-        let mut orphans = vec![];
-        if try!(fs::metadata(&dir_path)).is_dir() {
-            for entry in try!(fs::read_dir(&dir_path)).filter_map(|e| e.ok()).filter(is_mod) {
-                if !ignored_paths.contains(&entry.path()) {
-                    if let Some(name) = file_name(&entry) {
-                        orphans.push(name);
-                    }
-                }
-            }
-        }
-        Ok(orphans)
+        Ok(try!(fs::read_dir(&dir_path)).filter_map(|e| e.ok())
+                                        .filter(is_mod)
+                                        .filter(|e| !ignored_paths.contains(&e.path()))
+                                        .filter_map(|e| file_name(&e))
+                                        .collect::<Vec<_>>())
     }
 
     fn sanitize_condition(condition: String) -> String {
@@ -86,8 +80,8 @@ impl<'v, 'a> visit::Visitor<'v> for Builder<'a> {
             .map(|attr| {
                 self.codemap
                     .span_to_snippet(attr.span)
-                    .map(|string| Builder::sanitize_condition(string))
-                    .unwrap_or("".to_string())
+                    .map(Builder::sanitize_condition)
+                    .unwrap_or_else(|_| "".to_string())
             });
         if let ast::ItemKind::Mod(_) = item.node {
             let name = item.ident.to_string();
