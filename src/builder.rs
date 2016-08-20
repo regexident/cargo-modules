@@ -67,7 +67,7 @@ impl<'a> Builder<'a> {
     }
 }
 
-impl<'v, 'a> visit::Visitor<'v> for Builder<'a> {
+impl<'a> visit::Visitor for Builder<'a> {
     fn visit_item(&mut self, item: &ast::Item) {
         let condition = item.attrs
             .iter()
@@ -102,7 +102,7 @@ impl<'v, 'a> visit::Visitor<'v> for Builder<'a> {
         }
     }
 
-    fn visit_mod(&mut self, m: &'v ast::Mod, _s: codemap::Span, _n: ast::NodeId) {
+    fn visit_mod(&mut self, m: &ast::Mod, _s: codemap::Span, _n: ast::NodeId) {
         visit::walk_mod(self, m);
         if !self.config.include_orphans {
             return;
@@ -119,7 +119,7 @@ impl<'v, 'a> visit::Visitor<'v> for Builder<'a> {
         }
     }
 
-    fn visit_mac(&mut self, mac: &'v ast::Mac) {
+    fn visit_mac(&mut self, mac: &ast::Mac) {
         visit::walk_mac(self, mac);
     }
 }
