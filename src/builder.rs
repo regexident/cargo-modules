@@ -54,11 +54,12 @@ impl<'a> Builder<'a> {
         fn file_name(entry: &fs::DirEntry) -> Option<String> {
             entry.path().file_stem().map_or(None, |s| s.to_str().map(|s| s.to_string()))
         }
-        Ok(try!(fs::read_dir(&dir_path)).filter_map(|e| e.ok())
-                                        .filter(is_mod)
-                                        .filter(|e| !ignored_paths.contains(&e.path()))
-                                        .filter_map(|e| file_name(&e))
-                                        .collect::<Vec<_>>())
+        Ok(try!(fs::read_dir(&dir_path))
+            .filter_map(|e| e.ok())
+            .filter(is_mod)
+            .filter(|e| !ignored_paths.contains(&e.path()))
+            .filter_map(|e| file_name(&e))
+            .collect::<Vec<_>>())
     }
 
     fn sanitize_condition(condition: String) -> String {
@@ -67,16 +68,11 @@ impl<'a> Builder<'a> {
     }
 }
 
-impl<'a> visit::Visitor for Builder<'a> {
-    fn visit_item(&mut self, item: &ast::Item) {
+impl<'a> visit::Visitor<'a> for Builder<'a> {
+    fn visit_item(&mut self, item: &'a ast::Item) {
         let condition = item.attrs
             .iter()
-            .find(|attr| {
-                match attr.node.value.node {
-                    ast::MetaItemKind::List(ref n, _) if (n == "cfg") => true,
-                    _ => false,
-                }
-            })
+            .find(|attr| attr.check_name("cfg"))
             .map(|attr| {
                 self.codemap
                     .span_to_snippet(attr.span)
@@ -102,7 +98,7 @@ impl<'a> visit::Visitor for Builder<'a> {
         }
     }
 
-    fn visit_mod(&mut self, m: &ast::Mod, _s: codemap::Span, _n: ast::NodeId) {
+    fn visit_mod(&mut self, m: &'a ast::Mod, _s: codemap::Span, _n: ast::NodeId) {
         visit::walk_mod(self, m);
         if !self.config.include_orphans {
             return;

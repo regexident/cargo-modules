@@ -12,19 +12,14 @@ pub enum Visibility {
 
 #[derive(Debug)]
 pub enum Tree {
-    Crate {
-        name: String,
-        subtrees: Vec<Tree>,
-    },
+    Crate { name: String, subtrees: Vec<Tree> },
     Module {
         name: String,
         visibility: Visibility,
         condition: Option<String>,
         subtrees: Vec<Tree>,
     },
-    Orphan {
-        name: String,
-    },
+    Orphan { name: String },
 }
 
 impl PartialEq<Tree> for Tree {
