@@ -1,4 +1,6 @@
-extern crate syntex_syntax as syntax;
+#![feature(rustc_private)]
+
+extern crate syntax;
 extern crate colored;
 extern crate clap;
 extern crate json;
@@ -13,6 +15,7 @@ use std::process::Command;
 use syntax::parse::{self, ParseSess};
 use syntax::visit::Visitor;
 use syntax::ast::NodeId;
+use syntax::codemap;
 
 use clap::{App, Arg};
 
@@ -85,7 +88,7 @@ fn run(args: &clap::ArgMatches) -> Result<(), Error> {
     let target_config = try!(get_target_config(&target_cfgs, args));
     let target_name = target_config["name"].as_str().expect("Expected `name` property.");
     let src_path = target_config["src_path"].as_str().expect("Expected `src_path` property.");
-    let parse_session = ParseSess::new();
+    let parse_session = ParseSess::new(codemap::FilePathMapping::empty());
     let krate = try!(match parse::parse_crate_from_file(src_path.as_ref(), &parse_session) {
             Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
             Ok(krate) => Ok(krate),
@@ -99,7 +102,7 @@ fn run(args: &clap::ArgMatches) -> Result<(), Error> {
     let mut builder = Builder::new(builder_config,
                                    target_name.to_string(),
                                    parse_session.codemap());
-    builder.visit_mod(&krate.module, krate.span, NodeId::new(0));
+    builder.visit_mod(&krate.module, krate.span, &krate.attrs[..], NodeId::new(0));
     let printer_config = PrinterConfig { colored: !args.is_present("plain") };
     let printer = Printer::new(printer_config);
     println!("");

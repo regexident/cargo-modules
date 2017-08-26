@@ -82,7 +82,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
         if let ast::ItemKind::Mod(_) = item.node {
             let name = item.ident.to_string();
             {
-                let mut tree = self.tree.subtree_at_path(&self.path).unwrap();
+                let tree = self.tree.subtree_at_path(&self.path).unwrap();
                 let visibility = if item.vis == ast::Visibility::Public {
                     Visibility::Public
                 } else {
@@ -98,14 +98,15 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
         }
     }
 
-    fn visit_mod(&mut self, m: &'a ast::Mod, _s: codemap::Span, _n: ast::NodeId) {
+    fn visit_mod(&mut self, m: &'a ast::Mod, _s: codemap::Span, _attrs: &[ast::Attribute],
+_n: ast::NodeId) {
         visit::walk_mod(self, m);
         if !self.config.include_orphans {
             return;
         }
         let path = &self.path;
         if let Ok(candidates) = Builder::find_orphan_candidates(path, &self.config.ignored_files) {
-            let mut tree = self.tree.subtree_at_path(path).unwrap();
+            let tree = self.tree.subtree_at_path(path).unwrap();
             let names: Vec<_> = tree.subtree_names();
             for candidate in candidates {
                 if !names.contains(&candidate) {

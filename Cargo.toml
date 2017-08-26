@@ -9,10 +9,9 @@ license = "MPL-2.0"
 name = "cargo-modules"
 readme = "README.md"
 repository = "https://github.com/regexident/cargo-modules"
-version = "0.3.2"
+version = "0.3.3"
 
 [dependencies]
 clap = "2.20.3"
 colored = "1.2.0"
 json = "0.11.5"
-syntex_syntax = "0.58.0"
