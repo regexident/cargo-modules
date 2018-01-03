@@ -82,6 +82,12 @@ fn get_build_scripts(target_cfgs: &[json::JsonValue]) -> Vec<path::PathBuf> {
 }
 
 fn run(args: &clap::ArgMatches) -> Result<(), Error> {
+    if args.is_present("version") {
+        let name = option_env!("CARGO_PKG_NAME").unwrap_or("cargo-modules");
+        let version = option_env!("CARGO_PKG_VERSION").unwrap_or("unknown");
+        println!("\n{} {}\n", name, version);
+        return Ok(());
+    }
     let json = try!(get_manifest());
     let target_cfgs: Vec<_> = json["targets"].members().cloned().collect();
     let build_scripts = get_build_scripts(&target_cfgs);
@@ -113,6 +119,10 @@ fn run(args: &clap::ArgMatches) -> Result<(), Error> {
 }
 
 fn main() {
+    let version_arg = Arg::with_name("version")
+        .short("v")
+        .long("version")
+        .help("Print version number.");
     let orphans_arg = Arg::with_name("orphans")
         .short("o")
         .long("orphans")
@@ -142,6 +152,7 @@ fn main() {
         Otherwise `--bin` specifies the bin target to run.\n\
         At most one `--bin` can be provided.\n\
         \n(On 'Windows' systems coloring is disabled. Sorry.)\n")
+        .arg(version_arg)
         .arg(orphans_arg)
         .arg(lib_arg)
         .arg(bin_arg)
