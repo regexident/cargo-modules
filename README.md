@@ -25,10 +25,22 @@ This is where `cargo-modules` comes into play:
 
 ## Installation
 
-Install `cargo-modules` via:
+Install `cargo-modules` on nightly via:
 
 ```bash
 cargo install cargo-modules
+```
+
+Or using rustup's ad-hoc mode:
+
+```bash
+rustup run nightly cargo install cargo-modules
+```
+
+Or if you want to build it locally:
+
+```bash
+$ rustup run nightly cargo build --release
 ```
 
 ## Usage
