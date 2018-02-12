@@ -45,8 +45,30 @@ $ rustup run nightly cargo build --release
 
 ## Usage
 
+**cargo-modules requires nightly to run.**
+As such unless you already are using `nightly` you need to either run this [rustup](https://github.com/rust-lang-nursery/rustup.rs#toolchain-override-shorthand) command _once_,
+to set the default toolchain to `nightly`:
+
 ```bash
-cargo modules
+rustup default nightly
+```
+
+… or override the toolchain for the current directory (again, _once_):
+
+```bash
+rustup override set nightly
+```
+
+To then be able to just call **cargo-modules** through:
+
+```bash
+cargo modules <options>
+```
+
+Or if you want to stay on the `beta` or `stable` toolchain you would have to call **cargo-modules** through:
+
+```bash
+rustup run nightly cargo modules <options>
 ```
 
 ### Orphaned Modules
