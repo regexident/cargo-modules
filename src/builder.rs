@@ -83,7 +83,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
             let name = item.ident.to_string();
             {
                 let tree = self.tree.subtree_at_path(&self.path).unwrap();
-                let visibility = if item.vis == ast::Visibility::Public {
+                let visibility = if item.vis.node == ast::VisibilityKind::Public {
                     Visibility::Public
                 } else {
                     Visibility::Private
