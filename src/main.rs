@@ -1,21 +1,21 @@
 #![feature(rustc_private)]
 
-extern crate syntax;
-extern crate colored;
 extern crate clap;
+extern crate colored;
 extern crate json;
+extern crate syntax;
 
 mod builder;
 mod printer;
 mod tree;
 
-use std::{io, path};
 use std::process::Command;
+use std::{io, path};
 
-use syntax::parse::{self, ParseSess};
-use syntax::visit::Visitor;
 use syntax::ast::NodeId;
 use syntax::codemap;
+use syntax::parse::{self, ParseSess};
+use syntax::visit::Visitor;
 
 use clap::{App, Arg};
 
@@ -24,8 +24,8 @@ use colored::*;
 use builder::Builder;
 use builder::Config as BuilderConfig;
 
-use printer::Printer;
 use printer::Config as PrinterConfig;
+use printer::Printer;
 
 pub enum Error {
     CargoExecutionFailed(io::Error),
@@ -43,9 +43,10 @@ fn get_manifest() -> Result<json::JsonValue, Error> {
     json::parse(&json_string).map_err(Error::InvalidManifestJson)
 }
 
-pub fn get_target_config<'a>(target_cfgs: &'a [json::JsonValue],
-                             args: &clap::ArgMatches)
-                             -> Result<&'a json::JsonValue, Error> {
+pub fn get_target_config<'a>(
+    target_cfgs: &'a [json::JsonValue],
+    args: &clap::ArgMatches,
+) -> Result<&'a json::JsonValue, Error> {
     fn is_lib(cfg: &json::JsonValue) -> bool {
         let is_lib = cfg["kind"].contains("lib");
         let is_rlib = cfg["kind"].contains("rlib");
@@ -53,27 +54,33 @@ pub fn get_target_config<'a>(target_cfgs: &'a [json::JsonValue],
         is_lib || is_rlib || is_staticlib
     }
     if args.is_present("lib") {
-        target_cfgs.into_iter()
+        target_cfgs
+            .into_iter()
             .find(|cfg| is_lib(cfg))
             .ok_or(Error::NoLibraryTargetFound)
     } else if let Some(name) = args.value_of("bin") {
-        target_cfgs.into_iter()
+        target_cfgs
+            .into_iter()
             .find(|cfg| cfg["kind"].contains("bin") && cfg["name"] == name)
             .ok_or(Error::NoMatchingBinaryTargetFound)
     } else if target_cfgs.len() == 1 {
         Ok(&target_cfgs[0])
     } else {
-        target_cfgs.into_iter()
+        target_cfgs
+            .into_iter()
             .find(|cfg| is_lib(cfg))
             .ok_or(Error::NoTargetProvided)
     }
 }
 
 fn get_build_scripts(target_cfgs: &[json::JsonValue]) -> Vec<path::PathBuf> {
-    target_cfgs.into_iter()
+    target_cfgs
+        .into_iter()
         .filter_map(|cfg| {
             if cfg["kind"].contains("custom-build") {
-                cfg["src_path"].as_str().map(|s| path::Path::new("./").join(s))
+                cfg["src_path"]
+                    .as_str()
+                    .map(|s| path::Path::new("./").join(s))
             } else {
                 None
             }
@@ -92,24 +99,33 @@ fn run(args: &clap::ArgMatches) -> Result<(), Error> {
     let target_cfgs: Vec<_> = json["targets"].members().cloned().collect();
     let build_scripts = get_build_scripts(&target_cfgs);
     let target_config = try!(get_target_config(&target_cfgs, args));
-    let target_name = target_config["name"].as_str().expect("Expected `name` property.");
-    let src_path = target_config["src_path"].as_str().expect("Expected `src_path` property.");
+    let target_name = target_config["name"]
+        .as_str()
+        .expect("Expected `name` property.");
+    let src_path = target_config["src_path"]
+        .as_str()
+        .expect("Expected `src_path` property.");
     let parse_session = ParseSess::new(codemap::FilePathMapping::empty());
-    let krate = try!(match parse::parse_crate_from_file(src_path.as_ref(), &parse_session) {
+    let krate = try!(
+        match parse::parse_crate_from_file(src_path.as_ref(), &parse_session) {
             Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
             Ok(krate) => Ok(krate),
             Err(e) => Err(Some(e)),
-        }
-        .map_err(|e| Error::Syntax(format!("{:?}", e))));
+        }.map_err(|e| Error::Syntax(format!("{:?}", e)))
+    );
     let builder_config = BuilderConfig {
         include_orphans: args.is_present("orphans"),
         ignored_files: build_scripts,
     };
-    let mut builder = Builder::new(builder_config,
-                                   target_name.to_string(),
-                                   parse_session.codemap());
+    let mut builder = Builder::new(
+        builder_config,
+        target_name.to_string(),
+        parse_session.codemap(),
+    );
     builder.visit_mod(&krate.module, krate.span, &krate.attrs[..], NodeId::new(0));
-    let printer_config = PrinterConfig { colored: !args.is_present("plain") };
+    let printer_config = PrinterConfig {
+        colored: !args.is_present("plain"),
+    };
     let printer = Printer::new(printer_config);
     println!("");
     let tree = builder.tree();
@@ -147,11 +163,13 @@ fn main() {
         .takes_value(true); // required as `cargo modules` will otherwise throw an error!
     let arguments = App::new("cargo-modules")
         .about("Print a crate's module tree.")
-        .after_help("If neither `--bin` nor `--example` are given,\n\
-        then if the project only has one bin target it will be run.\n\
-        Otherwise `--bin` specifies the bin target to run.\n\
-        At most one `--bin` can be provided.\n\
-        \n(On 'Windows' systems coloring is disabled. Sorry.)\n")
+        .after_help(
+            "If neither `--bin` nor `--example` are given,\n\
+             then if the project only has one bin target it will be run.\n\
+             Otherwise `--bin` specifies the bin target to run.\n\
+             At most one `--bin` can be provided.\n\
+             \n(On 'Windows' systems coloring is disabled. Sorry.)\n",
+        )
         .arg(version_arg)
         .arg(orphans_arg)
         .arg(lib_arg)

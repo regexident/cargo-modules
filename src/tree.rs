@@ -12,14 +12,19 @@ pub enum Visibility {
 
 #[derive(Debug)]
 pub enum Tree {
-    Crate { name: String, subtrees: Vec<Tree> },
+    Crate {
+        name: String,
+        subtrees: Vec<Tree>,
+    },
     Module {
         name: String,
         visibility: Visibility,
         condition: Option<String>,
         subtrees: Vec<Tree>,
     },
-    Orphan { name: String },
+    Orphan {
+        name: String,
+    },
 }
 
 impl PartialEq<Tree> for Tree {
@@ -66,12 +71,15 @@ impl Tree {
     pub fn subtree_at_path(&mut self, path: &[String]) -> Option<&mut Tree> {
         if let Some((name, sub_path)) = path.split_first() {
             match *self {
-                Tree::Crate { ref mut subtrees, .. } |
-                Tree::Module { ref mut subtrees, .. } => {
-                    subtrees.iter_mut()
-                        .find(|m| m.name() == *name)
-                        .and_then(|subtree| subtree.subtree_at_path(sub_path))
+                Tree::Crate {
+                    ref mut subtrees, ..
                 }
+                | Tree::Module {
+                    ref mut subtrees, ..
+                } => subtrees
+                    .iter_mut()
+                    .find(|m| m.name() == *name)
+                    .and_then(|subtree| subtree.subtree_at_path(sub_path)),
                 Tree::Orphan { .. } => None,
             }
         } else {
@@ -81,8 +89,12 @@ impl Tree {
 
     pub fn insert(&mut self, subtree: Tree) {
         match *self {
-            Tree::Crate { ref mut subtrees, .. } |
-            Tree::Module { ref mut subtrees, .. } => {
+            Tree::Crate {
+                ref mut subtrees, ..
+            }
+            | Tree::Module {
+                ref mut subtrees, ..
+            } => {
                 subtrees.push(subtree);
                 subtrees.sort();
             }
@@ -92,16 +104,15 @@ impl Tree {
 
     pub fn name(&self) -> &str {
         match *self {
-            Tree::Crate { ref name, .. } |
-            Tree::Module { ref name, .. } |
-            Tree::Orphan { ref name } => name,
+            Tree::Crate { ref name, .. }
+            | Tree::Module { ref name, .. }
+            | Tree::Orphan { ref name } => name,
         }
     }
 
     pub fn subtree_names(&self) -> Vec<String> {
         match *self {
-            Tree::Crate { ref subtrees, .. } |
-            Tree::Module { ref subtrees, .. } => {
+            Tree::Crate { ref subtrees, .. } | Tree::Module { ref subtrees, .. } => {
                 subtrees.iter().map(|m| m.name().to_string()).collect()
             }
             Tree::Orphan { .. } => vec![],
@@ -109,12 +120,12 @@ impl Tree {
     }
 
     pub fn accept<V>(&self, path: &mut Vec<(usize, usize)>, visitor: &V)
-        where V: Visitor
+    where
+        V: Visitor,
     {
         visitor.visit(self, path);
         match *self {
-            Tree::Crate { ref subtrees, .. } |
-            Tree::Module { ref subtrees, .. } => {
+            Tree::Crate { ref subtrees, .. } | Tree::Module { ref subtrees, .. } => {
                 let count = subtrees.len();
                 for (index, subtree) in subtrees.iter().enumerate() {
                     path.push((index, count));

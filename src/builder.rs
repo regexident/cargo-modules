@@ -1,6 +1,6 @@
 use std::{fs, io, path};
 
-use syntax::{ast, visit, codemap};
+use syntax::{ast, codemap, visit};
 
 use tree::{Tree, Visibility};
 
@@ -31,9 +31,10 @@ impl<'a> Builder<'a> {
         &self.tree
     }
 
-    fn find_orphan_candidates(path: &[String],
-                              ignored_paths: &[path::PathBuf])
-                              -> Result<Vec<String>, io::Error> {
+    fn find_orphan_candidates(
+        path: &[String],
+        ignored_paths: &[path::PathBuf],
+    ) -> Result<Vec<String>, io::Error> {
         let mut dir_path = "./src/".to_string();
         for name in path.iter() {
             dir_path.push_str(name);
@@ -52,7 +53,10 @@ impl<'a> Builder<'a> {
             false
         }
         fn file_name(entry: &fs::DirEntry) -> Option<String> {
-            entry.path().file_stem().map_or(None, |s| s.to_str().map(|s| s.to_string()))
+            entry
+                .path()
+                .file_stem()
+                .map_or(None, |s| s.to_str().map(|s| s.to_string()))
         }
         Ok(try!(fs::read_dir(&dir_path))
             .filter_map(|e| e.ok())
@@ -98,8 +102,13 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
         }
     }
 
-    fn visit_mod(&mut self, m: &'a ast::Mod, _s: codemap::Span, _attrs: &[ast::Attribute],
-_n: ast::NodeId) {
+    fn visit_mod(
+        &mut self,
+        m: &'a ast::Mod,
+        _s: codemap::Span,
+        _attrs: &[ast::Attribute],
+        _n: ast::NodeId,
+    ) {
         visit::walk_mod(self, m);
         if !self.config.include_orphans {
             return;
