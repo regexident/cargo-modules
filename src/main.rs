@@ -4,6 +4,7 @@ extern crate json;
 extern crate syntax;
 
 mod builder;
+mod dot_printer;
 mod printer;
 mod tree;
 
@@ -24,6 +25,9 @@ use builder::Config as BuilderConfig;
 
 use printer::Config as PrinterConfig;
 use printer::Printer;
+
+use dot_printer::Config as DotPrinterConfig;
+use dot_printer::DotPrinter;
 
 pub enum Error {
     CargoExecutionFailed(io::Error),
@@ -124,14 +128,29 @@ fn run(args: &clap::ArgMatches) -> Result<(), Error> {
             parse_session.codemap(),
         );
         builder.visit_mod(&krate.module, krate.span, &krate.attrs[..], NodeId::new(0));
-        let printer_config = PrinterConfig {
-            colored: !args.is_present("plain"),
-        };
-        let printer = Printer::new(printer_config);
-        println!();
-        let tree = builder.tree();
-        tree.accept(&mut vec![], &printer);
-        println!();
+
+        if args.is_present("dot") {
+            let printer_config = DotPrinterConfig {
+                colored: !args.is_present("plain"),
+                show_conditional: args.is_present("conditional"),
+                show_external: args.is_present("external"),
+                show_types: args.is_present("types"),
+            };
+            println!("digraph something {{");
+            let tree = builder.tree();
+            let printer = DotPrinter::new(printer_config, tree);
+            tree.accept(&mut vec![], &mut vec![], &printer);
+            println!("}}");
+        } else {
+            let printer_config = PrinterConfig {
+                colored: !args.is_present("plain"),
+            };
+            let printer = Printer::new(printer_config);
+            println!();
+            let tree = builder.tree();
+            tree.accept(&mut vec![], &mut vec![], &printer);
+            println!();
+        }
         Ok(())
     })
 }
@@ -159,6 +178,22 @@ fn main() {
         .short("p")
         .long("plain")
         .help("Plain uncolored output.");
+    let dot_arg = Arg::with_name("dot")
+        .short("d")
+        .long("dot")
+        .help("Graphviz Dot output mode");
+    let external_arg = Arg::with_name("external")
+        .short("e")
+        .long("external")
+        .help("Show external types in dot mode");
+    let conditional_arg = Arg::with_name("conditional")
+        .short("c")
+        .long("conditional")
+        .help("Show conditional modules in dot mode");
+    let types_arg = Arg::with_name("types")
+        .short("t")
+        .long("types")
+        .help("Show types in dot mode");
     let dir_arg = Arg::with_name("crate_dir")
         .value_name("CRATE_DIR")
         .help("Sets an explicit crate path (ignored)")
@@ -177,6 +212,10 @@ fn main() {
         .arg(lib_arg)
         .arg(bin_arg)
         .arg(plain_arg)
+        .arg(dot_arg)
+        .arg(external_arg)
+        .arg(conditional_arg)
+        .arg(types_arg)
         .arg(dir_arg)
         .get_matches();
     if let Err(error) = run(&arguments) {

@@ -85,22 +85,34 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
                     .map(Builder::sanitize_condition)
                     .unwrap_or_else(|_| "".to_string())
             });
-        if let ast::ItemKind::Mod(_) = item.node {
-            let name = item.ident.to_string();
-            {
-                let tree = self.tree.subtree_at_path(&self.path).unwrap();
-                let visibility = if item.vis.node == ast::VisibilityKind::Public {
-                    Visibility::Public
-                } else {
-                    Visibility::Private
-                };
-                tree.insert(Tree::new_module(name.clone(), visibility, condition));
+
+        match item.node {
+            ast::ItemKind::Mod(_) => {
+                let name = item.ident.to_string();
+                {
+                    let tree = self.tree.subtree_at_path(&self.path).unwrap();
+                    let visibility = if item.vis.node == ast::VisibilityKind::Public {
+                        Visibility::Public
+                    } else {
+                        Visibility::Private
+                    };
+                    tree.insert(Tree::new_module(name.clone(), visibility, condition));
+                }
+                self.path.push(name);
+                visit::walk_item(self, item);
+                let _ = self.path.pop();
             }
-            self.path.push(name);
-            visit::walk_item(self, item);
-            let _ = self.path.pop();
-        } else {
-            visit::walk_item(self, item);
+            ast::ItemKind::Use(..) => {
+                use syntax::print::pprust;
+                {
+                    let tree = self.tree.subtree_at_path(&self.path).unwrap();
+                    tree.insert_use(pprust::item_to_string(&item));
+                }
+                visit::walk_item(self, item);
+            }
+            _ => {
+                visit::walk_item(self, item);
+            }
         }
     }
 

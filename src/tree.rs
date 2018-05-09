@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 pub trait Visitor {
-    fn visit(&self, module: &Tree, path: &[(usize, usize)]);
+    fn visit(&self, module: &Tree, path: &[(usize, usize)], parents: &[&str]);
 }
 
 #[derive(Debug)]
@@ -15,12 +15,14 @@ pub enum Tree {
     Crate {
         name: String,
         subtrees: Vec<Tree>,
+        uses: Vec<String>,
     },
     Module {
         name: String,
         visibility: Visibility,
         condition: Option<String>,
         subtrees: Vec<Tree>,
+        uses: Vec<String>,
     },
     Orphan {
         name: String,
@@ -52,6 +54,7 @@ impl Tree {
         Tree::Crate {
             name,
             subtrees: vec![],
+            uses: vec![],
         }
     }
 
@@ -61,6 +64,7 @@ impl Tree {
             visibility,
             condition,
             subtrees: vec![],
+            uses: vec![],
         }
     }
 
@@ -102,6 +106,16 @@ impl Tree {
         }
     }
 
+    pub fn insert_use(&mut self, used_module: String) {
+        match *self {
+            Tree::Crate { ref mut uses, .. } | Tree::Module { ref mut uses, .. } => {
+                uses.push(used_module);
+                uses.sort();
+            }
+            Tree::Orphan { .. } => {}
+        }
+    }
+
     pub fn name(&self) -> &str {
         match *self {
             Tree::Crate { ref name, .. }
@@ -119,18 +133,33 @@ impl Tree {
         }
     }
 
-    pub fn accept<V>(&self, path: &mut Vec<(usize, usize)>, visitor: &V)
-    where
+    pub fn accept<'a, V>(
+        &'a self,
+        path: &mut Vec<(usize, usize)>,
+        parents: &mut Vec<&'a str>,
+        visitor: &V,
+    ) where
         V: Visitor,
     {
-        visitor.visit(self, path);
+        visitor.visit(self, path, parents);
         match *self {
-            Tree::Crate { ref subtrees, .. } | Tree::Module { ref subtrees, .. } => {
+            Tree::Crate {
+                ref subtrees,
+                ref name,
+                ..
+            }
+            | Tree::Module {
+                ref subtrees,
+                ref name,
+                ..
+            } => {
                 let count = subtrees.len();
+                parents.push(name);
                 for (index, subtree) in subtrees.iter().enumerate() {
                     path.push((index, count));
-                    subtree.accept(path, visitor);
+                    subtree.accept(path, parents, visitor);
                     let _ = path.pop();
+                    let _ = parents.pop();
                 }
             }
             Tree::Orphan { .. } => {}
