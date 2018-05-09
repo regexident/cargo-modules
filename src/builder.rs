@@ -20,10 +20,10 @@ impl<'a> Builder<'a> {
     pub fn new(config: Config, crate_name: String, codemap: &'a codemap::CodeMap) -> Self {
         let tree = Tree::new_crate(crate_name);
         Builder {
-            tree: tree,
+            tree,
             path: vec![],
-            config: config,
-            codemap: codemap,
+            config,
+            codemap,
         }
     }
 
@@ -56,7 +56,7 @@ impl<'a> Builder<'a> {
             entry
                 .path()
                 .file_stem()
-                .map_or(None, |s| s.to_str().map(|s| s.to_string()))
+                .and_then(|s| s.to_str().map(|s| s.to_string()))
         }
         Ok(try!(fs::read_dir(&dir_path))
             .filter_map(|e| e.ok())
@@ -66,6 +66,8 @@ impl<'a> Builder<'a> {
             .collect::<Vec<_>>())
     }
 
+    #[allow(unknown_lints)]
+    #[allow(needless_pass_by_value)]
     fn sanitize_condition(condition: String) -> String {
         let words: Vec<&str> = condition.split_whitespace().collect();
         words.join(" ")

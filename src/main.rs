@@ -127,10 +127,10 @@ fn run(args: &clap::ArgMatches) -> Result<(), Error> {
         colored: !args.is_present("plain"),
     };
     let printer = Printer::new(printer_config);
-    println!("");
+    println!();
     let tree = builder.tree();
     tree.accept(&mut vec![], &printer);
-    println!("");
+    println!();
     Ok(())
 }
 
