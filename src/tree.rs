@@ -50,22 +50,22 @@ impl Ord for Tree {
 impl Tree {
     pub fn new_crate(name: String) -> Self {
         Tree::Crate {
-            name: name,
+            name,
             subtrees: vec![],
         }
     }
 
     pub fn new_module(name: String, visibility: Visibility, condition: Option<String>) -> Self {
         Tree::Module {
-            name: name,
-            visibility: visibility,
-            condition: condition,
+            name,
+            visibility,
+            condition,
             subtrees: vec![],
         }
     }
 
     pub fn new_orphan(name: String) -> Self {
-        Tree::Orphan { name: name }
+        Tree::Orphan { name }
     }
 
     pub fn subtree_at_path(&mut self, path: &[String]) -> Option<&mut Tree> {

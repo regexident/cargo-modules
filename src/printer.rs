@@ -84,12 +84,12 @@ impl Visitor for Printer {
                 print!("{}", condition);
             }
         }
-        println!("");
+        println!();
     }
 }
 
 impl Printer {
     pub fn new(config: Config) -> Self {
-        Printer { config: config }
+        Printer { config }
     }
 }
