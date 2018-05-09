@@ -1,5 +1,3 @@
-#![feature(rustc_private)]
-
 extern crate clap;
 extern crate colored;
 extern crate json;
@@ -106,32 +104,36 @@ fn run(args: &clap::ArgMatches) -> Result<(), Error> {
         .as_str()
         .expect("Expected `src_path` property.");
     let parse_session = ParseSess::new(codemap::FilePathMapping::empty());
-    let krate = try!(
-        match parse::parse_crate_from_file(src_path.as_ref(), &parse_session) {
-            Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
-            Ok(krate) => Ok(krate),
-            Err(e) => Err(Some(e)),
-        }.map_err(|e| Error::Syntax(format!("{:?}", e)))
-    );
-    let builder_config = BuilderConfig {
-        include_orphans: args.is_present("orphans"),
-        ignored_files: build_scripts,
-    };
-    let mut builder = Builder::new(
-        builder_config,
-        target_name.to_string(),
-        parse_session.codemap(),
-    );
-    builder.visit_mod(&krate.module, krate.span, &krate.attrs[..], NodeId::new(0));
-    let printer_config = PrinterConfig {
-        colored: !args.is_present("plain"),
-    };
-    let printer = Printer::new(printer_config);
-    println!();
-    let tree = builder.tree();
-    tree.accept(&mut vec![], &printer);
-    println!();
-    Ok(())
+
+    syntax::with_globals(|| {
+        let krate = try!(
+            match parse::parse_crate_from_file(src_path.as_ref(), &parse_session) {
+                Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
+                Ok(krate) => Ok(krate),
+                Err(e) => Err(Some(e)),
+            }.map_err(|e| Error::Syntax(format!("{:?}", e)))
+        );
+
+        let builder_config = BuilderConfig {
+            include_orphans: args.is_present("orphans"),
+            ignored_files: build_scripts,
+        };
+        let mut builder = Builder::new(
+            builder_config,
+            target_name.to_string(),
+            parse_session.codemap(),
+        );
+        builder.visit_mod(&krate.module, krate.span, &krate.attrs[..], NodeId::new(0));
+        let printer_config = PrinterConfig {
+            colored: !args.is_present("plain"),
+        };
+        let printer = Printer::new(printer_config);
+        println!();
+        let tree = builder.tree();
+        tree.accept(&mut vec![], &printer);
+        println!();
+        Ok(())
+    })
 }
 
 fn main() {
