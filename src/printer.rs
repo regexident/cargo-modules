@@ -45,12 +45,14 @@ impl Visitor for Printer {
         if colored {
             let name = match *tree {
                 Tree::Crate { ref name, .. } => name.green(),
-                Tree::Module { ref name, ref visibility, .. } => {
-                    match *visibility {
-                        Visibility::Public => name.green(),
-                        Visibility::Private => name.yellow(),
-                    }
-                }
+                Tree::Module {
+                    ref name,
+                    ref visibility,
+                    ..
+                } => match *visibility {
+                    Visibility::Public => name.green(),
+                    Visibility::Private => name.yellow(),
+                },
                 Tree::Orphan { ref name } => name.red(),
             };
             print!("{}", name.bold());
@@ -59,12 +61,10 @@ impl Visitor for Printer {
         }
         let kind = match *tree {
             Tree::Crate { .. } => "crate".to_string(),
-            Tree::Module { ref visibility, .. } => {
-                match *visibility {
-                    Visibility::Public => "public".to_string(),
-                    Visibility::Private => "private".to_string(),
-                }
-            }
+            Tree::Module { ref visibility, .. } => match *visibility {
+                Visibility::Public => "public".to_string(),
+                Visibility::Private => "private".to_string(),
+            },
             Tree::Orphan { .. } => "orphan".to_string(),
         };
         print!(" : ");
