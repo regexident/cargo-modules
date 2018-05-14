@@ -4,7 +4,7 @@ pub trait Visitor {
     fn visit(&self, module: &Tree, path: &[(usize, usize)], parents: &[&str]);
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Visibility {
     Public,
     Private,
@@ -15,14 +15,14 @@ pub enum Tree {
     Crate {
         name: String,
         subtrees: Vec<Tree>,
-        uses: Vec<String>,
+        uses: Vec<(Visibility, String)>,
     },
     Module {
         name: String,
         visibility: Visibility,
         condition: Option<String>,
         subtrees: Vec<Tree>,
-        uses: Vec<String>,
+        uses: Vec<(Visibility, String)>,
     },
     Orphan {
         name: String,
@@ -106,11 +106,11 @@ impl Tree {
         }
     }
 
-    pub fn insert_use(&mut self, used_module: String) {
+    pub fn insert_use(&mut self, used_module: (Visibility, String)) {
         match *self {
             Tree::Crate { ref mut uses, .. } | Tree::Module { ref mut uses, .. } => {
                 uses.push(used_module);
-                uses.sort();
+                uses.sort_by(|a, b| a.1.cmp(&b.1));
             }
             Tree::Orphan { .. } => {}
         }

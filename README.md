@@ -114,9 +114,10 @@ As extra options you can toggle external types/modules, conditional modules and 
 - Dotted nodes are conditional (test modules for example)
 
 - Black edges denote a 'is sub module of' relation
-- Green edges denote a 'use something of module' relation  
+- Yellow/Green edges denote a 'use something of module' relation  
   The width of the edge is determined by the number of types used.
   If types are enabled the edge label shows the types used
+  Green means the use is public, yellow means the use is private
 
 ### Help
 

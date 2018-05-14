@@ -1,5 +1,6 @@
 use std::{fs, io, path};
 
+use syntax::print::pprust;
 use syntax::{ast, codemap, visit};
 
 use tree::{Tree, Visibility};
@@ -102,12 +103,18 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
                 visit::walk_item(self, item);
                 let _ = self.path.pop();
             }
-            ast::ItemKind::Use(..) => {
-                use syntax::print::pprust;
+            ast::ItemKind::Use(ref use_tree) => {
                 {
                     let tree = self.tree.subtree_at_path(&self.path).unwrap();
-                    tree.insert_use(pprust::item_to_string(&item));
+                    let visibility = if item.vis.node == ast::VisibilityKind::Public {
+                        Visibility::Public
+                    } else {
+                        Visibility::Private
+                    };
+
+                    add_use_tree(tree, visibility, "", use_tree);
                 }
+
                 visit::walk_item(self, item);
             }
             _ => {
@@ -141,5 +148,46 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
 
     fn visit_mac(&mut self, mac: &ast::Mac) {
         visit::walk_mac(self, mac);
+    }
+}
+
+fn add_use_tree(tree: &mut Tree, visibility: Visibility, prefix: &str, use_tree: &ast::UseTree) {
+    let prefix = if prefix.is_empty() {
+        String::new()
+    } else {
+        prefix.to_string()
+    };
+
+    match use_tree.kind {
+        ast::UseTreeKind::Simple(_) => {
+            let path = pprust::path_to_string(&use_tree.prefix);
+            if path != "self" {
+                tree.insert_use((visibility, prefix + &path));
+            } else {
+                let mut prefix = prefix;
+                let new_len = prefix.len() - 2;
+                prefix.truncate(new_len);
+                tree.insert_use((visibility, prefix));
+            }
+        }
+        ast::UseTreeKind::Glob => {
+            let mut use_path = if use_tree.prefix.segments.is_empty() {
+                prefix
+            } else {
+                prefix + &pprust::path_to_string(&use_tree.prefix) + "::"
+            };
+            use_path += "*";
+            tree.insert_use((visibility, use_path));
+        }
+        ast::UseTreeKind::Nested(ref items) => {
+            let mut prefix = if use_tree.prefix.segments.is_empty() {
+                prefix
+            } else {
+                prefix + &pprust::path_to_string(&use_tree.prefix) + "::"
+            };
+            for (sub_tree, _) in items {
+                add_use_tree(tree, visibility, &prefix, sub_tree);
+            }
+        }
     }
 }
