@@ -1,8 +1,8 @@
 use std::cell::Cell;
-use std::iter::repeat;
 use std::collections::HashMap;
+use std::iter::repeat;
 
-pub use tree::{Tree, Visibility, Visitor};
+use tree::{Tree, Visibility, Visitor};
 
 pub struct Config {
     pub colored: bool,
@@ -64,9 +64,10 @@ impl<'a> Visitor for DotPrinter<'a> {
 
         if let Tree::Module { ref uses, .. } = *tree {
             let mut used_modules = HashMap::new();
-            for use_name in uses {
-                let use_name = fix_supers(use_name, &name);
+            for (visibility, use_name) in uses {
+                let use_name = fix_supers(&use_name, &name);
                 let use_name = fix_selfs(&use_name, &name);
+                let use_name = make_absolute(&use_name);
 
                 let use_data = UseModuleFinder::new(&use_name);
                 self.tree.accept(&mut vec![], &mut vec![], &use_data);
@@ -78,31 +79,50 @@ impl<'a> Visitor for DotPrinter<'a> {
                         (module_name, String::from("::") + parents[0])
                     };
 
-                    let display_name = use_name.split(strip_str.as_str()).last().unwrap();
-
+                    let display_name = if use_name.to_string() + "::" == strip_str {
+                        "self"
+                    } else {
+                        use_name.split(strip_str.as_str()).last().unwrap()
+                    };
                     // Insert into used_modules hashmap
                     used_modules
                         .entry(module_name)
                         .or_insert_with(|| vec![])
-                        .push(display_name.to_string());
+                        .push((*visibility, display_name.to_string()));
                 } else if self.config.show_external {
-                    println!("\t\"{}\" -> \"{}\" [color=green];", name, use_name);
+                    println!(
+                        "\t\"{}\" -> \"{}\" [{}];",
+                        name,
+                        &use_name[2..],
+                        match visibility {
+                            Visibility::Public => "color=green".to_string(),
+                            Visibility::Private => "color=gold".to_string(),
+                        }
+                    );
                 }
             }
 
             for (key, val) in used_modules {
                 let types = if self.config.show_types {
-                    val.join("\\n")
+                    val.iter()
+                        .map(|(_, name)| name.as_ref())
+                        .collect::<Vec<&str>>()
+                        .join("\\n")
                 } else {
                     "".to_string()
                 };
 
                 println!(
-                    "\t\"{}\" -> \"{}\" [color=green,penwidth={},label=\"{}\"];",
+                    "\t\"{}\" -> \"{}\" [{},penwidth={},label=\"{}\"];",
                     name,
                     key,
+                    if val.iter().any(|(vis, _)| &Visibility::Public == vis) {
+                        "color=green"
+                    } else {
+                        "color=gold"
+                    },
                     val.len(),
-                    types
+                    types,
                 );
             }
         }
@@ -130,8 +150,8 @@ fn fix_supers(use_name: &str, name: &str) -> String {
         name_iter
             .rev()
             .map(|s| *s)
+            .chain([opt_super].iter().cloned())
             .chain(use_name_iter)
-            .chain([opt_super].iter().map(|s| *s))
             .collect::<Vec<&str>>()
             .join("::")
     } else {
@@ -155,6 +175,14 @@ fn fix_selfs(use_name: &str, name: &str) -> String {
     }
 }
 
+fn make_absolute(use_name: &str) -> String {
+    if use_name.starts_with("::") {
+        use_name.to_string()
+    } else {
+        "::".to_string() + use_name
+    }
+}
+
 impl<'a> DotPrinter<'a> {
     pub fn new(config: Config, tree: &'a Tree) -> Self {
         DotPrinter { config, tree }
@@ -171,7 +199,7 @@ struct UseModuleFinder<'a> {
 impl<'a> UseModuleFinder<'a> {
     pub fn new(name: &'a str) -> Self {
         UseModuleFinder {
-            name: name,
+            name,
             module: Cell::new(None),
         }
     }
@@ -182,25 +210,37 @@ impl<'a> Visitor for UseModuleFinder<'a> {
         let tree_path: Vec<&str> = parents
             .iter()
             .chain([tree.name()].iter())
-            .map(|s| *s)
+            .cloned()
             .collect();
-        let last_index: usize = if parents.is_empty() { 0 } else { parents.len() };
+        let last_index: usize = if parents.is_empty() {
+            0
+        } else {
+            parents.len() - 1
+        };
+        let module_name = "::".to_string() + &tree_path[1..].join("::");
 
         for (index, (segment, parent)) in self.name
             .split("::")
             .zip(tree_path.iter().chain(repeat(&"")))
-            .skip(1)
+            .skip(1) // Skip the crate name
             .enumerate()
         {
             if index == last_index {
                 if &segment != parent {
-                    if index != 0 || self.name.split("::").count() == 2 {
-                        let module_name = "::".to_string() + &tree_path[1..].join("::");
-                        self.module.set(Some(module_name));
+                    if index != 0 {
+                        let old_value = self.module.take();
+
+                        if old_value.is_none()
+                            || (old_value.is_some()
+                                && old_value.as_ref().unwrap().split("::").count() < index)
+                        {
+                            self.module.set(Some(module_name.to_string()));
+                        } else {
+                            self.module.set(old_value);
+                        }
                     }
                 } else {
-                    self.module
-                        .set(Some("::".to_string() + &tree_path[1..].join("::")));
+                    self.module.set(Some(module_name.to_string()));
                 }
             } else if &segment != parent {
                 return;
