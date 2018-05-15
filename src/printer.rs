@@ -11,7 +11,7 @@ pub struct Printer {
 }
 
 impl Visitor for Printer {
-    fn visit(&self, tree: &Tree, path: &[(usize, usize)], _: &[&str]) {
+    fn visit(&self, tree: &Tree, path: &[(usize, usize)], _parents: &[&str]) {
         // The "colored" crate doesn't support coloring for Windows:
         let colored = if cfg!(target_os = "windows") {
             false
