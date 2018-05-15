@@ -96,7 +96,7 @@ cargo modules --plain
 
 ### Dot mode
 
-If you want also want to see which module depends on which other modules you can you use the dot mode to output Graphviz Dot compatible output
+If you also want to see which modules depends on which other modules, you can use dot mode to output Graphviz DOT compatible output.
 
 ```bash
 cargo modules --dot
@@ -104,20 +104,20 @@ cargo modules --dot
 
 ![dot-preview](dot-preview.png)
 
-As extra options you can toggle external types/modules, conditional modules and used types using the `--external`, `--conditional` and `--types` options respectively
+As extra options you can toggle external types/modules, conditional modules and used types using the `--external`, `--conditional` and `--types` options respectively.
 
 #### Legend
 
-- Green nodes are public modules
-- Yellow nodes are private modules
-- Black nodes are external types or modules
-- Dotted nodes are conditional (test modules for example)
+- Green nodes are public modules.
+- Yellow nodes are private modules.
+- Black nodes are external types or modules.
+- Dotted nodes are conditional (test modules for example).
 
-- Black edges denote a 'is sub module of' relation
+- Black edges denote a 'is sub module of' relation.
 - Yellow/Green edges denote a 'use something of module' relation  
   The width of the edge is determined by the number of types used.
   If types are enabled the edge label shows the types used
-  Green means the use is public, yellow means the use is private
+  Green means the use is public, yellow means the use is private.
 
 ### Help
 
