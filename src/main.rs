@@ -1,6 +1,7 @@
-extern crate clap;
 extern crate colored;
 extern crate json;
+#[macro_use]
+extern crate structopt;
 extern crate syntax;
 
 mod builder;
@@ -8,7 +9,7 @@ mod dot_printer;
 mod printer;
 mod tree;
 
-use std::process::Command;
+use std::process;
 use std::{io, path};
 
 use syntax::ast::NodeId;
@@ -16,7 +17,7 @@ use syntax::codemap;
 use syntax::parse::{self, ParseSess};
 use syntax::visit::Visitor;
 
-use clap::{App, Arg};
+use structopt::StructOpt;
 
 use colored::*;
 
@@ -39,15 +40,15 @@ pub enum Error {
 }
 
 fn get_manifest() -> Result<json::JsonValue, Error> {
-    let output = Command::new("cargo").arg("read-manifest").output();
+    let output = process::Command::new("cargo").arg("read-manifest").output();
     let stdout = try!(output.map_err(Error::CargoExecutionFailed)).stdout;
     let json_string = String::from_utf8(stdout).expect("Failed reading cargo output");
     json::parse(&json_string).map_err(Error::InvalidManifestJson)
 }
 
-pub fn get_target_config<'a>(
+fn get_target_config<'a>(
     target_cfgs: &'a [json::JsonValue],
-    args: &clap::ArgMatches,
+    args: &Arguments,
 ) -> Result<&'a json::JsonValue, Error> {
     fn is_lib(cfg: &json::JsonValue) -> bool {
         let is_lib = cfg["kind"].contains("lib");
@@ -55,15 +56,15 @@ pub fn get_target_config<'a>(
         let is_staticlib = cfg["kind"].contains("staticlib");
         is_lib || is_rlib || is_staticlib
     }
-    if args.is_present("lib") {
+    if args.lib {
         target_cfgs
             .into_iter()
             .find(|cfg| is_lib(cfg))
             .ok_or(Error::NoLibraryTargetFound)
-    } else if let Some(name) = args.value_of("bin") {
+    } else if let Some(ref name) = args.bin {
         target_cfgs
             .into_iter()
-            .find(|cfg| cfg["kind"].contains("bin") && cfg["name"] == name)
+            .find(|cfg| cfg["kind"].contains("bin") && cfg["name"] == name.as_ref())
             .ok_or(Error::NoMatchingBinaryTargetFound)
     } else if target_cfgs.len() == 1 {
         Ok(&target_cfgs[0])
@@ -90,13 +91,7 @@ fn get_build_scripts(target_cfgs: &[json::JsonValue]) -> Vec<path::PathBuf> {
         .collect()
 }
 
-fn run(args: &clap::ArgMatches) -> Result<(), Error> {
-    if args.is_present("version") {
-        let name = option_env!("CARGO_PKG_NAME").unwrap_or("cargo-modules");
-        let version = option_env!("CARGO_PKG_VERSION").unwrap_or("unknown");
-        println!("\n{} {}\n", name, version);
-        return Ok(());
-    }
+fn run(args: &Arguments) -> Result<(), Error> {
     let json = try!(get_manifest());
     let target_cfgs: Vec<_> = json["targets"].members().cloned().collect();
     let build_scripts = get_build_scripts(&target_cfgs);
@@ -119,7 +114,7 @@ fn run(args: &clap::ArgMatches) -> Result<(), Error> {
         );
 
         let builder_config = BuilderConfig {
-            include_orphans: args.is_present("orphans"),
+            include_orphans: args.orphans,
             ignored_files: build_scripts,
         };
         let mut builder = Builder::new(
@@ -129,95 +124,103 @@ fn run(args: &clap::ArgMatches) -> Result<(), Error> {
         );
         builder.visit_mod(&krate.module, krate.span, &krate.attrs[..], NodeId::new(0));
 
-        if args.is_present("dot") {
-            let printer_config = DotPrinterConfig {
-                colored: !args.is_present("plain"),
-                show_conditional: args.is_present("conditional"),
-                show_external: args.is_present("external"),
-                show_types: args.is_present("types"),
-            };
-            println!("digraph something {{");
-            let tree = builder.tree();
-            let printer = DotPrinter::new(printer_config, tree);
-            tree.accept(&mut vec![], &mut vec![], &printer);
-            println!("}}");
-        } else {
-            let printer_config = PrinterConfig {
-                colored: !args.is_present("plain"),
-            };
-            let printer = Printer::new(printer_config);
-            println!();
-            let tree = builder.tree();
-            tree.accept(&mut vec![], &mut vec![], &printer);
-            println!();
+        match args.command {
+            Command::Graph {
+                conditional,
+                external,
+                types,
+            } => {
+                let printer_config = DotPrinterConfig {
+                    colored: !args.plain,
+                    show_conditional: conditional,
+                    show_external: external,
+                    show_types: types,
+                };
+                println!("digraph something {{");
+                let tree = builder.tree();
+                let printer = DotPrinter::new(printer_config, tree);
+                tree.accept(&mut vec![], &mut vec![], &printer);
+                println!("}}");
+            }
+            Command::Tree => {
+                let printer_config = PrinterConfig {
+                    colored: !args.plain,
+                };
+                let printer = Printer::new(printer_config);
+                println!();
+                let tree = builder.tree();
+                tree.accept(&mut vec![], &mut vec![], &printer);
+                println!();
+            }
         }
+
         Ok(())
     })
 }
 
+#[derive(StructOpt)]
+#[structopt(
+    name = "cargo-modules",
+    about = "Print a crate's module tree or graph.",
+    author = "",
+    after_help = "If neither `--bin` nor `--example` are given,\n\
+                  then if the project only has one bin target it will be run.\n\
+                  Otherwise `--bin` specifies the bin target to run.\n\
+                  At most one `--bin` can be provided.\n\
+                  \n(On 'Windows' systems coloring is disabled. Sorry.)\n"
+)]
+struct Arguments {
+    /// Include orphaned modules (i.e. unused files in /src).
+    #[structopt(short = "o", long = "orphans")]
+    orphans: bool,
+
+    /// List modules of this package's library (overrides '--bin')
+    #[structopt(short = "l", long = "lib")]
+    lib: bool,
+
+    /// Plain uncolored output.
+    #[structopt(short = "p", long = "plain")]
+    plain: bool,
+
+    /// List modules of the specified binary
+    #[structopt(short = "b", long = "bin")]
+    bin: Option<String>,
+
+    /// Sets an explicit crate path (ignored)
+    #[structopt(name = "CRATE_DIR")]
+    _dir: Option<String>,
+
+    #[structopt(subcommand)]
+    command: Command,
+}
+
+#[derive(StructOpt)]
+enum Command {
+    #[structopt(name = "tree", about = "Print a crate's module tree.", author = "")]
+    Tree,
+    #[structopt(
+        name = "graph",
+        about = "Print a crate's module graph.",
+        author = "",
+        after_help = "If you have xdot installed on your system, you can run this using:\n\
+                      `cargo modules graph | xdot -`"
+    )]
+    Graph {
+        /// Show external types.
+        #[structopt(short = "e", long = "external")]
+        external: bool,
+        /// Show conditional modules.
+        #[structopt(short = "c", long = "conditional")]
+        conditional: bool,
+        /// Plain uncolored output.
+        #[structopt(short = "t", long = "types")]
+        types: bool,
+    },
+}
+
 fn main() {
-    let version_arg = Arg::with_name("version")
-        .short("v")
-        .long("version")
-        .help("Print version number.");
-    let orphans_arg = Arg::with_name("orphans")
-        .short("o")
-        .long("orphans")
-        .help("Include orphaned modules (i.e. unused files in /src).");
-    let lib_arg = Arg::with_name("lib")
-        .short("l")
-        .long("lib")
-        .help("List modules of this package's library (overrides '--bin')");
-    let bin_arg = Arg::with_name("bin")
-        .short("b")
-        .long("bin")
-        .value_name("NAME")
-        .help("List modules of the specified binary")
-        .takes_value(true);
-    let plain_arg = Arg::with_name("plain")
-        .short("p")
-        .long("plain")
-        .help("Plain uncolored output.");
-    let dot_arg = Arg::with_name("dot")
-        .short("d")
-        .long("dot")
-        .help("Graphviz Dot output mode");
-    let external_arg = Arg::with_name("external")
-        .short("e")
-        .long("external")
-        .help("Show external types in dot mode");
-    let conditional_arg = Arg::with_name("conditional")
-        .short("c")
-        .long("conditional")
-        .help("Show conditional modules in dot mode");
-    let types_arg = Arg::with_name("types")
-        .short("t")
-        .long("types")
-        .help("Show types in dot mode");
-    let dir_arg = Arg::with_name("crate_dir")
-        .value_name("CRATE_DIR")
-        .help("Sets an explicit crate path (ignored)")
-        .takes_value(true); // required as `cargo modules` will otherwise throw an error!
-    let arguments = App::new("cargo-modules")
-        .about("Print a crate's module tree.")
-        .after_help(
-            "If neither `--bin` nor `--example` are given,\n\
-             then if the project only has one bin target it will be run.\n\
-             Otherwise `--bin` specifies the bin target to run.\n\
-             At most one `--bin` can be provided.\n\
-             \n(On 'Windows' systems coloring is disabled. Sorry.)\n",
-        )
-        .arg(version_arg)
-        .arg(orphans_arg)
-        .arg(lib_arg)
-        .arg(bin_arg)
-        .arg(plain_arg)
-        .arg(dot_arg)
-        .arg(external_arg)
-        .arg(conditional_arg)
-        .arg(types_arg)
-        .arg(dir_arg)
-        .get_matches();
+    let arguments = Arguments::from_args();
+
     if let Err(error) = run(&arguments) {
         let error_string = match error {
             Error::CargoExecutionFailed(error) => {
