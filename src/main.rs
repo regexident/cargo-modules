@@ -196,7 +196,11 @@ struct Arguments {
 
 #[derive(StructOpt)]
 enum Command {
-    #[structopt(name = "tree", about = "Print a crate's module tree.", author = "")]
+    #[structopt(
+        name = "tree",
+        about = "Print a crate's module tree.",
+        author = ""
+    )]
     Tree,
     #[structopt(
         name = "graph",
