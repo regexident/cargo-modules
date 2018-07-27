@@ -77,7 +77,8 @@ impl<'a> Builder<'a> {
 
 impl<'a> visit::Visitor<'a> for Builder<'a> {
     fn visit_item(&mut self, item: &'a ast::Item) {
-        let condition = item.attrs
+        let condition = item
+            .attrs
             .iter()
             .find(|attr| attr.check_name("cfg"))
             .map(|attr| {
@@ -92,7 +93,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
                 let name = item.ident.to_string();
                 {
                     let tree = self.tree.subtree_at_path(&self.path).unwrap();
-                    let visibility = if item.vis.node == ast::VisibilityKind::Public {
+                    let visibility = if let ast::VisibilityKind::Public = item.vis.node {
                         Visibility::Public
                     } else {
                         Visibility::Private
@@ -106,7 +107,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
             ast::ItemKind::Use(ref use_tree) => {
                 {
                     let tree = self.tree.subtree_at_path(&self.path).unwrap();
-                    let visibility = if item.vis.node == ast::VisibilityKind::Public {
+                    let visibility = if let ast::VisibilityKind::Public = item.vis.node {
                         Visibility::Public
                     } else {
                         Visibility::Private
@@ -159,7 +160,7 @@ fn add_use_tree(tree: &mut Tree, visibility: Visibility, prefix: &str, use_tree:
     };
 
     match use_tree.kind {
-        ast::UseTreeKind::Simple(_) => {
+        ast::UseTreeKind::Simple(_, ..) => {
             let path = pprust::path_to_string(&use_tree.prefix);
             if path != "self" {
                 tree.insert_use((visibility, prefix + &path));
