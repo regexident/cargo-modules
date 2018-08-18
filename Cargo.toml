@@ -21,7 +21,7 @@ repository = "https://github.com/regexident/cargo-modules"
 version = "0.4.2"
 
 [dependencies]
-colored = "1.6.1"
-json = "0.11.13"
-rustc-ap-syntax = "209.0.0"
-structopt = "0.2.10"
+colored = "~1"
+json = "~0.11"
+rustc-ap-syntax = "~230"
+structopt = "~0.2"
