@@ -1,6 +1,5 @@
 extern crate colored;
 extern crate json;
-#[macro_use]
 extern crate structopt;
 extern crate syntax;
 
@@ -13,8 +12,8 @@ use std::process;
 use std::{io, path};
 
 use syntax::ast::NodeId;
-use syntax::codemap;
 use syntax::parse::{self, ParseSess};
+use syntax::source_map;
 use syntax::visit::Visitor;
 
 use structopt::StructOpt;
@@ -87,8 +86,7 @@ fn get_build_scripts(target_cfgs: &[json::JsonValue]) -> Vec<path::PathBuf> {
             } else {
                 None
             }
-        })
-        .collect()
+        }).collect()
 }
 
 fn run(args: &Arguments) -> Result<(), Error> {
@@ -102,7 +100,7 @@ fn run(args: &Arguments) -> Result<(), Error> {
     let src_path = target_config["src_path"]
         .as_str()
         .expect("Expected `src_path` property.");
-    let parse_session = ParseSess::new(codemap::FilePathMapping::empty());
+    let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
     syntax::with_globals(|| {
         let krate = try!(
@@ -120,7 +118,7 @@ fn run(args: &Arguments) -> Result<(), Error> {
         let mut builder = Builder::new(
             builder_config,
             target_name.to_string(),
-            parse_session.codemap(),
+            parse_session.source_map(),
         );
         builder.visit_mod(&krate.module, krate.span, &krate.attrs[..], NodeId::new(0));
 

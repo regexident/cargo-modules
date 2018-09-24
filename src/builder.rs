@@ -1,7 +1,7 @@
 use std::{fs, io, path};
 
 use syntax::print::pprust;
-use syntax::{ast, codemap, visit};
+use syntax::{ast, source_map, visit};
 
 use tree::{Tree, Visibility};
 
@@ -14,17 +14,17 @@ pub struct Builder<'a> {
     tree: Tree,
     path: Vec<String>,
     config: Config,
-    codemap: &'a codemap::CodeMap,
+    source_map: &'a source_map::SourceMap,
 }
 
 impl<'a> Builder<'a> {
-    pub fn new(config: Config, crate_name: String, codemap: &'a codemap::CodeMap) -> Self {
+    pub fn new(config: Config, crate_name: String, source_map: &'a source_map::SourceMap) -> Self {
         let tree = Tree::new_crate(crate_name);
         Builder {
             tree,
             path: vec![],
             config,
-            codemap,
+            source_map,
         }
     }
 
@@ -82,7 +82,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
             .iter()
             .find(|attr| attr.check_name("cfg"))
             .map(|attr| {
-                self.codemap
+                self.source_map
                     .span_to_snippet(attr.span)
                     .map(Builder::sanitize_condition)
                     .unwrap_or_else(|_| "".to_string())
@@ -127,7 +127,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
     fn visit_mod(
         &mut self,
         m: &'a ast::Mod,
-        _s: codemap::Span,
+        _s: source_map::Span,
         _attrs: &[ast::Attribute],
         _n: ast::NodeId,
     ) {
