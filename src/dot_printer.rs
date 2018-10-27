@@ -33,18 +33,19 @@ impl<'a> Visitor for DotPrinter<'a> {
             parent_name += parent;
         }
         let name = parent_name.clone() + "::" + tree.name();
-        print!("\t\"{}\" [label=\"{}\",", name, tree.name());
+        print!("\t\"{}\" [label=\"{}\"", name, tree.name());
 
-        let kind = match *tree {
-            Tree::Crate { .. } => "color=green".to_string(),
-            Tree::Module { ref visibility, .. } => match *visibility {
-                Visibility::Public => "color=green".to_string(),
-                Visibility::Private => "color=gold".to_string(),
-            },
-            Tree::Orphan { .. } => "color=red".to_string(),
-        };
-
-        print!("{}", kind);
+        if self.config.colored {
+            let kind = match *tree {
+                Tree::Crate { .. } => "color=green".to_string(),
+                Tree::Module { ref visibility, .. } => match *visibility {
+                    Visibility::Public => "color=green".to_string(),
+                    Visibility::Private => "color=gold".to_string(),
+                },
+                Tree::Orphan { .. } => "color=red".to_string(),
+            };
+            print!(",{}", kind);
+        }
 
         if let Tree::Module { ref condition, .. } = *tree {
             if condition.is_some() {
@@ -90,15 +91,15 @@ impl<'a> Visitor for DotPrinter<'a> {
                         .or_insert_with(|| vec![])
                         .push((*visibility, display_name.to_string()));
                 } else if self.config.show_external {
-                    println!(
-                        "\t\"{}\" -> \"{}\" [{}];",
-                        name,
-                        &use_name[2..],
+                    let attrs = if self.config.colored {
                         match visibility {
                             Visibility::Public => "color=green".to_string(),
                             Visibility::Private => "color=gold".to_string(),
                         }
-                    );
+                    } else {
+                        "".to_string()
+                    };
+                    println!("\t\"{}\" -> \"{}\" [{}];", name, &use_name[2..], attrs);
                 }
             }
 
@@ -112,17 +113,23 @@ impl<'a> Visitor for DotPrinter<'a> {
                     "".to_string()
                 };
 
+                let attrs = if self.config.colored {
+                    if val.iter().any(|(vis, _)| &Visibility::Public == vis) {
+                        ",color=green"
+                    } else {
+                        ",color=gold"
+                    }
+                } else {
+                    ""
+                };
+
                 println!(
-                    "\t\"{}\" -> \"{}\" [{},penwidth={},label=\"{}\"];",
+                    "\t\"{}\" -> \"{}\" [penwidth={},label=\"{}\"{}];",
                     name,
                     key,
-                    if val.iter().any(|(vis, _)| &Visibility::Public == vis) {
-                        "color=green"
-                    } else {
-                        "color=gold"
-                    },
                     val.len(),
                     types,
+                    attrs,
                 );
             }
         }
@@ -219,7 +226,8 @@ impl<'a> Visitor for UseModuleFinder<'a> {
         };
         let module_name = "::".to_string() + &tree_path[1..].join("::");
 
-        for (index, (segment, parent)) in self.name
+        for (index, (segment, parent)) in self
+            .name
             .split("::")
             .zip(tree_path.iter().chain(repeat(&"")))
             .skip(1) // Skip the crate name
