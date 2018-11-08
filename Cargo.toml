@@ -23,5 +23,5 @@ version = "0.4.3"
 [dependencies]
 colored = "~1"
 json = "~0.11"
-rustc-ap-syntax = "~290"
+rustc-ap-syntax = "~312"
 structopt = "~0.2"

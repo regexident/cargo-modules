@@ -120,7 +120,7 @@ fn run(args: &Arguments) -> Result<(), Error> {
             target_name.to_string(),
             parse_session.source_map(),
         );
-        builder.visit_mod(&krate.module, krate.span, &krate.attrs[..], NodeId::new(0));
+        builder.visit_mod(&krate.module, krate.span, &krate.attrs[..], NodeId::from(0_usize));
 
         match args.command {
             Command::Graph {
