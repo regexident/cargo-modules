@@ -7,7 +7,7 @@
 
 ## Synopsis
 
-A cargo plugin for showing a tree-like overview of a crate's modules.
+A cargo plugin for showing an overview of a crate's modules.
 
 ## Motivation
 
