@@ -20,7 +20,7 @@ issue trackers, chatrooms, and mailing lists.
 
 4. Make sure your changes make the lints pass:
 
-    `$ cargo clippy` (`$ cargo install clippy`)
+    `$ cargo clippy` (to install clippy; `$ rustup component add clippy-preview`)
 
 5. Make sure your changes follow the project's code style. (hint: `$ cargo fmt`)
 
