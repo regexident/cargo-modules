@@ -71,40 +71,32 @@ Or if you want to stay on the `beta` or `stable` toolchain you would have to cal
 rustup run nightly cargo modules <options>
 ```
 
-### Orphaned Modules
+### Tree mode
 
-If you want to also list of potentially orphaned modules,
-then add a `--orphans` argument:
+Display module parent-child relationships as a tree:
 
-```bash
-cargo modules --orphans
+
+``` bash
+cargo modules tree
 ```
 
-Any file `src/../foo.rs` or `src/../foo/mod.rs` that is not linked by its
-`super`-module via `mod foo;` is considered a (potential) orphaned module.
+### Graph mode
 
-To keep false positives to a minimum `cargo-modules` excludes all build scripts
-as well as `lib.rs` and `main.rs` from the selection of potential orphans.
-
-### Plain Mode
-
-If you, for some reason, need to remove the coloring, use:
+If you also want to see which modules depends on which other modules, you can use graph mode to output Graphviz DOT compatible output:
 
 ```bash
-cargo modules --plain
-```
-
-### Dot mode
-
-If you also want to see which modules depends on which other modules, you can use dot mode to output Graphviz DOT compatible output.
-
-```bash
-cargo modules --dot
+cargo modules graph
 ```
 
 ![dot-preview](dot-preview.png)
 
 As extra options you can toggle external types/modules, conditional modules and used types using the `--external`, `--conditional` and `--types` options respectively.
+
+You can convert the output to a PNG file as below:
+
+``` bash
+cargo modules graph | dot -Tpng > modules.png
+```
 
 #### Legend
 
@@ -118,6 +110,33 @@ As extra options you can toggle external types/modules, conditional modules and 
   The width of the edge is determined by the number of types used.
   If types are enabled the edge label shows the types used
   Green means the use is public, yellow means the use is private.
+
+### Orphaned Modules
+
+If you want to also list of potentially orphaned modules,
+then add a `--orphans` argument:
+
+```bash
+cargo modules --orphans tree
+
+cargo modules --orphans graph
+```
+
+Any file `src/../foo.rs` or `src/../foo/mod.rs` that is not linked by its
+`super`-module via `mod foo;` is considered a (potential) orphaned module.
+
+To keep false positives to a minimum `cargo-modules` excludes all build scripts
+as well as `lib.rs` and `main.rs` from the selection of potential orphans.
+
+### Plain Mode
+
+If you, for some reason, need to remove the coloring, use:
+
+```bash
+cargo modules --plain tree
+
+cargo modules --plain graph
+```
 
 ### Help
 
