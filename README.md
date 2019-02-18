@@ -21,7 +21,7 @@ on top of the over-all high-level structure of the project at hand.
 
 This is where `cargo-modules` comes into play:
 
-![preview](preview.gif)
+![screenshot](screenshot.png)
 
 ## Installation
 
