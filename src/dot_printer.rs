@@ -156,7 +156,7 @@ fn fix_supers(use_name: &str, name: &str) -> String {
 
         name_iter
             .rev()
-            .map(|s| *s)
+            .cloned()
             .chain([opt_super].iter().cloned())
             .chain(use_name_iter)
             .collect::<Vec<&str>>()
@@ -173,7 +173,7 @@ fn fix_selfs(use_name: &str, name: &str) -> String {
     if opt_self == "self" {
         [name]
             .iter()
-            .map(|s| *s)
+            .cloned()
             .chain(use_name_iter)
             .collect::<Vec<&str>>()
             .join("::")
