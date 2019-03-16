@@ -1,4 +1,4 @@
-use std::{fs, io, path, string::ToString};
+use std::{ffi::OsStr, fs, io, path, string::ToString};
 
 use syntax::print::pprust;
 use syntax::{ast, source_map, visit};
@@ -57,7 +57,7 @@ impl<'a> Builder<'a> {
             entry
                 .path()
                 .file_stem()
-                .and_then(|s| s.to_str())
+                .and_then(OsStr::to_str)
                 .map(ToString::to_string)
         }
         Ok(try!(fs::read_dir(&dir_path))
