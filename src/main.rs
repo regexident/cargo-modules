@@ -57,19 +57,19 @@ fn get_target_config<'a>(
     }
     if args.lib {
         target_cfgs
-            .into_iter()
+            .iter()
             .find(|cfg| is_lib(cfg))
             .ok_or(Error::NoLibraryTargetFound)
     } else if let Some(ref name) = args.bin {
         target_cfgs
-            .into_iter()
+            .iter()
             .find(|cfg| cfg["kind"].contains("bin") && cfg["name"] == name.as_ref())
             .ok_or(Error::NoMatchingBinaryTargetFound)
     } else if target_cfgs.len() == 1 {
         Ok(&target_cfgs[0])
     } else {
         target_cfgs
-            .into_iter()
+            .iter()
             .find(|cfg| is_lib(cfg))
             .ok_or(Error::NoTargetProvided)
     }
@@ -77,7 +77,7 @@ fn get_target_config<'a>(
 
 fn get_build_scripts(target_cfgs: &[json::JsonValue]) -> Vec<path::PathBuf> {
     target_cfgs
-        .into_iter()
+        .iter()
         .filter_map(|cfg| {
             if cfg["kind"].contains("custom-build") {
                 cfg["src_path"]
