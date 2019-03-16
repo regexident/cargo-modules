@@ -67,8 +67,6 @@ impl<'a> Builder<'a> {
             .collect::<Vec<_>>())
     }
 
-    #[allow(unknown_lints)]
-    #[allow(needless_pass_by_value)]
     fn sanitize_condition(condition: String) -> String {
         let words: Vec<&str> = condition.split_whitespace().collect();
         words.join(" ")
