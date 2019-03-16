@@ -86,7 +86,8 @@ fn get_build_scripts(target_cfgs: &[json::JsonValue]) -> Vec<path::PathBuf> {
             } else {
                 None
             }
-        }).collect()
+        })
+        .collect()
 }
 
 fn run(args: &Arguments) -> Result<(), Error> {
@@ -108,7 +109,8 @@ fn run(args: &Arguments) -> Result<(), Error> {
                 Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
                 Ok(krate) => Ok(krate),
                 Err(e) => Err(Some(e)),
-            }.map_err(|e| Error::Syntax(format!("{:?}", e)))
+            }
+            .map_err(|e| Error::Syntax(format!("{:?}", e)))
         );
 
         let builder_config = BuilderConfig {
@@ -120,7 +122,12 @@ fn run(args: &Arguments) -> Result<(), Error> {
             target_name.to_string(),
             parse_session.source_map(),
         );
-        builder.visit_mod(&krate.module, krate.span, &krate.attrs[..], NodeId::from(0_usize));
+        builder.visit_mod(
+            &krate.module,
+            krate.span,
+            &krate.attrs[..],
+            NodeId::from(0_usize),
+        );
 
         match args.command {
             Command::Graph {
@@ -194,11 +201,7 @@ struct Arguments {
 
 #[derive(StructOpt)]
 enum Command {
-    #[structopt(
-        name = "tree",
-        about = "Print a crate's module tree.",
-        author = ""
-    )]
+    #[structopt(name = "tree", about = "Print a crate's module tree.", author = "")]
     Tree,
     #[structopt(
         name = "graph",
