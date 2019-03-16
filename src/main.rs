@@ -191,6 +191,10 @@ struct Arguments {
     #[structopt(short = "b", long = "bin")]
     bin: Option<String>,
 
+    /// [Experimental] Enable support for edition 2018 of Rust (ignored)
+    #[structopt(long = "enable-edition-2018")]
+    _enable_edition_2018: bool,
+
     /// Sets an explicit crate path (ignored)
     #[structopt(name = "CRATE_DIR")]
     _dir: Option<String>,
