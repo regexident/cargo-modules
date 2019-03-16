@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, fs, io, path, string::ToString};
+use std::{ffi::OsStr, fs, io, path, result::Result, string::ToString};
 
 use syntax::print::pprust;
 use syntax::{ast, source_map, visit};
@@ -61,7 +61,7 @@ impl<'a> Builder<'a> {
                 .map(ToString::to_string)
         }
         Ok(try!(fs::read_dir(&dir_path))
-            .filter_map(|e| e.ok())
+            .filter_map(Result::ok)
             .filter(is_mod)
             .filter(|e| !ignored_paths.contains(&e.path()))
             .filter_map(|e| file_name(&e))
