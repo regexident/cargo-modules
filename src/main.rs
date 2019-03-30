@@ -5,6 +5,8 @@ extern crate syntax;
 
 mod builder;
 mod dot_printer;
+mod error;
+mod manifest;
 mod printer;
 mod tree;
 
@@ -23,20 +25,15 @@ use colored::*;
 use builder::Builder;
 use builder::Config as BuilderConfig;
 
+use error::Error;
+
+use manifest::Manifest;
+
 use printer::Config as PrinterConfig;
 use printer::Printer;
 
 use dot_printer::Config as DotPrinterConfig;
 use dot_printer::DotPrinter;
-
-pub enum Error {
-    CargoExecutionFailed(io::Error),
-    InvalidManifestJson(json::JsonError),
-    NoLibraryTargetFound,
-    NoMatchingBinaryTargetFound,
-    NoTargetProvided,
-    Syntax(String),
-}
 
 fn get_manifest() -> Result<json::JsonValue, Error> {
     let output = process::Command::new("cargo").arg("read-manifest").output();
