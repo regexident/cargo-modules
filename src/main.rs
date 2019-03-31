@@ -10,8 +10,8 @@ mod manifest;
 mod printer;
 mod tree;
 
+use std::path;
 use std::process;
-use std::{io, path};
 
 use syntax::ast::NodeId;
 use syntax::parse::{self, ParseSess};
