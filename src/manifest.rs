@@ -38,37 +38,54 @@ impl Default for Edition {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum Target {
-    Lib {
-        kind: Vec<String>,
-        crate_types: Vec<String>,
-        name: String,
-        src_path: String,
-        edition: Option<String>,
-    },
+pub struct Target {
+    kind: Vec<String>,
+    crate_types: Vec<String>,
+    name: String,
+    src_path: String,
+    edition: Option<String>,
 }
 
 impl Target {
+    const LIB_KINDS: [&'static str; 4] = ["lib", "rlib", "dylib", "staticlib"];
+
     fn from_json(j: &mut json::JsonValue) -> Target {
-        Target::Lib {
-            kind: {
-                assert!(j["kind"].is_array());
-                j["kind"]
-                    .members_mut()
-                    .map(|k| k.take_string().unwrap())
-                    .collect()
-            },
-            crate_types: {
-                assert!(j["crate_types"].is_array());
-                j["crate_types"]
-                    .members_mut()
-                    .map(|k| k.take_string().unwrap())
-                    .collect()
-            },
-            name: j["name"].take_string().expect("name is missing"),
-            src_path: j["src_path"].take_string().expect("src_path is missing"),
-            edition: j["edition"].take_string(),
+        let kind: Vec<String> = {
+            assert!(j["kind"].is_array());
+            j["kind"]
+                .members_mut()
+                .map(|k| k.take_string().unwrap())
+                .collect()
+        };
+        let crate_types: Vec<String> = {
+            assert!(j["crate_types"].is_array());
+            j["crate_types"]
+                .members_mut()
+                .map(|k| k.take_string().unwrap())
+                .collect()
+        };
+        let name: String = j["name"].take_string().expect("name is missing");
+        let src_path: String = j["src_path"].take_string().expect("src_path is missing");
+        let edition: Option<String> = j["edition"].take_string();
+        // lib | rlib | staticlib | dylib
+        Target {
+            kind,
+            crate_types,
+            name,
+            src_path,
+            edition,
         }
+    }
+
+    fn is_bin(&self) -> bool {
+        self.kind.contains(&String::from("bin"))
+    }
+
+    fn is_lib(&self) -> bool {
+        self.kind
+            .iter()
+            .find(|k| Self::LIB_KINDS.contains(&&k[..]))
+            .is_some()
     }
 }
 
@@ -105,7 +122,7 @@ mod tests {
     fn manifest_for_simple_lib() {
         let manifest = read_manifest("test-resources/example-lib.json");
         assert_eq!(
-            Target::Lib {
+            Target {
                 kind: vec!(String::from("lib")),
                 crate_types: vec!(String::from("lib")),
                 name: String::from("example-lib"),
@@ -114,5 +131,24 @@ mod tests {
             },
             manifest.targets[0]
         );
+        assert!(manifest.targets[0].is_lib());
+        assert!(!manifest.targets[0].is_bin());
+    }
+
+    #[test]
+    fn manifest_for_simple_bin() {
+        let manifest = read_manifest("test-resources/example-bin.json");
+        assert_eq!(
+            Target {
+                kind: vec!(String::from("bin")),
+                crate_types: vec!(String::from("bin")),
+                name: String::from("example-bin"),
+                src_path: String::from("/home/muhuk/Documents/code/example-bin/src/main.rs"),
+                edition: Some(String::from("2018"))
+            },
+            manifest.targets[0]
+        );
+        assert!(manifest.targets[0].is_bin());
+        assert!(!manifest.targets[0].is_lib());
     }
 }
