@@ -77,39 +77,33 @@ mod tests {
     use super::*;
     use std::fs;
 
+    fn read_manifest(filename: &str) -> Manifest {
+        let manifest_str: String =
+            fs::read_to_string(filename).expect("manifest file cannot be read");
+        Manifest::from_str(&manifest_str).expect("manifest cannot be read")
+    }
+
     #[test]
     fn manifest_with_edition2018_can_be_parsed() {
-        let manifest_filename = "test-resources/example-edition-2018.json";
-        let manifest_str: String =
-            fs::read_to_string(manifest_filename).expect("manifest file cannot be read");
-        let manifest = Manifest::from_str(&manifest_str).expect("manifest cannot be read");
+        let manifest = read_manifest("test-resources/example-edition-2018.json");
         assert_eq!(Edition::E2018, manifest.edition);
     }
 
     #[test]
     fn manifest_with_edition2015_can_be_parsed() {
-        let manifest_filename = "test-resources/example-edition-2015.json";
-        let manifest_str: String =
-            fs::read_to_string(manifest_filename).expect("manifest file cannot be read");
-        let manifest = Manifest::from_str(&manifest_str).expect("manifest cannot be read");
+        let manifest = read_manifest("test-resources/example-edition-2015.json");
         assert_eq!(Edition::E2015, manifest.edition);
     }
 
     #[test]
     fn manifest_without_edition_can_be_parsed() {
-        let manifest_filename = "test-resources/example-no-edition.json";
-        let manifest_str: String =
-            fs::read_to_string(manifest_filename).expect("manifest file cannot be read");
-        let manifest = Manifest::from_str(&manifest_str).expect("manifest cannot be read");
+        let manifest = read_manifest("test-resources/example-no-edition.json");
         assert_eq!(Edition::E2015, manifest.edition);
     }
 
     #[test]
     fn manifest_for_simple_lib() {
-        let manifest_filename = "test-resources/example-lib.json";
-        let manifest_str: String =
-            fs::read_to_string(manifest_filename).expect("manifest file cannot be read");
-        let manifest = Manifest::from_str(&manifest_str).expect("manifest cannot be read");
+        let manifest = read_manifest("test-resources/example-lib.json");
         assert_eq!(
             Target::Lib {
                 kind: vec!(String::from("lib")),
