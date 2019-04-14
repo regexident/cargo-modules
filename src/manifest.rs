@@ -98,10 +98,7 @@ impl Target {
     }
 
     fn is_lib(&self) -> bool {
-        self.kind
-            .iter()
-            .find(|k| Self::LIB_KINDS.contains(&&k[..]))
-            .is_some()
+        self.kind.iter().any(|k| Self::LIB_KINDS.contains(&&k[..]))
     }
 }
 
