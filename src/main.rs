@@ -82,6 +82,8 @@ fn run(args: &Arguments) -> Result<(), Error> {
 
     let json = try!(get_manifest());
     let target_cfgs: Vec<_> = json["targets"].members().cloned().collect();
+    // TODO: Check to see if build scripts really need to be ignored.
+    //       Seems like they are not mistaken as orphans anyway.
     let build_scripts: Vec<path::PathBuf> = manifest
         .custom_builds()
         .iter()
