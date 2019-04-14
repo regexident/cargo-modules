@@ -1,0 +1,46 @@
+{
+  "name": "example-custom-build",
+  "version": "0.1.0",
+  "id": "example-custom-build 0.1.0 (path+file:///home/muhuk/Documents/code/example-custom-build)",
+  "license": null,
+  "license_file": null,
+  "description": null,
+  "source": null,
+  "dependencies": [],
+  "targets": [
+    {
+      "kind": [
+        "lib"
+      ],
+      "crate_types": [
+        "lib"
+      ],
+      "name": "example-custom-build",
+      "src_path": "/home/muhuk/Documents/code/example-custom-build/src/lib.rs",
+      "edition": "2018"
+    },
+    {
+      "kind": [
+        "custom-build"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "build-script-build",
+      "src_path": "/home/muhuk/Documents/code/example-custom-build/build.rs",
+      "edition": "2018"
+    }
+  ],
+  "features": null,
+  "manifest_path": "/home/muhuk/Documents/code/example-custom-build/Cargo.toml",
+  "metadata": null,
+  "authors": [
+    "Atamert Ölçgen <muhuk@muhuk.com>"
+  ],
+  "categories": [],
+  "keywords": [],
+  "readme": null,
+  "repository": null,
+  "edition": "2018",
+  "links": null
+}

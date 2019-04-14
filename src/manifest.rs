@@ -9,7 +9,7 @@ pub struct Manifest {
 }
 
 impl Manifest {
-    fn from_str(src: &str) -> Result<Self, Error> {
+    pub fn from_str(src: &str) -> Result<Self, Error> {
         let mut j = json::parse(src).map_err(Error::InvalidManifestJson)?;
 
         let edition: Edition = match j["edition"].as_str() {
@@ -78,6 +78,10 @@ impl Target {
 
     fn is_bin(&self) -> bool {
         self.kind.contains(&String::from("bin"))
+    }
+
+    fn is_custom_build(&self) -> bool {
+        self.kind.contains(&String::from("custom-build"))
     }
 
     fn is_lib(&self) -> bool {
@@ -149,5 +153,34 @@ mod tests {
         );
         assert!(manifest.targets[0].is_bin());
         assert!(!manifest.targets[0].is_lib());
+    }
+
+    #[test]
+    fn manifest_with_custom_build() {
+        let manifest = read_manifest("test-resources/example-custom-build.json");
+        assert_eq!(
+            vec![
+                Target {
+                    kind: vec!(String::from("lib")),
+                    crate_types: vec!(String::from("lib")),
+                    name: String::from("example-custom-build"),
+                    src_path: String::from(
+                        "/home/muhuk/Documents/code/example-custom-build/src/lib.rs"
+                    ),
+                    edition: Some(String::from("2018"))
+                },
+                Target {
+                    kind: vec!(String::from("custom-build")),
+                    crate_types: vec!(String::from("bin")),
+                    name: String::from("build-script-build"),
+                    src_path: String::from(
+                        "/home/muhuk/Documents/code/example-custom-build/build.rs"
+                    ),
+                    edition: Some(String::from("2018"))
+                }
+            ],
+            manifest.targets
+        );
+        assert!(manifest.targets[1].is_custom_build());
     }
 }
