@@ -72,25 +72,21 @@ fn get_target_config<'a>(
     }
 }
 
-fn get_build_scripts(target_cfgs: &[json::JsonValue]) -> Vec<path::PathBuf> {
-    target_cfgs
-        .iter()
-        .filter_map(|cfg| {
-            if cfg["kind"].contains("custom-build") {
-                cfg["src_path"]
-                    .as_str()
-                    .map(|s| path::Path::new("./").join(s))
-            } else {
-                None
-            }
-        })
-        .collect()
-}
-
 fn run(args: &Arguments) -> Result<(), Error> {
+    let manifest: Manifest = {
+        let output = process::Command::new("cargo").arg("read-manifest").output();
+        let stdout = try!(output.map_err(Error::CargoExecutionFailed)).stdout;
+        let json_string = String::from_utf8(stdout).expect("Failed reading cargo output");
+        Manifest::from_str(&json_string)?
+    };
+
     let json = try!(get_manifest());
     let target_cfgs: Vec<_> = json["targets"].members().cloned().collect();
-    let build_scripts = get_build_scripts(&target_cfgs);
+    let build_scripts: Vec<path::PathBuf> = manifest
+        .custom_builds()
+        .iter()
+        .map(|t| path::Path::new(t.src_path()).to_path_buf())
+        .collect();
     let target_config = try!(get_target_config(&target_cfgs, args));
     let target_name = target_config["name"]
         .as_str()

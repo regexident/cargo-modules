@@ -1,6 +1,7 @@
 use error::Error;
 use json;
 use std::default::Default;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Default)]
 pub struct Manifest {
@@ -23,6 +24,13 @@ impl Manifest {
 
         Result::Ok(Manifest { edition, targets })
     }
+
+    pub fn custom_builds(&self) -> Vec<&Target> {
+        self.targets
+            .iter()
+            .filter(|t| t.is_custom_build())
+            .collect()
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -42,12 +50,16 @@ pub struct Target {
     kind: Vec<String>,
     crate_types: Vec<String>,
     name: String,
-    src_path: String,
+    src_path: PathBuf,
     edition: Option<String>,
 }
 
 impl Target {
     const LIB_KINDS: [&'static str; 4] = ["lib", "rlib", "dylib", "staticlib"];
+
+    pub fn src_path(&self) -> &PathBuf {
+        &self.src_path
+    }
 
     fn from_json(j: &mut json::JsonValue) -> Target {
         let kind: Vec<String> = {
@@ -65,7 +77,8 @@ impl Target {
                 .collect()
         };
         let name: String = j["name"].take_string().expect("name is missing");
-        let src_path: String = j["src_path"].take_string().expect("src_path is missing");
+        let src_path: PathBuf =
+            Path::new(&j["src_path"].take_string().expect("src_path is missing")).to_path_buf();
         let edition: Option<String> = j["edition"].take_string();
         Target {
             kind,
@@ -129,7 +142,8 @@ mod tests {
                 kind: vec!(String::from("lib")),
                 crate_types: vec!(String::from("lib")),
                 name: String::from("example-lib"),
-                src_path: String::from("/home/muhuk/Documents/code/example-lib/src/lib.rs"),
+                src_path: Path::new("/home/muhuk/Documents/code/example-lib/src/lib.rs")
+                    .to_path_buf(),
                 edition: Some(String::from("2018"))
             },
             manifest.targets[0]
@@ -146,7 +160,8 @@ mod tests {
                 kind: vec!(String::from("bin")),
                 crate_types: vec!(String::from("bin")),
                 name: String::from("example-bin"),
-                src_path: String::from("/home/muhuk/Documents/code/example-bin/src/main.rs"),
+                src_path: Path::new("/home/muhuk/Documents/code/example-bin/src/main.rs")
+                    .to_path_buf(),
                 edition: Some(String::from("2018"))
             },
             manifest.targets[0]
@@ -164,18 +179,18 @@ mod tests {
                     kind: vec!(String::from("lib")),
                     crate_types: vec!(String::from("lib")),
                     name: String::from("example-custom-build"),
-                    src_path: String::from(
+                    src_path: Path::new(
                         "/home/muhuk/Documents/code/example-custom-build/src/lib.rs"
-                    ),
+                    )
+                    .to_path_buf(),
                     edition: Some(String::from("2018"))
                 },
                 Target {
                     kind: vec!(String::from("custom-build")),
                     crate_types: vec!(String::from("bin")),
                     name: String::from("build-script-build"),
-                    src_path: String::from(
-                        "/home/muhuk/Documents/code/example-custom-build/build.rs"
-                    ),
+                    src_path: Path::new("/home/muhuk/Documents/code/example-custom-build/build.rs")
+                        .to_path_buf(),
                     edition: Some(String::from("2018"))
                 }
             ],
