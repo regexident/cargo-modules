@@ -67,7 +67,6 @@ impl Target {
         let name: String = j["name"].take_string().expect("name is missing");
         let src_path: String = j["src_path"].take_string().expect("src_path is missing");
         let edition: Option<String> = j["edition"].take_string();
-        // lib | rlib | staticlib | dylib
         Target {
             kind,
             crate_types,
