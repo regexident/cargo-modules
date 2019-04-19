@@ -27,50 +27,13 @@ use builder::Config as BuilderConfig;
 
 use error::Error;
 
-use manifest::Manifest;
+use manifest::{Manifest, Target};
 
 use printer::Config as PrinterConfig;
 use printer::Printer;
 
 use dot_printer::Config as DotPrinterConfig;
 use dot_printer::DotPrinter;
-
-fn get_manifest() -> Result<json::JsonValue, Error> {
-    let output = process::Command::new("cargo").arg("read-manifest").output();
-    let stdout = try!(output.map_err(Error::CargoExecutionFailed)).stdout;
-    let json_string = String::from_utf8(stdout).expect("Failed reading cargo output");
-    json::parse(&json_string).map_err(Error::InvalidManifestJson)
-}
-
-fn get_target_config<'a>(
-    target_cfgs: &'a [json::JsonValue],
-    args: &Arguments,
-) -> Result<&'a json::JsonValue, Error> {
-    fn is_lib(cfg: &json::JsonValue) -> bool {
-        let is_lib = cfg["kind"].contains("lib");
-        let is_rlib = cfg["kind"].contains("rlib");
-        let is_staticlib = cfg["kind"].contains("staticlib");
-        is_lib || is_rlib || is_staticlib
-    }
-    if args.lib {
-        target_cfgs
-            .iter()
-            .find(|cfg| is_lib(cfg))
-            .ok_or(Error::NoLibraryTargetFound)
-    } else if let Some(ref name) = args.bin {
-        target_cfgs
-            .iter()
-            .find(|cfg| cfg["kind"].contains("bin") && cfg["name"] == name.as_ref())
-            .ok_or(Error::NoMatchingBinaryTargetFound)
-    } else if target_cfgs.len() == 1 {
-        Ok(&target_cfgs[0])
-    } else {
-        target_cfgs
-            .iter()
-            .find(|cfg| is_lib(cfg))
-            .ok_or(Error::NoTargetProvided)
-    }
-}
 
 fn run(args: &Arguments) -> Result<(), Error> {
     let manifest: Manifest = {
@@ -80,8 +43,6 @@ fn run(args: &Arguments) -> Result<(), Error> {
         Manifest::from_str(&json_string)?
     };
 
-    let json = try!(get_manifest());
-    let target_cfgs: Vec<_> = json["targets"].members().cloned().collect();
     // TODO: Check to see if build scripts really need to be ignored.
     //       Seems like they are not mistaken as orphans anyway.
     let build_scripts: Vec<path::PathBuf> = manifest
@@ -89,13 +50,37 @@ fn run(args: &Arguments) -> Result<(), Error> {
         .iter()
         .map(|t| path::Path::new(t.src_path()).to_path_buf())
         .collect();
-    let target_config = try!(get_target_config(&target_cfgs, args));
-    let target_name = target_config["name"]
-        .as_str()
-        .expect("Expected `name` property.");
-    let src_path = target_config["src_path"]
-        .as_str()
-        .expect("Expected `src_path` property.");
+
+    let (target_name, src_path): (&str, &str) = {
+        let target: &Target = try!(if args.lib {
+            manifest
+                .targets
+                .iter()
+                .find(|t| t.is_lib())
+                .ok_or(Error::NoLibraryTargetFound)
+        } else if let Some(ref name) = args.bin {
+            manifest
+                .targets
+                .iter()
+                .find(|t| t.is_bin() && &t.name == name)
+                .ok_or(Error::NoMatchingBinaryTargetFound)
+        } else if manifest.targets.len() == 1 {
+            Ok(manifest.targets.first().unwrap())
+        } else {
+            manifest
+                .targets
+                .iter()
+                .find(|t| t.is_lib())
+                .ok_or(Error::NoTargetProvided)
+        });
+        (
+            &target.name,
+            target
+                .src_path
+                .to_str()
+                .expect("Expected `src_path` property."),
+        )
+    };
     let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
     syntax::with_globals(|| {
