@@ -47,11 +47,11 @@ impl Default for Edition {
 
 #[derive(Debug, PartialEq)]
 pub struct Target {
-    kind: Vec<String>,
-    crate_types: Vec<String>,
-    name: String,
-    src_path: PathBuf,
-    edition: Option<String>,
+    pub kind: Vec<String>,
+    pub crate_types: Vec<String>,
+    pub name: String,
+    pub src_path: PathBuf,
+    pub edition: Option<String>,
 }
 
 impl Target {
@@ -59,6 +59,14 @@ impl Target {
 
     pub fn src_path(&self) -> &PathBuf {
         &self.src_path
+    }
+
+    pub fn is_bin(&self) -> bool {
+        self.kind.contains(&String::from("bin"))
+    }
+
+    pub fn is_lib(&self) -> bool {
+        self.kind.iter().any(|k| Self::LIB_KINDS.contains(&&k[..]))
     }
 
     fn from_json(j: &mut json::JsonValue) -> Target {
@@ -89,16 +97,8 @@ impl Target {
         }
     }
 
-    fn is_bin(&self) -> bool {
-        self.kind.contains(&String::from("bin"))
-    }
-
     fn is_custom_build(&self) -> bool {
         self.kind.contains(&String::from("custom-build"))
-    }
-
-    fn is_lib(&self) -> bool {
-        self.kind.iter().any(|k| Self::LIB_KINDS.contains(&&k[..]))
     }
 }
 
