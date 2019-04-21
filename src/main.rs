@@ -48,7 +48,7 @@ fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Tar
         manifest
             .targets
             .iter()
-            .find(|t| t.is_bin() && &t.name == name)
+            .find(|t| t.is_bin() && &t.name() == &name)
             .ok_or(Error::NoMatchingBinaryTargetFound)
     } else if manifest.targets.len() == 1 {
         // If neither `--lib` is enabled nor `--bin` target is specified but
@@ -77,19 +77,12 @@ fn run(args: &Arguments) -> Result<(), Error> {
     let build_scripts: Vec<path::PathBuf> = manifest
         .custom_builds()
         .iter()
-        .map(|t| path::Path::new(t.src_path()).to_path_buf())
+        .map(|t| t.src_path().clone())
         .collect();
 
-    let (target_name, src_path): (&str, &str) = {
+    let (target_name, src_path): (&str, &path::Path) = {
         let target: &Target = try!(choose_target(args, &manifest));
-        (
-            &target.name,
-            target
-                .src_path
-                .to_str()
-                // TODO: move this on Target
-                .expect("Expected `src_path` property."),
-        )
+        (target.name(), target.src_path().as_path())
     };
     let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 

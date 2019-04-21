@@ -47,15 +47,19 @@ impl Default for Edition {
 
 #[derive(Debug, PartialEq)]
 pub struct Target {
-    pub kind: Vec<String>,
-    pub crate_types: Vec<String>,
-    pub name: String,
-    pub src_path: PathBuf,
-    pub edition: Option<String>,
+    kind: Vec<String>,
+    crate_types: Vec<String>,
+    name: String,
+    src_path: PathBuf,
+    edition: Option<String>,
 }
 
 impl Target {
     const LIB_KINDS: [&'static str; 4] = ["lib", "rlib", "dylib", "staticlib"];
+
+    pub fn name(&self) -> &String {
+        &self.name
+    }
 
     pub fn src_path(&self) -> &PathBuf {
         &self.src_path
