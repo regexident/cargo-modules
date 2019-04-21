@@ -80,21 +80,19 @@ fn run(args: &Arguments) -> Result<(), Error> {
         .map(|t| t.src_path().clone())
         .collect();
 
-    let (target_name, src_path): (&str, &path::Path) = {
-        let target: &Target = try!(choose_target(args, &manifest));
-        (target.name(), target.src_path().as_path())
-    };
+    let target: &Target = choose_target(args, &manifest)?;
     let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
     syntax::with_globals(|| {
-        let krate = try!(
-            match parse::parse_crate_from_file(src_path.as_ref(), &parse_session) {
-                Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
-                Ok(krate) => Ok(krate),
-                Err(e) => Err(Some(e)),
-            }
-            .map_err(|e| Error::Syntax(format!("{:?}", e)))
-        );
+        let krate = try!(match parse::parse_crate_from_file(
+            target.src_path().as_ref(),
+            &parse_session
+        ) {
+            Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
+            Ok(krate) => Ok(krate),
+            Err(e) => Err(Some(e)),
+        }
+        .map_err(|e| Error::Syntax(format!("{:?}", e))));
 
         let builder_config = BuilderConfig {
             include_orphans: args.orphans,
@@ -102,7 +100,7 @@ fn run(args: &Arguments) -> Result<(), Error> {
         };
         let mut builder = Builder::new(
             builder_config,
-            target_name.to_string(),
+            target.name().clone(),
             parse_session.source_map(),
         );
         builder.visit_mod(
