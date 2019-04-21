@@ -35,6 +35,35 @@ use printer::Printer;
 use dot_printer::Config as DotPrinterConfig;
 use dot_printer::DotPrinter;
 
+fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Target, Error> {
+    if args.lib {
+        // If `--lib` is enabled use the first library target.
+        manifest
+            .targets
+            .iter()
+            .find(|t| t.is_lib())
+            .ok_or(Error::NoLibraryTargetFound)
+    } else if let Some(ref name) = args.bin {
+        // If a binary target is specified use that.
+        manifest
+            .targets
+            .iter()
+            .find(|t| t.is_bin() && &t.name == name)
+            .ok_or(Error::NoMatchingBinaryTargetFound)
+    } else if manifest.targets.len() == 1 {
+        // If neither `--lib` is enabled nor `--bin` target is specified but
+        // there is only one target, use that.
+        Ok(manifest.targets.first().unwrap())
+    } else {
+        // If there are multiple targets use the first library target.
+        manifest
+            .targets
+            .iter()
+            .find(|t| t.is_lib())
+            .ok_or(Error::NoTargetProvided)
+    }
+}
+
 fn run(args: &Arguments) -> Result<(), Error> {
     let manifest: Manifest = {
         let output = process::Command::new("cargo").arg("read-manifest").output();
@@ -52,32 +81,13 @@ fn run(args: &Arguments) -> Result<(), Error> {
         .collect();
 
     let (target_name, src_path): (&str, &str) = {
-        let target: &Target = try!(if args.lib {
-            manifest
-                .targets
-                .iter()
-                .find(|t| t.is_lib())
-                .ok_or(Error::NoLibraryTargetFound)
-        } else if let Some(ref name) = args.bin {
-            manifest
-                .targets
-                .iter()
-                .find(|t| t.is_bin() && &t.name == name)
-                .ok_or(Error::NoMatchingBinaryTargetFound)
-        } else if manifest.targets.len() == 1 {
-            Ok(manifest.targets.first().unwrap())
-        } else {
-            manifest
-                .targets
-                .iter()
-                .find(|t| t.is_lib())
-                .ok_or(Error::NoTargetProvided)
-        });
+        let target: &Target = try!(choose_target(args, &manifest));
         (
             &target.name,
             target
                 .src_path
                 .to_str()
+                // TODO: move this on Target
                 .expect("Expected `src_path` property."),
         )
     };
