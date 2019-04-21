@@ -27,7 +27,7 @@ use builder::Config as BuilderConfig;
 
 use error::Error;
 
-use manifest::{Manifest, Target};
+use manifest::{Edition, Manifest, Target};
 
 use printer::Config as PrinterConfig;
 use printer::Printer;
@@ -71,6 +71,14 @@ fn run(args: &Arguments) -> Result<(), Error> {
         let json_string = String::from_utf8(stdout).expect("Failed reading cargo output");
         Manifest::from_str(&json_string)?
     };
+
+    if args.enable_edition_2018 && manifest.edition == Edition::E2018 {
+        println!(
+            "{}\n{}",
+            "Edition 2018 support is work in progress.".red(),
+            "`--enable-edition-2018` will be ignored.".red()
+        );
+    }
 
     // TODO: Check to see if build scripts really need to be ignored.
     //       Seems like they are not mistaken as orphans anyway.
@@ -174,7 +182,7 @@ struct Arguments {
 
     /// [Experimental] Enable support for edition 2018 of Rust (ignored)
     #[structopt(long = "enable-edition-2018")]
-    _enable_edition_2018: bool,
+    enable_edition_2018: bool,
 
     /// Sets an explicit crate path (ignored)
     #[structopt(name = "CRATE_DIR")]
