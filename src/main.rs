@@ -48,7 +48,7 @@ fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Tar
         manifest
             .targets
             .iter()
-            .find(|t| t.is_bin() && &t.name() == &name)
+            .find(|t| t.is_bin() && t.name() == name)
             .ok_or(Error::NoMatchingBinaryTargetFound)
     } else if manifest.targets.len() == 1 {
         // If neither `--lib` is enabled nor `--bin` target is specified but
