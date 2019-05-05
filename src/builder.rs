@@ -171,22 +171,21 @@ fn add_use_tree(tree: &mut Tree, visibility: Visibility, prefix: &str, use_tree:
             }
         }
         ast::UseTreeKind::Glob => {
-            let mut use_path = if use_tree.prefix.segments.is_empty() {
-                prefix
+            let use_path = if use_tree.prefix.segments.is_empty() {
+                prefix + "*"
             } else {
-                prefix + &pprust::path_to_string(&use_tree.prefix) + "::"
+                prefix + &pprust::path_to_string(&use_tree.prefix) + "::*"
             };
-            use_path += "*";
             tree.insert_use((visibility, use_path));
         }
         ast::UseTreeKind::Nested(ref items) => {
-            let mut prefix = if use_tree.prefix.segments.is_empty() {
+            let prefix_ = if use_tree.prefix.segments.is_empty() {
                 prefix
             } else {
                 prefix + &pprust::path_to_string(&use_tree.prefix) + "::"
             };
             for (sub_tree, _) in items {
-                add_use_tree(tree, visibility, &prefix, sub_tree);
+                add_use_tree(tree, visibility, &prefix_, sub_tree);
             }
         }
     }
