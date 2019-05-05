@@ -146,7 +146,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
         }
     }
 
-    fn visit_mac(&mut self, mac: &ast::Mac) {
+    fn visit_mac(&mut self, mac: &'a ast::Mac) {
         visit::walk_mac(self, mac);
     }
 }
