@@ -1,3 +1,4 @@
+extern crate arrayvec;
 extern crate colored;
 extern crate json;
 extern crate petgraph;
