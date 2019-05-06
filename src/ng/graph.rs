@@ -3,9 +3,12 @@ use petgraph::graphmap::DiGraphMap;
 use std::cmp::{Ord, Ordering};
 use std::hash::{Hash, Hasher};
 
-const MOD_NAME_SIZE: usize = 30;
+const MOD_PATH_SIZE: usize = 200;
 
-pub struct Edge;
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Edge {
+    Child,
+}
 
 pub struct GraphBuilder {
     graph: DiGraphMap<Mod, Edge>,
@@ -22,11 +25,21 @@ impl GraphBuilder {
         self.graph.add_node(Mod::new(name, Visibility::Public));
     }
 
+    pub fn add_mod(&mut self, path: &str, name: &str, visibility: Visibility) {
+        let parent: Mod = self.find_mod(path).unwrap();
+        let node = Mod::new(&[path, "::", name].concat(), visibility);
+        self.graph.add_node(node);
+        assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
+    }
+
     pub fn build(self) -> Result<DiGraphMap<Mod, Edge>, GraphError> {
         Ok(self.graph)
     }
 
-    // TODO: add_mod();
+    fn find_mod(&self, path: &str) -> Option<Mod> {
+        self.graph.nodes().find(|m| m.path() == path)
+    }
+
     // TODO: add_dep();
 }
 
@@ -35,21 +48,22 @@ pub enum GraphError {}
 
 #[derive(Clone, Copy, Debug)]
 pub struct Mod {
-    name: ArrayString<[u8; MOD_NAME_SIZE]>,
+    path: ArrayString<[u8; MOD_PATH_SIZE]>,
+    name_ridx: usize,
     visibility: Visibility,
 }
 
 impl Mod {
-    fn new(name: &str, visibility: Visibility) -> Self {
+    fn new(path: &str, visibility: Visibility) -> Self {
         Self {
-            name: ArrayString::<[u8; MOD_NAME_SIZE]>::from(name).unwrap(),
+            path: ArrayString::<[u8; MOD_PATH_SIZE]>::from(path).unwrap(),
+            name_ridx: path.rfind("::").unwrap_or(0),
             visibility,
         }
     }
 
     fn path(&self) -> &str {
-        // FIXME: Use full mod path.
-        &self.name.as_str()
+        &self.path.as_str()
     }
 }
 
@@ -107,4 +121,27 @@ mod tests {
         assert_eq!(0, graph.edge_count());
         assert!(graph.contains_node(Mod::new("crate-root", Visibility::Public)));
     }
+
+    #[test]
+    fn add_node_creates_an_association_with_parent() {
+        let foo: Mod = Mod::new("foo", Visibility::Public);
+        let bar: Mod = Mod::new("foo::bar", Visibility::Public);
+        let baz: Mod = Mod::new("foo::bar::baz", Visibility::Private);
+        let mut builder = GraphBuilder::new();
+        builder.add_crate_root("foo");
+        builder.add_mod("foo", "bar", Visibility::Public);
+        builder.add_mod("foo::bar", "baz", Visibility::Private);
+        let graph: DiGraphMap<Mod, Edge> = builder.build().unwrap();
+        assert_eq!(3, graph.node_count());
+        assert_eq!(2, graph.edge_count());
+        assert!(graph.contains_node(foo));
+        assert!(graph.contains_node(bar));
+        assert!(graph.contains_node(baz));
+        assert_eq!(
+            vec![(foo, bar, &Edge::Child), (bar, baz, &Edge::Child)],
+            graph.all_edges().collect::<Vec<(Mod, Mod, &Edge)>>()
+        );
+    }
+
+    // TODO: Add test where builder fails when non-existent parent node
 }
