@@ -7,18 +7,25 @@ const MOD_NAME_SIZE: usize = 30;
 
 pub struct Edge;
 
-pub struct GraphBuilder;
+pub struct GraphBuilder {
+    graph: DiGraphMap<Mod, Edge>,
+}
 
 impl GraphBuilder {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            graph: DiGraphMap::new(),
+        }
+    }
+
+    pub fn add_crate_root(&mut self, name: &str) {
+        self.graph.add_node(Mod::new(name, Visibility::Public));
     }
 
     pub fn build(self) -> Result<DiGraphMap<Mod, Edge>, GraphError> {
-        Ok(DiGraphMap::new())
+        Ok(self.graph)
     }
 
-    // TODO: add_crate_root();
     // TODO: add_mod();
     // TODO: add_dep();
 }
@@ -33,6 +40,13 @@ pub struct Mod {
 }
 
 impl Mod {
+    fn new(name: &str, visibility: Visibility) -> Self {
+        Self {
+            name: ArrayString::<[u8; MOD_NAME_SIZE]>::from(name).unwrap(),
+            visibility,
+        }
+    }
+
     fn path(&self) -> &str {
         // FIXME: Use full mod path.
         &self.name.as_str()
@@ -82,5 +96,15 @@ mod tests {
         let graph: DiGraphMap<Mod, Edge> = builder.build().unwrap();
         assert_eq!(0, graph.node_count());
         assert_eq!(0, graph.edge_count());
+    }
+
+    #[test]
+    fn add_crate_root_adds_a_node() {
+        let mut builder = GraphBuilder::new();
+        builder.add_crate_root("crate-root");
+        let graph: DiGraphMap<Mod, Edge> = builder.build().unwrap();
+        assert_eq!(1, graph.node_count());
+        assert_eq!(0, graph.edge_count());
+        assert!(graph.contains_node(Mod::new("crate-root", Visibility::Public)));
     }
 }
