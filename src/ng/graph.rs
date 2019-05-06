@@ -56,7 +56,8 @@ pub struct Mod {
 impl Mod {
     fn new(path: &str, visibility: Visibility) -> Self {
         Self {
-            path: ArrayString::<[u8; MOD_PATH_SIZE]>::from(path).unwrap(),
+            path: ArrayString::<[u8; MOD_PATH_SIZE]>::from(path)
+                .unwrap_or_else(|_| panic!("Module path is too long")),
             name_ridx: path.rfind("::").unwrap_or(0),
             visibility,
         }
@@ -123,7 +124,7 @@ mod tests {
     }
 
     #[test]
-    fn add_node_creates_an_association_with_parent() {
+    fn add_mod_creates_an_association_with_parent() {
         let foo: Mod = Mod::new("foo", Visibility::Public);
         let bar: Mod = Mod::new("foo::bar", Visibility::Public);
         let baz: Mod = Mod::new("foo::bar::baz", Visibility::Private);
@@ -141,6 +142,18 @@ mod tests {
             vec![(foo, bar, &Edge::Child), (bar, baz, &Edge::Child)],
             graph.all_edges().collect::<Vec<(Mod, Mod, &Edge)>>()
         );
+    }
+
+    #[test]
+    #[should_panic(expected = "Module path is too long")]
+    fn add_mod_panics_if_path_is_longer_than_limit() {
+        let name = "foo";
+        let path = std::str::from_utf8([114; MOD_PATH_SIZE - 4].as_ref()).unwrap(); // 'r'
+        let concatenated = format!("{}::{}", path, name);
+        assert!(concatenated.len() > MOD_PATH_SIZE);
+        let mut builder = GraphBuilder::new();
+        builder.add_crate_root(path);
+        builder.add_mod(path, name, Visibility::Public);
     }
 
     // TODO: Add test where builder fails when non-existent parent node
