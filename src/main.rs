@@ -1,5 +1,6 @@
 extern crate colored;
 extern crate json;
+extern crate petgraph;
 extern crate structopt;
 extern crate syntax;
 
@@ -7,6 +8,7 @@ mod builder;
 mod dot_printer;
 mod error;
 mod manifest;
+mod ng; // TODO: Remove this.
 mod printer;
 mod tree;
 
