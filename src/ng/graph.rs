@@ -3,13 +3,25 @@ use petgraph::graphmap::DiGraphMap;
 use std::cmp::{Ord, Ordering};
 use std::hash::{Hash, Hasher};
 
+/// Determines the maximum length of a module's path.
+///
+/// eg: `"my_crate::foo::bar::baz"`.
 const MOD_PATH_SIZE: usize = 200;
 
+static SEP: &'static str = "::";
+
+// TODO: Add support to represent use's of individual members (fn's, trairs
+//       etc.).  This would require using a union type (of Mod + member?) as
+//       node type.
+
+/// Represents an association between modules.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Edge {
     Child,
 }
 
+/// Builds a graph, `DiGraphMap<Mod, Edge>` to be specific using domain
+/// specific operations.
 pub struct GraphBuilder {
     graph: DiGraphMap<Mod, Edge>,
 }
@@ -21,17 +33,28 @@ impl GraphBuilder {
         }
     }
 
+    /// Define a public module that has no parent.
+    ///
+    /// # Panics
+    /// If `name` contains `"::"`.
     pub fn add_crate_root(&mut self, name: &str) {
+        assert!(!name.contains(SEP));
         self.graph.add_node(Mod::new(name, Visibility::Public));
     }
 
+    /// Define a sub-modules and associate it with its parent.
+    ///
+    /// # Panics
+    /// - If the parent is not already defined.
+    /// - If parent-child relationship for this pair is already defined.
     pub fn add_mod(&mut self, path: &str, name: &str, visibility: Visibility) {
         let parent: Mod = self.find_mod(path).unwrap();
-        let node = Mod::new(&[path, "::", name].concat(), visibility);
+        let node = Mod::new(&[path, SEP, name].concat(), visibility);
         self.graph.add_node(node);
         assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
     }
 
+    /// Build the graph, consuming this builder, or return an error.
     pub fn build(self) -> Result<DiGraphMap<Mod, Edge>, GraphError> {
         Ok(self.graph)
     }
@@ -46,8 +69,14 @@ impl GraphBuilder {
 #[derive(Debug)]
 pub enum GraphError {}
 
+/// Represents a node that is a module in the graph.
 #[derive(Clone, Copy, Debug)]
 pub struct Mod {
+    /// Because this struct needs to be `Copy`, using `String` or `&str` was
+    /// out of the question.  `ArrayString` provides a sized and owned string
+    /// that is backed by a byte array.
+    ///
+    /// See also [MOD_PATH_SIZE]
     path: ArrayString<[u8; MOD_PATH_SIZE]>,
     name_ridx: usize,
     visibility: Visibility,
@@ -58,7 +87,7 @@ impl Mod {
         Self {
             path: ArrayString::<[u8; MOD_PATH_SIZE]>::from(path)
                 .unwrap_or_else(|_| panic!("Module path is too long")),
-            name_ridx: path.rfind("::").unwrap_or(0),
+            name_ridx: path.rfind(SEP).unwrap_or(0),
             visibility,
         }
     }
@@ -155,6 +184,4 @@ mod tests {
         builder.add_crate_root(path);
         builder.add_mod(path, name, Visibility::Public);
     }
-
-    // TODO: Add test where builder fails when non-existent parent node
 }
