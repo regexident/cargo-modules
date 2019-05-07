@@ -3,6 +3,10 @@ use petgraph::graphmap::DiGraphMap;
 use std::cmp::{Ord, Ordering};
 use std::hash::{Hash, Hasher};
 
+// TODO: Add support to represent use's of individual members (fn's, trairs
+//       etc.).  This would require using a union type (of Mod + member?) as
+//       node type.
+
 /// Determines the maximum length of a module's path.
 ///
 /// eg: `"my_crate::foo::bar::baz"`.
@@ -10,26 +14,25 @@ const MOD_PATH_SIZE: usize = 200;
 
 static SEP: &'static str = "::";
 
-// TODO: Add support to represent use's of individual members (fn's, trairs
-//       etc.).  This would require using a union type (of Mod + member?) as
-//       node type.
-
 /// Represents an association between modules.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Edge {
     Child,
+    Dependency,
 }
 
 /// Builds a graph, `DiGraphMap<Mod, Edge>` to be specific using domain
 /// specific operations.
 pub struct GraphBuilder {
     graph: DiGraphMap<Mod, Edge>,
+    deferred_deps: Vec<(String, String)>,
 }
 
 impl GraphBuilder {
     pub fn new() -> Self {
         Self {
             graph: DiGraphMap::new(),
+            deferred_deps: vec![],
         }
     }
 
@@ -54,20 +57,41 @@ impl GraphBuilder {
         assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
     }
 
+    pub fn add_dep(&mut self, from: &str, to: &str) {
+        assert!(from != to, "Module cannot depend on itself");
+        match (self.find_mod(from), self.find_mod(to)) {
+            (Some(from), Some(to)) => {
+                self.graph.add_edge(from, to, Edge::Dependency);
+                ()
+            }
+            // Defer creating dependency link if
+            // one of the nodes are not defined yet.
+            (_, _) => self.deferred_deps.push((from.to_owned(), to.to_owned())),
+        };
+    }
+
     /// Build the graph, consuming this builder, or return an error.
-    pub fn build(self) -> Result<DiGraphMap<Mod, Edge>, GraphError> {
-        Ok(self.graph)
+    pub fn build(mut self) -> Result<DiGraphMap<Mod, Edge>, GraphError> {
+        if self.deferred_deps.is_empty() {
+            Ok(self.graph)
+        } else {
+            let (from, to) = self.deferred_deps.remove(0);
+            match self.find_mod(&from) {
+                Some(_) => Err(GraphError::UnknownModule(to)),
+                None => Err(GraphError::UnknownModule(from)),
+            }
+        }
     }
 
     fn find_mod(&self, path: &str) -> Option<Mod> {
         self.graph.nodes().find(|m| m.path() == path)
     }
-
-    // TODO: add_dep();
 }
 
-#[derive(Debug)]
-pub enum GraphError {}
+#[derive(Debug, PartialEq)]
+pub enum GraphError {
+    UnknownModule(String),
+}
 
 /// Represents a node that is a module in the graph.
 #[derive(Clone, Copy, Debug)]
@@ -184,4 +208,60 @@ mod tests {
         builder.add_crate_root(path);
         builder.add_mod(path, name, Visibility::Public);
     }
+
+    #[test]
+    #[should_panic(expected = "Module cannot depend on itself")]
+    fn adding_a_dependency_to_the_same_module_panics() {
+        let mut builder = GraphBuilder::new();
+        builder.add_crate_root("root");
+        builder.add_mod("root", "sub", Visibility::Public);
+        builder.add_dep("root::sub", "root::sub");
+    }
+
+    #[test]
+    fn adding_a_dependency_is_idempotent() {
+        let mut builder = GraphBuilder::new();
+        builder.add_crate_root("foo");
+        builder.add_mod("foo", "bar", Visibility::Public);
+        builder.add_mod("foo", "baz", Visibility::Private);
+        builder.add_dep("foo::bar", "foo::baz");
+        builder.add_dep("foo::bar", "foo::baz");
+        let graph = builder.build().unwrap();
+        assert_eq!(3, graph.edge_count());
+    }
+
+    #[test]
+    fn add_dep_requires_both_modules_to_be_defined() {
+        {
+            let mut builder = GraphBuilder::new();
+            builder.add_crate_root("foo");
+            builder.add_mod("foo", "bar", Visibility::Public);
+            builder.add_dep("foo::bar", "foo::baz");
+            assert_eq!(
+                Some(GraphError::UnknownModule(String::from("foo::baz"))),
+                builder.build().err()
+            );
+        }
+        {
+            let mut builder = GraphBuilder::new();
+            builder.add_crate_root("foo");
+            builder.add_mod("foo", "baz", Visibility::Private);
+            builder.add_dep("foo::bar", "foo::baz");
+            assert_eq!(
+                Some(GraphError::UnknownModule(String::from("foo::bar"))),
+                builder.build().err()
+            );
+        }
+        {
+            let mut builder = GraphBuilder::new();
+            builder.add_crate_root("foo");
+            builder.add_dep("foo::bar", "foo::baz");
+            assert_eq!(
+                Some(GraphError::UnknownModule(String::from("foo::bar"))),
+                builder.build().err()
+            );
+        }
+    }
+
+    // TODO: Add test for deferring dependency
 }
