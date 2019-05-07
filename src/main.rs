@@ -181,7 +181,7 @@ struct Arguments {
     #[structopt(short = "b", long = "bin")]
     bin: Option<String>,
 
-    /// [Experimental] Enable support for edition 2018 of Rust (ignored)
+    /// **Experimental** Enable support for edition 2018 of Rust (ignored)
     #[structopt(long = "enable-edition-2018")]
     enable_edition_2018: bool,
 
