@@ -55,6 +55,7 @@ impl GraphBuilder {
         let node = Mod::new(&[path, SEP, name].concat(), visibility);
         self.graph.add_node(node);
         assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
+        self.apply_deferred();
     }
 
     pub fn add_dep(&mut self, from: &str, to: &str) {
@@ -64,6 +65,7 @@ impl GraphBuilder {
                 self.graph.add_edge(from, to, Edge::Dependency);
                 ()
             }
+            (None, _) => panic!("Trying to add dependency from an unknown module"),
             // Defer creating dependency link if
             // one of the nodes are not defined yet.
             (_, _) => self.deferred_deps.push((from.to_owned(), to.to_owned())),
@@ -79,6 +81,19 @@ impl GraphBuilder {
             match self.find_mod(&from) {
                 Some(_) => Err(GraphError::UnknownModule(to)),
                 None => Err(GraphError::UnknownModule(from)),
+            }
+        }
+    }
+
+    fn apply_deferred(&mut self) {
+        let deferred: Vec<(String, String)> = self.deferred_deps.drain(..).collect();
+        for (from, to) in deferred {
+            // We are only checking `to` because a dependent module
+            // needs to be defined before the dependency is defined.
+            if self.find_mod(&to).is_some() {
+                self.add_dep(&from, &to);
+            } else {
+                self.deferred_deps.push((from, to));
             }
         }
     }
@@ -245,23 +260,34 @@ mod tests {
         {
             let mut builder = GraphBuilder::new();
             builder.add_crate_root("foo");
+            builder.add_mod("foo", "bar", Visibility::Private);
+            builder.add_dep("foo::bar", "foo::baz");
+            builder.add_dep("foo::bar", "foo::fubar");
             builder.add_mod("foo", "baz", Visibility::Private);
-            builder.add_dep("foo::bar", "foo::baz");
             assert_eq!(
-                Some(GraphError::UnknownModule(String::from("foo::bar"))),
-                builder.build().err()
-            );
-        }
-        {
-            let mut builder = GraphBuilder::new();
-            builder.add_crate_root("foo");
-            builder.add_dep("foo::bar", "foo::baz");
-            assert_eq!(
-                Some(GraphError::UnknownModule(String::from("foo::bar"))),
+                Some(GraphError::UnknownModule(String::from("foo::fubar"))),
                 builder.build().err()
             );
         }
     }
 
-    // TODO: Add test for deferring dependency
+    #[test]
+    #[should_panic(expected = "Trying to add dependency from an unknown module")]
+    fn dependency_from_unknown_module_panics() {
+        {
+            let mut builder = GraphBuilder::new();
+            builder.add_crate_root("foo");
+            builder.add_dep("foo::bar", "foo::baz");
+        }
+    }
+
+    #[test]
+    fn dependency_can_be_added_before_dependent_module_is_added() {
+        let mut builder = GraphBuilder::new();
+        builder.add_crate_root("foo");
+        builder.add_mod("foo", "bar", Visibility::Public);
+        builder.add_dep("foo::bar", "foo::baz");
+        builder.add_mod("foo", "baz", Visibility::Public);
+        assert_eq!(3, builder.build().unwrap().edge_count());
+    }
 }
