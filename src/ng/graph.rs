@@ -3,10 +3,6 @@ use petgraph::graphmap::DiGraphMap;
 use std::cmp::{Ord, Ordering};
 use std::hash::{Hash, Hasher};
 
-// TODO: Add support to represent use's of individual members (fn's, trairs
-//       etc.).  This would require using a union type (of Mod + member?) as
-//       node type.
-
 /// Determines the maximum length of a module's path.
 ///
 /// eg: `"my_crate::foo::bar::baz"`.
