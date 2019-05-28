@@ -3,6 +3,10 @@ use petgraph::graphmap::DiGraphMap;
 use std::cmp::{Ord, Ordering};
 use std::hash::{Hash, Hasher};
 
+/// Determines the maximum length of the #cfg that
+/// can be attached to a mod definition.
+const CONDITIONS_SIZE: usize = 100;
+
 /// Determines the maximum length of a module's path.
 ///
 /// eg: `"my_crate::foo::bar::baz"`.
@@ -76,7 +80,8 @@ impl GraphBuilder {
     /// If `name` contains `"::"`.
     pub fn add_crate_root(&mut self, name: &str) {
         assert!(!name.contains(SEP));
-        self.graph.add_node(Module::new(name, Visibility::Public));
+        self.graph
+            .add_node(Module::new(name, Visibility::Public, None));
     }
 
     /// Define a sub-modules and associate it with its parent.
@@ -86,7 +91,7 @@ impl GraphBuilder {
     /// - If parent-child relationship for this pair is already defined.
     pub fn add_mod(&mut self, path: &str, name: &str, visibility: Visibility) {
         let parent: Module = self.find_mod(path).unwrap();
-        let node = Module::new(&[path, SEP, name].concat(), visibility);
+        let node = Module::new(&[path, SEP, name].concat(), visibility, None);
         self.graph.add_node(node);
         assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
         self.apply_deferred();
@@ -154,15 +159,20 @@ pub struct Module {
     path: ArrayString<[u8; MOD_PATH_SIZE]>,
     name_ridx: usize,
     visibility: Visibility,
+    conditions: Option<ArrayString<[u8; CONDITIONS_SIZE]>>,
 }
 
 impl Module {
-    fn new(path: &str, visibility: Visibility) -> Self {
+    fn new(path: &str, visibility: Visibility, conditions: Option<&str>) -> Self {
         Self {
             path: ArrayString::<[u8; MOD_PATH_SIZE]>::from(path)
                 .unwrap_or_else(|_| panic!("Module path is too long")),
             name_ridx: path.rfind(SEP).unwrap_or(0),
             visibility,
+            conditions: conditions.map(|c| {
+                ArrayString::<[u8; CONDITIONS_SIZE]>::from(c)
+                    .unwrap_or_else(|_| panic!("Conditions are too long"))
+            }),
         }
     }
 
@@ -223,14 +233,14 @@ mod tests {
         let graph: DiGraphMap<Module, Edge> = builder.build().unwrap();
         assert_eq!(1, graph.node_count());
         assert_eq!(0, graph.edge_count());
-        assert!(graph.contains_node(Module::new("crate-root", Visibility::Public)));
+        assert!(graph.contains_node(Module::new("crate-root", Visibility::Public, None)));
     }
 
     #[test]
     fn add_mod_creates_an_association_with_parent() {
-        let foo: Module = Module::new("foo", Visibility::Public);
-        let bar: Module = Module::new("foo::bar", Visibility::Public);
-        let baz: Module = Module::new("foo::bar::baz", Visibility::Private);
+        let foo: Module = Module::new("foo", Visibility::Public, None);
+        let bar: Module = Module::new("foo::bar", Visibility::Public, None);
+        let baz: Module = Module::new("foo::bar::baz", Visibility::Private, None);
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public);
