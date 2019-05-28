@@ -58,7 +58,7 @@ pub enum Edge {
 /// Builds a graph, `DiGraphMap<Mod, Edge>` to be specific using domain
 /// specific operations.
 pub struct GraphBuilder {
-    graph: DiGraphMap<Mod, Edge>,
+    graph: DiGraphMap<Module, Edge>,
     deferred_deps: Vec<(String, String, Dependency)>,
 }
 
@@ -76,7 +76,7 @@ impl GraphBuilder {
     /// If `name` contains `"::"`.
     pub fn add_crate_root(&mut self, name: &str) {
         assert!(!name.contains(SEP));
-        self.graph.add_node(Mod::new(name, Visibility::Public));
+        self.graph.add_node(Module::new(name, Visibility::Public));
     }
 
     /// Define a sub-modules and associate it with its parent.
@@ -85,8 +85,8 @@ impl GraphBuilder {
     /// - If the parent is not already defined.
     /// - If parent-child relationship for this pair is already defined.
     pub fn add_mod(&mut self, path: &str, name: &str, visibility: Visibility) {
-        let parent: Mod = self.find_mod(path).unwrap();
-        let node = Mod::new(&[path, SEP, name].concat(), visibility);
+        let parent: Module = self.find_mod(path).unwrap();
+        let node = Module::new(&[path, SEP, name].concat(), visibility);
         self.graph.add_node(node);
         assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
         self.apply_deferred();
@@ -108,7 +108,7 @@ impl GraphBuilder {
     }
 
     /// Build the graph, consuming this builder, or return an error.
-    pub fn build(mut self) -> Result<DiGraphMap<Mod, Edge>, GraphError> {
+    pub fn build(mut self) -> Result<DiGraphMap<Module, Edge>, GraphError> {
         if self.deferred_deps.is_empty() {
             Ok(self.graph)
         } else {
@@ -133,7 +133,7 @@ impl GraphBuilder {
         }
     }
 
-    fn find_mod(&self, path: &str) -> Option<Mod> {
+    fn find_mod(&self, path: &str) -> Option<Module> {
         self.graph.nodes().find(|m| m.path() == path)
     }
 }
@@ -145,7 +145,7 @@ pub enum GraphError {
 
 /// Represents a node that is a module in the graph.
 #[derive(Clone, Copy, Debug)]
-pub struct Mod {
+pub struct Module {
     /// Because this struct needs to be `Copy`, using `String` or `&str` was
     /// out of the question.  `ArrayString` provides a sized and owned string
     /// that is backed by a byte array.
@@ -156,7 +156,7 @@ pub struct Mod {
     visibility: Visibility,
 }
 
-impl Mod {
+impl Module {
     fn new(path: &str, visibility: Visibility) -> Self {
         Self {
             path: ArrayString::<[u8; MOD_PATH_SIZE]>::from(path)
@@ -171,28 +171,28 @@ impl Mod {
     }
 }
 
-impl Eq for Mod {}
+impl Eq for Module {}
 
-impl Hash for Mod {
+impl Hash for Module {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.path().hash(state);
     }
 }
 
-impl Ord for Mod {
-    fn cmp(&self, other: &Mod) -> Ordering {
+impl Ord for Module {
+    fn cmp(&self, other: &Self) -> Ordering {
         self.path().cmp(&other.path())
     }
 }
 
-impl PartialEq for Mod {
-    fn eq(&self, other: &Mod) -> bool {
+impl PartialEq for Module {
+    fn eq(&self, other: &Self) -> bool {
         self.path() == other.path()
     }
 }
 
-impl PartialOrd for Mod {
-    fn partial_cmp(&self, other: &Mod) -> Option<Ordering> {
+impl PartialOrd for Module {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
@@ -211,7 +211,7 @@ mod tests {
     #[test]
     fn new_builder_produces_an_empty_directed_graph() {
         let builder = GraphBuilder::new();
-        let graph: DiGraphMap<Mod, Edge> = builder.build().unwrap();
+        let graph: DiGraphMap<Module, Edge> = builder.build().unwrap();
         assert_eq!(0, graph.node_count());
         assert_eq!(0, graph.edge_count());
     }
@@ -220,22 +220,22 @@ mod tests {
     fn add_crate_root_adds_a_node() {
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("crate-root");
-        let graph: DiGraphMap<Mod, Edge> = builder.build().unwrap();
+        let graph: DiGraphMap<Module, Edge> = builder.build().unwrap();
         assert_eq!(1, graph.node_count());
         assert_eq!(0, graph.edge_count());
-        assert!(graph.contains_node(Mod::new("crate-root", Visibility::Public)));
+        assert!(graph.contains_node(Module::new("crate-root", Visibility::Public)));
     }
 
     #[test]
     fn add_mod_creates_an_association_with_parent() {
-        let foo: Mod = Mod::new("foo", Visibility::Public);
-        let bar: Mod = Mod::new("foo::bar", Visibility::Public);
-        let baz: Mod = Mod::new("foo::bar::baz", Visibility::Private);
+        let foo: Module = Module::new("foo", Visibility::Public);
+        let bar: Module = Module::new("foo::bar", Visibility::Public);
+        let baz: Module = Module::new("foo::bar::baz", Visibility::Private);
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public);
         builder.add_mod("foo::bar", "baz", Visibility::Private);
-        let graph: DiGraphMap<Mod, Edge> = builder.build().unwrap();
+        let graph: DiGraphMap<Module, Edge> = builder.build().unwrap();
         assert_eq!(3, graph.node_count());
         assert_eq!(2, graph.edge_count());
         assert!(graph.contains_node(foo));
@@ -243,7 +243,7 @@ mod tests {
         assert!(graph.contains_node(baz));
         assert_eq!(
             vec![(foo, bar, &Edge::Child), (bar, baz, &Edge::Child)],
-            graph.all_edges().collect::<Vec<(Mod, Mod, &Edge)>>()
+            graph.all_edges().collect::<Vec<(Module, Module, &Edge)>>()
         );
     }
 
