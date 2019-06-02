@@ -159,6 +159,7 @@ pub struct Module {
     path: ArrayString<[u8; MOD_PATH_SIZE]>,
     name_ridx: usize,
     visibility: Visibility,
+    /// This needs to be `Copy` for the same reason as `path`.
     conditions: Option<ArrayString<[u8; CONDITIONS_SIZE]>>,
 }
 
