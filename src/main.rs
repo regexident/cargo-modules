@@ -85,7 +85,7 @@ fn run(args: &Arguments) -> Result<(), Error> {
     let target: &Target = choose_target(args, &manifest)?;
 
     if args.enable_edition_2018 && target.edition == Edition::E2018 {
-        println!(
+        eprintln!(
             "{}\n{}",
             "Edition 2018 support is work in progress.".red(),
             "`--enable-edition-2018` will be ignored.".red()
