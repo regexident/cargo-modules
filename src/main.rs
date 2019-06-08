@@ -66,8 +66,14 @@ fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Tar
 
 fn run(args: &Arguments) -> Result<(), Error> {
     let manifest: Manifest = {
-        let output = process::Command::new("cargo").arg("read-manifest").output();
-        let stdout = output.map_err(Error::CargoExecutionFailed)?.stdout;
+        let output = process::Command::new("cargo")
+            .arg("read-manifest")
+            .output()
+            .map_err(Error::CargoExecutionFailed)?;
+        let stdout = output.stdout;
+        if !output.status.success() {
+            return Err(Error::NotACargoFolder);
+        }
         let json_string = String::from_utf8(stdout).expect("Failed reading cargo output");
         Manifest::from_str(&json_string)?
     };
@@ -230,6 +236,10 @@ fn main() {
                 "Error: No matching binary target found.".to_string()
             }
             Error::NoTargetProvided => "Error: Please specify a target to process.".to_string(),
+            Error::NotACargoFolder => {
+                "Error: could not find `Cargo.toml` in `/home/hiram/git` or any parent directory"
+                    .to_string()
+            }
             Error::Syntax(error) => format!("Error: Failed to parse: {}", error),
         };
         println!("{}", error_string.red());

@@ -8,5 +8,6 @@ pub enum Error {
     NoLibraryTargetFound,
     NoMatchingBinaryTargetFound,
     NoTargetProvided,
+    NotACargoFolder,
     Syntax(String),
 }
