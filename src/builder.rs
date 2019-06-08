@@ -60,7 +60,7 @@ impl<'a> Builder<'a> {
                 .and_then(OsStr::to_str)
                 .map(ToString::to_string)
         }
-        Ok(try!(fs::read_dir(&dir_path))
+        Ok(fs::read_dir(&dir_path)?
             .filter_map(Result::ok)
             .filter(is_mod)
             .filter(|e| !ignored_paths.contains(&e.path()))

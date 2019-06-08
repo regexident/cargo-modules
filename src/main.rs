@@ -67,7 +67,7 @@ fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Tar
 fn run(args: &Arguments) -> Result<(), Error> {
     let manifest: Manifest = {
         let output = process::Command::new("cargo").arg("read-manifest").output();
-        let stdout = try!(output.map_err(Error::CargoExecutionFailed)).stdout;
+        let stdout = output.map_err(Error::CargoExecutionFailed)?.stdout;
         let json_string = String::from_utf8(stdout).expect("Failed reading cargo output");
         Manifest::from_str(&json_string)?
     };
@@ -92,15 +92,13 @@ fn run(args: &Arguments) -> Result<(), Error> {
     let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
     syntax::with_globals(|| {
-        let krate = try!(match parse::parse_crate_from_file(
-            target.src_path().as_ref(),
-            &parse_session
-        ) {
-            Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
-            Ok(krate) => Ok(krate),
-            Err(e) => Err(Some(e)),
-        }
-        .map_err(|e| Error::Syntax(format!("{:?}", e))));
+        let krate =
+            match parse::parse_crate_from_file(target.src_path().as_ref(), &parse_session) {
+                Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
+                Ok(krate) => Ok(krate),
+                Err(e) => Err(Some(e)),
+            }
+            .map_err(|e| Error::Syntax(format!("{:?}", e)))?;
 
         let builder_config = BuilderConfig {
             include_orphans: args.orphans,
