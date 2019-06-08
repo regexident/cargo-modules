@@ -224,24 +224,6 @@ fn main() {
     let arguments = Arguments::from_args();
 
     if let Err(error) = run(&arguments) {
-        let error_string = match error {
-            Error::CargoExecutionFailed(error) => {
-                format!("Error: Failed to run `cargo` command.\n{:?}", error)
-            }
-            Error::InvalidManifestJson(error) => {
-                format!("Error: Failed to parse JSON response.\n{:?}", error)
-            }
-            Error::NoLibraryTargetFound => "Error: No library target found.".to_string(),
-            Error::NoMatchingBinaryTargetFound => {
-                "Error: No matching binary target found.".to_string()
-            }
-            Error::NoTargetProvided => "Error: Please specify a target to process.".to_string(),
-            Error::NotACargoFolder => {
-                "Error: could not find `Cargo.toml` in `/home/hiram/git` or any parent directory"
-                    .to_string()
-            }
-            Error::Syntax(error) => format!("Error: Failed to parse: {}", error),
-        };
-        println!("{}", error_string.red());
+        println!("{} {}", "error:".red(), error);
     }
 }
