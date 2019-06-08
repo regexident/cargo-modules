@@ -66,7 +66,17 @@ impl Manifest {
     pub fn bin(&self, name: &str) -> Result<&Target, Error> {
         self.all_targets()
             .find(|t| t.is_bin() && t.name() == name)
-            .ok_or(Error::NoMatchingBinaryTargetFound)
+            .ok_or_else(|| {
+                let names = self.bin_names();
+                Error::NoMatchingBinaryTargetFound(names)
+            })
+    }
+
+    pub fn bin_names(&self) -> Vec<String> {
+        self.all_targets()
+            .filter(|t| t.is_bin())
+            .map(|t| t.name().to_string())
+            .collect()
     }
 }
 

@@ -48,7 +48,9 @@ fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Tar
         Ok(manifest.targets().first().unwrap())
     } else {
         // If there are multiple targets use the first library target.
-        manifest.lib().or(Err(Error::NoTargetProvided))
+        manifest
+            .lib()
+            .or_else(|_| Err(Error::NoTargetProvided(manifest.bin_names())))
     }
 }
 
@@ -61,7 +63,9 @@ fn run(args: &Arguments) -> Result<(), Error> {
             .map_err(Error::CargoExecutionFailed)?;
         let stdout = output.stdout;
         if !output.status.success() {
-            return Err(Error::NotACargoFolder);
+            let error =
+                String::from_utf8(output.stderr).expect("Failed reading cargo stderr output");
+            return Err(Error::InvalidManifest(error));
         }
         let json_string = String::from_utf8(stdout).expect("Failed reading cargo output");
         Manifest::from_str(&json_string)?

@@ -7,9 +7,9 @@ pub enum Error {
     CargoExecutionFailed(io::Error),
     InvalidManifestJson(json::JsonError),
     NoLibraryTargetFound,
-    NoMatchingBinaryTargetFound,
-    NoTargetProvided,
-    NotACargoFolder,
+    NoMatchingBinaryTargetFound(Vec<String>),
+    NoTargetProvided(Vec<String>),
+    InvalidManifest(String),
     Syntax(String),
 }
 
@@ -23,12 +23,17 @@ impl fmt::Display for Error {
                 write!(f, "Failed to parse JSON response.\n{:?}", error)
             }
             Error::NoLibraryTargetFound => write!(f, "No library target found."),
-            Error::NoMatchingBinaryTargetFound => write!(f, "No matching binary target found."),
-            Error::NoTargetProvided => write!(f, "Please specify a target to process."),
-            Error::NotACargoFolder => write!(
+            Error::NoMatchingBinaryTargetFound(targets) => write!(
                 f,
-                "could not find `Cargo.toml` in `/home/hiram/git` or any parent directory"
+                "No matching binary target found.\n Choose one of '{}'",
+                targets.join(", ")
             ),
+            Error::NoTargetProvided(targets) => write!(
+                f,
+                "Please specify a target to process.\n Choose one of '{}'",
+                targets.join(", ")
+            ),
+            Error::InvalidManifest(error) => write!(f, "{}", error),
             Error::Syntax(error) => write!(f, "Failed to parse: {}", error),
         }
     }
