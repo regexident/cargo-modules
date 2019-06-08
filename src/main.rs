@@ -38,36 +38,25 @@ use dot_printer::DotPrinter;
 fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Target, Error> {
     if args.lib {
         // If `--lib` is enabled use the first library target.
-        manifest
-            .targets
-            .iter()
-            .find(|t| t.is_lib())
-            .ok_or(Error::NoLibraryTargetFound)
+        manifest.lib()
     } else if let Some(ref name) = args.bin {
         // If a binary target is specified use that.
-        manifest
-            .targets
-            .iter()
-            .find(|t| t.is_bin() && t.name() == name)
-            .ok_or(Error::NoMatchingBinaryTargetFound)
-    } else if manifest.targets.len() == 1 {
+        manifest.bin(name)
+    } else if manifest.targets().len() == 1 {
         // If neither `--lib` is enabled nor `--bin` target is specified but
         // there is only one target, use that.
-        Ok(manifest.targets.first().unwrap())
+        Ok(manifest.targets().first().unwrap())
     } else {
         // If there are multiple targets use the first library target.
-        manifest
-            .targets
-            .iter()
-            .find(|t| t.is_lib())
-            .ok_or(Error::NoTargetProvided)
+        manifest.lib().or(Err(Error::NoTargetProvided))
     }
 }
 
 fn run(args: &Arguments) -> Result<(), Error> {
     let manifest: Manifest = {
         let output = process::Command::new("cargo")
-            .arg("read-manifest")
+            .arg("metadata")
+            .args(&["--no-deps", "--format-version", "1"])
             .output()
             .map_err(Error::CargoExecutionFailed)?;
         let stdout = output.stdout;
@@ -78,14 +67,6 @@ fn run(args: &Arguments) -> Result<(), Error> {
         Manifest::from_str(&json_string)?
     };
 
-    if args.enable_edition_2018 && manifest.edition == Edition::E2018 {
-        println!(
-            "{}\n{}",
-            "Edition 2018 support is work in progress.".red(),
-            "`--enable-edition-2018` will be ignored.".red()
-        );
-    }
-
     // TODO: Check to see if build scripts really need to be ignored.
     //       Seems like they are not mistaken as orphans anyway.
     let build_scripts: Vec<path::PathBuf> = manifest
@@ -95,6 +76,15 @@ fn run(args: &Arguments) -> Result<(), Error> {
         .collect();
 
     let target: &Target = choose_target(args, &manifest)?;
+
+    if args.enable_edition_2018 && target.edition == Edition::E2018 {
+        println!(
+            "{}\n{}",
+            "Edition 2018 support is work in progress.".red(),
+            "`--enable-edition-2018` will be ignored.".red()
+        );
+    }
+
     let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
     syntax::with_globals(|| {

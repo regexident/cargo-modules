@@ -1,0 +1,6 @@
+[package]
+name = "example-lib"
+version = "0.1.0"
+authors = ["Name <email@email.com>"]
+
+[dependencies]
