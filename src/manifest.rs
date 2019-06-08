@@ -4,32 +4,69 @@ use std::default::Default;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Default)]
+pub struct Package {
+    edition: Edition,
+    targets: Vec<Target>,
+}
+
+#[derive(Debug, Default)]
 pub struct Manifest {
-    pub edition: Edition,
-    pub targets: Vec<Target>,
+    packages: Vec<Package>,
 }
 
 impl Manifest {
     pub fn from_str(src: &str) -> Result<Self, Error> {
         let mut j = json::parse(src).map_err(Error::InvalidManifestJson)?;
 
-        let edition: Edition = match j["edition"].as_str() {
-            Some("2015") => Edition::E2015,
-            Some("2018") => Edition::E2018,
-            Some(unknown) => panic!("Unrecognized value for edition \"{}\"", unknown),
-            None => Edition::default(),
-        };
+        let packages = j["packages"]
+            .members_mut()
+            .map(|package| {
+                let edition: Edition = match package["edition"].as_str() {
+                    Some("2015") => Edition::E2015,
+                    Some("2018") => Edition::E2018,
+                    Some(unknown) => panic!("Unrecognized value for edition \"{}\"", unknown),
+                    None => Edition::default(),
+                };
 
-        let targets: Vec<Target> = j["targets"].members_mut().map(Target::from_json).collect();
+                let targets: Vec<Target> = package["targets"]
+                    .members_mut()
+                    .map(Target::from_json)
+                    .collect();
 
-        Result::Ok(Manifest { edition, targets })
+                Package { edition, targets }
+            })
+            .collect();
+
+        Result::Ok(Manifest { packages })
+    }
+
+    fn all_targets(&self) -> impl Iterator<Item = &Target> {
+        self.packages
+            .iter()
+            .flat_map(|package| package.targets.iter())
     }
 
     pub fn custom_builds(&self) -> Vec<&Target> {
-        self.targets
-            .iter()
-            .filter(|t| t.is_custom_build())
+        self.all_targets().filter(|t| t.is_custom_build()).collect()
+    }
+
+    /// All valid targets that can be used to display modules
+    pub fn targets(&self) -> Vec<&Target> {
+        self.all_targets()
+            .filter(|t| t.is_bin() || t.is_lib() || t.is_proc_macro())
             .collect()
+    }
+
+    pub fn lib(&self) -> Result<&Target, Error> {
+        self.all_targets()
+            .find(|t| t.is_lib())
+            .ok_or(Error::NoLibraryTargetFound)
+    }
+
+    pub fn bin(&self, name: &str) -> Result<&Target, Error> {
+        self.all_targets()
+            .find(|t| t.is_bin() && t.name() == name)
+            .ok_or(Error::NoMatchingBinaryTargetFound)
     }
 }
 
@@ -51,7 +88,7 @@ pub struct Target {
     crate_types: Vec<String>,
     name: String,
     src_path: PathBuf,
-    edition: Option<String>,
+    pub edition: Edition,
 }
 
 impl Target {
@@ -73,6 +110,10 @@ impl Target {
         self.kind.iter().any(|k| Self::LIB_KINDS.contains(&&k[..]))
     }
 
+    pub fn is_proc_macro(&self) -> bool {
+        self.kind.contains(&String::from("proc-macro"))
+    }
+
     fn from_json(j: &mut json::JsonValue) -> Target {
         let kind: Vec<String> = {
             assert!(j["kind"].is_array());
@@ -91,7 +132,12 @@ impl Target {
         let name: String = j["name"].take_string().expect("name is missing");
         let src_path: PathBuf =
             Path::new(&j["src_path"].take_string().expect("src_path is missing")).to_path_buf();
-        let edition: Option<String> = j["edition"].take_string();
+        let edition: Edition = match j["edition"].as_str() {
+            Some("2015") => Edition::E2015,
+            Some("2018") => Edition::E2018,
+            Some(unknown) => panic!("Unrecognized value for edition \"{}\"", unknown),
+            None => Edition::default(),
+        };
         Target {
             kind,
             crate_types,
@@ -109,94 +155,200 @@ impl Target {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
+    use std::path;
+    use std::process;
 
-    fn read_manifest(filename: &str) -> Manifest {
-        let manifest_str: String =
-            fs::read_to_string(filename).expect("manifest file cannot be read");
+    fn read_manifest(directory: &path::Path) -> Manifest {
+        let output = process::Command::new("cargo")
+            .current_dir(directory)
+            .arg("metadata")
+            .args(&["--no-deps", "--format-version", "1"])
+            .output()
+            .expect("Cargo failed")
+            .stdout;
+        let manifest_str = String::from_utf8(output).expect("Failed reading cargo output");
         Manifest::from_str(&manifest_str).expect("manifest cannot be read")
     }
 
     #[test]
     fn manifest_with_edition2018_can_be_parsed() {
-        let manifest = read_manifest("test-resources/example-edition-2018.json");
-        assert_eq!(Edition::E2018, manifest.edition);
+        let manifest = read_manifest(path::Path::new("test-resources/example-lib-edition-2018"));
+        assert_eq!(Edition::E2018, manifest.targets()[0].edition);
     }
 
     #[test]
     fn manifest_with_edition2015_can_be_parsed() {
-        let manifest = read_manifest("test-resources/example-edition-2015.json");
-        assert_eq!(Edition::E2015, manifest.edition);
+        let manifest = read_manifest(path::Path::new("test-resources/example-lib-edition-2015"));
+        assert_eq!(Edition::E2015, manifest.targets()[0].edition);
     }
 
     #[test]
     fn manifest_without_edition_can_be_parsed() {
-        let manifest = read_manifest("test-resources/example-no-edition.json");
-        assert_eq!(Edition::E2015, manifest.edition);
+        let manifest = read_manifest(path::Path::new("test-resources/example-lib-no-edition"));
+        assert_eq!(Edition::E2015, manifest.targets()[0].edition);
     }
 
     #[test]
     fn manifest_for_simple_lib() {
-        let manifest = read_manifest("test-resources/example-lib.json");
+        let resource_path = path::Path::new("test-resources/example-lib-edition-2018");
+        let manifest = read_manifest(resource_path);
         assert_eq!(
-            Target {
+            &Target {
                 kind: vec!(String::from("lib")),
                 crate_types: vec!(String::from("lib")),
-                name: String::from("example-lib"),
-                src_path: Path::new("/home/muhuk/Documents/code/example-lib/src/lib.rs")
-                    .to_path_buf(),
-                edition: Some(String::from("2018"))
+                name: String::from("example-lib-edition-2018"),
+                src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                edition: Edition::E2018
             },
-            manifest.targets[0]
+            manifest.targets()[0]
         );
-        assert!(manifest.targets[0].is_lib());
-        assert!(!manifest.targets[0].is_bin());
+        assert!(manifest.targets()[0].is_lib());
+        assert!(!manifest.targets()[0].is_bin());
     }
 
     #[test]
     fn manifest_for_simple_bin() {
-        let manifest = read_manifest("test-resources/example-bin.json");
+        let resource_path = path::Path::new("test-resources/example-bin");
+        let manifest = read_manifest(resource_path);
         assert_eq!(
-            Target {
-                kind: vec!(String::from("bin")),
-                crate_types: vec!(String::from("bin")),
-                name: String::from("example-bin"),
-                src_path: Path::new("/home/muhuk/Documents/code/example-bin/src/main.rs")
-                    .to_path_buf(),
-                edition: Some(String::from("2018"))
-            },
-            manifest.targets[0]
+            vec![
+                &Target {
+                    kind: vec!(String::from("bin")),
+                    crate_types: vec!(String::from("bin")),
+                    name: String::from("example2"),
+                    src_path: resource_path
+                        .join("src/bin/example2.rs")
+                        .canonicalize()
+                        .unwrap(),
+                    edition: Edition::E2018
+                },
+                &Target {
+                    kind: vec!(String::from("bin")),
+                    crate_types: vec!(String::from("bin")),
+                    name: String::from("example"),
+                    src_path: resource_path
+                        .join("src/bin/example.rs")
+                        .canonicalize()
+                        .unwrap(),
+                    edition: Edition::E2018
+                }
+            ],
+            manifest.targets()
         );
-        assert!(manifest.targets[0].is_bin());
-        assert!(!manifest.targets[0].is_lib());
+        assert!(manifest.targets()[0].is_bin());
+        assert!(!manifest.targets()[0].is_lib());
     }
 
     #[test]
     fn manifest_with_custom_build() {
-        let manifest = read_manifest("test-resources/example-custom-build.json");
+        let resource_path = path::Path::new("test-resources/example-lib-edition-2018");
+        let manifest = read_manifest(resource_path);
         assert_eq!(
             vec![
-                Target {
+                &Target {
                     kind: vec!(String::from("lib")),
                     crate_types: vec!(String::from("lib")),
-                    name: String::from("example-custom-build"),
-                    src_path: Path::new(
-                        "/home/muhuk/Documents/code/example-custom-build/src/lib.rs"
-                    )
-                    .to_path_buf(),
-                    edition: Some(String::from("2018"))
+                    name: String::from("example-lib-edition-2018"),
+                    src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                    edition: Edition::E2018
                 },
-                Target {
+                &Target {
                     kind: vec!(String::from("custom-build")),
                     crate_types: vec!(String::from("bin")),
                     name: String::from("build-script-build"),
-                    src_path: Path::new("/home/muhuk/Documents/code/example-custom-build/build.rs")
-                        .to_path_buf(),
-                    edition: Some(String::from("2018"))
+                    src_path: resource_path.join("build.rs").canonicalize().unwrap(),
+                    edition: Edition::E2018
                 }
             ],
-            manifest.targets
+            manifest.all_targets().collect::<Vec<_>>()
         );
-        assert!(manifest.targets[1].is_custom_build());
+        assert_eq!(
+            vec![&Target {
+                kind: vec!(String::from("lib")),
+                crate_types: vec!(String::from("lib")),
+                name: String::from("example-lib-edition-2018"),
+                src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                edition: Edition::E2018
+            },],
+            manifest.targets()
+        );
+        assert_eq!(
+            vec![&Target {
+                kind: vec!(String::from("custom-build")),
+                crate_types: vec!(String::from("bin")),
+                name: String::from("build-script-build"),
+                src_path: resource_path.join("build.rs").canonicalize().unwrap(),
+                edition: Edition::E2018
+            }],
+            manifest.custom_builds()
+        );
+    }
+
+    #[test]
+    fn manifest_for_plugin() {
+        let resource_path = path::Path::new("test-resources/example-plugin");
+        let manifest = read_manifest(resource_path);
+        assert_eq!(
+            &Target {
+                kind: vec!(String::from("dylib")),
+                crate_types: vec!(String::from("dylib")),
+                name: String::from("example-plugin"),
+                src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                edition: Edition::E2018
+            },
+            manifest.targets()[0]
+        );
+        assert!(manifest.targets()[0].is_lib());
+        assert!(!manifest.targets()[0].is_bin());
+    }
+
+    #[test]
+    fn manifest_for_proc_macro() {
+        let resource_path = path::Path::new("test-resources/example-proc-macro");
+        let manifest = read_manifest(resource_path);
+        assert_eq!(
+            &Target {
+                kind: vec!(String::from("proc-macro")),
+                crate_types: vec!(String::from("proc-macro")),
+                name: String::from("example-proc-macro"),
+                src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                edition: Edition::E2018
+            },
+            manifest.targets()[0]
+        );
+        assert!(!manifest.targets()[0].is_lib());
+        assert!(!manifest.targets()[0].is_bin());
+        assert!(manifest.targets()[0].is_proc_macro());
+    }
+
+    #[test]
+    fn manifest_for_bin_and_lib() {
+        let resource_path = path::Path::new("test-resources/example-bin-and-lib");
+        let manifest = read_manifest(resource_path);
+        assert_eq!(
+            vec![
+                &Target {
+                    kind: vec!(String::from("lib")),
+                    crate_types: vec!(String::from("lib")),
+                    name: String::from("example-bin-and-lib"),
+                    src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                    edition: Edition::E2018
+                },
+                &Target {
+                    kind: vec!(String::from("bin")),
+                    crate_types: vec!(String::from("bin")),
+                    name: String::from("example-bin-and-lib"),
+                    src_path: resource_path.join("src/main.rs").canonicalize().unwrap(),
+                    edition: Edition::E2018
+                }
+            ],
+            manifest.targets()
+        );
+        assert!(manifest.targets()[0].is_lib());
+        assert!(!manifest.targets()[0].is_bin());
+        assert!(!manifest.targets()[0].is_proc_macro());
+        assert!(!manifest.targets()[1].is_lib());
+        assert!(manifest.targets()[1].is_bin());
+        assert!(!manifest.targets()[1].is_proc_macro());
     }
 }

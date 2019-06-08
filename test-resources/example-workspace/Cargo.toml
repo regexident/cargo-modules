@@ -1,0 +1,12 @@
+[package]
+name = "example-workspace"
+version = "0.1.0"
+authors = ["Name <email@email.com>"]
+edition = "2018"
+
+[dependencies]
+
+[workspace]
+members = [
+    "example-workspace-package",
+]

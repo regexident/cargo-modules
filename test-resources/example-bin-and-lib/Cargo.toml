@@ -1,0 +1,7 @@
+[package]
+name = "example-bin-and-lib"
+version = "0.1.0"
+authors = ["Name <email@email.com>"]
+edition = "2018"
+
+[dependencies]
