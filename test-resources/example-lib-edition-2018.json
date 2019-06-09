@@ -1,0 +1,57 @@
+{
+  "packages": [
+    {
+      "name": "example-lib-edition-2018",
+      "version": "0.1.0",
+      "id": "example-lib-edition-2018 0.1.0 (path+file://test-resources/example-lib-edition-2018)",
+      "license": null,
+      "license_file": null,
+      "description": null,
+      "source": null,
+      "dependencies": [],
+      "targets": [
+        {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "example-lib-edition-2018",
+          "src_path": "test-resources/example-lib-edition-2018/src/lib.rs",
+          "edition": "2018"
+        },
+        {
+          "kind": [
+            "custom-build"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "build-script-build",
+          "src_path": "test-resources/example-lib-edition-2018/build.rs",
+          "edition": "2018"
+        }
+      ],
+      "features": {},
+      "manifest_path": "test-resources/example-lib-edition-2018/Cargo.toml",
+      "metadata": null,
+      "authors": [
+        "Name <email@email.com>"
+      ],
+      "categories": [],
+      "keywords": [],
+      "readme": null,
+      "repository": null,
+      "edition": "2018",
+      "links": null
+    }
+  ],
+  "workspace_members": [
+    "example-lib-edition-2018 0.1.0 (path+file://test-resources/example-lib-edition-2018)"
+  ],
+  "resolve": null,
+  "target_directory": "test-resources/example-lib-edition-2018/target",
+  "version": 1,
+  "workspace_root": "test-resources/example-lib-edition-2018"
+}
