@@ -165,18 +165,12 @@ impl Target {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
     use std::path;
-    use std::process;
 
-    fn read_manifest(directory: &path::Path) -> Manifest {
-        let output = process::Command::new("cargo")
-            .current_dir(directory)
-            .arg("metadata")
-            .args(&["--no-deps", "--format-version", "1"])
-            .output()
-            .expect("Cargo failed")
-            .stdout;
-        let manifest_str = String::from_utf8(output).expect("Failed reading cargo output");
+    fn read_manifest(filename: &path::Path) -> Manifest {
+        let manifest_str: String = fs::read_to_string(filename.with_extension("json"))
+            .expect("manifest file cannot be read");
         Manifest::from_str(&manifest_str).expect("manifest cannot be read")
     }
 
@@ -207,7 +201,7 @@ mod tests {
                 kind: vec!(String::from("lib")),
                 crate_types: vec!(String::from("lib")),
                 name: String::from("example-lib-edition-2018"),
-                src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                src_path: resource_path.join("src/lib.rs"),
                 edition: Edition::E2018
             },
             manifest.targets()[0]
@@ -226,20 +220,14 @@ mod tests {
                     kind: vec!(String::from("bin")),
                     crate_types: vec!(String::from("bin")),
                     name: String::from("example2"),
-                    src_path: resource_path
-                        .join("src/bin/example2.rs")
-                        .canonicalize()
-                        .unwrap(),
+                    src_path: resource_path.join("src/bin/example2.rs"),
                     edition: Edition::E2018
                 },
                 &Target {
                     kind: vec!(String::from("bin")),
                     crate_types: vec!(String::from("bin")),
                     name: String::from("example"),
-                    src_path: resource_path
-                        .join("src/bin/example.rs")
-                        .canonicalize()
-                        .unwrap(),
+                    src_path: resource_path.join("src/bin/example.rs"),
                     edition: Edition::E2018
                 }
             ],
@@ -259,14 +247,14 @@ mod tests {
                     kind: vec!(String::from("lib")),
                     crate_types: vec!(String::from("lib")),
                     name: String::from("example-lib-edition-2018"),
-                    src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                    src_path: resource_path.join("src/lib.rs"),
                     edition: Edition::E2018
                 },
                 &Target {
                     kind: vec!(String::from("custom-build")),
                     crate_types: vec!(String::from("bin")),
                     name: String::from("build-script-build"),
-                    src_path: resource_path.join("build.rs").canonicalize().unwrap(),
+                    src_path: resource_path.join("build.rs"),
                     edition: Edition::E2018
                 }
             ],
@@ -277,7 +265,7 @@ mod tests {
                 kind: vec!(String::from("lib")),
                 crate_types: vec!(String::from("lib")),
                 name: String::from("example-lib-edition-2018"),
-                src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                src_path: resource_path.join("src/lib.rs"),
                 edition: Edition::E2018
             },],
             manifest.targets()
@@ -287,7 +275,7 @@ mod tests {
                 kind: vec!(String::from("custom-build")),
                 crate_types: vec!(String::from("bin")),
                 name: String::from("build-script-build"),
-                src_path: resource_path.join("build.rs").canonicalize().unwrap(),
+                src_path: resource_path.join("build.rs"),
                 edition: Edition::E2018
             }],
             manifest.custom_builds()
@@ -303,7 +291,7 @@ mod tests {
                 kind: vec!(String::from("dylib")),
                 crate_types: vec!(String::from("dylib")),
                 name: String::from("example-plugin"),
-                src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                src_path: resource_path.join("src/lib.rs"),
                 edition: Edition::E2018
             },
             manifest.targets()[0]
@@ -321,7 +309,7 @@ mod tests {
                 kind: vec!(String::from("proc-macro")),
                 crate_types: vec!(String::from("proc-macro")),
                 name: String::from("example-proc-macro"),
-                src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                src_path: resource_path.join("src/lib.rs"),
                 edition: Edition::E2018
             },
             manifest.targets()[0]
@@ -341,14 +329,14 @@ mod tests {
                     kind: vec!(String::from("lib")),
                     crate_types: vec!(String::from("lib")),
                     name: String::from("example-bin-and-lib"),
-                    src_path: resource_path.join("src/lib.rs").canonicalize().unwrap(),
+                    src_path: resource_path.join("src/lib.rs"),
                     edition: Edition::E2018
                 },
                 &Target {
                     kind: vec!(String::from("bin")),
                     crate_types: vec!(String::from("bin")),
                     name: String::from("example-bin-and-lib"),
-                    src_path: resource_path.join("src/main.rs").canonicalize().unwrap(),
+                    src_path: resource_path.join("src/main.rs"),
                     edition: Edition::E2018
                 }
             ],

@@ -1,0 +1,68 @@
+{
+  "packages": [
+    {
+      "name": "example-bin",
+      "version": "0.1.0",
+      "id": "example-bin 0.1.0 (path+file://test-resources/example-bin)",
+      "license": null,
+      "license_file": null,
+      "description": null,
+      "source": null,
+      "dependencies": [],
+      "targets": [
+        {
+          "kind": [
+            "bin"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "example2",
+          "src_path": "test-resources/example-bin/src/bin/example2.rs",
+          "edition": "2018"
+        },
+        {
+          "kind": [
+            "bin"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "example",
+          "src_path": "test-resources/example-bin/src/bin/example.rs",
+          "edition": "2018"
+        },
+        {
+          "kind": [
+            "custom-build"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "build-script-build",
+          "src_path": "test-resources/example-bin/build.rs",
+          "edition": "2018"
+        }
+      ],
+      "features": {},
+      "manifest_path": "test-resources/example-bin/Cargo.toml",
+      "metadata": null,
+      "authors": [
+        "Name <email@email.com>"
+      ],
+      "categories": [],
+      "keywords": [],
+      "readme": null,
+      "repository": null,
+      "edition": "2018",
+      "links": null
+    }
+  ],
+  "workspace_members": [
+    "example-bin 0.1.0 (path+file://test-resources/example-bin)"
+  ],
+  "resolve": null,
+  "target_directory": "test-resources/example-bin/target",
+  "version": 1,
+  "workspace_root": "test-resources/example-bin"
+}

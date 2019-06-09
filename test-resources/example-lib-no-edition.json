@@ -1,0 +1,46 @@
+{
+  "packages": [
+    {
+      "name": "example-lib",
+      "version": "0.1.0",
+      "id": "example-lib 0.1.0 (path+file://test-resources/example-lib-no-edition)",
+      "license": null,
+      "license_file": null,
+      "description": null,
+      "source": null,
+      "dependencies": [],
+      "targets": [
+        {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "example-lib",
+          "src_path": "test-resources/example-lib-no-edition/src/lib.rs",
+          "edition": "2015"
+        }
+      ],
+      "features": {},
+      "manifest_path": "test-resources/example-lib-no-edition/Cargo.toml",
+      "metadata": null,
+      "authors": [
+        "Name <email@email.com>"
+      ],
+      "categories": [],
+      "keywords": [],
+      "readme": null,
+      "repository": null,
+      "edition": "2015",
+      "links": null
+    }
+  ],
+  "workspace_members": [
+    "example-lib 0.1.0 (path+file://test-resources/example-lib-no-edition)"
+  ],
+  "resolve": null,
+  "target_directory": "test-resources/example-lib-no-edition/target",
+  "version": 1,
+  "workspace_root": "test-resources/example-lib-no-edition"
+}

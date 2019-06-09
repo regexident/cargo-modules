@@ -1,0 +1,90 @@
+{
+  "packages": [
+    {
+      "name": "example-bin-and-lib",
+      "version": "0.1.0",
+      "id": "example-bin-and-lib 0.1.0 (path+file://test-resources/example-bin-and-lib)",
+      "license": null,
+      "license_file": null,
+      "description": null,
+      "source": null,
+      "dependencies": [],
+      "targets": [
+        {
+          "kind": [
+            "lib"
+          ],
+          "crate_types": [
+            "lib"
+          ],
+          "name": "example-bin-and-lib",
+          "src_path": "test-resources/example-bin-and-lib/src/lib.rs",
+          "edition": "2018"
+        },
+        {
+          "kind": [
+            "bin"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "example-bin-and-lib",
+          "src_path": "test-resources/example-bin-and-lib/src/main.rs",
+          "edition": "2018"
+        },
+        {
+          "kind": [
+            "example"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "example",
+          "src_path": "test-resources/example-bin-and-lib/examples/example.rs",
+          "edition": "2018"
+        },
+        {
+          "kind": [
+            "test"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "test",
+          "src_path": "test-resources/example-bin-and-lib/tests/test.rs",
+          "edition": "2018"
+        },
+        {
+          "kind": [
+            "custom-build"
+          ],
+          "crate_types": [
+            "bin"
+          ],
+          "name": "build-script-build",
+          "src_path": "test-resources/example-bin-and-lib/build.rs",
+          "edition": "2018"
+        }
+      ],
+      "features": {},
+      "manifest_path": "test-resources/example-bin-and-lib/Cargo.toml",
+      "metadata": null,
+      "authors": [
+        "Name <email@email.com>"
+      ],
+      "categories": [],
+      "keywords": [],
+      "readme": null,
+      "repository": null,
+      "edition": "2018",
+      "links": null
+    }
+  ],
+  "workspace_members": [
+    "example-bin-and-lib 0.1.0 (path+file://test-resources/example-bin-and-lib)"
+  ],
+  "resolve": null,
+  "target_directory": "test-resources/example-bin-and-lib/target",
+  "version": 1,
+  "workspace_root": "test-resources/example-bin-and-lib"
+}
