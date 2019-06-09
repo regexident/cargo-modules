@@ -14,7 +14,9 @@ const MOD_PATH_SIZE: usize = 200;
 
 const SELF_KEYWORD: &str = "self";
 
-const SEP: &str = "::";
+pub const SEP: &str = "::";
+
+pub type Graph = DiGraphMap<Module, Edge>;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Dependency {
@@ -63,7 +65,7 @@ pub enum Edge {
 /// Builds a graph, `DiGraphMap<Mod, Edge>` to be specific using domain
 /// specific operations.
 pub struct GraphBuilder {
-    graph: DiGraphMap<Module, Edge>,
+    graph: Graph,
     deferred_deps: Vec<(String, String, Dependency)>,
 }
 
@@ -82,7 +84,7 @@ impl GraphBuilder {
     pub fn add_crate_root(&mut self, name: &str) {
         assert!(!name.contains(SEP));
         self.graph
-            .add_node(Module::new(name, Visibility::Public, None));
+            .add_node(Module::new_root(name, Visibility::Public, None));
     }
 
     /// Define a sub-modules and associate it with its parent.
@@ -125,7 +127,7 @@ impl GraphBuilder {
     }
 
     /// Build the graph, consuming this builder, or return an error.
-    pub fn build(mut self) -> Result<DiGraphMap<Module, Edge>, GraphError> {
+    pub fn build(mut self) -> Result<Graph, GraphError> {
         if self.deferred_deps.is_empty() {
             Ok(self.graph)
         } else {
@@ -159,6 +161,7 @@ pub enum GraphError {
 /// Represents a node that is a module in the graph.
 #[derive(Clone, Copy, Debug)]
 pub struct Module {
+    is_root: bool,
     /// Because this struct needs to be `Copy`, using `String` or `&str` was
     /// out of the question.  `ArrayString` provides a sized and owned string
     /// that is backed by a byte array.
@@ -172,8 +175,9 @@ pub struct Module {
 }
 
 impl Module {
-    fn new(path: &str, visibility: Visibility, conditions: Option<&str>) -> Self {
+    pub fn new(path: &str, visibility: Visibility, conditions: Option<&str>) -> Self {
         Self {
+            is_root: false,
             path: ArrayString::<[u8; MOD_PATH_SIZE]>::from(path)
                 .unwrap_or_else(|_| panic!("Module path is too long")),
             name_ridx: path.rfind(SEP).unwrap_or(0),
@@ -185,7 +189,17 @@ impl Module {
         }
     }
 
-    fn path(&self) -> &str {
+    pub fn new_root(path: &str, visibility: Visibility, conditions: Option<&str>) -> Self {
+        let mut m = Self::new(path, visibility, conditions);
+        m.is_root = true;
+        m
+    }
+
+    pub fn is_root(&self) -> bool {
+        self.is_root
+    }
+
+    pub fn path(&self) -> &str {
         &self.path.as_str()
     }
 }
@@ -229,12 +243,11 @@ pub fn find_mod(graph: &Graph, path: &str) -> Option<Module> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use petgraph::graphmap::DiGraphMap;
 
     #[test]
     fn new_builder_produces_an_empty_directed_graph() {
         let builder = GraphBuilder::new();
-        let graph: DiGraphMap<Module, Edge> = builder.build().unwrap();
+        let graph: Graph = builder.build().unwrap();
         assert_eq!(0, graph.node_count());
         assert_eq!(0, graph.edge_count());
     }
@@ -243,7 +256,7 @@ mod tests {
     fn add_crate_root_adds_a_node() {
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("crate-root");
-        let graph: DiGraphMap<Module, Edge> = builder.build().unwrap();
+        let graph: Graph = builder.build().unwrap();
         assert_eq!(1, graph.node_count());
         assert_eq!(0, graph.edge_count());
         assert!(graph.contains_node(Module::new("crate-root", Visibility::Public, None)));
@@ -258,7 +271,7 @@ mod tests {
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public);
         builder.add_mod("foo::bar", "baz", Visibility::Private);
-        let graph: DiGraphMap<Module, Edge> = builder.build().unwrap();
+        let graph: Graph = builder.build().unwrap();
         assert_eq!(3, graph.node_count());
         assert_eq!(2, graph.edge_count());
         assert!(graph.contains_node(foo));
@@ -357,7 +370,7 @@ mod tests {
         builder.add_orphan("foo", "baz", Visibility::Public);
         builder.add_orphan("foo::bar", "bat", Visibility::Public);
         let graph = builder.build().unwrap();
-        assert_eq!(3, graph.edge_count());\
+        assert_eq!(3, graph.edge_count());
 
         // Check edge `foo -> baz`
         assert!(graph.contains_edge(

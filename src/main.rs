@@ -16,7 +16,7 @@ mod tree;
 use std::path;
 use std::process;
 
-use syntax::ast::NodeId;
+use syntax::ast::{Crate, NodeId};
 use syntax::parse::{self, ParseSess};
 use syntax::source_map;
 use syntax::visit::Visitor;
@@ -31,6 +31,10 @@ use builder::Config as BuilderConfig;
 use error::Error;
 
 use manifest::{Edition, Manifest, Target};
+
+use ng::analysis;
+use ng::graph::Graph;
+use ng::tree_printer;
 
 use printer::Config as PrinterConfig;
 use printer::Printer;
@@ -54,6 +58,32 @@ fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Tar
         manifest
             .lib()
             .or_else(|_| Err(Error::NoTargetProvided(manifest.bin_names())))
+    }
+}
+
+fn run_2018(args: &Arguments, manifest: &Manifest) -> Result<(), Error> {
+    // TODO: Check to see if build scripts really need to be ignored.
+    //       Seems like they are not mistaken as orphans anyway.
+    let build_scripts: Vec<path::PathBuf> = manifest
+        .custom_builds()
+        .iter()
+        .map(|t| t.src_path().clone())
+        .collect();
+    let target: &Target = choose_target(args, &manifest)?;
+    let include_orphans: bool = args.orphans;
+    let enable_color: bool = if cfg!(target_os = "windows") {
+        false
+    } else {
+        !args.plain
+    };
+
+    match args.command {
+        Command::Graph { .. } => unimplemented!(),
+        Command::Tree => {
+            let ignored_files = &build_scripts;
+            let graph: Graph = analysis::build_graph(target, ignored_files)?;
+            tree_printer::print(&graph, include_orphans, enable_color)
+        }
     }
 }
 
@@ -85,17 +115,14 @@ fn run(args: &Arguments) -> Result<(), Error> {
     let target: &Target = choose_target(args, &manifest)?;
 
     if args.enable_edition_2018 && target.edition == Edition::E2018 {
-        eprintln!(
-            "{}\n{}",
-            "Edition 2018 support is work in progress.".red(),
-            "`--enable-edition-2018` will be ignored.".red()
-        );
+        eprintln!("{}", "Warning: Edition 2018 support is unstable.".red());
+        return run_2018(args, &manifest);
     }
 
     let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
     syntax::with_globals(|| {
-        let krate =
+        let krate: Crate =
             match parse::parse_crate_from_file(target.src_path().as_ref(), &parse_session) {
                 Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
                 Ok(krate) => Ok(krate),
