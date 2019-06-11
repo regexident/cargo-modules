@@ -57,6 +57,7 @@ impl Dependency {
 pub enum Edge {
     Child,
     Dependency(Dependency),
+    Unconnected,
 }
 
 /// Builds a graph, `DiGraphMap<Mod, Edge>` to be specific using domain
@@ -90,16 +91,27 @@ impl GraphBuilder {
     /// - If the parent is not already defined.
     /// - If parent-child relationship for this pair is already defined.
     pub fn add_mod(&mut self, path: &str, name: &str, visibility: Visibility) {
-        let parent: Module = self.find_mod(path).unwrap();
+        let parent: Module = find_mod(&self.graph, path).unwrap();
         let node = Module::new(&[path, SEP, name].concat(), visibility, None);
         self.graph.add_node(node);
         assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
         self.apply_deferred();
     }
 
+    pub fn add_orphan(&mut self, path: &str, name: &str, visibility: Visibility) {
+        let parent: Module = find_mod(&self.graph, path).unwrap();
+        let node = Module::new(&[path, SEP, name].concat(), visibility, None);
+        self.graph.add_node(node);
+        assert!(self
+            .graph
+            .add_edge(parent, node, Edge::Unconnected)
+            .is_none());
+        self.apply_deferred();
+    }
+
     pub fn add_dep(&mut self, from: &str, to: &str, dependency: Dependency) {
         assert!(from != to, "Module cannot depend on itself");
-        match (self.find_mod(from), self.find_mod(to)) {
+        match (find_mod(&self.graph, from), find_mod(&self.graph, to)) {
             (Some(from), Some(to)) => {
                 self.graph.add_edge(from, to, Edge::Dependency(dependency));
             }
@@ -118,7 +130,7 @@ impl GraphBuilder {
             Ok(self.graph)
         } else {
             let (from, to, _) = self.deferred_deps.remove(0);
-            match self.find_mod(&from) {
+            match find_mod(&self.graph, &from) {
                 Some(_) => Err(GraphError::UnknownModule(to)),
                 None => Err(GraphError::UnknownModule(from)),
             }
@@ -130,16 +142,12 @@ impl GraphBuilder {
         for (from, to, dep) in deferred {
             // We are only checking `to` because a dependent module
             // needs to be defined before the dependency is defined.
-            if self.find_mod(&to).is_some() {
+            if find_mod(&self.graph, &to).is_some() {
                 self.add_dep(&from, &to, dep);
             } else {
                 self.deferred_deps.push((from, to, dep));
             }
         }
-    }
-
-    fn find_mod(&self, path: &str) -> Option<Module> {
-        self.graph.nodes().find(|m| m.path() == path)
     }
 }
 
@@ -212,6 +220,10 @@ impl PartialOrd for Module {
 pub enum Visibility {
     Public,
     Private,
+}
+
+pub fn find_mod(graph: &Graph, path: &str) -> Option<Module> {
+    graph.nodes().find(|m| m.path() == path)
 }
 
 #[cfg(test)]
@@ -335,5 +347,42 @@ mod tests {
         builder.add_dep("foo::bar", "foo::baz", Dependency::module());
         builder.add_mod("foo", "baz", Visibility::Public);
         assert_eq!(3, builder.build().unwrap().edge_count());
+    }
+
+    #[test]
+    fn orphaned_modules_are_linked_to_their_parent_via_unconnected_edges() {
+        let mut builder = GraphBuilder::new();
+        builder.add_crate_root("foo");
+        builder.add_mod("foo", "bar", Visibility::Public);
+        builder.add_orphan("foo", "baz", Visibility::Public);
+        builder.add_orphan("foo::bar", "bat", Visibility::Public);
+        let graph = builder.build().unwrap();
+        assert_eq!(3, graph.edge_count());\
+
+        // Check edge `foo -> baz`
+        assert!(graph.contains_edge(
+            find_mod(&graph, "foo").unwrap(),
+            find_mod(&graph, "foo::baz").unwrap()
+        ));
+        assert_eq!(
+            Some(&Edge::Unconnected),
+            graph.edge_weight(
+                find_mod(&graph, "foo").unwrap(),
+                find_mod(&graph, "foo::baz").unwrap()
+            )
+        );
+
+        // Check edge `bar -> bat`
+        assert!(graph.contains_edge(
+            find_mod(&graph, "foo::bar").unwrap(),
+            find_mod(&graph, "foo::bar::bat").unwrap()
+        ));
+        assert_eq!(
+            Some(&Edge::Unconnected),
+            graph.edge_weight(
+                find_mod(&graph, "foo::bar").unwrap(),
+                find_mod(&graph, "foo::bar::bat").unwrap()
+            )
+        );
     }
 }
