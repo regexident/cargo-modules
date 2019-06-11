@@ -21,12 +21,7 @@ impl Manifest {
         let packages = j["packages"]
             .members_mut()
             .map(|package| {
-                let edition: Edition = match package["edition"].as_str() {
-                    Some("2015") => Edition::E2015,
-                    Some("2018") => Edition::E2018,
-                    Some(unknown) => panic!("Unrecognized value for edition \"{}\"", unknown),
-                    None => Edition::default(),
-                };
+                let edition: Edition = package["edition"].as_str().into();
 
                 let targets: Vec<Target> = package["targets"]
                     .members_mut()
@@ -92,6 +87,17 @@ impl Default for Edition {
     }
 }
 
+impl From<Option<&str>> for Edition {
+    fn from(string: Option<&str>) -> Self {
+        match string {
+            Some("2015") => Edition::E2015,
+            Some("2018") => Edition::E2018,
+            Some(unknown) => panic!("Unrecognized value for edition \"{}\"", unknown),
+            None => Edition::default(),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Target {
     kind: Vec<String>,
@@ -142,12 +148,7 @@ impl Target {
         let name: String = j["name"].take_string().expect("name is missing");
         let src_path: PathBuf =
             Path::new(&j["src_path"].take_string().expect("src_path is missing")).to_path_buf();
-        let edition: Edition = match j["edition"].as_str() {
-            Some("2015") => Edition::E2015,
-            Some("2018") => Edition::E2018,
-            Some(unknown) => panic!("Unrecognized value for edition \"{}\"", unknown),
-            None => Edition::default(),
-        };
+        let edition: Edition = j["edition"].as_str().into();
         Target {
             kind,
             crate_types,
