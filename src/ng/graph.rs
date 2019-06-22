@@ -180,7 +180,7 @@ impl Module {
             is_root: false,
             path: ArrayString::<[u8; MOD_PATH_SIZE]>::from(path)
                 .unwrap_or_else(|_| panic!("Module path is too long")),
-            name_ridx: path.rfind(SEP).unwrap_or(0),
+            name_ridx: path.rfind(SEP).map(|i| i + SEP.len()).unwrap_or(0),
             visibility,
             conditions: conditions.map(|c| {
                 ArrayString::<[u8; CONDITIONS_SIZE]>::from(c)
@@ -195,12 +195,24 @@ impl Module {
         m
     }
 
+    pub fn conditions(&self) -> Option<&str> {
+        self.conditions.as_ref().map(|c| &c[..])
+    }
+
+    pub fn name(&self) -> &str {
+        &self.path[self.name_ridx..]
+    }
+
     pub fn is_root(&self) -> bool {
         self.is_root
     }
 
     pub fn path(&self) -> &str {
         &self.path.as_str()
+    }
+
+    pub fn visibility(&self) -> Visibility {
+        self.visibility
     }
 }
 
@@ -396,6 +408,22 @@ mod tests {
                 find_mod(&graph, "foo::bar").unwrap(),
                 find_mod(&graph, "foo::bar::bat").unwrap()
             )
+        );
+    }
+
+    #[test]
+    fn module_name() {
+        assert_eq!(
+            Module::new_root("foo", Visibility::Public, None).name(),
+            "foo"
+        );
+        assert_eq!(
+            Module::new_root("foo::bar", Visibility::Public, None).name(),
+            "bar"
+        );
+        assert_eq!(
+            Module::new_root("foo::bar::baz::bat::quux", Visibility::Public, None).name(),
+            "quux"
         );
     }
 }
