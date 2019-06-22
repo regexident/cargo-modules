@@ -92,9 +92,15 @@ impl GraphBuilder {
     /// # Panics
     /// - If the parent is not already defined.
     /// - If parent-child relationship for this pair is already defined.
-    pub fn add_mod(&mut self, path: &str, name: &str, visibility: Visibility) {
+    pub fn add_mod(
+        &mut self,
+        path: &str,
+        name: &str,
+        visibility: Visibility,
+        conditions: Option<&str>,
+    ) {
         let parent: Module = find_mod(&self.graph, path).unwrap();
-        let node = Module::new(&[path, SEP, name].concat(), visibility, None);
+        let node = Module::new(&[path, SEP, name].concat(), visibility, conditions);
         self.graph.add_node(node);
         assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
         self.apply_deferred();
@@ -281,8 +287,8 @@ mod tests {
         let baz: Module = Module::new("foo::bar::baz", Visibility::Private, None);
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("foo");
-        builder.add_mod("foo", "bar", Visibility::Public);
-        builder.add_mod("foo::bar", "baz", Visibility::Private);
+        builder.add_mod("foo", "bar", Visibility::Public, None);
+        builder.add_mod("foo::bar", "baz", Visibility::Private, None);
         let graph: Graph = builder.build().unwrap();
         assert_eq!(3, graph.node_count());
         assert_eq!(2, graph.edge_count());
@@ -304,7 +310,7 @@ mod tests {
         assert!(concatenated.len() > MOD_PATH_SIZE);
         let mut builder = GraphBuilder::new();
         builder.add_crate_root(path);
-        builder.add_mod(path, name, Visibility::Public);
+        builder.add_mod(path, name, Visibility::Public, None);
     }
 
     #[test]
@@ -312,7 +318,7 @@ mod tests {
     fn adding_a_dependency_to_the_same_module_panics() {
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("root");
-        builder.add_mod("root", "sub", Visibility::Public);
+        builder.add_mod("root", "sub", Visibility::Public, None);
         builder.add_dep("root::sub", "root::sub", Dependency::module());
     }
 
@@ -320,8 +326,8 @@ mod tests {
     fn adding_a_dependency_is_idempotent() {
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("foo");
-        builder.add_mod("foo", "bar", Visibility::Public);
-        builder.add_mod("foo", "baz", Visibility::Private);
+        builder.add_mod("foo", "bar", Visibility::Public, None);
+        builder.add_mod("foo", "baz", Visibility::Private, None);
         builder.add_dep("foo::bar", "foo::baz", Dependency::module());
         builder.add_dep("foo::bar", "foo::baz", Dependency::module());
         let graph = builder.build().unwrap();
@@ -333,7 +339,7 @@ mod tests {
         {
             let mut builder = GraphBuilder::new();
             builder.add_crate_root("foo");
-            builder.add_mod("foo", "bar", Visibility::Public);
+            builder.add_mod("foo", "bar", Visibility::Public, None);
             builder.add_dep("foo::bar", "foo::baz", Dependency::module());
             assert_eq!(
                 Some(GraphError::UnknownModule(String::from("foo::baz"))),
@@ -343,10 +349,10 @@ mod tests {
         {
             let mut builder = GraphBuilder::new();
             builder.add_crate_root("foo");
-            builder.add_mod("foo", "bar", Visibility::Private);
+            builder.add_mod("foo", "bar", Visibility::Private, None);
             builder.add_dep("foo::bar", "foo::baz", Dependency::module());
             builder.add_dep("foo::bar", "foo::fubar", Dependency::module());
-            builder.add_mod("foo", "baz", Visibility::Private);
+            builder.add_mod("foo", "baz", Visibility::Private, None);
             assert_eq!(
                 Some(GraphError::UnknownModule(String::from("foo::fubar"))),
                 builder.build().err()

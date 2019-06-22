@@ -70,15 +70,14 @@ fn print_tree(
         (true, _) => print!("{} : {}", node.name().green(), "crate".cyan().bold()),
         (false, Visibility::Public) => {
             print!("{} : {}", node.name().green(), "public".cyan().bold());
-            // FIXME: Conditions are empty when they shouldn't be.
-            if let Some(ref conditions) = node.conditions() {
-                print!(" @ {}", conditions.magenta().bold());
-            };
         }
         (false, Visibility::Private) => {
             print!("{} : {}", node.name().yellow(), "private".cyan().bold())
         }
     }
+    if let Some(ref conditions) = node.conditions() {
+        print!(" @ {}", conditions.magenta().bold());
+    };
     print!("\n");
 
     print_nodes(
