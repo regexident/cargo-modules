@@ -1,48 +1,93 @@
+use colored::Colorize;
 use error::Error;
-use ng::graph::{Graph, Module};
+use ng::graph::{Graph, Module, Visibility};
 use petgraph::Direction;
 
 pub fn print(graph: &Graph, include_orphans: bool, enable_color: bool) -> Result<(), Error> {
-    let initial_indent = 0u8;
     print_nodes(
         &graph,
-        graph.nodes().filter(|n| n.is_root()),
-        initial_indent,
+        graph.nodes().filter(|n| n.is_root()).collect(),
         include_orphans,
         enable_color,
+        &[],
     )
+    .and_then(|_| {
+        print!("\n");
+        Ok(())
+    })
 }
 
-fn print_nodes<I: Iterator<Item = Module>>(
+fn print_nodes(
     graph: &Graph,
-    nodes: I,
-    indent: u8,
+    nodes: Vec<Module>,
     include_orphans: bool,
     enable_color: bool,
+    is_last_parents: &[bool],
 ) -> Result<(), Error> {
-    nodes.fold(Ok(()), |r, n| {
-        r.and_then(|_| print_tree(&graph, indent, n, include_orphans, enable_color))
+    let is_last = |idx: usize| idx + 1 == nodes.len();
+    nodes.iter().enumerate().fold(Ok(()), |r, (i, n)| {
+        r.and_then(|_| {
+            print_tree(
+                &graph,
+                *n,
+                include_orphans,
+                enable_color,
+                is_last(i),
+                is_last_parents,
+            )
+        })
     })
 }
 
 fn print_tree(
     graph: &Graph,
-    indent: u8,
     node: Module,
     include_orphans: bool,
     enable_color: bool,
+    is_last_node: bool,
+    is_last_parents: &[bool],
 ) -> Result<(), Error> {
-    let mut result = String::new();
-    for _ in 0..indent {
-        result.push_str("    ")
+    let mut branch = String::new();
+    // First level is crate level, we need to skip it when
+    // printing.  But we cannot easily drop the first value.
+    if is_last_parents.len() >= 1 {
+        for is_last_parent in is_last_parents.iter().skip(1) {
+            if *is_last_parent {
+                branch.push_str("    ")
+            } else {
+                branch.push_str(" │  ")
+            }
+        }
+        if is_last_node {
+            branch.push_str(" └── ");
+        } else {
+            branch.push_str(" ├── ");
+        }
     }
-    result.push_str(node.path());
-    println!("{}", result);
+    print!("{}", branch.blue().bold());
+
+    match (node.is_root(), node.visibility()) {
+        (true, _) => print!("{} : {}", node.name().green(), "crate".cyan().bold()),
+        (false, Visibility::Public) => {
+            print!("{} : {}", node.name().green(), "public".cyan().bold());
+            // FIXME: Conditions are empty when they shouldn't be.
+            if let Some(ref conditions) = node.conditions() {
+                print!(" @ {}", conditions.magenta().bold());
+            };
+        }
+        (false, Visibility::Private) => {
+            print!("{} : {}", node.name().yellow(), "private".cyan().bold())
+        }
+    }
+    print!("\n");
+
     print_nodes(
         &graph,
-        graph.neighbors_directed(node, Direction::Outgoing),
-        indent + 1,
+        graph
+            .neighbors_directed(node, Direction::Outgoing)
+            .collect(),
         include_orphans,
         enable_color,
+        &[is_last_parents, &[is_last_node]].concat(),
     )
 }
