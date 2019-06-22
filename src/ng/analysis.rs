@@ -2,12 +2,12 @@ use error::Error;
 use manifest::Target;
 use ng::graph::{Graph, GraphBuilder, Visibility, SEP};
 use std::ffi::OsStr;
-use std::fs::{self, DirEntry};
+use std::fs;
 use std::io::Error as IoError;
 use std::path::PathBuf;
 use syntax::ast::{Attribute, Crate, Item, ItemKind, Mac, Mod, NodeId, VisibilityKind};
 use syntax::parse::{self, ParseSess};
-use syntax::source_map::{FilePathMapping, Span};
+use syntax::source_map::{FilePathMapping, SourceMap, Span};
 use syntax::visit::{self, Visitor};
 
 const DIR_SEP: &str = "/";
@@ -16,14 +16,16 @@ struct Builder<'a> {
     graph_builder: GraphBuilder,
     ignored_files: &'a Vec<PathBuf>,
     path: Vec<String>,
+    source_map: &'a SourceMap,
 }
 
 impl<'a> Builder<'a> {
-    fn new(ignored_files: &'a Vec<PathBuf>) -> Self {
+    fn new(ignored_files: &'a Vec<PathBuf>, source_map: &'a SourceMap) -> Self {
         Builder {
             graph_builder: GraphBuilder::new(),
             ignored_files,
             path: vec![],
+            source_map,
         }
     }
 
@@ -42,7 +44,7 @@ pub fn build_graph<'a>(target: &Target, ignored_files: &'a Vec<PathBuf>) -> Resu
                 Err(e) => Err(Some(e)),
             }
             .map_err(|e| Error::Syntax(format!("{:?}", e)))?;
-        let mut builder = Builder::new(ignored_files);
+        let mut builder = Builder::new(ignored_files, parse_session.source_map());
         builder.graph_builder.add_crate_root(target.name());
         builder.path.push(target.name().to_owned());
 
@@ -124,7 +126,22 @@ impl<'a> Visitor<'a> for Builder<'a> {
                     VisibilityKind::Public => Visibility::Public,
                     _ => Visibility::Private,
                 };
-                self.graph_builder.add_mod(&path, &name, visibility);
+                let conditions: Option<String> = item
+                    .attrs
+                    .iter()
+                    .find(|attr| attr.check_name("cfg"))
+                    .map(|attr| {
+                        self.source_map
+                            .span_to_snippet(attr.span)
+                            .map(|attr| attr)
+                            .unwrap_or_else(|_| String::from(""))
+                    });
+                self.graph_builder.add_mod(
+                    &path,
+                    &name,
+                    visibility,
+                    conditions.as_ref().map(|x| &**x),
+                );
                 self.path.push(name);
                 visit::walk_item(self, item);
                 self.path.pop();
