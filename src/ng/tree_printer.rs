@@ -19,11 +19,12 @@ pub fn print(graph: &Graph, include_orphans: bool, enable_color: bool) -> Result
 
 fn print_nodes(
     graph: &Graph,
-    nodes: Vec<Module>,
+    mut nodes: Vec<Module>,
     include_orphans: bool,
     enable_color: bool,
     is_last_parents: &[bool],
 ) -> Result<(), Error> {
+    nodes.sort();
     let is_last = |idx: usize| idx + 1 == nodes.len();
     nodes.iter().enumerate().fold(Ok(()), |r, (i, n)| {
         r.and_then(|_| {
@@ -72,7 +73,10 @@ fn print_tree(
             print!("{} : {}", node.name().green(), "public".cyan().bold());
         }
         (false, Visibility::Private) => {
-            print!("{} : {}", node.name().yellow(), "private".cyan().bold())
+            print!("{} : {}", node.name().yellow(), "private".cyan().bold());
+        }
+        (false, Visibility::Orphan) => {
+            print!("{} : {}", node.name().red(), "orphan".cyan().bold());
         }
     }
     if let Some(ref conditions) = node.conditions() {
