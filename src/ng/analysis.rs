@@ -1,3 +1,4 @@
+//! Graph generation AST traversal.
 use error::Error;
 use manifest::Target;
 use ng::graph::{Graph, GraphBuilder, Visibility, SEP};
@@ -111,16 +112,6 @@ impl<'a> Visitor<'a> for Builder<'a> {
     fn visit_item(&mut self, item: &'a Item) {
         match item.node {
             ItemKind::Mod(_) => {
-                // TODO: We should support more kinds of visibility.
-                //
-                // Defined kinds are:
-                //
-                // - Public
-                // - Crate
-                // - Restricted
-                // - Inherited
-                //
-                // See: https://doc.rust-lang.org/nightly/nightly-rustc/syntax/ast/enum.VisibilityKind.html
                 let path = self.path_str();
                 let name = item.ident.to_string();
                 let visibility = match item.vis.node {
