@@ -66,23 +66,45 @@ fn print_tree(
             branch.push_str(" ├── ");
         }
     }
-    print!("{}", branch.blue().bold());
-
-    match (node.is_root(), node.visibility()) {
-        (true, _) => print!("{} : {}", node.name().green(), "crate".cyan().bold()),
-        (false, Some(Visibility::Public)) => {
-            print!("{} : {}", node.name().green(), "public".cyan().bold());
-        }
-        (false, Some(Visibility::Private)) => {
-            print!("{} : {}", node.name().yellow(), "private".cyan().bold());
-        }
-        (false, None) => {
-            print!("{} : {}", node.name().red(), "orphan".cyan().bold());
-        }
+    if enable_color {
+        print!("{}", branch.blue().bold());
+    } else {
+        print!("{}", branch);
     }
-    if let Some(ref conditions) = node.conditions() {
-        print!(" @ {}", conditions.magenta().bold());
-    };
+
+    if enable_color {
+        match (node.is_root(), node.visibility()) {
+            (true, _) => print!("{} : {}", node.name().green(), "crate".cyan().bold()),
+            (false, Some(Visibility::Public)) => {
+                print!("{} : {}", node.name().green(), "public".cyan().bold());
+            }
+            (false, Some(Visibility::Private)) => {
+                print!("{} : {}", node.name().yellow(), "private".cyan().bold());
+            }
+            (false, None) => {
+                print!("{} : {}", node.name().red(), "orphan".cyan().bold());
+            }
+        }
+        if let Some(ref conditions) = node.conditions() {
+            print!(" @ {}", conditions.magenta().bold());
+        };
+    } else {
+        match (node.is_root(), node.visibility()) {
+            (true, _) => print!("{} : {}", node.name(), "crate"),
+            (false, Some(Visibility::Public)) => {
+                print!("{} : {}", node.name(), "public");
+            }
+            (false, Some(Visibility::Private)) => {
+                print!("{} : {}", node.name(), "private");
+            }
+            (false, None) => {
+                print!("{} : {}", node.name(), "orphan");
+            }
+        }
+        if let Some(ref conditions) = node.conditions() {
+            print!(" @ {}", conditions);
+        };
+    }
     println!();
 
     print_nodes(
