@@ -6,13 +6,13 @@ use petgraph::Direction;
 pub fn print(graph: &Graph, include_orphans: bool, enable_color: bool) -> Result<(), Error> {
     print_nodes(
         &graph,
-        graph.nodes().filter(|n| n.is_root()).collect(),
+        graph.nodes().filter(Module::is_root).collect(),
         include_orphans,
         enable_color,
         &[],
     )
     .and_then(|_| {
-        print!("\n");
+        println!();
         Ok(())
     })
 }
@@ -51,7 +51,7 @@ fn print_tree(
     let mut branch = String::new();
     // First level is crate level, we need to skip it when
     // printing.  But we cannot easily drop the first value.
-    if is_last_parents.len() >= 1 {
+    if !is_last_parents.is_empty() {
         for is_last_parent in is_last_parents.iter().skip(1) {
             if *is_last_parent {
                 branch.push_str("    ")
@@ -82,7 +82,7 @@ fn print_tree(
     if let Some(ref conditions) = node.conditions() {
         print!(" @ {}", conditions.magenta().bold());
     };
-    print!("\n");
+    println!();
 
     print_nodes(
         &graph,

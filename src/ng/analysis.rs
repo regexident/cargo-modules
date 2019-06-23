@@ -1,6 +1,6 @@
 use error::Error;
 use manifest::Target;
-use ng::graph::{Graph, GraphBuilder, Module, Visibility, SEP};
+use ng::graph::{Graph, GraphBuilder, Visibility, SEP};
 use std::ffi::OsStr;
 use std::fs;
 use std::io::Error as IoError;
@@ -10,17 +10,18 @@ use syntax::parse::{self, ParseSess};
 use syntax::source_map::{FilePathMapping, SourceMap, Span};
 use syntax::visit::{self, Visitor};
 
+const SOURCE_DIR: &str = "./src/";
 const DIR_SEP: &str = "/";
 
 struct Builder<'a> {
     graph_builder: GraphBuilder,
-    ignored_files: &'a Vec<PathBuf>,
+    ignored_files: &'a [PathBuf],
     path: Vec<String>,
     source_map: &'a SourceMap,
 }
 
 impl<'a> Builder<'a> {
-    fn new(ignored_files: &'a Vec<PathBuf>, source_map: &'a SourceMap) -> Self {
+    fn new(ignored_files: &'a [PathBuf], source_map: &'a SourceMap) -> Self {
         Builder {
             graph_builder: GraphBuilder::new(),
             ignored_files,
@@ -34,7 +35,7 @@ impl<'a> Builder<'a> {
     }
 }
 
-pub fn build_graph<'a>(target: &Target, ignored_files: &'a Vec<PathBuf>) -> Result<Graph, Error> {
+pub fn build_graph<'a>(target: &Target, ignored_files: &'a [PathBuf]) -> Result<Graph, Error> {
     syntax::with_globals(|| {
         let parse_session = ParseSess::new(FilePathMapping::empty());
         let crate_: Crate =
@@ -74,10 +75,10 @@ fn find_orphan_candidates(
     path: &[String],
     ignored_files: &[PathBuf],
 ) -> Result<Vec<String>, IoError> {
-    let mut dir_path = "./src/".to_string();
+    let mut dir_path = SOURCE_DIR.to_string();
     for name in path.iter() {
         dir_path.push_str(name);
-        dir_path.push_str("/");
+        dir_path.push_str(DIR_SEP);
     }
     fn is_mod(entry: &fs::DirEntry) -> bool {
         let path = entry.path();
