@@ -1,3 +1,4 @@
+//! Data structures that represent module hierarchy and dependencies.
 use arrayvec::ArrayString;
 use petgraph::graphmap::DiGraphMap;
 use std::cmp::{Ord, Ordering};
@@ -18,10 +19,16 @@ pub const SEP: &str = "::";
 
 pub type Graph = DiGraphMap<Module, Edge>;
 
+/// Represents the scope of dependencies between modules.
+///
+/// See also [`Edge`].
 #[derive(Clone, Debug, PartialEq)]
 pub struct Dependency {
+    /// Eg: `use path::to::mod::*;`
     refers_to_all: bool,
+    /// Eg: `use path::to::mod;` or `use path::to::mod::{self, ...}`
     refers_to_mod: bool,
+    /// Eg: `use path::to::mod::{some_function, SomeStruct};`
     referred_members: Vec<String>,
 }
 
@@ -55,10 +62,17 @@ impl Dependency {
 }
 
 /// Represents an association between modules.
+///
+/// This enum is intended to be used with directed graphs because
+/// relationships represented are asymmetric.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Edge {
+    /// Represents a **parent ⇒ child** relationship.
     Child,
+    /// Represents a **dependent ⇒ dependency** relationship created by `use`.
     Dependency(Dependency),
+    /// Like `Child` but the **child** module is an orphan.  So this
+    /// represents a _lack of_ semantic relationship.
     Unconnected,
 }
 
@@ -251,6 +265,16 @@ impl PartialOrd for Module {
     }
 }
 
+// TODO: We should support more kinds of visibility.
+//
+// Defined kinds are:
+//
+// - Public
+// - Crate
+// - Restricted
+// - Inherited
+//
+// See: https://doc.rust-lang.org/nightly/nightly-rustc/syntax/ast/enum.VisibilityKind.html
 #[derive(Clone, Copy, Debug)]
 pub enum Visibility {
     Public,

@@ -1,3 +1,4 @@
+//! Display module hierarchy as a tree.
 use colored::Colorize;
 use error::Error;
 use ng::graph::{Graph, Module, Visibility};
