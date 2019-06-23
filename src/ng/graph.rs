@@ -99,16 +99,17 @@ impl GraphBuilder {
         visibility: Visibility,
         conditions: Option<&str>,
     ) {
-        let parent: Module = find_mod(&self.graph, path).unwrap();
+        assert!(visibility == Visibility::Public || visibility == Visibility::Private);
+        let parent: Module = self.find(path).unwrap();
         let node = Module::new(&[path, SEP, name].concat(), visibility, conditions);
         self.graph.add_node(node);
         assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
         self.apply_deferred();
     }
 
-    pub fn add_orphan(&mut self, path: &str, name: &str, visibility: Visibility) {
-        let parent: Module = find_mod(&self.graph, path).unwrap();
-        let node = Module::new(&[path, SEP, name].concat(), visibility, None);
+    pub fn add_orphan(&mut self, path: &str, name: &str) {
+        let parent: Module = self.find(path).unwrap();
+        let node = Module::new(&[path, SEP, name].concat(), Visibility::Orphan, None);
         self.graph.add_node(node);
         assert!(self
             .graph
@@ -119,7 +120,7 @@ impl GraphBuilder {
 
     pub fn add_dep(&mut self, from: &str, to: &str, dependency: Dependency) {
         assert!(from != to, "Module cannot depend on itself");
-        match (find_mod(&self.graph, from), find_mod(&self.graph, to)) {
+        match (self.find(from), self.find(to)) {
             (Some(from), Some(to)) => {
                 self.graph.add_edge(from, to, Edge::Dependency(dependency));
             }
@@ -138,11 +139,15 @@ impl GraphBuilder {
             Ok(self.graph)
         } else {
             let (from, to, _) = self.deferred_deps.remove(0);
-            match find_mod(&self.graph, &from) {
+            match self.find(&from) {
                 Some(_) => Err(GraphError::UnknownModule(to)),
                 None => Err(GraphError::UnknownModule(from)),
             }
         }
+    }
+
+    pub fn find(&self, path: &str) -> Option<Module> {
+        self.graph.nodes().find(|m| m.path() == path)
     }
 
     fn apply_deferred(&mut self) {
@@ -150,7 +155,7 @@ impl GraphBuilder {
         for (from, to, dep) in deferred {
             // We are only checking `to` because a dependent module
             // needs to be defined before the dependency is defined.
-            if find_mod(&self.graph, &to).is_some() {
+            if self.find(&to).is_some() {
                 self.add_dep(&from, &to, dep);
             } else {
                 self.deferred_deps.push((from, to, dep));
@@ -248,14 +253,11 @@ impl PartialOrd for Module {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Visibility {
+    Orphan,
     Public,
     Private,
-}
-
-pub fn find_mod(graph: &Graph, path: &str) -> Option<Module> {
-    graph.nodes().find(|m| m.path() == path)
 }
 
 #[cfg(test)]

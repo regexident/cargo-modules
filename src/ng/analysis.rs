@@ -1,6 +1,6 @@
 use error::Error;
 use manifest::Target;
-use ng::graph::{Graph, GraphBuilder, Visibility, SEP};
+use ng::graph::{Graph, GraphBuilder, Module, Visibility, SEP};
 use std::ffi::OsStr;
 use std::fs;
 use std::io::Error as IoError;
@@ -158,15 +158,17 @@ impl<'a> Visitor<'a> for Builder<'a> {
         // This is the default behavior:
         visit::walk_mod(self, module);
 
-        // NOTE: This is useful for orphaned modules.
-        // FIXME: I am not sure how it's supposed to work though.
-        // let path = &"";
-        // let name = &"";
-        // let visibility = Visibility::Public;
-        // self.add_mod(path, name, visibility);
-
-        if let Ok(candidates) = find_orphan_candidates(&self.path, &self.ignored_files[..]) {
-            println!("{:?}", candidates);
+        // Add orphaned modules.
+        if let Ok(candidates) = find_orphan_candidates(&self.path[1..], &self.ignored_files[..]) {
+            for candidate in candidates {
+                let path: String = [&self.path_str(), SEP, &candidate].concat();
+                match self.graph_builder.find(&path) {
+                    Some(_) => (), // Already visited, not an orphan.
+                    None => {
+                        self.graph_builder.add_orphan(&self.path_str(), &candidate);
+                    }
+                }
+            }
         }
     }
 }
