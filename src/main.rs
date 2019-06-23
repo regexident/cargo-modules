@@ -76,34 +76,23 @@ fn run_2018(args: &Arguments, manifest: &Manifest) -> Result<(), Error> {
     } else {
         !args.plain
     };
+    colored::control::set_override(enable_color);
 
-    if enable_color {
-        eprintln!("{}", "Warning: Edition 2018 support is unstable.".red());
-    } else {
-        eprintln!("{}", "Warning: Edition 2018 support is unstable.");
-    }
+    eprintln!("{}", "Warning: Edition 2018 support is unstable.".red());
 
     match args.command {
         Command::Graph { .. } => {
-            if enable_color {
-                eprintln!(
-                    "\n{}\n{}",
-                    "graph is not implemented for Edition 2018 yet.".red(),
-                    "Try removing --enable-edition-2018".yellow()
-                );
-            } else {
-                eprintln!(
-                    "\n{}\n{}",
-                    "graph is not implemented for Edition 2018 yet.",
-                    "Try removing --enable-edition-2018"
-                );
-            }
+            eprintln!(
+                "\n{}\n{}",
+                "graph is not implemented for Edition 2018 yet.".red(),
+                "Try removing --enable-edition-2018".yellow()
+            );
             Ok(())
         }
         Command::Tree => {
             let ignored_files = &build_scripts;
             let graph: Graph = analysis::build_graph(target, ignored_files)?;
-            tree_printer::print(&graph, include_orphans, enable_color)
+            tree_printer::print(&graph, include_orphans)
         }
     }
 }
