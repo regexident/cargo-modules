@@ -77,8 +77,29 @@ fn run_2018(args: &Arguments, manifest: &Manifest) -> Result<(), Error> {
         !args.plain
     };
 
+    if enable_color {
+        eprintln!("{}", "Warning: Edition 2018 support is unstable.".red());
+    } else {
+        eprintln!("{}", "Warning: Edition 2018 support is unstable.");
+    }
+
     match args.command {
-        Command::Graph { .. } => unimplemented!(),
+        Command::Graph { .. } => {
+            if enable_color {
+                eprintln!(
+                    "\n{}\n{}",
+                    "graph is not implemented for Edition 2018 yet.".red(),
+                    "Try removing --enable-edition-2018".yellow()
+                );
+            } else {
+                eprintln!(
+                    "\n{}\n{}",
+                    "graph is not implemented for Edition 2018 yet.",
+                    "Try removing --enable-edition-2018"
+                );
+            }
+            Ok(())
+        }
         Command::Tree => {
             let ignored_files = &build_scripts;
             let graph: Graph = analysis::build_graph(target, ignored_files)?;
@@ -115,7 +136,6 @@ fn run(args: &Arguments) -> Result<(), Error> {
     let target: &Target = choose_target(args, &manifest)?;
 
     if args.enable_edition_2018 && target.edition == Edition::E2018 {
-        eprintln!("{}", "Warning: Edition 2018 support is unstable.".red());
         return run_2018(args, &manifest);
     }
 
