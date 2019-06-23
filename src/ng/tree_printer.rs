@@ -69,13 +69,13 @@ fn print_tree(
 
     match (node.is_root(), node.visibility()) {
         (true, _) => print!("{} : {}", node.name().green(), "crate".cyan().bold()),
-        (false, Visibility::Public) => {
+        (false, Some(Visibility::Public)) => {
             print!("{} : {}", node.name().green(), "public".cyan().bold());
         }
-        (false, Visibility::Private) => {
+        (false, Some(Visibility::Private)) => {
             print!("{} : {}", node.name().yellow(), "private".cyan().bold());
         }
-        (false, Visibility::Orphan) => {
+        (false, None) => {
             print!("{} : {}", node.name().red(), "orphan".cyan().bold());
         }
     }

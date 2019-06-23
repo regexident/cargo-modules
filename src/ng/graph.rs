@@ -83,8 +83,7 @@ impl GraphBuilder {
     /// If `name` contains `"::"`.
     pub fn add_crate_root(&mut self, name: &str) {
         assert!(!name.contains(SEP));
-        self.graph
-            .add_node(Module::new_root(name, Visibility::Public, None));
+        self.graph.add_node(Module::new_root(name));
     }
 
     /// Define a sub-modules and associate it with its parent.
@@ -99,9 +98,8 @@ impl GraphBuilder {
         visibility: Visibility,
         conditions: Option<&str>,
     ) {
-        assert!(visibility == Visibility::Public || visibility == Visibility::Private);
         let parent: Module = self.find(path).unwrap();
-        let node = Module::new(&[path, SEP, name].concat(), visibility, conditions);
+        let node = Module::new(&[path, SEP, name].concat(), Some(visibility), conditions);
         self.graph.add_node(node);
         assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
         self.apply_deferred();
@@ -109,7 +107,7 @@ impl GraphBuilder {
 
     pub fn add_orphan(&mut self, path: &str, name: &str) {
         let parent: Module = self.find(path).unwrap();
-        let node = Module::new(&[path, SEP, name].concat(), Visibility::Orphan, None);
+        let node = Module::new(&[path, SEP, name].concat(), None, None);
         self.graph.add_node(node);
         assert!(self
             .graph
@@ -180,13 +178,13 @@ pub struct Module {
     /// See also [MOD_PATH_SIZE]
     path: ArrayString<[u8; MOD_PATH_SIZE]>,
     name_ridx: usize,
-    visibility: Visibility,
+    visibility: Option<Visibility>,
     /// This needs to be `Copy` for the same reason as `path`.
     conditions: Option<ArrayString<[u8; CONDITIONS_SIZE]>>,
 }
 
 impl Module {
-    pub fn new(path: &str, visibility: Visibility, conditions: Option<&str>) -> Self {
+    pub fn new(path: &str, visibility: Option<Visibility>, conditions: Option<&str>) -> Self {
         Self {
             is_root: false,
             path: ArrayString::<[u8; MOD_PATH_SIZE]>::from(path)
@@ -200,8 +198,8 @@ impl Module {
         }
     }
 
-    pub fn new_root(path: &str, visibility: Visibility, conditions: Option<&str>) -> Self {
-        let mut m = Self::new(path, visibility, conditions);
+    pub fn new_root(path: &str) -> Self {
+        let mut m = Self::new(path, Some(Visibility::Public), None);
         m.is_root = true;
         m
     }
@@ -222,7 +220,7 @@ impl Module {
         &self.path.as_str()
     }
 
-    pub fn visibility(&self) -> Visibility {
+    pub fn visibility(&self) -> Option<Visibility> {
         self.visibility
     }
 }
@@ -253,9 +251,8 @@ impl PartialOrd for Module {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub enum Visibility {
-    Orphan,
     Public,
     Private,
 }
@@ -279,14 +276,14 @@ mod tests {
         let graph: Graph = builder.build().unwrap();
         assert_eq!(1, graph.node_count());
         assert_eq!(0, graph.edge_count());
-        assert!(graph.contains_node(Module::new("crate-root", Visibility::Public, None)));
+        assert!(graph.contains_node(Module::new("crate-root", Some(Visibility::Public), None)));
     }
 
     #[test]
     fn add_mod_creates_an_association_with_parent() {
-        let foo: Module = Module::new("foo", Visibility::Public, None);
-        let bar: Module = Module::new("foo::bar", Visibility::Public, None);
-        let baz: Module = Module::new("foo::bar::baz", Visibility::Private, None);
+        let foo: Module = Module::new("foo", Some(Visibility::Public), None);
+        let bar: Module = Module::new("foo::bar", Some(Visibility::Public), None);
+        let baz: Module = Module::new("foo::bar::baz", Some(Visibility::Private), None);
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
@@ -376,9 +373,9 @@ mod tests {
     fn dependency_can_be_added_before_dependent_module_is_added() {
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("foo");
-        builder.add_mod("foo", "bar", Visibility::Public);
+        builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_dep("foo::bar", "foo::baz", Dependency::module());
-        builder.add_mod("foo", "baz", Visibility::Public);
+        builder.add_mod("foo", "baz", Visibility::Public, None);
         assert_eq!(3, builder.build().unwrap().edge_count());
     }
 
@@ -386,51 +383,48 @@ mod tests {
     fn orphaned_modules_are_linked_to_their_parent_via_unconnected_edges() {
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("foo");
-        builder.add_mod("foo", "bar", Visibility::Public);
-        builder.add_orphan("foo", "baz", Visibility::Public);
-        builder.add_orphan("foo::bar", "bat", Visibility::Public);
+        builder.add_mod("foo", "bar", Visibility::Public, None);
+        builder.add_orphan("foo", "baz");
+        builder.add_orphan("foo::bar", "bat");
         let graph = builder.build().unwrap();
         assert_eq!(3, graph.edge_count());
 
         // Check edge `foo -> baz`
         assert!(graph.contains_edge(
-            find_mod(&graph, "foo").unwrap(),
-            find_mod(&graph, "foo::baz").unwrap()
+            Module::new_root("foo"),
+            Module::new("foo::bar", Some(Visibility::Public), None)
         ));
         assert_eq!(
             Some(&Edge::Unconnected),
             graph.edge_weight(
-                find_mod(&graph, "foo").unwrap(),
-                find_mod(&graph, "foo::baz").unwrap()
+                Module::new_root("foo"),
+                Module::new("foo::baz", Some(Visibility::Public), None)
             )
         );
 
         // Check edge `bar -> bat`
         assert!(graph.contains_edge(
-            find_mod(&graph, "foo::bar").unwrap(),
-            find_mod(&graph, "foo::bar::bat").unwrap()
+            Module::new("foo::bar", Some(Visibility::Public), None),
+            Module::new("foo::bar::bat", Some(Visibility::Public), None)
         ));
         assert_eq!(
             Some(&Edge::Unconnected),
             graph.edge_weight(
-                find_mod(&graph, "foo::bar").unwrap(),
-                find_mod(&graph, "foo::bar::bat").unwrap()
+                Module::new("foo::bar", Some(Visibility::Public), None),
+                Module::new("foo::bar::bat", Some(Visibility::Public), None)
             )
         );
     }
 
     #[test]
     fn module_name() {
+        assert_eq!(Module::new_root("foo").name(), "foo");
         assert_eq!(
-            Module::new_root("foo", Visibility::Public, None).name(),
-            "foo"
-        );
-        assert_eq!(
-            Module::new_root("foo::bar", Visibility::Public, None).name(),
+            Module::new("foo::bar", Some(Visibility::Public), None).name(),
             "bar"
         );
         assert_eq!(
-            Module::new_root("foo::bar::baz::bat::quux", Visibility::Public, None).name(),
+            Module::new("foo::bar::baz::bat::quux", Some(Visibility::Private), None).name(),
             "quux"
         );
     }
