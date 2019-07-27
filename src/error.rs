@@ -11,6 +11,7 @@ pub enum Error {
     NoTargetProvided(Vec<String>),
     InvalidManifest(String),
     Syntax(String),
+    Graph(String),
 }
 
 impl fmt::Display for Error {
@@ -35,6 +36,7 @@ impl fmt::Display for Error {
             ),
             Error::InvalidManifest(error) => write!(f, "{}", error),
             Error::Syntax(error) => write!(f, "Failed to parse: {}", error),
+            Error::Graph(error) => write!(f, "Graph error: {}", error),
         }
     }
 }
