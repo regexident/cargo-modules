@@ -226,6 +226,10 @@ impl Module {
         &self.path[self.name_ridx..]
     }
 
+    pub fn is_orphan(&self) -> bool {
+        self.visibility.is_none()
+    }
+
     pub fn is_root(&self) -> bool {
         self.is_root
     }
