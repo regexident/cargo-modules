@@ -8,7 +8,14 @@ pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
 
     println!("digraph {{\n\tlabel=\"{}\";", root_node.name());
     indent += 4;
-    print_nodes(&graph, include_orphans, indent)?;
+    print_nodes(
+        graph.nodes().filter(|m| {
+            // All modules if include_orhans is true,
+            // else only non-orphaned modules.
+            include_orphans || !m.is_orphan()
+        }),
+        indent,
+    )?;
 
     println!("}}");
     Ok(())
@@ -23,13 +30,17 @@ fn find_root_module(graph: &Graph) -> Result<Module, Error> {
     }
 }
 
-fn print_nodes(graph: &Graph, include_orphans: bool, indent: usize) -> Result<(), Error> {
+fn print_nodes<I>(nodes: I, indent: usize) -> Result<(), Error>
+where
+    I: Iterator<Item = Module>,
+{
     let indent_str: String = repeat(' ').take(indent).collect();
-    for module in graph.nodes() {
+    println!("{}// Modules", indent_str);
+    for module in nodes {
         let node_color: String = (match module.visibility() {
             Some(Visibility::Public) => "green",
             Some(Visibility::Private) => "gold",
-            None => "red",
+            None => "red", // Module is orphaned
         })
         .to_owned();
         println!(
