@@ -34,6 +34,7 @@ use manifest::{Edition, Manifest, Target};
 
 use ng::analysis;
 use ng::graph::Graph;
+use ng::graph_printer;
 use ng::tree_printer;
 
 use printer::Config as PrinterConfig;
@@ -80,20 +81,11 @@ fn run_2018(args: &Arguments, manifest: &Manifest) -> Result<(), Error> {
 
     eprintln!("{}", "Warning: Edition 2018 support is unstable.".red());
 
+    let ignored_files = build_scripts;
+    let graph: Graph = analysis::build_graph(target, &ignored_files)?;
     match args.command {
-        Command::Graph { .. } => {
-            eprintln!(
-                "\n{}\n{}",
-                "graph is not implemented for Edition 2018 yet.".red(),
-                "Try removing --enable-edition-2018".yellow()
-            );
-            Ok(())
-        }
-        Command::Tree => {
-            let ignored_files = &build_scripts;
-            let graph: Graph = analysis::build_graph(target, ignored_files)?;
-            tree_printer::print(&graph, include_orphans)
-        }
+        Command::Graph { .. } => graph_printer::print(&graph, include_orphans),
+        Command::Tree => tree_printer::print(&graph, include_orphans),
     }
 }
 
