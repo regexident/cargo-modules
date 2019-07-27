@@ -1,5 +1,5 @@
 use error::Error;
-use ng::graph::{Graph, Module, Visibility};
+use ng::graph::{Edge, Graph, Module, Visibility};
 use std::iter::repeat;
 
 pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
@@ -16,7 +16,7 @@ pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
         }),
         indent,
     )?;
-
+    print_edges(graph.all_edges(), indent)?;
     println!("}}");
     Ok(())
 }
@@ -30,6 +30,28 @@ fn find_root_module(graph: &Graph) -> Result<Module, Error> {
     }
 }
 
+fn print_edges<'a, I>(edges: I, indent: usize) -> Result<(), Error>
+where
+    I: Iterator<Item = (Module, Module, &'a Edge)>,
+{
+    let indent_str: String = repeat(' ').take(indent).collect();
+    for (from, to, edge) in edges {
+        let edge_style: &str = match edge {
+            Edge::Child => "[weight=100, color=azure4]",
+            Edge::Dependency(_) => "[weight=90, color=darkviolet]",
+            Edge::Unconnected => "[weight=50, color=azure2]",
+        };
+        println!(
+            "{}\"{}\" -> \"{}\" {}",
+            indent_str,
+            from.path(),
+            to.path(),
+            edge_style
+        );
+    }
+    Ok(())
+}
+
 fn print_nodes<I>(nodes: I, indent: usize) -> Result<(), Error>
 where
     I: Iterator<Item = Module>,
@@ -37,12 +59,11 @@ where
     let indent_str: String = repeat(' ').take(indent).collect();
     println!("{}// Modules", indent_str);
     for module in nodes {
-        let node_color: String = (match module.visibility() {
+        let node_color: &str = match module.visibility() {
             Some(Visibility::Public) => "green",
             Some(Visibility::Private) => "gold",
             None => "red", // Module is orphaned
-        })
-        .to_owned();
+        };
         println!(
             "{}\"{}\" [label=\"{}\", color={}]",
             indent_str,
