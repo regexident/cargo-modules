@@ -159,19 +159,26 @@ impl GraphBuilder {
         // call the builder struct as mutable.
         let uses: HashMap<String, HashSet<String>> =
             std::mem::replace(&mut self.uses, HashMap::new());
-        let mut result: Result<(), GraphError> = Ok(());
-        for (from, uses) in uses {
-            let from_module = self
-                .find(&from)
-                .expect("Trying to add dependency from an unknown module");
-            for to in uses {
-                result = self.add_dependency(from_module, &to);
-                if result.is_err() {
-                    break;
-                }
-            }
-        }
-        result.map(|_| self.graph)
+
+        uses.iter()
+            .fold(Ok(()), |result, (from, uses)| {
+                // Go through each module (from) that has uses recorded
+                // but break as soon as a step results in an error.
+                result.and_then(|_| {
+                    // We can safely unwrap here since we expect the module
+                    // to be visited before any use can be recorded.
+                    let from_module = self
+                        .find(&from)
+                        .expect("Trying to add dependency from an unknown module");
+                    // Go through uses for from_module, break
+                    // as soon as a error is encountered.
+                    uses.iter().fold(Ok(()), |result, to| {
+                        result.and_then(|_| self.add_dependency(from_module, &to))
+                    })
+                })
+            })
+            // If all went right, return Ok(self.graph)
+            .map(|_| self.graph)
     }
 
     pub fn find(&self, path: &str) -> Option<Module> {
