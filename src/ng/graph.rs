@@ -189,6 +189,9 @@ impl GraphBuilder {
         match self.find(use_) {
             Some(to) => {
                 // TODO: Don't bash on existing dependency.
+                // TODO: Actually add uses (see analysis.rs)
+                // TODO: Support self & super prefixed imports (E2015)
+                // TODO: Support crate prefixed imports (E2018)
                 assert!(self
                     .graph
                     .add_edge(from, to, Edge::Dependency(Dependency::module()))
