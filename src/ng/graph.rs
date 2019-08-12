@@ -2,7 +2,9 @@
 use arrayvec::ArrayString;
 use petgraph::graphmap::DiGraphMap;
 use std::cmp::{Ord, Ordering};
+use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
+use std::ops::Add;
 
 /// Determines the maximum length of the #cfg that
 /// can be attached to a mod definition.
@@ -29,7 +31,7 @@ pub struct Dependency {
     /// Eg: `use path::to::mod;` or `use path::to::mod::{self, ...}`
     refers_to_mod: bool,
     /// Eg: `use path::to::mod::{some_function, SomeStruct};`
-    referred_members: Vec<String>,
+    referred_members: HashSet<String>,
 }
 
 impl Dependency {
@@ -37,7 +39,7 @@ impl Dependency {
         Self {
             refers_to_all: false,
             refers_to_mod: true,
-            referred_members: vec![],
+            referred_members: HashSet::new(),
         }
     }
 
@@ -45,18 +47,34 @@ impl Dependency {
         Self {
             refers_to_all: true,
             refers_to_mod: false,
-            referred_members: vec![],
+            referred_members: HashSet::new(),
         }
     }
 
     pub fn members(mut members: Vec<String>) -> Self {
         let refers_to_mod: bool = members.contains(&String::from(SELF_KEYWORD));
-        let referred_members: Vec<String> =
+        let referred_members: HashSet<String> =
             members.drain(..).filter(|m| m != SELF_KEYWORD).collect();
         Self {
             refers_to_all: false,
             refers_to_mod,
             referred_members,
+        }
+    }
+}
+
+impl Add for Dependency {
+    type Output = Dependency;
+
+    fn add(self, other: Dependency) -> Dependency {
+        Dependency {
+            refers_to_all: self.refers_to_all || other.refers_to_all,
+            refers_to_mod: self.refers_to_mod || other.refers_to_mod,
+            referred_members: self
+                .referred_members
+                .union(&other.referred_members)
+                .cloned()
+                .collect(),
         }
     }
 }
@@ -80,14 +98,14 @@ pub enum Edge {
 /// specific operations.
 pub struct GraphBuilder {
     graph: Graph,
-    deferred_deps: Vec<(String, String, Dependency)>,
+    uses: HashMap<String, HashSet<String>>,
 }
 
 impl GraphBuilder {
     pub fn new() -> Self {
         Self {
             graph: DiGraphMap::new(),
-            deferred_deps: vec![],
+            uses: HashMap::new(),
         }
     }
 
@@ -116,7 +134,6 @@ impl GraphBuilder {
         let node = Module::new(&[path, SEP, name].concat(), Some(visibility), conditions);
         self.graph.add_node(node);
         assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
-        self.apply_deferred();
     }
 
     pub fn add_orphan(&mut self, path: &str, name: &str) {
@@ -127,52 +144,40 @@ impl GraphBuilder {
             .graph
             .add_edge(parent, node, Edge::Unconnected)
             .is_none());
-        self.apply_deferred();
     }
 
-    pub fn add_dep(&mut self, from: &str, to: &str, dependency: Dependency) {
-        assert!(from != to, "Module cannot depend on itself");
-        match (self.find(from), self.find(to)) {
-            (Some(from), Some(to)) => {
-                self.graph.add_edge(from, to, Edge::Dependency(dependency));
-            }
-            (None, _) => panic!("Trying to add dependency from an unknown module"),
-            // Defer creating dependency link if
-            // one of the nodes are not defined yet.
-            (_, _) => self
-                .deferred_deps
-                .push((from.to_owned(), to.to_owned(), dependency)),
-        };
+    pub fn add_use(&mut self, path: &str, use_: &str) {
+        if !self.uses.contains_key(path) {
+            self.uses.insert(path.to_owned(), HashSet::new());
+        }
+        self.uses.get_mut(path).unwrap().insert(use_.to_owned());
     }
 
     /// Build the graph, consuming this builder, or return an error.
     pub fn build(mut self) -> Result<Graph, GraphError> {
-        if self.deferred_deps.is_empty() {
-            Ok(self.graph)
-        } else {
-            let (from, to, _) = self.deferred_deps.remove(0);
-            match self.find(&from) {
-                Some(_) => Err(GraphError::UnknownModule(to)),
-                None => Err(GraphError::UnknownModule(from)),
+        let mut result: Result<(), GraphError> = Ok(());
+        for (from, uses) in &self.uses {
+            for to in uses {
+                match (self.find(&from), self.find(&to)) {
+                    (Some(from), Some(to)) => {
+                        assert!(self
+                            .graph
+                            .add_edge(from, to, Edge::Dependency(Dependency::module()))
+                            .is_none());
+                    }
+                    (None, _) => panic!("Trying to add dependency from an unknown module"),
+                    (_, None) => {
+                        result = Err(GraphError::UnknownModule(to.to_owned()));
+                        break;
+                    }
+                };
             }
         }
+        result.map(|_| self.graph)
     }
 
     pub fn find(&self, path: &str) -> Option<Module> {
         self.graph.nodes().find(|m| m.path() == path)
-    }
-
-    fn apply_deferred(&mut self) {
-        let deferred: Vec<(String, String, Dependency)> = self.deferred_deps.drain(..).collect();
-        for (from, to, dep) in deferred {
-            // We are only checking `to` because a dependent module
-            // needs to be defined before the dependency is defined.
-            if self.find(&to).is_some() {
-                self.add_dep(&from, &to, dep);
-            } else {
-                self.deferred_deps.push((from, to, dep));
-            }
-        }
     }
 }
 
@@ -341,22 +346,13 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Module cannot depend on itself")]
-    fn adding_a_dependency_to_the_same_module_panics() {
-        let mut builder = GraphBuilder::new();
-        builder.add_crate_root("root");
-        builder.add_mod("root", "sub", Visibility::Public, None);
-        builder.add_dep("root::sub", "root::sub", Dependency::module());
-    }
-
-    #[test]
-    fn adding_a_dependency_is_idempotent() {
+    fn adding_a_use_is_idempotent() {
         let mut builder = GraphBuilder::new();
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_mod("foo", "baz", Visibility::Private, None);
-        builder.add_dep("foo::bar", "foo::baz", Dependency::module());
-        builder.add_dep("foo::bar", "foo::baz", Dependency::module());
+        builder.add_use("foo::bar", "foo::baz");
+        builder.add_use("foo::bar", "foo::baz");
         let graph = builder.build().unwrap();
         assert_eq!(3, graph.edge_count());
     }
@@ -367,7 +363,7 @@ mod tests {
             let mut builder = GraphBuilder::new();
             builder.add_crate_root("foo");
             builder.add_mod("foo", "bar", Visibility::Public, None);
-            builder.add_dep("foo::bar", "foo::baz", Dependency::module());
+            builder.add_use("foo::bar", "foo::baz");
             assert_eq!(
                 Some(GraphError::UnknownModule(String::from("foo::baz"))),
                 builder.build().err()
@@ -377,8 +373,8 @@ mod tests {
             let mut builder = GraphBuilder::new();
             builder.add_crate_root("foo");
             builder.add_mod("foo", "bar", Visibility::Private, None);
-            builder.add_dep("foo::bar", "foo::baz", Dependency::module());
-            builder.add_dep("foo::bar", "foo::fubar", Dependency::module());
+            builder.add_use("foo::bar", "foo::baz");
+            builder.add_use("foo::bar", "foo::fubar");
             builder.add_mod("foo", "baz", Visibility::Private, None);
             assert_eq!(
                 Some(GraphError::UnknownModule(String::from("foo::fubar"))),
@@ -389,22 +385,14 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "Trying to add dependency from an unknown module")]
+    #[allow(unused_must_use)]
     fn dependency_from_unknown_module_panics() {
         {
             let mut builder = GraphBuilder::new();
             builder.add_crate_root("foo");
-            builder.add_dep("foo::bar", "foo::baz", Dependency::module());
+            builder.add_use("foo::bar", "foo::baz");
+            builder.build();
         }
-    }
-
-    #[test]
-    fn dependency_can_be_added_before_dependent_module_is_added() {
-        let mut builder = GraphBuilder::new();
-        builder.add_crate_root("foo");
-        builder.add_mod("foo", "bar", Visibility::Public, None);
-        builder.add_dep("foo::bar", "foo::baz", Dependency::module());
-        builder.add_mod("foo", "baz", Visibility::Public, None);
-        assert_eq!(3, builder.build().unwrap().edge_count());
     }
 
     #[test]
