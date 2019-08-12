@@ -155,22 +155,20 @@ impl GraphBuilder {
 
     /// Build the graph, consuming this builder, or return an error.
     pub fn build(mut self) -> Result<Graph, GraphError> {
+        // Take ownership of uses separately so that we can still
+        // call the builder struct as mutable.
+        let uses: HashMap<String, HashSet<String>> =
+            std::mem::replace(&mut self.uses, HashMap::new());
         let mut result: Result<(), GraphError> = Ok(());
-        for (from, uses) in &self.uses {
+        for (from, uses) in uses {
+            let from_module = self
+                .find(&from)
+                .expect("Trying to add dependency from an unknown module");
             for to in uses {
-                match (self.find(&from), self.find(&to)) {
-                    (Some(from), Some(to)) => {
-                        assert!(self
-                            .graph
-                            .add_edge(from, to, Edge::Dependency(Dependency::module()))
-                            .is_none());
-                    }
-                    (None, _) => panic!("Trying to add dependency from an unknown module"),
-                    (_, None) => {
-                        result = Err(GraphError::UnknownModule(to.to_owned()));
-                        break;
-                    }
-                };
+                result = self.add_dependency(from_module, &to);
+                if result.is_err() {
+                    break;
+                }
             }
         }
         result.map(|_| self.graph)
@@ -178,6 +176,20 @@ impl GraphBuilder {
 
     pub fn find(&self, path: &str) -> Option<Module> {
         self.graph.nodes().find(|m| m.path() == path)
+    }
+
+    fn add_dependency(&mut self, from: Module, use_: &str) -> Result<(), GraphError> {
+        match self.find(use_) {
+            Some(to) => {
+                // TODO: Don't bash on existing dependency.
+                assert!(self
+                    .graph
+                    .add_edge(from, to, Edge::Dependency(Dependency::module()))
+                    .is_none());
+                Ok(())
+            }
+            None => Err(GraphError::UnknownModule(use_.to_owned())),
+        }
     }
 }
 
