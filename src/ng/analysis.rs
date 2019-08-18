@@ -46,9 +46,11 @@ impl<'a> Builder<'a> {
 
         match use_tree.kind {
             UseTreeKind::Simple(alias, ..) => match alias {
-                // TODO: Add support for aliased imports.
-                //       eg: `use foo as bar`.
-                Some(_alias) => unimplemented!(),
+                Some(_alias) => {
+                    // TODO: Add support for aliased imports.
+                    //       eg: `use foo as bar`.
+                    eprintln!("Aliasing of modules is not yet supported by cargo-modules.  This use will be ignored: {:?}", &use_tree);
+                }
                 None => self.graph_builder.add_use(&self.path_str(), new_prefix),
             },
             UseTreeKind::Nested(ref children) => {
