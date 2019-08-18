@@ -17,6 +17,7 @@ const MOD_PATH_SIZE: usize = 200;
 
 const SELF_KEYWORD: &str = "self";
 
+pub const GLOB: &str = "*";
 pub const SEP: &str = "::";
 
 pub type Graph = DiGraphMap<Module, Edge>;
@@ -51,10 +52,14 @@ impl Dependency {
         }
     }
 
-    pub fn members(mut members: Vec<String>) -> Self {
+    pub fn members(members: &[String]) -> Self {
         let refers_to_mod: bool = members.contains(&String::from(SELF_KEYWORD));
-        let referred_members: HashSet<String> =
-            members.drain(..).filter(|m| m != SELF_KEYWORD).collect();
+        let referred_members: HashSet<String> = members
+            .iter()
+            .filter(|m| *m != SELF_KEYWORD)
+            .cloned()
+            .collect();
+
         Self {
             refers_to_all: false,
             refers_to_mod,
@@ -146,22 +151,22 @@ impl GraphBuilder {
             .is_none());
     }
 
-    pub fn add_use(&mut self, path: &str, use_: &str) {
+    pub fn add_use(&mut self, path: &str, use_path: String) {
         if !self.uses.contains_key(path) {
             self.uses.insert(path.to_owned(), HashSet::new());
         }
-        self.uses.get_mut(path).unwrap().insert(use_.to_owned());
+        self.uses.get_mut(path).unwrap().insert(use_path);
     }
 
     /// Build the graph, consuming this builder, or return an error.
     pub fn build(mut self) -> Result<Graph, GraphError> {
         // Take ownership of uses separately so that we can still
         // call the builder struct as mutable.
-        let uses: HashMap<String, HashSet<String>> =
+        let mut uses: HashMap<String, HashSet<String>> =
             std::mem::replace(&mut self.uses, HashMap::new());
 
-        uses.iter()
-            .fold(Ok(()), |result, (from, uses)| {
+        uses.drain()
+            .fold(Ok(()), |result, (from, mut uses)| {
                 // Go through each module (from) that has uses recorded
                 // but break as soon as a step results in an error.
                 result.and_then(|_| {
@@ -172,8 +177,8 @@ impl GraphBuilder {
                         .expect("Trying to add dependency from an unknown module");
                     // Go through uses for from_module, break
                     // as soon as a error is encountered.
-                    uses.iter().fold(Ok(()), |result, to| {
-                        result.and_then(|_| self.add_dependency(from_module, &to))
+                    uses.drain().fold(Ok(()), |result, use_path| {
+                        result.and_then(|_| self.add_dependency(from_module, use_path))
                     })
                 })
             })
@@ -189,8 +194,19 @@ impl GraphBuilder {
     // TODO: Actually add uses (see analysis.rs)
     // TODO: Support self & super prefixed imports (E2015)
     // TODO: Support crate prefixed imports (E2018)
-    fn add_dependency(&mut self, from: Module, use_: &str) -> Result<(), GraphError> {
-        match self.find(use_) {
+    fn add_dependency(&mut self, from: Module, path: String) -> Result<(), GraphError> {
+        let parts: Vec<&str> = path.splitn(2, SEP).collect();
+        assert!(parts.len() >= 2);
+        let use_prefix: &str = parts[0];
+
+        let use_path_normalized: String = match use_prefix {
+            SELF_KEYWORD => [&from.name(), parts[1]].join(SEP),
+            _ => path.to_owned(),
+        };
+
+        eprintln!("Attempting use: {}", &use_path_normalized);
+
+        match self.find(&use_path_normalized) {
             Some(to) => {
                 assert!(self
                     .graph
@@ -198,7 +214,7 @@ impl GraphBuilder {
                     .is_none());
                 Ok(())
             }
-            None => Err(GraphError::UnknownModule(use_.to_owned())),
+            None => Err(GraphError::UnknownModule(use_path_normalized)),
         }
     }
 }
@@ -373,8 +389,8 @@ mod tests {
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_mod("foo", "baz", Visibility::Private, None);
-        builder.add_use("foo::bar", "foo::baz");
-        builder.add_use("foo::bar", "foo::baz");
+        builder.add_use("foo::bar", String::from("foo::baz"));
+        builder.add_use("foo::bar", String::from("foo::baz"));
         let graph = builder.build().unwrap();
         assert_eq!(3, graph.edge_count());
     }
@@ -385,7 +401,7 @@ mod tests {
             let mut builder = GraphBuilder::new();
             builder.add_crate_root("foo");
             builder.add_mod("foo", "bar", Visibility::Public, None);
-            builder.add_use("foo::bar", "foo::baz");
+            builder.add_use("foo::bar", String::from("foo::baz"));
             assert_eq!(
                 Some(GraphError::UnknownModule(String::from("foo::baz"))),
                 builder.build().err()
@@ -395,8 +411,8 @@ mod tests {
             let mut builder = GraphBuilder::new();
             builder.add_crate_root("foo");
             builder.add_mod("foo", "bar", Visibility::Private, None);
-            builder.add_use("foo::bar", "foo::baz");
-            builder.add_use("foo::bar", "foo::fubar");
+            builder.add_use("foo::bar", String::from("foo::baz"));
+            builder.add_use("foo::bar", String::from("foo::fubar"));
             builder.add_mod("foo", "baz", Visibility::Private, None);
             assert_eq!(
                 Some(GraphError::UnknownModule(String::from("foo::fubar"))),
@@ -412,7 +428,7 @@ mod tests {
         {
             let mut builder = GraphBuilder::new();
             builder.add_crate_root("foo");
-            builder.add_use("foo::bar", "foo::baz");
+            builder.add_use("foo::bar", String::from("foo::baz"));
             builder.build();
         }
     }
