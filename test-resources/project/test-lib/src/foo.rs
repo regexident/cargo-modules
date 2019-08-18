@@ -1,4 +1,5 @@
-mod foobar;
+pub mod foobar;
+
 mod phoo;
 
 use self::phoo::Phoo;

@@ -185,13 +185,13 @@ impl GraphBuilder {
         self.graph.nodes().find(|m| m.path() == path)
     }
 
+    // TODO: Don't bash on existing dependency.
+    // TODO: Actually add uses (see analysis.rs)
+    // TODO: Support self & super prefixed imports (E2015)
+    // TODO: Support crate prefixed imports (E2018)
     fn add_dependency(&mut self, from: Module, use_: &str) -> Result<(), GraphError> {
         match self.find(use_) {
             Some(to) => {
-                // TODO: Don't bash on existing dependency.
-                // TODO: Actually add uses (see analysis.rs)
-                // TODO: Support self & super prefixed imports (E2015)
-                // TODO: Support crate prefixed imports (E2018)
                 assert!(self
                     .graph
                     .add_edge(from, to, Edge::Dependency(Dependency::module()))
