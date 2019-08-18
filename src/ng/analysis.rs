@@ -1,12 +1,14 @@
 //! Graph generation AST traversal.
 use error::Error;
 use manifest::Target;
-use ng::graph::{Graph, GraphBuilder, Visibility, SEP};
+use ng::graph::{Graph, GraphBuilder, Visibility, GLOB, SEP};
 use std::ffi::OsStr;
 use std::fs;
 use std::io::Error as IoError;
 use std::path::PathBuf;
-use syntax::ast::{Attribute, Crate, Item, ItemKind, Mac, Mod, NodeId, VisibilityKind};
+use syntax::ast::{
+    Attribute, Crate, Item, ItemKind, Mac, Mod, NodeId, UseTree, UseTreeKind, VisibilityKind,
+};
 use syntax::parse::{self, ParseSess};
 use syntax::source_map::{FilePathMapping, SourceMap, Span};
 use syntax::visit::{self, Visitor};
@@ -33,6 +35,32 @@ impl<'a> Builder<'a> {
 
     fn path_str(&self) -> String {
         self.path.join(SEP)
+    }
+
+    fn add_use_tree(&mut self, prefix: &str, use_tree: &UseTree, visibility: Visibility) {
+        let new_prefix = if prefix.len() > 0 {
+            [prefix, &use_tree.prefix.to_string()].join(SEP)
+        } else {
+            use_tree.prefix.to_string()
+        };
+
+        match use_tree.kind {
+            UseTreeKind::Simple(alias, ..) => match alias {
+                // TODO: Add support for aliased imports.
+                //       eg: `use foo as bar`.
+                Some(_alias) => unimplemented!(),
+                None => self.graph_builder.add_use(&self.path_str(), new_prefix),
+            },
+            UseTreeKind::Nested(ref children) => {
+                for (child, _) in children {
+                    self.add_use_tree(&new_prefix, child, visibility);
+                }
+            }
+            UseTreeKind::Glob => {
+                self.graph_builder
+                    .add_use(&self.path_str(), format!("{}{}{}", new_prefix, SEP, GLOB));
+            }
+        }
     }
 }
 
@@ -137,6 +165,15 @@ impl<'a> Visitor<'a> for Builder<'a> {
                 self.path.push(name);
                 visit::walk_item(self, item);
                 self.path.pop();
+            }
+            ItemKind::Use(ref use_tree) => {
+                let visibility = if let VisibilityKind::Public = item.vis.node {
+                    Visibility::Public
+                } else {
+                    Visibility::Private
+                };
+                self.add_use_tree("", use_tree, visibility);
+                visit::walk_item(self, item);
             }
             _ => visit::walk_item(self, item),
         }
