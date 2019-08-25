@@ -1,6 +1,8 @@
 //! Data structures that represent module hierarchy and dependencies.
 use arrayvec::ArrayString;
+use manifest::Edition;
 use petgraph::graphmap::DiGraphMap;
+use petgraph::Direction;
 use std::cmp::{Ord, Ordering};
 use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
@@ -15,7 +17,9 @@ const CONDITIONS_SIZE: usize = 100;
 /// eg: `"my_crate::foo::bar::baz"`.
 const MOD_PATH_SIZE: usize = 200;
 
+const CRATE_KEYWORD: &str = "crate";
 const SELF_KEYWORD: &str = "self";
+const SUPER_KEYWORD: &str = "super";
 
 pub const GLOB: &str = "*";
 pub const SEP: &str = "::";
@@ -107,7 +111,10 @@ pub struct GraphBuilder {
 }
 
 impl GraphBuilder {
-    pub fn new() -> Self {
+    pub fn new(edition: Edition) -> Self {
+        if edition != Edition::E2018 {
+            panic!("Only 2018 edition is supported.");
+        }
         Self {
             graph: DiGraphMap::new(),
             uses: HashMap::new(),
@@ -190,31 +197,104 @@ impl GraphBuilder {
         self.graph.nodes().find(|m| m.path() == path)
     }
 
-    // TODO: Don't bash on existing dependency.
-    // TODO: Actually add uses (see analysis.rs)
-    // TODO: Support self & super prefixed imports (E2015)
-    // TODO: Support crate prefixed imports (E2018)
     fn add_dependency(&mut self, from: Module, path: String) -> Result<(), GraphError> {
-        let parts: Vec<&str> = path.splitn(2, SEP).collect();
-        assert!(parts.len() >= 2);
-        let use_prefix: &str = parts[0];
-
-        let use_path_normalized: String = match use_prefix {
-            SELF_KEYWORD => [&from.name(), parts[1]].join(SEP),
-            _ => path.to_owned(),
-        };
-
-        eprintln!("Attempting use: {}", &use_path_normalized);
+        let use_path_normalized: String = self.normalize_path(from, path);
 
         match self.find(&use_path_normalized) {
             Some(to) => {
-                assert!(self
-                    .graph
-                    .add_edge(from, to, Edge::Dependency(Dependency::module()))
-                    .is_none());
+                self.add_dependency_edge(from, to, Dependency::module());
                 Ok(())
             }
-            None => Err(GraphError::UnknownModule(use_path_normalized)),
+            None => {
+                if use_path_normalized.ends_with(&[SEP, GLOB].concat()) {
+                    match self.find(
+                        &use_path_normalized
+                            [..(use_path_normalized.len() - SEP.len() - GLOB.len())],
+                    ) {
+                        Some(to) => {
+                            self.add_dependency_edge(from, to, Dependency::all());
+                            Ok(())
+                        }
+                        None => Err(GraphError::UnknownModule(use_path_normalized)),
+                    }
+                } else {
+                    let last_separator_idx: usize = use_path_normalized.rfind(SEP).unwrap();
+                    match self.find(&use_path_normalized[..last_separator_idx]) {
+                        Some(to) => {
+                            let member: String = use_path_normalized
+                                [(use_path_normalized.rfind(SEP).unwrap() + SEP.len())..]
+                                .to_owned();
+                            self.add_dependency_edge(from, to, Dependency::members(&[member]));
+                            Ok(())
+                        }
+                        None => Err(GraphError::UnknownModule(use_path_normalized)),
+                    }
+                }
+            }
+        }
+    }
+
+    fn add_dependency_edge(&mut self, from: Module, to: Module, dependency: Dependency) {
+        match self.graph.edge_weight(from, to) {
+            // FIXME: Don't clone existing_dependency
+            Some(Edge::Dependency(existing_dependency)) => assert!(self
+                .graph
+                .add_edge(
+                    from,
+                    to,
+                    Edge::Dependency(existing_dependency.clone() + dependency)
+                )
+                .is_some()),
+            Some(existing_edge) => {
+                // FIXME: Handle this case properly.
+                eprintln!(
+                    "An edge already exists between {} & {}",
+                    from.path(),
+                    to.path()
+                );
+                eprintln!("{:?}", existing_edge);
+            }
+            None => assert!(self
+                .graph
+                .add_edge(from, to, Edge::Dependency(dependency))
+                .is_none()),
+        }
+    }
+
+    fn find_parent(&self, module: Module) -> Option<Module> {
+        for parent in self.graph.neighbors_directed(module, Direction::Incoming) {
+            if let Some(Edge::Child) = self.graph.edge_weight(parent, module) {
+                return Some(parent);
+            }
+        }
+        None
+    }
+
+    fn find_root(&self, module: Module) -> Module {
+        if module.is_root() {
+            module
+        } else {
+            match self.find_parent(module) {
+                Some(parent) => self.find_root(parent),
+                None => unreachable!("Module {} is without a parent", module.name()),
+            }
+        }
+    }
+
+    fn normalize_path(&self, from: Module, path: String) -> String {
+        let parts: Vec<&str> = path.splitn(2, SEP).collect();
+        match (parts.len() == 2, parts[0]) {
+            // TODO: crate is not supported in E2015
+            (true, CRATE_KEYWORD) => {
+                let root = self.find_root(from);
+                [&root.name(), parts[1]].join(SEP)
+            }
+            (true, SELF_KEYWORD) => [&from.path(), parts[1]].join(SEP),
+            (true, SUPER_KEYWORD) => match self.find_parent(from) {
+                Some(parent) => [&parent.path(), parts[1]].join(SEP),
+                None => unreachable!("super prefixed use in root module"),
+            },
+            _ => path,
         }
     }
 }
@@ -334,7 +414,7 @@ mod tests {
 
     #[test]
     fn new_builder_produces_an_empty_directed_graph() {
-        let builder = GraphBuilder::new();
+        let builder = GraphBuilder::new(Edition::E2018);
         let graph: Graph = builder.build().unwrap();
         assert_eq!(0, graph.node_count());
         assert_eq!(0, graph.edge_count());
@@ -342,7 +422,7 @@ mod tests {
 
     #[test]
     fn add_crate_root_adds_a_node() {
-        let mut builder = GraphBuilder::new();
+        let mut builder = GraphBuilder::new(Edition::E2018);
         builder.add_crate_root("crate-root");
         let graph: Graph = builder.build().unwrap();
         assert_eq!(1, graph.node_count());
@@ -355,7 +435,7 @@ mod tests {
         let foo: Module = Module::new("foo", Some(Visibility::Public), None);
         let bar: Module = Module::new("foo::bar", Some(Visibility::Public), None);
         let baz: Module = Module::new("foo::bar::baz", Some(Visibility::Private), None);
-        let mut builder = GraphBuilder::new();
+        let mut builder = GraphBuilder::new(Edition::E2018);
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_mod("foo::bar", "baz", Visibility::Private, None);
@@ -378,14 +458,14 @@ mod tests {
         let path = std::str::from_utf8([114; MOD_PATH_SIZE - 4].as_ref()).unwrap(); // 'r'
         let concatenated = format!("{}::{}", path, name);
         assert!(concatenated.len() > MOD_PATH_SIZE);
-        let mut builder = GraphBuilder::new();
+        let mut builder = GraphBuilder::new(Edition::E2018);
         builder.add_crate_root(path);
         builder.add_mod(path, name, Visibility::Public, None);
     }
 
     #[test]
     fn adding_a_use_is_idempotent() {
-        let mut builder = GraphBuilder::new();
+        let mut builder = GraphBuilder::new(Edition::E2018);
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_mod("foo", "baz", Visibility::Private, None);
@@ -395,30 +475,69 @@ mod tests {
         assert_eq!(3, graph.edge_count());
     }
 
+    // FIXME: Find some way to figure out whether a module member exists or
+    // not.
+    //
+    // #[test]
+    // fn add_use_requires_both_modules_to_be_defined() {
+    //     {
+    //         let mut builder = GraphBuilder::new(Edition::E2018);
+    //         builder.add_crate_root("foo");
+    //         builder.add_mod("foo", "bar", Visibility::Public, None);
+    //         builder.add_use("foo::bar", String::from("foo::baz"));
+    //         assert_eq!(
+    //             Some(GraphError::UnknownModule(String::from("foo::baz"))),
+    //             builder.build().err()
+    //         );
+    //     }
+    //     {
+    //         let mut builder = GraphBuilder::new(Edition::E2018);
+    //         builder.add_crate_root("foo");
+    //         builder.add_mod("foo", "bar", Visibility::Private, None);
+    //         builder.add_use("foo::bar", String::from("foo::baz"));
+    //         builder.add_use("foo::bar", String::from("foo::fubar"));
+    //         builder.add_mod("foo", "baz", Visibility::Private, None);
+    //         assert_eq!(
+    //             Some(GraphError::UnknownModule(String::from("foo::fubar"))),
+    //             builder.build().err()
+    //         );
+    //     }
+    // }
+
     #[test]
-    fn add_dep_requires_both_modules_to_be_defined() {
-        {
-            let mut builder = GraphBuilder::new();
-            builder.add_crate_root("foo");
-            builder.add_mod("foo", "bar", Visibility::Public, None);
-            builder.add_use("foo::bar", String::from("foo::baz"));
-            assert_eq!(
-                Some(GraphError::UnknownModule(String::from("foo::baz"))),
-                builder.build().err()
-            );
-        }
-        {
-            let mut builder = GraphBuilder::new();
-            builder.add_crate_root("foo");
-            builder.add_mod("foo", "bar", Visibility::Private, None);
-            builder.add_use("foo::bar", String::from("foo::baz"));
-            builder.add_use("foo::bar", String::from("foo::fubar"));
-            builder.add_mod("foo", "baz", Visibility::Private, None);
-            assert_eq!(
-                Some(GraphError::UnknownModule(String::from("foo::fubar"))),
-                builder.build().err()
-            );
-        }
+    fn add_use_recognizes_wildcard_imports() {
+        let mut builder = GraphBuilder::new(Edition::E2018);
+        builder.add_crate_root("foo");
+        builder.add_mod("foo", "bar", Visibility::Public, None);
+        builder.add_mod("foo", "baz", Visibility::Public, None);
+        builder.add_use("foo::baz", String::from("foo::bar::*"));
+        let bar = builder.find("foo::bar").unwrap();
+        let baz = builder.find("foo::baz").unwrap();
+        let graph = builder.build().unwrap();
+        assert_eq!(3, graph.all_edges().count());
+        assert_eq!(
+            Some(&Edge::Dependency(Dependency::all())),
+            graph.edge_weight(baz, bar)
+        );
+    }
+
+    #[test]
+    fn add_use_recognizes_import_of_individual_member() {
+        let mut builder = GraphBuilder::new(Edition::E2018);
+        builder.add_crate_root("foo");
+        builder.add_mod("foo", "bar", Visibility::Public, None);
+        builder.add_mod("foo", "baz", Visibility::Public, None);
+        builder.add_use("foo::baz", String::from("foo::bar::Something"));
+        let bar = builder.find("foo::bar").unwrap();
+        let baz = builder.find("foo::baz").unwrap();
+        let graph = builder.build().unwrap();
+        assert_eq!(3, graph.all_edges().count());
+        assert_eq!(
+            Some(&Edge::Dependency(Dependency::members(&[String::from(
+                "Something"
+            )]))),
+            graph.edge_weight(baz, bar)
+        );
     }
 
     #[test]
@@ -426,7 +545,7 @@ mod tests {
     #[allow(unused_must_use)]
     fn dependency_from_unknown_module_panics() {
         {
-            let mut builder = GraphBuilder::new();
+            let mut builder = GraphBuilder::new(Edition::E2018);
             builder.add_crate_root("foo");
             builder.add_use("foo::bar", String::from("foo::baz"));
             builder.build();
@@ -435,7 +554,7 @@ mod tests {
 
     #[test]
     fn orphaned_modules_are_linked_to_their_parent_via_unconnected_edges() {
-        let mut builder = GraphBuilder::new();
+        let mut builder = GraphBuilder::new(Edition::E2018);
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_orphan("foo", "baz");

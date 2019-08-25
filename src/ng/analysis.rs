@@ -1,6 +1,6 @@
 //! Graph generation AST traversal.
 use error::Error;
-use manifest::Target;
+use manifest::{Edition, Target};
 use ng::graph::{Graph, GraphBuilder, Visibility, GLOB, SEP};
 use std::ffi::OsStr;
 use std::fs;
@@ -24,9 +24,9 @@ struct Builder<'a> {
 }
 
 impl<'a> Builder<'a> {
-    fn new(ignored_files: &'a [PathBuf], source_map: &'a SourceMap) -> Self {
+    fn new(edition: Edition, ignored_files: &'a [PathBuf], source_map: &'a SourceMap) -> Self {
         Builder {
-            graph_builder: GraphBuilder::new(),
+            graph_builder: GraphBuilder::new(edition),
             ignored_files,
             path: vec![],
             source_map,
@@ -66,7 +66,11 @@ impl<'a> Builder<'a> {
     }
 }
 
-pub fn build_graph<'a>(target: &Target, ignored_files: &'a [PathBuf]) -> Result<Graph, Error> {
+pub fn build_graph<'a>(
+    edition: Edition,
+    target: &Target,
+    ignored_files: &'a [PathBuf],
+) -> Result<Graph, Error> {
     syntax::with_globals(|| {
         let parse_session = ParseSess::new(FilePathMapping::empty());
         let crate_: Crate =
@@ -76,7 +80,7 @@ pub fn build_graph<'a>(target: &Target, ignored_files: &'a [PathBuf]) -> Result<
                 Err(e) => Err(Some(e)),
             }
             .map_err(|e| Error::Syntax(format!("{:?}", e)))?;
-        let mut builder = Builder::new(ignored_files, parse_session.source_map());
+        let mut builder = Builder::new(edition, ignored_files, parse_session.source_map());
         builder.graph_builder.add_crate_root(target.name());
         builder.path.push(target.name().to_owned());
 

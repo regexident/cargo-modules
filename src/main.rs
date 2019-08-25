@@ -82,7 +82,7 @@ fn run_2018(args: &Arguments, manifest: &Manifest) -> Result<(), Error> {
     eprintln!("{}", "Warning: Edition 2018 support is unstable.".red());
 
     let ignored_files = build_scripts;
-    let graph: Graph = analysis::build_graph(target, &ignored_files)?;
+    let graph: Graph = analysis::build_graph(Edition::E2018, target, &ignored_files)?;
     match args.command {
         Command::Graph { .. } => graph_printer::print(&graph, include_orphans),
         Command::Tree => tree_printer::print(&graph, include_orphans),
