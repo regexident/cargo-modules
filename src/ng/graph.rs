@@ -32,14 +32,22 @@ pub type Graph = DiGraphMap<Module, Edge>;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Dependency {
     /// Eg: `use path::to::mod::*;`
-    refers_to_all: bool,
+    pub refers_to_all: bool,
     /// Eg: `use path::to::mod;` or `use path::to::mod::{self, ...}`
-    refers_to_mod: bool,
+    pub refers_to_mod: bool,
     /// Eg: `use path::to::mod::{some_function, SomeStruct};`
-    referred_members: HashSet<String>,
+    pub referred_members: HashSet<String>,
 }
 
 impl Dependency {
+    pub fn empty() -> Self {
+        Self {
+            refers_to_all: false,
+            refers_to_mod: false,
+            referred_members: HashSet::new(),
+        }
+    }
+
     pub fn module() -> Self {
         Self {
             refers_to_all: false,
@@ -89,18 +97,19 @@ impl Add for Dependency {
 }
 
 /// Represents an association between modules.
-///
-/// This enum is intended to be used with directed graphs because
-/// relationships represented are asymmetric.
 #[derive(Clone, Debug, PartialEq)]
-pub enum Edge {
-    /// Represents a **parent ⇒ child** relationship.
-    Child,
-    /// Represents a **dependent ⇒ dependency** relationship created by `use`.
-    Dependency(Dependency),
-    /// Like `Child` but the **child** module is an orphan.  So this
-    /// represents a _lack of_ semantic relationship.
-    Unconnected,
+pub struct Edge {
+    pub hierarchy: Hierarchy,
+    pub dependency: Dependency,
+}
+
+impl Edge {
+    fn new(hierarchy: Hierarchy) -> Self {
+        Edge {
+            hierarchy,
+            dependency: Dependency::empty(),
+        }
+    }
 }
 
 /// Builds a graph, `DiGraphMap<Mod, Edge>` to be specific using domain
@@ -145,7 +154,10 @@ impl GraphBuilder {
         let parent: Module = self.find(path).unwrap();
         let node = Module::new(&[path, SEP, name].concat(), Some(visibility), conditions);
         self.graph.add_node(node);
-        assert!(self.graph.add_edge(parent, node, Edge::Child).is_none());
+        assert!(self
+            .graph
+            .add_edge(parent, node, Edge::new(Hierarchy::Child))
+            .is_none());
     }
 
     pub fn add_orphan(&mut self, path: &str, name: &str) {
@@ -154,7 +166,7 @@ impl GraphBuilder {
         self.graph.add_node(node);
         assert!(self
             .graph
-            .add_edge(parent, node, Edge::Unconnected)
+            .add_edge(parent, node, Edge::new(Hierarchy::Orphan))
             .is_none());
     }
 
@@ -235,35 +247,23 @@ impl GraphBuilder {
     }
 
     fn add_dependency_edge(&mut self, from: Module, to: Module, dependency: Dependency) {
-        match self.graph.edge_weight(from, to) {
-            // FIXME: Don't clone existing_dependency
-            Some(Edge::Dependency(existing_dependency)) => assert!(self
-                .graph
-                .add_edge(
-                    from,
-                    to,
-                    Edge::Dependency(existing_dependency.clone() + dependency)
-                )
-                .is_some()),
-            Some(existing_edge) => {
-                // FIXME: Handle this case properly.
-                eprintln!(
-                    "An edge already exists between {} & {}",
-                    from.path(),
-                    to.path()
-                );
-                eprintln!("{:?}", existing_edge);
+        match self.graph.edge_weight_mut(from, to) {
+            Some(edge) => edge.dependency = edge.dependency.clone() + dependency,
+            None => {
+                let mut edge = Edge::new(Hierarchy::None);
+                edge.dependency = dependency;
+                assert!(self.graph.add_edge(from, to, edge).is_none());
             }
-            None => assert!(self
-                .graph
-                .add_edge(from, to, Edge::Dependency(dependency))
-                .is_none()),
         }
     }
 
     fn find_parent(&self, module: Module) -> Option<Module> {
         for parent in self.graph.neighbors_directed(module, Direction::Incoming) {
-            if let Some(Edge::Child) = self.graph.edge_weight(parent, module) {
+            if let Some(Edge {
+                hierarchy: Hierarchy::Child,
+                ..
+            }) = self.graph.edge_weight(parent, module)
+            {
                 return Some(parent);
             }
         }
@@ -302,6 +302,13 @@ impl GraphBuilder {
 #[derive(Debug, PartialEq)]
 pub enum GraphError {
     UnknownModule(String),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Hierarchy {
+    Child,
+    Orphan,
+    None,
 }
 
 /// Represents a node that is a module in the graph.
@@ -446,7 +453,24 @@ mod tests {
         assert!(graph.contains_node(bar));
         assert!(graph.contains_node(baz));
         assert_eq!(
-            vec![(foo, bar, &Edge::Child), (bar, baz, &Edge::Child)],
+            vec![
+                (
+                    foo,
+                    bar,
+                    &Edge {
+                        hierarchy: Hierarchy::Child,
+                        dependency: Dependency::empty()
+                    }
+                ),
+                (
+                    bar,
+                    baz,
+                    &Edge {
+                        hierarchy: Hierarchy::Child,
+                        dependency: Dependency::empty()
+                    }
+                )
+            ],
             graph.all_edges().collect::<Vec<(Module, Module, &Edge)>>()
         );
     }
@@ -516,7 +540,10 @@ mod tests {
         let graph = builder.build().unwrap();
         assert_eq!(3, graph.all_edges().count());
         assert_eq!(
-            Some(&Edge::Dependency(Dependency::all())),
+            Some(&Edge {
+                hierarchy: Hierarchy::None,
+                dependency: Dependency::all()
+            }),
             graph.edge_weight(baz, bar)
         );
     }
@@ -533,9 +560,10 @@ mod tests {
         let graph = builder.build().unwrap();
         assert_eq!(3, graph.all_edges().count());
         assert_eq!(
-            Some(&Edge::Dependency(Dependency::members(&[String::from(
-                "Something"
-            )]))),
+            Some(&Edge {
+                hierarchy: Hierarchy::None,
+                dependency: Dependency::members(&[String::from("Something")])
+            }),
             graph.edge_weight(baz, bar)
         );
     }
@@ -568,7 +596,7 @@ mod tests {
             Module::new("foo::bar", Some(Visibility::Public), None)
         ));
         assert_eq!(
-            Some(&Edge::Unconnected),
+            Some(&Edge::new(Hierarchy::Orphan)),
             graph.edge_weight(
                 Module::new_root("foo"),
                 Module::new("foo::baz", Some(Visibility::Public), None)
@@ -581,7 +609,7 @@ mod tests {
             Module::new("foo::bar::bat", Some(Visibility::Public), None)
         ));
         assert_eq!(
-            Some(&Edge::Unconnected),
+            Some(&Edge::new(Hierarchy::Orphan)),
             graph.edge_weight(
                 Module::new("foo::bar", Some(Visibility::Public), None),
                 Module::new("foo::bar::bat", Some(Visibility::Public), None)

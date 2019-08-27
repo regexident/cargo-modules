@@ -1,5 +1,5 @@
 use error::Error;
-use ng::graph::{Edge, Graph, Module, Visibility};
+use ng::graph::{Dependency, Edge, Graph, Hierarchy, Module, Visibility};
 
 pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
     let indent_str: &str = "    ";
@@ -16,12 +16,19 @@ pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
         print!("{}", indent_str);
         print_node(module);
     }
+    print!("\n");
 
-    println!("{}// Edges", indent_str);
+    println!("{}// Hierarchy", indent_str);
     for (from, to, edge) in graph.all_edges() {
-        print!("{}", indent_str);
-        print_edge(from, to, edge);
+        format_hierarchy(from, to, edge).map(|s| println!("{}{}", indent_str, s));
     }
+    print!("\n");
+
+    println!("{}// Dependencies", indent_str);
+    for (from, to, edge) in graph.all_edges() {
+        format_dependency(from, to, edge).map(|s| println!("{}{}", indent_str, s));
+    }
+    print!("\n");
 
     println!("}}");
     Ok(())
@@ -36,13 +43,36 @@ fn find_root_module(graph: &Graph) -> Result<Module, Error> {
     }
 }
 
-fn print_edge(from: Module, to: Module, edge: &Edge) {
-    let edge_style: &str = match edge {
-        Edge::Child => "[weight=100, color=azure4]",
-        Edge::Dependency(_) => "[weight=90, color=darkviolet]",
-        Edge::Unconnected => "[weight=50, color=azure2]",
-    };
-    println!("\"{}\" -> \"{}\" {}", from.path(), to.path(), edge_style);
+fn format_dependency(from: Module, to: Module, edge: &Edge) -> Option<String> {
+    match &edge.dependency {
+        Dependency {
+            refers_to_all,
+            refers_to_mod,
+            referred_members,
+        } => {
+            // TODO: Support other types of dependencies as well.
+            if *refers_to_mod {
+                let edge_style: &str = "[weight=90, color=darkviolet]";
+                Some(format!(
+                    "\"{}\" -> \"{}\" {}",
+                    from.path(),
+                    to.path(),
+                    edge_style
+                ))
+            } else {
+                None
+            }
+        }
+    }
+}
+
+fn format_hierarchy(from: Module, to: Module, edge: &Edge) -> Option<String> {
+    (match edge.hierarchy {
+        Hierarchy::Child => Some("[weight=100, color=azure4]"),
+        Hierarchy::Orphan => Some("[weight=50, color=azure2]"),
+        Hierarchy::None => None,
+    })
+    .map(|edge_style| format!("\"{}\" -> \"{}\" {}", from.path(), to.path(), edge_style))
 }
 
 fn print_node(module: Module) {
