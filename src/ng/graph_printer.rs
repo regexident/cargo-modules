@@ -1,5 +1,5 @@
 use error::Error;
-use ng::graph::{Dependency, Edge, Graph, Hierarchy, Module, Visibility};
+use ng::graph::{Dependency, Edge, Graph, Hierarchy, Module, Visibility, GLOB};
 
 pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
     let indent_str: &str = "    ";
@@ -44,23 +44,41 @@ fn find_root_module(graph: &Graph) -> Result<Module, Error> {
 }
 
 fn format_dependency(from: Module, to: Module, edge: &Edge) -> Option<String> {
-    match &edge.dependency {
-        Dependency {
-            refers_to_all,
-            refers_to_mod,
-            referred_members,
-        } => {
-            // TODO: Support other types of dependencies as well.
-            if *refers_to_mod {
-                let edge_style: &str = "[weight=90, color=darkviolet]";
+    if edge.dependency.is_empty() {
+        None
+    } else {
+        match &edge.dependency {
+            Dependency {
+                refers_to_all,
+                refers_to_mod,
+                referred_members,
+            } => {
+                let color: &str = "darkviolet";
+                // TODO: Set the overall font size manually as well, instead
+                //       of relying on the default value.
+                let font_size: u8 = 10;
+
+                let mut label_parts: Vec<String> = Vec::new();
+                if *refers_to_mod {
+                    label_parts.push("<B>self</B>".to_owned());
+                }
+                if *refers_to_all {
+                    label_parts.push(GLOB.to_owned());
+                }
+                let mut sorted_members = referred_members.iter().cloned().collect::<Vec<_>>();
+                for member in sorted_members.drain(..) {
+                    label_parts.push(member);
+                }
+
                 Some(format!(
-                    "\"{}\" -> \"{}\" {}",
+                    "\"{}\" -> \"{}\" [weight=90, color={}, label=<<FONT POINT-SIZE=\"{}\" COLOR=\"{}\">{}</FONT>>]",
                     from.path(),
                     to.path(),
-                    edge_style
+                    color,
+                    font_size,
+                    color,
+                    label_parts.join(", ")
                 ))
-            } else {
-                None
             }
         }
     }

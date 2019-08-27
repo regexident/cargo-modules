@@ -78,6 +78,10 @@ impl Dependency {
             referred_members,
         }
     }
+
+    pub fn is_empty(&self) -> bool {
+        !self.refers_to_all && !self.refers_to_mod && self.referred_members.is_empty()
+    }
 }
 
 impl Add for Dependency {
