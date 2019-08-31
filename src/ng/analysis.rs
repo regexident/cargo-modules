@@ -92,10 +92,7 @@ pub fn build_graph<'a>(
             NodeId::from(0 as u32),
         );
 
-        builder
-            .graph_builder
-            .build()
-            .map_err(|e| Error::Syntax(format!("{:?}", e)))
+        Ok(builder.graph_builder.build())
     })
 }
 
