@@ -182,46 +182,39 @@ impl GraphBuilder {
     }
 
     /// Build the graph, consuming this builder, or return an error.
-    pub fn build(mut self) -> Result<Graph, GraphError> {
+    pub fn build(mut self) -> Graph {
         // Take ownership of uses separately so that we can still
         // call the builder struct as mutable.
         let mut uses: HashMap<String, HashSet<String>> =
             std::mem::replace(&mut self.uses, HashMap::new());
 
-        uses.drain()
-            .fold(Ok(()), |result, (from, mut uses)| {
-                // Go through each module (from) that has uses recorded
-                // but break as soon as a step results in an error.
-                result.and_then(|_| {
-                    // We can safely unwrap here since we expect the module
-                    // to be visited before any use can be recorded.
-                    let from_module = self
-                        .find(&from)
-                        .expect("Trying to add dependency from an unknown module");
-                    // Go through uses for from_module, break
-                    // as soon as a error is encountered.
-                    uses.drain().fold(Ok(()), |result, use_path| {
-                        result.and_then(|_| self.add_dependency(from_module, use_path))
-                    })
-                })
-            })
-            // If all went right, return Ok(self.graph)
-            .map(|_| self.graph)
+        uses.drain().for_each(|(from, mut uses)| {
+            // We can safely unwrap here since we expect the module
+            // to be visited before any use can be recorded.
+            let from_module = self
+                .find(&from)
+                .expect("Trying to add dependency from an unknown module");
+            // Go through uses for from_module.
+            uses.drain()
+                .for_each(|use_path| self.add_dependency(from_module, use_path));
+        });
+
+        self.graph
     }
 
     pub fn find(&self, path: &str) -> Option<Module> {
         self.graph.nodes().find(|m| m.path() == path)
     }
 
-    fn add_dependency(&mut self, from: Module, path: String) -> Result<(), GraphError> {
+    fn add_dependency(&mut self, from: Module, path: String) {
         let use_path_normalized: String = self.normalize_path(from, path);
 
         match self.find(&use_path_normalized) {
             Some(to) => {
                 self.add_dependency_edge(from, to, Dependency::module());
-                Ok(())
             }
             None => {
+                // Glob
                 if use_path_normalized.ends_with(&[SEP, GLOB].concat()) {
                     match self.find(
                         &use_path_normalized
@@ -229,21 +222,21 @@ impl GraphBuilder {
                     ) {
                         Some(to) => {
                             self.add_dependency_edge(from, to, Dependency::all());
-                            Ok(())
                         }
-                        None => Err(GraphError::UnknownModule(use_path_normalized)),
+                        None => (),
                     }
                 } else {
-                    let last_separator_idx: usize = use_path_normalized.rfind(SEP).unwrap();
-                    match self.find(&use_path_normalized[..last_separator_idx]) {
-                        Some(to) => {
-                            let member: String = use_path_normalized
-                                [(use_path_normalized.rfind(SEP).unwrap() + SEP.len())..]
-                                .to_owned();
-                            self.add_dependency_edge(from, to, Dependency::members(&[member]));
-                            Ok(())
+                    // Member
+                    if let Some(last_separator_idx) = use_path_normalized.rfind(SEP) {
+                        match self.find(&use_path_normalized[..last_separator_idx]) {
+                            Some(to) => {
+                                let member: String = use_path_normalized
+                                    [(use_path_normalized.rfind(SEP).unwrap() + SEP.len())..]
+                                    .to_owned();
+                                self.add_dependency_edge(from, to, Dependency::members(&[member]));
+                            }
+                            None => (),
                         }
-                        None => Err(GraphError::UnknownModule(use_path_normalized)),
                     }
                 }
             }
@@ -301,11 +294,6 @@ impl GraphBuilder {
             _ => path,
         }
     }
-}
-
-#[derive(Debug, PartialEq)]
-pub enum GraphError {
-    UnknownModule(String),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -426,7 +414,7 @@ mod tests {
     #[test]
     fn new_builder_produces_an_empty_directed_graph() {
         let builder = GraphBuilder::new(Edition::E2018);
-        let graph: Graph = builder.build().unwrap();
+        let graph: Graph = builder.build();
         assert_eq!(0, graph.node_count());
         assert_eq!(0, graph.edge_count());
     }
@@ -435,7 +423,7 @@ mod tests {
     fn add_crate_root_adds_a_node() {
         let mut builder = GraphBuilder::new(Edition::E2018);
         builder.add_crate_root("crate-root");
-        let graph: Graph = builder.build().unwrap();
+        let graph: Graph = builder.build();
         assert_eq!(1, graph.node_count());
         assert_eq!(0, graph.edge_count());
         assert!(graph.contains_node(Module::new("crate-root", Some(Visibility::Public), None)));
@@ -450,7 +438,7 @@ mod tests {
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_mod("foo::bar", "baz", Visibility::Private, None);
-        let graph: Graph = builder.build().unwrap();
+        let graph: Graph = builder.build();
         assert_eq!(3, graph.node_count());
         assert_eq!(2, graph.edge_count());
         assert!(graph.contains_node(foo));
@@ -499,7 +487,7 @@ mod tests {
         builder.add_mod("foo", "baz", Visibility::Private, None);
         builder.add_use("foo::bar", String::from("foo::baz"));
         builder.add_use("foo::bar", String::from("foo::baz"));
-        let graph = builder.build().unwrap();
+        let graph = builder.build();
         assert_eq!(3, graph.edge_count());
     }
 
@@ -541,7 +529,7 @@ mod tests {
         builder.add_use("foo::baz", String::from("foo::bar::*"));
         let bar = builder.find("foo::bar").unwrap();
         let baz = builder.find("foo::baz").unwrap();
-        let graph = builder.build().unwrap();
+        let graph = builder.build();
         assert_eq!(3, graph.all_edges().count());
         assert_eq!(
             Some(&Edge {
@@ -561,7 +549,7 @@ mod tests {
         builder.add_use("foo::baz", String::from("foo::bar::Something"));
         let bar = builder.find("foo::bar").unwrap();
         let baz = builder.find("foo::baz").unwrap();
-        let graph = builder.build().unwrap();
+        let graph = builder.build();
         assert_eq!(3, graph.all_edges().count());
         assert_eq!(
             Some(&Edge {
@@ -591,7 +579,7 @@ mod tests {
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_orphan("foo", "baz");
         builder.add_orphan("foo::bar", "bat");
-        let graph = builder.build().unwrap();
+        let graph = builder.build();
         assert_eq!(3, graph.edge_count());
 
         // Check edge `foo -> baz`
@@ -619,6 +607,17 @@ mod tests {
                 Module::new("foo::bar::bat", Some(Visibility::Public), None)
             )
         );
+    }
+
+    #[test]
+    fn uses_of_unknown_modules_are_ignored() {
+        let mut builder = GraphBuilder::new(Edition::E2018);
+        builder.add_crate_root("myroot");
+        builder.add_mod("myroot", "child", Visibility::Private, None);
+        builder.add_use("myroot", String::from("myroot::child::*"));
+        builder.add_use("myroot", String::from("externaldep"));
+        let graph = builder.build();
+        assert_eq!(1, graph.edge_count());
     }
 
     #[test]
