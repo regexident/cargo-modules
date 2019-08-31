@@ -280,7 +280,7 @@ impl GraphBuilder {
         } else {
             match self.find_parent(module) {
                 Some(parent) => self.find_root(parent),
-                None => unreachable!("Module {} is without a parent", module.name()),
+                None => unreachable!("No root can be found for module {}.", module.name()),
             }
         }
     }
