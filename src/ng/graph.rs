@@ -210,32 +210,28 @@ impl GraphBuilder {
         let use_path_normalized: String = self.normalize_path(from, path);
 
         match self.find(&use_path_normalized) {
+            // Try a module import first:
             Some(to) => {
                 self.add_dependency_edge(from, to, Dependency::module());
             }
             None => {
-                // Glob
+                // If that fails, check for a glob import:
                 if use_path_normalized.ends_with(&[SEP, GLOB].concat()) {
-                    match self.find(
+                    if let Some(to) = self.find(
                         &use_path_normalized
                             [..(use_path_normalized.len() - SEP.len() - GLOB.len())],
                     ) {
-                        Some(to) => {
-                            self.add_dependency_edge(from, to, Dependency::all());
-                        }
-                        None => (),
+                        self.add_dependency_edge(from, to, Dependency::all());
                     }
                 } else {
-                    // Member
+                    // Else see if this is a module member import by
+                    //  dropping the last part of the use path:
                     if let Some(last_separator_idx) = use_path_normalized.rfind(SEP) {
-                        match self.find(&use_path_normalized[..last_separator_idx]) {
-                            Some(to) => {
-                                let member: String = use_path_normalized
-                                    [(use_path_normalized.rfind(SEP).unwrap() + SEP.len())..]
-                                    .to_owned();
-                                self.add_dependency_edge(from, to, Dependency::members(&[member]));
-                            }
-                            None => (),
+                        if let Some(to) = self.find(&use_path_normalized[..last_separator_idx]) {
+                            let member: String = use_path_normalized
+                                [(use_path_normalized.rfind(SEP).unwrap() + SEP.len())..]
+                                .to_owned();
+                            self.add_dependency_edge(from, to, Dependency::members(&[member]));
                         }
                     }
                 }
