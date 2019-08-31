@@ -98,7 +98,7 @@ fn format_hierarchy(from: Module, to: Module, edge: &Edge) -> Option<String> {
 }
 
 fn print_node(module: Module) {
-    let (color, fillcolor): (&str, &str) = match module.visibility() {
+    let (color, fill_color): (&str, &str) = match module.visibility() {
         Some(Visibility::Public) => ("green4", "greenyellow"),
         Some(Visibility::Private) => ("darkgoldenrod", "khaki1"),
         None => ("firebrick4", "rosybrown1"), // Module is orphaned
@@ -109,6 +109,6 @@ fn print_node(module: Module) {
         module.name(),
         color,
         color,
-        fillcolor
+        fill_color
     );
 }
