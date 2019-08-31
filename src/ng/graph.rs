@@ -487,35 +487,6 @@ mod tests {
         assert_eq!(3, graph.edge_count());
     }
 
-    // FIXME: Find some way to figure out whether a module member exists or
-    // not.
-    //
-    // #[test]
-    // fn add_use_requires_both_modules_to_be_defined() {
-    //     {
-    //         let mut builder = GraphBuilder::new(Edition::E2018);
-    //         builder.add_crate_root("foo");
-    //         builder.add_mod("foo", "bar", Visibility::Public, None);
-    //         builder.add_use("foo::bar", String::from("foo::baz"));
-    //         assert_eq!(
-    //             Some(GraphError::UnknownModule(String::from("foo::baz"))),
-    //             builder.build().err()
-    //         );
-    //     }
-    //     {
-    //         let mut builder = GraphBuilder::new(Edition::E2018);
-    //         builder.add_crate_root("foo");
-    //         builder.add_mod("foo", "bar", Visibility::Private, None);
-    //         builder.add_use("foo::bar", String::from("foo::baz"));
-    //         builder.add_use("foo::bar", String::from("foo::fubar"));
-    //         builder.add_mod("foo", "baz", Visibility::Private, None);
-    //         assert_eq!(
-    //             Some(GraphError::UnknownModule(String::from("foo::fubar"))),
-    //             builder.build().err()
-    //         );
-    //     }
-    // }
-
     #[test]
     fn add_use_recognizes_wildcard_imports() {
         let mut builder = GraphBuilder::new(Edition::E2018);
