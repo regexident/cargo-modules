@@ -6,9 +6,9 @@ pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
     let root_node: Module = find_root_module(&graph)?;
 
     println!(
-        "digraph {{\n{}label=\"{}\";\npad=0.4;",
-        indent_str,
-        root_node.name()
+        "digraph {{\n{}\n{}\n",
+        format!("{}label=\"{}\";", indent_str, root_node.name()),
+        format!("{}pad=0.4;", indent_str),
     );
 
     println!("{}// Modules", indent_str);
