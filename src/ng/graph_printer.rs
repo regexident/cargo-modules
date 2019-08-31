@@ -5,7 +5,11 @@ pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
     let indent_str: &str = "    ";
     let root_node: Module = find_root_module(&graph)?;
 
-    println!("digraph {{\n{}label=\"{}\";", indent_str, root_node.name());
+    println!(
+        "digraph {{\n{}label=\"{}\";\npad=0.4;",
+        indent_str,
+        root_node.name()
+    );
 
     println!("{}// Modules", indent_str);
     for module in graph.nodes().filter(|m| {
@@ -53,7 +57,7 @@ fn format_dependency(from: Module, to: Module, edge: &Edge) -> Option<String> {
                 refers_to_mod,
                 referred_members,
             } => {
-                let color: &str = "darkviolet";
+                let color: &str = "azure3";
                 // TODO: Set the overall font size manually as well, instead
                 //       of relying on the default value.
                 let font_size: u8 = 10;
@@ -71,7 +75,7 @@ fn format_dependency(from: Module, to: Module, edge: &Edge) -> Option<String> {
                 }
 
                 Some(format!(
-                    "\"{}\" -> \"{}\" [weight=90, color={}, label=<<FONT POINT-SIZE=\"{}\" COLOR=\"{}\">{}</FONT>>]",
+                    "\"{}\" -> \"{}\" [weight=90, color={}, penwidth=2, label=<<FONT POINT-SIZE=\"{}\" COLOR=\"{}\">use {}</FONT>>]",
                     from.path(),
                     to.path(),
                     color,
@@ -86,23 +90,25 @@ fn format_dependency(from: Module, to: Module, edge: &Edge) -> Option<String> {
 
 fn format_hierarchy(from: Module, to: Module, edge: &Edge) -> Option<String> {
     (match edge.hierarchy {
-        Hierarchy::Child => Some("[weight=100, color=azure4]"),
-        Hierarchy::Orphan => Some("[weight=50, color=azure2]"),
+        Hierarchy::Child => Some("[weight=100, color=azure4, penwidth=3]"),
+        Hierarchy::Orphan => Some("[weight=50, color=firebrick4, penwidth=1]"),
         Hierarchy::None => None,
     })
     .map(|edge_style| format!("\"{}\" -> \"{}\" {}", from.path(), to.path(), edge_style))
 }
 
 fn print_node(module: Module) {
-    let node_color: &str = match module.visibility() {
-        Some(Visibility::Public) => "green",
-        Some(Visibility::Private) => "gold",
-        None => "red", // Module is orphaned
+    let (color, fillcolor): (&str, &str) = match module.visibility() {
+        Some(Visibility::Public) => ("green4", "greenyellow"),
+        Some(Visibility::Private) => ("darkgoldenrod", "khaki1"),
+        None => ("firebrick4", "rosybrown1"), // Module is orphaned
     };
     println!(
-        "\"{}\" [label=\"{}\", color={}]",
+        "\"{}\" [label=\"{}\", color={}, fontcolor={} style=filled, fillcolor={}]",
         module.path(),
         module.name(),
-        node_color
+        color,
+        color,
+        fillcolor
     );
 }
