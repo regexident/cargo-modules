@@ -2,8 +2,10 @@ use error::Error;
 use json;
 use std::default::Default;
 use std::path::{Path, PathBuf};
+use syntax::source_map::edition::Edition;
+use std::str::FromStr;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Package {
     edition: Edition,
     targets: Vec<Target>,
@@ -21,8 +23,7 @@ impl Manifest {
         let packages = j["packages"]
             .members_mut()
             .map(|package| {
-                let edition: Edition = package["edition"].as_str().into();
-
+                let edition: Edition = Edition::from_str(package["edition"].as_str().unwrap()).unwrap();
                 let targets: Vec<Target> = package["targets"]
                     .members_mut()
                     .map(Target::from_json)
@@ -72,29 +73,6 @@ impl Manifest {
             .filter(|t| t.is_bin())
             .map(|t| t.name().to_string())
             .collect()
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Edition {
-    E2015,
-    E2018,
-}
-
-impl Default for Edition {
-    fn default() -> Self {
-        Edition::E2015
-    }
-}
-
-impl From<Option<&str>> for Edition {
-    fn from(string: Option<&str>) -> Self {
-        match string {
-            Some("2015") => Edition::E2015,
-            Some("2018") => Edition::E2018,
-            Some(unknown) => panic!("Unrecognized value for edition \"{}\"", unknown),
-            None => Edition::default(),
-        }
     }
 }
 
@@ -148,7 +126,7 @@ impl Target {
         let name: String = j["name"].take_string().expect("name is missing");
         let src_path: PathBuf =
             Path::new(&j["src_path"].take_string().expect("src_path is missing")).to_path_buf();
-        let edition: Edition = j["edition"].as_str().into();
+        let edition: Edition = Edition::from_str(j["edition"].as_str().unwrap()).unwrap();
         Target {
             kind,
             crate_types,
@@ -178,19 +156,19 @@ mod tests {
     #[test]
     fn manifest_with_edition2018_can_be_parsed() {
         let manifest = read_manifest(path::Path::new("test-resources/example-lib-edition-2018"));
-        assert_eq!(Edition::E2018, manifest.targets()[0].edition);
+        assert_eq!(Edition::Edition2018, manifest.targets()[0].edition);
     }
 
     #[test]
     fn manifest_with_edition2015_can_be_parsed() {
         let manifest = read_manifest(path::Path::new("test-resources/example-lib-edition-2015"));
-        assert_eq!(Edition::E2015, manifest.targets()[0].edition);
+        assert_eq!(Edition::Edition2015, manifest.targets()[0].edition);
     }
 
     #[test]
     fn manifest_without_edition_can_be_parsed() {
         let manifest = read_manifest(path::Path::new("test-resources/example-lib-no-edition"));
-        assert_eq!(Edition::E2015, manifest.targets()[0].edition);
+        assert_eq!(Edition::Edition2015, manifest.targets()[0].edition);
     }
 
     #[test]
@@ -203,7 +181,7 @@ mod tests {
                 crate_types: vec!(String::from("lib")),
                 name: String::from("example-lib-edition-2018"),
                 src_path: resource_path.join("src/lib.rs"),
-                edition: Edition::E2018
+                edition: Edition::Edition2018
             },
             manifest.targets()[0]
         );
@@ -222,14 +200,14 @@ mod tests {
                     crate_types: vec!(String::from("bin")),
                     name: String::from("example2"),
                     src_path: resource_path.join("src/bin/example2.rs"),
-                    edition: Edition::E2018
+                    edition: Edition::Edition2018
                 },
                 &Target {
                     kind: vec!(String::from("bin")),
                     crate_types: vec!(String::from("bin")),
                     name: String::from("example"),
                     src_path: resource_path.join("src/bin/example.rs"),
-                    edition: Edition::E2018
+                    edition: Edition::Edition2018
                 }
             ],
             manifest.targets()
@@ -249,14 +227,14 @@ mod tests {
                     crate_types: vec!(String::from("lib")),
                     name: String::from("example-lib-edition-2018"),
                     src_path: resource_path.join("src/lib.rs"),
-                    edition: Edition::E2018
+                    edition: Edition::Edition2018
                 },
                 &Target {
                     kind: vec!(String::from("custom-build")),
                     crate_types: vec!(String::from("bin")),
                     name: String::from("build-script-build"),
                     src_path: resource_path.join("build.rs"),
-                    edition: Edition::E2018
+                    edition: Edition::Edition2018
                 }
             ],
             manifest.all_targets().collect::<Vec<_>>()
@@ -267,7 +245,7 @@ mod tests {
                 crate_types: vec!(String::from("lib")),
                 name: String::from("example-lib-edition-2018"),
                 src_path: resource_path.join("src/lib.rs"),
-                edition: Edition::E2018
+                edition: Edition::Edition2018
             },],
             manifest.targets()
         );
@@ -277,7 +255,7 @@ mod tests {
                 crate_types: vec!(String::from("bin")),
                 name: String::from("build-script-build"),
                 src_path: resource_path.join("build.rs"),
-                edition: Edition::E2018
+                edition: Edition::Edition2018
             }],
             manifest.custom_builds()
         );
@@ -293,7 +271,7 @@ mod tests {
                 crate_types: vec!(String::from("dylib")),
                 name: String::from("example-plugin"),
                 src_path: resource_path.join("src/lib.rs"),
-                edition: Edition::E2018
+                edition: Edition::Edition2018
             },
             manifest.targets()[0]
         );
@@ -311,7 +289,7 @@ mod tests {
                 crate_types: vec!(String::from("proc-macro")),
                 name: String::from("example-proc-macro"),
                 src_path: resource_path.join("src/lib.rs"),
-                edition: Edition::E2018
+                edition: Edition::Edition2018
             },
             manifest.targets()[0]
         );
@@ -331,14 +309,14 @@ mod tests {
                     crate_types: vec!(String::from("lib")),
                     name: String::from("example-bin-and-lib"),
                     src_path: resource_path.join("src/lib.rs"),
-                    edition: Edition::E2018
+                    edition: Edition::Edition2018
                 },
                 &Target {
                     kind: vec!(String::from("bin")),
                     crate_types: vec!(String::from("bin")),
                     name: String::from("example-bin-and-lib"),
                     src_path: resource_path.join("src/main.rs"),
-                    edition: Edition::E2018
+                    edition: Edition::Edition2018
                 }
             ],
             manifest.targets()

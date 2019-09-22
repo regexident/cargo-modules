@@ -79,7 +79,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
         let condition = item
             .attrs
             .iter()
-            .find(|attr| attr.check_name("cfg"))
+            .find(|attr| attr.check_name(source_map::Symbol::intern("cfg")))
             .map(|attr| {
                 self.source_map
                     .span_to_snippet(attr.span)

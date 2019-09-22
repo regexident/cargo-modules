@@ -1,3 +1,5 @@
+#![feature(rustc_private)]
+
 extern crate arrayvec;
 extern crate colored;
 extern crate json;
@@ -18,7 +20,7 @@ use std::process;
 
 use syntax::ast::{Crate, NodeId};
 use syntax::parse::{self, ParseSess};
-use syntax::source_map;
+use syntax::source_map::{self, edition::Edition};
 use syntax::visit::Visitor;
 
 use structopt::StructOpt;
@@ -30,7 +32,7 @@ use builder::Config as BuilderConfig;
 
 use error::Error;
 
-use manifest::{Edition, Manifest, Target};
+use manifest::{Manifest, Target};
 
 use ng::analysis;
 use ng::graph::Graph;
@@ -82,7 +84,7 @@ fn run_2018(args: &Arguments, manifest: &Manifest) -> Result<(), Error> {
     eprintln!("{}", "Warning: Edition 2018 support is unstable.".red());
 
     let ignored_files = build_scripts;
-    let graph: Graph = analysis::build_graph(Edition::E2018, target, &ignored_files)?;
+    let graph: Graph = analysis::build_graph(Edition::Edition2018, target, &ignored_files)?;
     match args.command {
         Command::Graph { .. } => graph_printer::print(&graph, include_orphans),
         Command::Tree => tree_printer::print(&graph, include_orphans),
@@ -116,13 +118,13 @@ fn run(args: &Arguments) -> Result<(), Error> {
 
     let target: &Target = choose_target(args, &manifest)?;
 
-    if args.enable_edition_2018 && target.edition == Edition::E2018 {
+    if args.enable_edition_2018 && target.edition == Edition::Edition2018 {
         return run_2018(args, &manifest);
     }
 
     let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
-    syntax::with_globals(|| {
+    syntax::with_globals(Edition::Edition2015, || {
         let krate: Crate =
             match parse::parse_crate_from_file(target.src_path().as_ref(), &parse_session) {
                 Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),

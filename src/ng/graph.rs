@@ -1,6 +1,6 @@
 //! Data structures that represent module hierarchy and dependencies.
 use arrayvec::ArrayString;
-use manifest::Edition;
+use syntax::source_map::edition::Edition;
 use petgraph::graphmap::DiGraphMap;
 use petgraph::Direction;
 use std::cmp::{Ord, Ordering};
@@ -125,7 +125,7 @@ pub struct GraphBuilder {
 
 impl GraphBuilder {
     pub fn new(edition: Edition) -> Self {
-        if edition != Edition::E2018 {
+        if edition != Edition::Edition2018 {
             panic!("Only 2018 edition is supported.");
         }
         Self {
@@ -409,7 +409,7 @@ mod tests {
 
     #[test]
     fn new_builder_produces_an_empty_directed_graph() {
-        let builder = GraphBuilder::new(Edition::E2018);
+        let builder = GraphBuilder::new(Edition::Edition2018);
         let graph: Graph = builder.build();
         assert_eq!(0, graph.node_count());
         assert_eq!(0, graph.edge_count());
@@ -417,7 +417,7 @@ mod tests {
 
     #[test]
     fn add_crate_root_adds_a_node() {
-        let mut builder = GraphBuilder::new(Edition::E2018);
+        let mut builder = GraphBuilder::new(Edition::Edition2018);
         builder.add_crate_root("crate-root");
         let graph: Graph = builder.build();
         assert_eq!(1, graph.node_count());
@@ -430,7 +430,7 @@ mod tests {
         let foo: Module = Module::new("foo", Some(Visibility::Public), None);
         let bar: Module = Module::new("foo::bar", Some(Visibility::Public), None);
         let baz: Module = Module::new("foo::bar::baz", Some(Visibility::Private), None);
-        let mut builder = GraphBuilder::new(Edition::E2018);
+        let mut builder = GraphBuilder::new(Edition::Edition2018);
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_mod("foo::bar", "baz", Visibility::Private, None);
@@ -470,14 +470,14 @@ mod tests {
         let path = std::str::from_utf8([114; MOD_PATH_SIZE - 4].as_ref()).unwrap(); // 'r'
         let concatenated = format!("{}::{}", path, name);
         assert!(concatenated.len() > MOD_PATH_SIZE);
-        let mut builder = GraphBuilder::new(Edition::E2018);
+        let mut builder = GraphBuilder::new(Edition::Edition2018);
         builder.add_crate_root(path);
         builder.add_mod(path, name, Visibility::Public, None);
     }
 
     #[test]
     fn adding_a_use_is_idempotent() {
-        let mut builder = GraphBuilder::new(Edition::E2018);
+        let mut builder = GraphBuilder::new(Edition::Edition2018);
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_mod("foo", "baz", Visibility::Private, None);
@@ -489,7 +489,7 @@ mod tests {
 
     #[test]
     fn add_use_recognizes_wildcard_imports() {
-        let mut builder = GraphBuilder::new(Edition::E2018);
+        let mut builder = GraphBuilder::new(Edition::Edition2018);
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_mod("foo", "baz", Visibility::Public, None);
@@ -509,7 +509,7 @@ mod tests {
 
     #[test]
     fn add_use_recognizes_import_of_individual_member() {
-        let mut builder = GraphBuilder::new(Edition::E2018);
+        let mut builder = GraphBuilder::new(Edition::Edition2018);
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_mod("foo", "baz", Visibility::Public, None);
@@ -532,7 +532,7 @@ mod tests {
     #[allow(unused_must_use)]
     fn dependency_from_unknown_module_panics() {
         {
-            let mut builder = GraphBuilder::new(Edition::E2018);
+            let mut builder = GraphBuilder::new(Edition::Edition2018);
             builder.add_crate_root("foo");
             builder.add_use("foo::bar", String::from("foo::baz"));
             builder.build();
@@ -541,7 +541,7 @@ mod tests {
 
     #[test]
     fn orphaned_modules_are_linked_to_their_parent_via_unconnected_edges() {
-        let mut builder = GraphBuilder::new(Edition::E2018);
+        let mut builder = GraphBuilder::new(Edition::Edition2018);
         builder.add_crate_root("foo");
         builder.add_mod("foo", "bar", Visibility::Public, None);
         builder.add_orphan("foo", "baz");
@@ -578,7 +578,7 @@ mod tests {
 
     #[test]
     fn uses_of_unknown_modules_are_ignored() {
-        let mut builder = GraphBuilder::new(Edition::E2018);
+        let mut builder = GraphBuilder::new(Edition::Edition2018);
         builder.add_crate_root("myroot");
         builder.add_mod("myroot", "child", Visibility::Private, None);
         builder.add_use("myroot", String::from("myroot::child::*"));
