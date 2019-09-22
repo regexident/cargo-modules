@@ -1,6 +1,6 @@
 //! Graph generation AST traversal.
 use error::Error;
-use manifest::{Edition, Target};
+use manifest::{ Target};
 use ng::graph::{Graph, GraphBuilder, Visibility, GLOB, SEP};
 use std::ffi::OsStr;
 use std::fs;
@@ -10,7 +10,7 @@ use syntax::ast::{
     Attribute, Crate, Item, ItemKind, Mac, Mod, NodeId, UseTree, UseTreeKind, VisibilityKind,
 };
 use syntax::parse::{self, ParseSess};
-use syntax::source_map::{FilePathMapping, SourceMap, Span};
+use syntax::source_map::{Symbol,FilePathMapping, SourceMap, Span, edition::Edition};
 use syntax::visit::{self, Visitor};
 
 const SOURCE_DIR: &str = "./src/";
@@ -71,7 +71,7 @@ pub fn build_graph<'a>(
     target: &Target,
     ignored_files: &'a [PathBuf],
 ) -> Result<Graph, Error> {
-    syntax::with_globals(|| {
+    syntax::with_globals(edition, || {
         let parse_session = ParseSess::new(FilePathMapping::empty());
         let crate_: Crate =
             match parse::parse_crate_from_file(&target.src_path(), &parse_session) {
@@ -152,7 +152,7 @@ impl<'a> Visitor<'a> for Builder<'a> {
                 let conditions: Option<String> = item
                     .attrs
                     .iter()
-                    .find(|attr| attr.check_name("cfg"))
+                    .find(|attr| attr.check_name(Symbol::intern("cfg")))
                     .map(|attr| {
                         self.source_map
                             .span_to_snippet(attr.span)
