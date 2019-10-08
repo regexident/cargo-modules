@@ -122,9 +122,9 @@ fn run(args: &Arguments) -> Result<(), Error> {
         return run_2018(args, &manifest);
     }
 
-    let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
-
     syntax::with_globals(Edition::Edition2015, || {
+        let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
+
         let krate: Crate =
             match parse::parse_crate_from_file(target.src_path().as_ref(), &parse_session) {
                 Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
