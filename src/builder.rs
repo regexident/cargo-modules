@@ -87,7 +87,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
                     .unwrap_or_else(|_| "".to_string())
             });
 
-        match item.node {
+        match item.kind {
             ast::ItemKind::Mod(_) => {
                 let name = item.ident.to_string();
                 {
@@ -159,7 +159,7 @@ fn add_use_tree(tree: &mut Tree, visibility: Visibility, prefix: &str, use_tree:
     };
 
     match use_tree.kind {
-        ast::UseTreeKind::Simple(_, ..) => {
+        ast::UseTreeKind::Simple(..) => {
             let path = pprust::path_to_string(&use_tree.prefix);
             if path != "self" {
                 tree.insert_use((visibility, prefix + &path));
