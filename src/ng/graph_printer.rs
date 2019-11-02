@@ -20,19 +20,19 @@ pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
         print!("{}", indent_str);
         print_node(module);
     }
-    print!("\n");
+    println!();
 
     println!("{}// Hierarchy", indent_str);
     for (from, to, edge) in graph.all_edges() {
         format_hierarchy(from, to, edge).map(|s| println!("{}{}", indent_str, s));
     }
-    print!("\n");
+    println!();
 
     println!("{}// Dependencies", indent_str);
     for (from, to, edge) in graph.all_edges() {
         format_dependency(from, to, edge).map(|s| println!("{}{}", indent_str, s));
     }
-    print!("\n");
+    println!();
 
     println!("}}");
     Ok(())

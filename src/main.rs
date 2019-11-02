@@ -19,7 +19,8 @@ use std::path;
 use std::process;
 
 use syntax::ast::{Crate, NodeId};
-use syntax::parse::{self, ParseSess};
+use syntax::parse;
+use syntax::sess::ParseSess;
 use syntax::source_map::{self, edition::Edition};
 use syntax::visit::Visitor;
 
@@ -187,7 +188,6 @@ fn run(args: &Arguments) -> Result<(), Error> {
 #[structopt(
     name = "cargo-modules",
     about = "Print a crate's module tree or graph.",
-    author = "",
     after_help = "If neither `--bin` nor `--example` are given,\n\
                   then if the project only has one bin target it will be run.\n\
                   Otherwise `--bin` specifies the bin target to run.\n\
@@ -225,12 +225,11 @@ struct Arguments {
 
 #[derive(StructOpt)]
 enum Command {
-    #[structopt(name = "tree", about = "Print a crate's module tree.", author = "")]
+    #[structopt(name = "tree", about = "Print a crate's module tree.")]
     Tree,
     #[structopt(
         name = "graph",
         about = "Print a crate's module graph.",
-        author = "",
         after_help = "If you have xdot installed on your system, you can run this using:\n\
                       `cargo modules graph | xdot -`"
     )]

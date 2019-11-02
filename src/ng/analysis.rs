@@ -1,16 +1,19 @@
 //! Graph generation AST traversal.
 use error::Error;
-use manifest::{ Target};
+use manifest::Target;
 use ng::graph::{Graph, GraphBuilder, Visibility, GLOB, SEP};
 use std::ffi::OsStr;
 use std::fs;
 use std::io::Error as IoError;
 use std::path::PathBuf;
+use std::string::ToString;
 use syntax::ast::{
     Attribute, Crate, Item, ItemKind, Mac, Mod, NodeId, UseTree, UseTreeKind, VisibilityKind,
 };
-use syntax::parse::{self, ParseSess};
-use syntax::source_map::{Symbol,FilePathMapping, SourceMap, Span, edition::Edition};
+use syntax::parse;
+use syntax::print::pprust;
+use syntax::sess::ParseSess;
+use syntax::source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol};
 use syntax::visit::{self, Visitor};
 
 const SOURCE_DIR: &str = "./src/";
@@ -38,21 +41,15 @@ impl<'a> Builder<'a> {
     }
 
     fn add_use_tree(&mut self, prefix: &str, use_tree: &UseTree, visibility: Visibility) {
-        let new_prefix = if prefix.len() > 0 {
-            [prefix, &use_tree.prefix.to_string()].join(SEP)
+        let path_string = pprust::path_to_string(&use_tree.prefix);
+        let new_prefix = if path_string != "self" {
+            [prefix, &path_string].join(SEP)
         } else {
-            use_tree.prefix.to_string()
+            prefix.to_string()
         };
 
         match use_tree.kind {
-            UseTreeKind::Simple(alias, ..) => match alias {
-                Some(_alias) => {
-                    // TODO: Add support for aliased imports.
-                    //       eg: `use foo as bar`.
-                    eprintln!("Aliasing of modules is not yet supported by cargo-modules.  This use will be ignored: {:?}", &use_tree);
-                }
-                None => self.graph_builder.add_use(&self.path_str(), new_prefix),
-            },
+            UseTreeKind::Simple(..) => self.graph_builder.add_use(&self.path_str(), new_prefix),
             UseTreeKind::Nested(ref children) => {
                 for (child, _) in children {
                     self.add_use_tree(&new_prefix, child, visibility);
@@ -141,7 +138,7 @@ fn find_orphan_candidates(
 
 impl<'a> Visitor<'a> for Builder<'a> {
     fn visit_item(&mut self, item: &'a Item) {
-        match item.node {
+        match item.kind {
             ItemKind::Mod(_) => {
                 let path = self.path_str();
                 let name = item.ident.to_string();
