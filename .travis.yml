@@ -1,3 +1,2 @@
 language: rust
-rust:
-  - nightly
+rust: none
