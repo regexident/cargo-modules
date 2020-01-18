@@ -5,7 +5,10 @@ extern crate colored;
 extern crate json;
 extern crate petgraph;
 extern crate structopt;
+
 extern crate syntax;
+extern crate rustc_span;
+extern crate rustc_parse;
 
 mod builder;
 mod dot_printer;
@@ -19,10 +22,10 @@ use std::path;
 use std::process;
 
 use syntax::ast::{Crate, NodeId};
-use syntax::parse;
 use syntax::sess::ParseSess;
-use syntax::source_map::{self, edition::Edition};
 use syntax::visit::Visitor;
+
+use rustc_span::source_map::{self, edition::Edition};
 
 use structopt::StructOpt;
 
@@ -127,7 +130,7 @@ fn run(args: &Arguments) -> Result<(), Error> {
         let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
         let krate: Crate =
-            match parse::parse_crate_from_file(target.src_path().as_ref(), &parse_session) {
+            match rustc_parse::parse_crate_from_file(target.src_path().as_ref(), &parse_session) {
                 Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
                 Ok(krate) => Ok(krate),
                 Err(e) => Err(Some(e)),
