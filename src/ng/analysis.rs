@@ -1,20 +1,26 @@
 //! Graph generation AST traversal.
-use error::Error;
-use manifest::Target;
-use ng::graph::{Graph, GraphBuilder, Visibility, GLOB, SEP};
+
 use std::ffi::OsStr;
 use std::fs;
 use std::io::Error as IoError;
 use std::path::PathBuf;
 use std::string::ToString;
+
+use error::Error;
+use manifest::Target;
+use ng::graph::{Graph, GraphBuilder, Visibility, GLOB, SEP};
+
 use syntax::ast::{
     Attribute, Crate, Item, ItemKind, Mac, Mod, NodeId, UseTree, UseTreeKind, VisibilityKind,
 };
-use syntax::parse;
 use syntax::print::pprust;
 use syntax::sess::ParseSess;
-use syntax::source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol};
+// use syntax::source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol};
 use syntax::visit::{self, Visitor};
+
+use rustc_span::source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol};
+
+use rustc_parse;
 
 const SOURCE_DIR: &str = "./src/";
 const DIR_SEP: &str = "/";
@@ -71,7 +77,7 @@ pub fn build_graph<'a>(
     syntax::with_globals(edition, || {
         let parse_session = ParseSess::new(FilePathMapping::empty());
         let crate_: Crate =
-            match parse::parse_crate_from_file(&target.src_path(), &parse_session) {
+            match rustc_parse::parse_crate_from_file(&target.src_path(), &parse_session) {
                 Ok(_) if parse_session.span_diagnostic.has_errors() => Err(None),
                 Ok(krate) => Ok(krate),
                 Err(e) => Err(Some(e)),

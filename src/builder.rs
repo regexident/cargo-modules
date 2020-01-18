@@ -1,7 +1,9 @@
 use std::{ffi::OsStr, fs, io, path, result::Result, string::ToString};
 
 use syntax::print::pprust;
-use syntax::{ast, source_map, visit};
+use syntax::{ast, visit};
+
+use rustc_span::source_map;
 
 use tree::{Tree, Visibility};
 

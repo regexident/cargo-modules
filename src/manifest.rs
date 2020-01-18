@@ -1,9 +1,11 @@
-use error::Error;
-use json;
 use std::default::Default;
 use std::path::{Path, PathBuf};
-use syntax::source_map::edition::Edition;
 use std::str::FromStr;
+
+use rustc_span::source_map::edition::Edition;
+
+use error::Error;
+use json;
 
 #[derive(Debug)]
 pub struct Package {
