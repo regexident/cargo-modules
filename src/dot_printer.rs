@@ -4,7 +4,11 @@ use std::{
     iter::repeat,
 };
 
-use crate::tree::{Tree, Visibility, Visitor};
+use crate::tree::{
+    Tree,
+    Visibility,
+    Visitor,
+};
 
 pub struct Config {
     pub colored: bool,

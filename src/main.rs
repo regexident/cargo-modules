@@ -8,29 +8,50 @@ mod ng; // TODO: Remove this.
 mod printer;
 mod tree;
 
-use std::{path, process};
+use std::{
+    path,
+    process,
+};
 
+use colored::*;
 use rustc_ast::{
-    ast::{Crate, NodeId},
+    ast::{
+        Crate,
+        NodeId,
+    },
     visit::Visitor,
 };
 use rustc_session::parse::ParseSess;
-use rustc_span::source_map::{self, edition::Edition};
+use rustc_span::source_map::{
+    self,
+    edition::Edition,
+};
 use structopt::StructOpt;
-use colored::*;
 
 use crate::{
-    builder::{Builder, Config as BuilderConfig},
-    dot_printer::{Config as DotPrinterConfig, DotPrinter},
+    builder::{
+        Builder,
+        Config as BuilderConfig,
+    },
+    dot_printer::{
+        Config as DotPrinterConfig,
+        DotPrinter,
+    },
     error::Error,
-    manifest::{Manifest, Target},
+    manifest::{
+        Manifest,
+        Target,
+    },
     ng::{
         analysis,
         graph::Graph,
         graph_printer,
         tree_printer,
     },
-    printer::{Config as PrinterConfig, Printer},
+    printer::{
+        Config as PrinterConfig,
+        Printer,
+    },
 };
 
 fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Target, Error> {

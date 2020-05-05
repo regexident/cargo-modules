@@ -1,5 +1,8 @@
-use std::{fmt, io};
 use json;
+use std::{
+    fmt,
+    io,
+};
 
 #[derive(Debug)]
 pub enum Error {

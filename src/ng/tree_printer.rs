@@ -4,7 +4,11 @@ use petgraph::Direction;
 
 use crate::{
     error::Error,
-    ng::graph::{Graph, Module, Visibility},
+    ng::graph::{
+        Graph,
+        Module,
+        Visibility,
+    },
 };
 
 pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
