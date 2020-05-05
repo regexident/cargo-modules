@@ -34,13 +34,17 @@ pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
 
     println!("{}// Hierarchy", indent_str);
     for (from, to, edge) in graph.all_edges() {
-        format_hierarchy(from, to, edge).map(|s| println!("{}{}", indent_str, s));
+        if let Some(s) = format_hierarchy(from, to, edge) {
+            println!("{}{}", indent_str, s);
+        }
     }
     println!();
 
     println!("{}// Dependencies", indent_str);
     for (from, to, edge) in graph.all_edges() {
-        format_dependency(from, to, edge).map(|s| println!("{}{}", indent_str, s));
+        if let Some(s) = format_dependency(from, to, edge) {
+            println!("{}{}", indent_str, s);
+        }
     }
     println!();
 
@@ -59,43 +63,39 @@ fn find_root_module(graph: &Graph) -> Result<Module, Error> {
 
 fn format_dependency(from: Module, to: Module, edge: &Edge) -> Option<String> {
     if edge.dependency.is_empty() {
-        None
-    } else {
-        match &edge.dependency {
-            Dependency {
-                refers_to_all,
-                refers_to_mod,
-                referred_members,
-            } => {
-                let color: &str = "azure3";
-                // TODO: Set the overall font size manually as well, instead
-                //       of relying on the default value.
-                let font_size: u8 = 10;
-
-                let mut label_parts: Vec<String> = Vec::new();
-                if *refers_to_mod {
-                    label_parts.push("<B>self</B>".to_owned());
-                }
-                if *refers_to_all {
-                    label_parts.push(GLOB.to_owned());
-                }
-                let mut sorted_members = referred_members.iter().cloned().collect::<Vec<_>>();
-                for member in sorted_members.drain(..) {
-                    label_parts.push(member);
-                }
-
-                Some(format!(
-                    "\"{}\" -> \"{}\" [weight=90, color={}, penwidth=2, label=<<FONT POINT-SIZE=\"{}\" COLOR=\"{}\">use {}</FONT>>]",
-                    from.path(),
-                    to.path(),
-                    color,
-                    font_size,
-                    color,
-                    label_parts.join(", ")
-                ))
-            }
-        }
+        return None;
     }
+    let Dependency {
+        refers_to_all,
+        refers_to_mod,
+        referred_members,
+    } = &edge.dependency;
+    let color: &str = "azure3";
+    // TODO: Set the overall font size manually as well, instead
+    //       of relying on the default value.
+    let font_size: u8 = 10;
+
+    let mut label_parts: Vec<String> = Vec::new();
+    if *refers_to_mod {
+        label_parts.push("<B>self</B>".to_owned());
+    }
+    if *refers_to_all {
+        label_parts.push(GLOB.to_owned());
+    }
+    let mut sorted_members = referred_members.iter().cloned().collect::<Vec<_>>();
+    for member in sorted_members.drain(..) {
+        label_parts.push(member);
+    }
+
+    Some(format!(
+        "\"{}\" -> \"{}\" [weight=90, color={}, penwidth=2, label=<<FONT POINT-SIZE=\"{}\" COLOR=\"{}\">use {}</FONT>>]",
+        from.path(),
+        to.path(),
+        color,
+        font_size,
+        color,
+        label_parts.join(", ")
+    ))
 }
 
 fn format_hierarchy(from: Module, to: Module, edge: &Edge) -> Option<String> {

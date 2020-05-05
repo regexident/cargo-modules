@@ -28,7 +28,6 @@ use rustc_ast::{
     //source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol},
 };
 use rustc_ast_pretty::pprust;
-use rustc_parse;
 use rustc_session::parse::ParseSess;
 use rustc_span::source_map::{
     edition::Edition,
@@ -190,12 +189,8 @@ impl<'a> Visitor<'a> for Builder<'a> {
                             .map(|attr| attr)
                             .unwrap_or_else(|_| String::from(""))
                     });
-                self.graph_builder.add_mod(
-                    &path,
-                    &name,
-                    visibility,
-                    conditions.as_ref().map(|x| &**x),
-                );
+                self.graph_builder
+                    .add_mod(&path, &name, visibility, conditions.as_deref());
                 self.path.push(name);
                 visit::walk_item(self, item);
                 self.path.pop();

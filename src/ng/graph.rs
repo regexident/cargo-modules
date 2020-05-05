@@ -94,6 +94,7 @@ impl Dependency {
         }
     }
 
+    #[allow(dead_code)]
     pub fn is_empty(&self) -> bool {
         !self.refers_to_all && !self.refers_to_mod && self.referred_members.is_empty()
     }
@@ -103,6 +104,7 @@ impl Add for Dependency {
     type Output = Dependency;
 
     fn add(self, other: Dependency) -> Dependency {
+        #[allow(clippy::suspicious_arithmetic_impl)]
         Dependency {
             refers_to_all: self.refers_to_all || other.refers_to_all,
             refers_to_mod: self.refers_to_mod || other.refers_to_mod,

@@ -94,7 +94,7 @@ impl<'a> Visitor for DotPrinter<'a> {
                     // Insert into used_modules hashmap
                     used_modules
                         .entry(module_name)
-                        .or_insert_with(|| vec![])
+                        .or_insert_with(Vec::new)
                         .push((*visibility, display_name.to_string()));
                 } else if self.config.show_external {
                     let attrs = if self.config.colored {

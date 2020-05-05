@@ -7,7 +7,6 @@ use std::{
     str::FromStr,
 };
 
-use json;
 use rustc_span::source_map::edition::Edition;
 
 use crate::error::Error;
