@@ -1,8 +1,10 @@
-use std::cell::Cell;
-use std::collections::HashMap;
-use std::iter::repeat;
+use std::{
+    cell::Cell,
+    collections::HashMap,
+    iter::repeat,
+};
 
-use tree::{Tree, Visibility, Visitor};
+use crate::tree::{Tree, Visibility, Visitor};
 
 pub struct Config {
     pub colored: bool,

@@ -1,5 +1,7 @@
-use error::Error;
-use ng::graph::{Dependency, Edge, Graph, Hierarchy, Module, Visibility, GLOB};
+use crate::{
+    error::Error,
+    ng::graph::{Dependency, Edge, Graph, Hierarchy, Module, Visibility, GLOB},
+};
 
 pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
     let indent_str: &str = "    ";

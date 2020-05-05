@@ -1,28 +1,31 @@
 //! Graph generation AST traversal.
 
-use std::ffi::OsStr;
-use std::fs;
-use std::io::Error as IoError;
-use std::path::PathBuf;
-use std::string::ToString;
-
-use error::Error;
-use manifest::Target;
-use ng::graph::{Graph, GraphBuilder, Visibility, GLOB, SEP};
-
-use rustc_ast::ast::{
-    Attribute, Crate, Item, ItemKind, MacCall, Mod, NodeId, UseTree, UseTreeKind, VisibilityKind,
+use std::{
+    ffi::OsStr,
+    fs,
+    io::Error as IoError,
+    path::PathBuf,
+    string::ToString,
 };
-// use rustc_ast::source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol};
-use rustc_ast::visit::{self, Visitor};
 
+use rustc_ast::{
+    ast::{
+        Attribute, Crate, Item, ItemKind, MacCall, Mod, NodeId, UseTree, UseTreeKind, VisibilityKind,
+    },
+    visit::{self, Visitor},
+    //source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol},
+};
 use rustc_ast_pretty::pprust;
-
 use rustc_span::source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol};
-
 use rustc_parse;
-
 use rustc_session::parse::ParseSess;
+
+use crate::{
+    error::Error,
+    manifest::Target,
+    ng::graph::{Graph, GraphBuilder, Visibility, GLOB, SEP},
+};
+
 
 const SOURCE_DIR: &str = "./src/";
 const DIR_SEP: &str = "/";

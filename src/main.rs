@@ -1,17 +1,5 @@
 #![feature(rustc_private)]
 
-extern crate arrayvec;
-extern crate colored;
-extern crate json;
-extern crate petgraph;
-extern crate structopt;
-
-extern crate rustc_ast;
-extern crate rustc_ast_pretty;
-extern crate rustc_span;
-extern crate rustc_parse;
-extern crate rustc_session;
-
 mod builder;
 mod dot_printer;
 mod error;
@@ -20,37 +8,30 @@ mod ng; // TODO: Remove this.
 mod printer;
 mod tree;
 
-use std::path;
-use std::process;
+use std::{path, process};
 
-use rustc_ast::ast::{Crate, NodeId};
-use rustc_ast::visit::Visitor;
-
+use rustc_ast::{
+    ast::{Crate, NodeId},
+    visit::Visitor,
+};
 use rustc_session::parse::ParseSess;
-
 use rustc_span::source_map::{self, edition::Edition};
-
 use structopt::StructOpt;
-
 use colored::*;
 
-use builder::Builder;
-use builder::Config as BuilderConfig;
-
-use error::Error;
-
-use manifest::{Manifest, Target};
-
-use ng::analysis;
-use ng::graph::Graph;
-use ng::graph_printer;
-use ng::tree_printer;
-
-use printer::Config as PrinterConfig;
-use printer::Printer;
-
-use dot_printer::Config as DotPrinterConfig;
-use dot_printer::DotPrinter;
+use crate::{
+    builder::{Builder, Config as BuilderConfig},
+    dot_printer::{Config as DotPrinterConfig, DotPrinter},
+    error::Error,
+    manifest::{Manifest, Target},
+    ng::{
+        analysis,
+        graph::Graph,
+        graph_printer,
+        tree_printer,
+    },
+    printer::{Config as PrinterConfig, Printer},
+};
 
 fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Target, Error> {
     if args.lib {
