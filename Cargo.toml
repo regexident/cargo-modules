@@ -27,6 +27,8 @@ json = "0.12.1"
 petgraph = "0.5.0"
 structopt = "0.3.7"
 
-syntax = { package = "rustc-ap-syntax", version = "637.0.0" }
-rustc_span = { package = "rustc-ap-rustc_span", version = "637.0.0" }
-rustc_parse = { package = "rustc-ap-rustc_parse", version = "637.0.0" }
+rustc_ast = { package = "rustc-ap-rustc_ast", version = "657" }
+rustc_ast_pretty = { package = "rustc-ap-rustc_ast_pretty", version = "657" }
+rustc_span = { package = "rustc-ap-rustc_span", version = "657" }
+rustc_parse = { package = "rustc-ap-rustc_parse", version = "657" }
+rustc_session = { package = "rustc-ap-rustc_session", version = "657" }
