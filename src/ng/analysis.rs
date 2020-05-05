@@ -10,17 +10,19 @@ use error::Error;
 use manifest::Target;
 use ng::graph::{Graph, GraphBuilder, Visibility, GLOB, SEP};
 
-use syntax::ast::{
-    Attribute, Crate, Item, ItemKind, Mac, Mod, NodeId, UseTree, UseTreeKind, VisibilityKind,
+use rustc_ast::ast::{
+    Attribute, Crate, Item, ItemKind, MacCall, Mod, NodeId, UseTree, UseTreeKind, VisibilityKind,
 };
-use syntax::print::pprust;
-use syntax::sess::ParseSess;
-// use syntax::source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol};
-use syntax::visit::{self, Visitor};
+// use rustc_ast::source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol};
+use rustc_ast::visit::{self, Visitor};
+
+use rustc_ast_pretty::pprust;
 
 use rustc_span::source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol};
 
 use rustc_parse;
+
+use rustc_session::parse::ParseSess;
 
 const SOURCE_DIR: &str = "./src/";
 const DIR_SEP: &str = "/";
@@ -74,7 +76,7 @@ pub fn build_graph<'a>(
     target: &Target,
     ignored_files: &'a [PathBuf],
 ) -> Result<Graph, Error> {
-    syntax::with_globals(edition, || {
+    rustc_ast::attr::with_globals(edition, || {
         let parse_session = ParseSess::new(FilePathMapping::empty());
         let crate_: Crate =
             match rustc_parse::parse_crate_from_file(&target.src_path(), &parse_session) {
@@ -185,7 +187,7 @@ impl<'a> Visitor<'a> for Builder<'a> {
         }
     }
 
-    fn visit_mac(&mut self, macro_: &'a Mac) {
+    fn visit_mac(&mut self, macro_: &'a MacCall) {
         visit::walk_mac(self, macro_);
     }
 

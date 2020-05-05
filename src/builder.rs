@@ -1,7 +1,7 @@
 use std::{ffi::OsStr, fs, io, path, result::Result, string::ToString};
 
-use syntax::print::pprust;
-use syntax::{ast, visit};
+use rustc_ast_pretty::pprust;
+use rustc_ast::{ast, visit};
 
 use rustc_span::source_map;
 
@@ -148,7 +148,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
         }
     }
 
-    fn visit_mac(&mut self, mac: &'a ast::Mac) {
+    fn visit_mac(&mut self, mac: &'a ast::MacCall) {
         visit::walk_mac(self, mac);
     }
 }

@@ -6,9 +6,11 @@ extern crate json;
 extern crate petgraph;
 extern crate structopt;
 
-extern crate syntax;
+extern crate rustc_ast;
+extern crate rustc_ast_pretty;
 extern crate rustc_span;
 extern crate rustc_parse;
+extern crate rustc_session;
 
 mod builder;
 mod dot_printer;
@@ -21,9 +23,10 @@ mod tree;
 use std::path;
 use std::process;
 
-use syntax::ast::{Crate, NodeId};
-use syntax::sess::ParseSess;
-use syntax::visit::Visitor;
+use rustc_ast::ast::{Crate, NodeId};
+use rustc_ast::visit::Visitor;
+
+use rustc_session::parse::ParseSess;
 
 use rustc_span::source_map::{self, edition::Edition};
 
@@ -126,7 +129,7 @@ fn run(args: &Arguments) -> Result<(), Error> {
         return run_2018(args, &manifest);
     }
 
-    syntax::with_globals(Edition::Edition2015, || {
+    rustc_ast::attr::with_globals(Edition::Edition2015, || {
         let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
         let krate: Crate =
