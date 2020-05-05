@@ -1,6 +1,14 @@
 use crate::{
     error::Error,
-    ng::graph::{Dependency, Edge, Graph, Hierarchy, Module, Visibility, GLOB},
+    ng::graph::{
+        Dependency,
+        Edge,
+        Graph,
+        Hierarchy,
+        Module,
+        Visibility,
+        GLOB,
+    },
 };
 
 pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {

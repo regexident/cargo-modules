@@ -10,22 +10,45 @@ use std::{
 
 use rustc_ast::{
     ast::{
-        Attribute, Crate, Item, ItemKind, MacCall, Mod, NodeId, UseTree, UseTreeKind, VisibilityKind,
+        Attribute,
+        Crate,
+        Item,
+        ItemKind,
+        MacCall,
+        Mod,
+        NodeId,
+        UseTree,
+        UseTreeKind,
+        VisibilityKind,
     },
-    visit::{self, Visitor},
+    visit::{
+        self,
+        Visitor,
+    },
     //source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol},
 };
 use rustc_ast_pretty::pprust;
-use rustc_span::source_map::{edition::Edition, FilePathMapping, SourceMap, Span, Symbol};
 use rustc_parse;
 use rustc_session::parse::ParseSess;
+use rustc_span::source_map::{
+    edition::Edition,
+    FilePathMapping,
+    SourceMap,
+    Span,
+    Symbol,
+};
 
 use crate::{
     error::Error,
     manifest::Target,
-    ng::graph::{Graph, GraphBuilder, Visibility, GLOB, SEP},
+    ng::graph::{
+        Graph,
+        GraphBuilder,
+        Visibility,
+        GLOB,
+        SEP,
+    },
 };
-
 
 const SOURCE_DIR: &str = "./src/";
 const DIR_SEP: &str = "/";

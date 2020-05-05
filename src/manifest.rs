@@ -1,6 +1,9 @@
 use std::{
     default::Default,
-    path::{Path, PathBuf},
+    path::{
+        Path,
+        PathBuf,
+    },
     str::FromStr,
 };
 
@@ -27,7 +30,8 @@ impl Manifest {
         let packages = j["packages"]
             .members_mut()
             .map(|package| {
-                let edition: Edition = Edition::from_str(package["edition"].as_str().unwrap()).unwrap();
+                let edition: Edition =
+                    Edition::from_str(package["edition"].as_str().unwrap()).unwrap();
                 let targets: Vec<Target> = package["targets"]
                     .members_mut()
                     .map(Target::from_json)
