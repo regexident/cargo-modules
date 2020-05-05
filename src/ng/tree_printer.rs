@@ -1,8 +1,11 @@
 //! Display module hierarchy as a tree.
 use colored::Colorize;
-use error::Error;
-use ng::graph::{Graph, Module, Visibility};
 use petgraph::Direction;
+
+use crate::{
+    error::Error,
+    ng::graph::{Graph, Module, Visibility},
+};
 
 pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
     print_nodes(

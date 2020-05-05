@@ -2,10 +2,9 @@ use std::{ffi::OsStr, fs, io, path, result::Result, string::ToString};
 
 use rustc_ast_pretty::pprust;
 use rustc_ast::{ast, visit};
-
 use rustc_span::source_map;
 
-use tree::{Tree, Visibility};
+use crate::tree::{Tree, Visibility};
 
 pub struct Config {
     pub include_orphans: bool,

@@ -1,16 +1,18 @@
 //! Data structures that represent module hierarchy and dependencies.
 
-use std::cmp::{Ord, Ordering};
-use std::collections::{HashMap, HashSet};
-use std::hash::{Hash, Hasher};
-use std::ops::Add;
+use std::{
+    cmp::{Ord, Ordering},
+    collections::{HashMap, HashSet},
+    hash::{Hash, Hasher},
+    ops::Add,
+};
 
 use arrayvec::ArrayString;
-
 use rustc_span::edition::Edition;
-
-use petgraph::graphmap::DiGraphMap;
-use petgraph::Direction;
+use petgraph::{
+    graphmap::DiGraphMap,
+    Direction,
+};
 
 /// Determines the maximum length of the #cfg that
 /// can be attached to a mod definition.
