@@ -18,9 +18,8 @@ pub fn print(graph: &Graph, include_orphans: bool) -> Result<(), Error> {
         include_orphans,
         &[],
     )
-    .and_then(|_| {
+    .map(|_| {
         println!();
-        Ok(())
     })
 }
 

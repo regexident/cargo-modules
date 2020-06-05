@@ -69,7 +69,7 @@ fn choose_target<'a>(args: &Arguments, manifest: &'a Manifest) -> Result<&'a Tar
         // If there are multiple targets use the first library target.
         manifest
             .lib()
-            .or_else(|_| Err(Error::NoTargetProvided(manifest.bin_names())))
+            .map_err(|_| Error::NoTargetProvided(manifest.bin_names()))
     }
 }
 
