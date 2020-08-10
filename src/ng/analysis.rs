@@ -186,7 +186,6 @@ impl<'a> Visitor<'a> for Builder<'a> {
                     .map(|attr| {
                         self.source_map
                             .span_to_snippet(attr.span)
-                            .map(|attr| attr)
                             .unwrap_or_else(|_| String::from(""))
                     });
                 self.graph_builder
