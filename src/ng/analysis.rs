@@ -101,7 +101,7 @@ pub fn build_graph<'a>(
     target: &Target,
     ignored_files: &'a [PathBuf],
 ) -> Result<Graph, Error> {
-    rustc_ast::attr::with_globals(edition, || {
+    rustc_ast::attr::with_session_globals(edition, || {
         let parse_session = ParseSess::new(FilePathMapping::empty());
         let crate_: Crate =
             match rustc_parse::parse_crate_from_file(&target.src_path(), &parse_session) {
