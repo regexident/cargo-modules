@@ -101,7 +101,7 @@ pub fn build_graph<'a>(
     target: &Target,
     ignored_files: &'a [PathBuf],
 ) -> Result<Graph, Error> {
-    rustc_ast::attr::with_session_globals(edition, || {
+    rustc_span::with_session_globals(edition, || {
         let parse_session = ParseSess::new(FilePathMapping::empty());
         let crate_: Crate =
             match rustc_parse::parse_crate_from_file(&target.src_path(), &parse_session) {
@@ -182,7 +182,7 @@ impl<'a> Visitor<'a> for Builder<'a> {
                 let conditions: Option<String> = item
                     .attrs
                     .iter()
-                    .find(|attr| attr.check_name(Symbol::intern("cfg")))
+                    .find(|attr| attr.has_name(Symbol::intern("cfg")))
                     .map(|attr| {
                         self.source_map
                             .span_to_snippet(attr.span)

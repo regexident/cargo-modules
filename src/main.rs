@@ -131,7 +131,7 @@ fn run(args: &Arguments) -> Result<(), Error> {
         return run_2018(args, &manifest);
     }
 
-    rustc_ast::attr::with_session_globals(Edition::Edition2015, || {
+    rustc_span::with_session_globals(Edition::Edition2015, || {
         let parse_session = ParseSess::new(source_map::FilePathMapping::empty());
 
         let krate: Crate =
