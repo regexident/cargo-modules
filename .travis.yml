@@ -1,3 +1,0 @@
-language: rust
-rust:
-  - nightly-2019-11-01
