@@ -1,19 +1,10 @@
 [package]
 authors = ["Vincent Esche <regexident@gmail.com>", "Hmvp <github@hmvp.nl>"]
-categories = [
-    "command-line-utilities",
-    "development-tools::cargo-plugins",
-]
+categories = ["command-line-utilities", "development-tools::cargo-plugins"]
 description = "A cargo plugin for showing a tree-like overview of a crate's modules."
 documentation = "https://docs.rs/crate/cargo-modules/"
 homepage = "https://github.com/regexident/cargo-modules"
-keywords = [
-    "cargo",
-    "plugin",
-    "module",
-    "mod",
-    "tree",
-]
+keywords = ["cargo", "plugin", "module", "mod", "tree"]
 license = "MPL-2.0"
 edition = "2018"
 name = "cargo-modules"
