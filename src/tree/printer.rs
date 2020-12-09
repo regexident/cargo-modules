@@ -82,7 +82,7 @@ fn print_module_node(node: &Node, module_node: &ModuleNode) {
 
     let visibility = &module_node.visibility;
     let visibility_style = visibility_style(visibility);
-    let colored_visibility = visibility_style.paint(format!("{:?}", visibility));
+    let colored_visibility = visibility_style.paint(format!("{}", visibility));
 
     print!("{}: {}", colored_name, colored_visibility);
 

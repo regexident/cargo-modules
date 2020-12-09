@@ -20,12 +20,13 @@ pub enum NodeKind {
     Orphan,
 }
 
+#[derive(Debug)]
 pub struct Node {
     pub name: String,
     pub kind: NodeKind,
 }
 
-impl fmt::Debug for Node {
+impl fmt::Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.name)
     }
@@ -47,6 +48,7 @@ impl Node {
     }
 }
 
+#[derive(Debug)]
 pub enum Visibility {
     Crate,
     Module(String),
@@ -55,7 +57,7 @@ pub enum Visibility {
     Super,
 }
 
-impl fmt::Debug for Visibility {
+impl fmt::Display for Visibility {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Visibility::Crate => write!(f, "pub(crate)"),
@@ -67,9 +69,10 @@ impl fmt::Debug for Visibility {
     }
 }
 
+#[derive(Debug)]
 pub struct Edge;
 
-impl fmt::Debug for Edge {
+impl fmt::Display for Edge {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "")
     }
