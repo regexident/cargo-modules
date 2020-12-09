@@ -10,7 +10,7 @@ use petgraph::{
 use yansi::Style;
 
 use crate::{
-    graph::modules::{Edge, Graph, Node, Visibility},
+    graph::modules::{Edge, Graph, ModuleNode, Node, NodeKind, Visibility},
     theme::theme,
 };
 
@@ -41,7 +41,17 @@ fn print_tree(
     let node = &graph[node_idx];
 
     print_branch(edge, &branches[..]);
-    print_node(node);
+
+    match &node.kind {
+        NodeKind::Module(module_node) => {
+            print_module_node(node, module_node);
+        }
+        NodeKind::Orphan => {
+            print_orphan_node(node);
+        }
+    }
+
+    println!();
 
     let mut children: Vec<_> = graph
         .edges_directed(node_idx, Direction::Outgoing)
@@ -66,18 +76,13 @@ fn print_tree(
     }
 }
 
-/// Print a branch:
-fn print_node(node: &Node) {
-    let visibility = &node.visibility;
-
-    let visibility_string = if node.is_orphan {
-        "orphan".to_owned()
-    } else {
-        format!("{:?}", visibility)
-    };
-
+/// Print a module branch:
+fn print_module_node(node: &Node, module_node: &ModuleNode) {
     let colored_name = name_style().paint(&node.name);
-    let colored_visibility = visibility_style(visibility, node.is_orphan).paint(&visibility_string);
+
+    let visibility = &module_node.visibility;
+    let visibility_style = visibility_style(visibility);
+    let colored_visibility = visibility_style.paint(format!("{:?}", visibility));
 
     print!("{}: {}", colored_name, colored_visibility);
 
@@ -86,14 +91,23 @@ fn print_node(node: &Node) {
             .iter()
             .map(|cfg| format!("{}", cfg_style().paint(cfg)))
             .collect();
-        let prefix = dimmed_style().paint("#[cfg(");
-        let suffix = dimmed_style().paint(")]");
-        let separator = format!("{}", dimmed_style().paint(", "));
-        let cfgs_string = cfg_strings.join(&separator);
-        print!(" {}{}{}", prefix, cfgs_string, suffix);
-    }
 
-    println!();
+        let cfgs_prefix = dimmed_style().paint("#[cfg(");
+        let cfgs_suffix = dimmed_style().paint(")]");
+        let cfgs_separator = format!("{}", dimmed_style().paint(", "));
+        let cfgs_string = cfg_strings.join(&cfgs_separator);
+        print!(" {}{}{}", cfgs_prefix, cfgs_string, cfgs_suffix);
+    }
+}
+
+/// Print a orphan branch:
+fn print_orphan_node(node: &Node) {
+    let colored_name = name_style().paint(&node.name);
+
+    let orphan_style = orphan_style();
+    let colored_orphan = orphan_style.paint("orphan");
+
+    print!("{}: {}", colored_name, colored_orphan);
 }
 
 fn print_branch(_edge: Option<&Edge>, branches: &[BranchInfo]) {
@@ -156,20 +170,21 @@ fn name_style() -> Style {
     theme().name
 }
 
-fn visibility_style(visibility: &Visibility, is_orphan: bool) -> Style {
+fn visibility_style(visibility: &Visibility) -> Style {
     let theme = theme().visibility;
 
-    if is_orphan {
-        return theme.orphan;
-    }
-
     match visibility {
-        Visibility::Crate => theme.krate,
-        Visibility::Module(_) => theme.module,
-        Visibility::Private => theme.private,
-        Visibility::Public => theme.public,
-        Visibility::Super => theme.zuper,
+        Visibility::Crate => theme.pub_crate,
+        Visibility::Module(_) => theme.pub_module,
+        Visibility::Private => theme.pub_private,
+        Visibility::Public => theme.pub_public,
+        Visibility::Super => theme.pub_super,
     }
+}
+
+fn orphan_style() -> Style {
+    let theme = theme();
+    theme.orphan
 }
 
 fn cfg_style() -> Style {

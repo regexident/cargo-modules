@@ -3,19 +3,28 @@ mod args;
 use std::env;
 
 use clap::Clap;
+use log::debug;
 use yansi::Paint;
 
 use cargo_modules::runner::Runner;
 
 fn main() -> anyhow::Result<()> {
+    env_logger::init();
+
     let args = args::Arguments::parse();
 
     match env::var("COLORTERM") {
         Ok(color_term) => match &color_term[..] {
             "truecolor" | "24bit" => {}
-            _ => Paint::disable(),
+            _ => {
+                debug!("Disabling color output");
+                Paint::disable()
+            }
         },
-        Err(_) => Paint::disable(),
+        Err(_) => {
+            debug!("Failed to 'COLORTERM' environment variable, disabling color output");
+            Paint::disable()
+        }
     }
 
     run(&args)

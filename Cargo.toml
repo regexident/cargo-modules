@@ -24,6 +24,8 @@ json = "^0.12.4"
 petgraph = "^0.5.1"
 anyhow = "^1.0.32"
 yansi = "^0.5.0"
+log = "0.4.11"
+env_logger = "0.8.2"
 
 [dependencies.ra_ap_base_db]
 version = "=0.0.19"

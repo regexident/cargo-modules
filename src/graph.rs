@@ -6,17 +6,41 @@ use ra_ap_hir as hir;
 pub mod builder;
 pub mod modules;
 
-pub struct Node {
+#[derive(Debug)]
+pub struct ModuleNode {
     pub visibility: Option<hir::Visibility>,
+    pub def: hir::ModuleDef,
+    pub is_root: bool,
+}
+
+#[derive(Debug)]
+pub enum NodeKind {
+    Module(ModuleNode),
+    Orphan,
+}
+
+pub struct Node {
     pub name: String,
     pub path: String,
-    pub is_root: bool,
-    pub def: hir::ModuleDef,
+    pub kind: NodeKind,
 }
 
 impl fmt::Debug for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.name)
+        let kind = match &self.kind {
+            NodeKind::Module(_) => "module",
+            NodeKind::Orphan => "orphan",
+        };
+        write!(f, "{} ({})", self.path, kind)
+    }
+}
+
+impl Node {
+    pub fn is_orphan(&self) -> bool {
+        match &self.kind {
+            NodeKind::Module(_) => false,
+            NodeKind::Orphan => true,
+        }
     }
 }
 
