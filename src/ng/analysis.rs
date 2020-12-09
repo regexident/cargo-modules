@@ -96,10 +96,10 @@ impl<'a> Builder<'a> {
     }
 }
 
-pub fn build_graph<'a>(
+pub fn build_graph(
     edition: Edition,
     target: &Target,
-    ignored_files: &'a [PathBuf],
+    ignored_files: &[PathBuf],
 ) -> Result<Graph, Error> {
     rustc_span::with_session_globals(edition, || {
         let parse_session = ParseSess::new(FilePathMapping::empty());
@@ -119,7 +119,7 @@ pub fn build_graph<'a>(
             &crate_.module,
             crate_.span,
             &crate_.attrs[..],
-            NodeId::from(0 as u32),
+            NodeId::from(0_u32),
         );
 
         Ok(builder.graph_builder.build())

@@ -62,7 +62,7 @@ impl<'a> Visitor for DotPrinter<'a> {
         println!("];");
 
         if !parents.is_empty() {
-            if parent_name == "" {
+            if parent_name.is_empty() {
                 println!("\t\"::{}\" -> \"{}\" [weight=100,len=1];", parents[0], name);
             } else {
                 println!("\t\"{}\" -> \"{}\" [weight=100,len=1];", parent_name, name);
