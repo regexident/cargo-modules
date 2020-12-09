@@ -7,12 +7,22 @@ use ra_ap_ide_db::RootDatabase;
 
 use crate::graph::{Edge as GeneralEdge, EdgeKind, Graph as FullGraph, Node as GeneralNode};
 
-pub struct Node {
+#[derive(Debug)]
+pub struct ModuleNode {
     pub cfgs: Vec<String>,
     pub visibility: Visibility,
-    pub name: String,
-    pub is_orphan: bool,
     pub is_root: bool,
+}
+
+#[derive(Debug)]
+pub enum NodeKind {
+    Module(ModuleNode),
+    Orphan,
+}
+
+pub struct Node {
+    pub name: String,
+    pub kind: NodeKind,
 }
 
 impl fmt::Debug for Node {
@@ -23,18 +33,19 @@ impl fmt::Debug for Node {
 
 impl Node {
     pub fn non_empty_cfgs(&self) -> Option<&[String]> {
-        if self.cfgs.is_empty() {
-            None
-        } else {
-            Some(&self.cfgs[..])
+        match &self.kind {
+            NodeKind::Module(module_node) => {
+                let cfgs = &module_node.cfgs[..];
+                if cfgs.is_empty() {
+                    None
+                } else {
+                    Some(cfgs)
+                }
+            }
+            NodeKind::Orphan => None,
         }
     }
 }
-
-// pub struct Cfg {
-//     string: String,
-//     is_
-// }
 
 pub enum Visibility {
     Crate,
@@ -73,7 +84,17 @@ pub fn map_graph(graph: FullGraph, db: &RootDatabase) -> Graph {
 }
 
 fn map_node(_idx: NodeIndex<usize>, node: &GeneralNode, db: &RootDatabase) -> Option<Node> {
-    let module = if let hir::ModuleDef::Module(module) = node.def {
+    let module_node = match &node.kind {
+        super::NodeKind::Module(module_node) => module_node,
+        super::NodeKind::Orphan => {
+            return Some(Node {
+                name: node.name.clone(),
+                kind: NodeKind::Orphan,
+            })
+        }
+    };
+
+    let module = if let hir::ModuleDef::Module(module) = module_node.def {
         module
     } else {
         return None;
@@ -84,18 +105,17 @@ fn map_node(_idx: NodeIndex<usize>, node: &GeneralNode, db: &RootDatabase) -> Op
         .cfg()
         .filter_map(|cfg| cfg_to_string(&cfg))
         .collect();
-    let visibility = module_visibility(module, node.visibility, db);
+    let visibility = module_visibility(module, module_node.visibility, db);
     let name = node.name.clone();
-    let is_orphan = false; // FIXME!
-    let is_root = node.is_root;
+    let is_root = module_node.is_root;
 
-    Some(Node {
+    let kind = NodeKind::Module(ModuleNode {
         cfgs,
         visibility,
-        name,
-        is_orphan,
         is_root,
-    })
+    });
+
+    Some(Node { name, kind })
 }
 
 fn map_edge(_idx: EdgeIndex<usize>, edge: &GeneralEdge, _db: &RootDatabase) -> Option<Edge> {
@@ -139,10 +159,7 @@ fn module_visibility(
 
 fn cfg_to_string(cfg: &CfgExpr) -> Option<String> {
     fn cfgs_to_string(cfgs: &[CfgExpr]) -> String {
-        let cfg_strings: Vec<_> = cfgs
-            .iter()
-            .filter_map(|cfg| cfg_to_string(cfg))
-            .collect();
+        let cfg_strings: Vec<_> = cfgs.iter().filter_map(|cfg| cfg_to_string(cfg)).collect();
         cfg_strings.join(", ")
     }
     match cfg {
