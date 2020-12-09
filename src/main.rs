@@ -6,7 +6,7 @@ use clap::Clap;
 use log::debug;
 use yansi::Paint;
 
-use cargo_modules::runner::Runner;
+use cargo_modules::runner::{Options as RunnerOptions, Runner};
 
 fn main() -> anyhow::Result<()> {
     env_logger::init();
@@ -45,7 +45,9 @@ fn run(args: &args::Arguments) -> Result<(), anyhow::Error> {
             let path = manifest_dir;
             let canonicalized_path = path.canonicalize()?;
 
-            let mut runner = Runner::default();
+            let options = RunnerOptions::new(*orphans);
+            let mut runner = Runner::new(options);
+
             runner.run(&canonicalized_path)?;
         }
     }
