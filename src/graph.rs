@@ -19,13 +19,14 @@ pub enum NodeKind {
     Orphan,
 }
 
+#[derive(Debug)]
 pub struct Node {
     pub name: String,
     pub path: String,
     pub kind: NodeKind,
 }
 
-impl fmt::Debug for Node {
+impl fmt::Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let kind = match &self.kind {
             NodeKind::Module(_) => "module",
