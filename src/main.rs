@@ -1,4 +1,5 @@
 #![feature(rustc_private)]
+#![feature(auto_traits)]
 
 mod builder;
 mod dot_printer;
