@@ -106,7 +106,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
                 let name = item.ident.to_string();
                 {
                     let tree = self.tree.subtree_at_path(&self.path).unwrap();
-                    let visibility = if let ast::VisibilityKind::Public = item.vis.node {
+                    let visibility = if let ast::VisibilityKind::Public = item.vis.kind {
                         Visibility::Public
                     } else {
                         Visibility::Private
@@ -120,7 +120,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
             ast::ItemKind::Use(ref use_tree) => {
                 {
                     let tree = self.tree.subtree_at_path(&self.path).unwrap();
-                    let visibility = if let ast::VisibilityKind::Public = item.vis.node {
+                    let visibility = if let ast::VisibilityKind::Public = item.vis.kind {
                         Visibility::Public
                     } else {
                         Visibility::Private
@@ -160,7 +160,7 @@ impl<'a> visit::Visitor<'a> for Builder<'a> {
         }
     }
 
-    fn visit_mac(&mut self, mac: &'a ast::MacCall) {
+    fn visit_mac_call(&mut self, mac: &'a ast::MacCall) {
         visit::walk_mac(self, mac);
     }
 }

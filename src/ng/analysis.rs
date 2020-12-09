@@ -175,7 +175,7 @@ impl<'a> Visitor<'a> for Builder<'a> {
             ItemKind::Mod(_) => {
                 let path = self.path_str();
                 let name = item.ident.to_string();
-                let visibility = match item.vis.node {
+                let visibility = match item.vis.kind {
                     VisibilityKind::Public => Visibility::Public,
                     _ => Visibility::Private,
                 };
@@ -195,7 +195,7 @@ impl<'a> Visitor<'a> for Builder<'a> {
                 self.path.pop();
             }
             ItemKind::Use(ref use_tree) => {
-                let visibility = if let VisibilityKind::Public = item.vis.node {
+                let visibility = if let VisibilityKind::Public = item.vis.kind {
                     Visibility::Public
                 } else {
                     Visibility::Private
@@ -207,7 +207,7 @@ impl<'a> Visitor<'a> for Builder<'a> {
         }
     }
 
-    fn visit_mac(&mut self, macro_: &'a MacCall) {
+    fn visit_mac_call(&mut self, macro_: &'a MacCall) {
         visit::walk_mac(self, macro_);
     }
 
