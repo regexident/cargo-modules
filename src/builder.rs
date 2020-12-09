@@ -53,7 +53,7 @@ impl<'a> Builder<'a> {
         let mut dir_path = "./src/".to_string();
         for name in path.iter() {
             dir_path.push_str(name);
-            dir_path.push_str("/");
+            dir_path.push('/');
         }
         fn is_mod(entry: &fs::DirEntry) -> bool {
             let path = entry.path();
