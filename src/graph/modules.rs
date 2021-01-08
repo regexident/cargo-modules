@@ -1,7 +1,7 @@
 use std::fmt;
 
 use petgraph::graph::{DiGraph, EdgeIndex, NodeIndex};
-use ra_ap_cfg::CfgExpr;
+use ra_ap_cfg::{CfgAtom, CfgExpr};
 use ra_ap_hir::{self as hir, HasAttrs};
 use ra_ap_ide_db::RootDatabase;
 
@@ -103,17 +103,21 @@ fn map_node(_idx: NodeIndex<usize>, node: &GeneralNode, db: &RootDatabase) -> Op
         return None;
     };
 
-    let cfgs: Vec<String> = module
-        .attrs(db)
-        .cfg()
-        .filter_map(|cfg| cfg_to_string(&cfg))
-        .collect();
+    let root_cfg = module.attrs(db).cfg();
+
+    let cfgs: Vec<CfgExpr> = match root_cfg {
+        Some(CfgExpr::All(exprs)) => exprs,
+        Some(expr @ _) => vec![expr],
+        None => vec![],
+    };
+
+    let cfg_strings = cfgs.iter().filter_map(|cfg| cfg_to_string(cfg)).collect();
     let visibility = module_visibility(module, module_node.visibility, db);
     let name = node.name.clone();
     let is_root = module_node.is_root;
 
     let kind = NodeKind::Module(ModuleNode {
-        cfgs,
+        cfgs: cfg_strings,
         visibility,
         is_root,
     });
@@ -167,8 +171,8 @@ fn cfg_to_string(cfg: &CfgExpr) -> Option<String> {
     }
     match cfg {
         CfgExpr::Invalid => None,
-        CfgExpr::Atom(cfg) => Some(cfg.to_string()),
-        CfgExpr::KeyValue { key, value } => Some(format!("{} = {:?}", key, value)),
+        CfgExpr::Atom(CfgAtom::Flag(flag)) => Some(flag.to_string()),
+        CfgExpr::Atom(CfgAtom::KeyValue { key, value }) => Some(format!("{} = {:?}", key, value)),
         CfgExpr::All(cfgs) => Some(format!("all({})", cfgs_to_string(cfgs))),
         CfgExpr::Any(cfgs) => Some(format!("any({})", cfgs_to_string(cfgs))),
         CfgExpr::Not(cfg) => cfg_to_string(cfg.as_ref()).map(|s| format!("not({})", s)),
