@@ -55,7 +55,6 @@ impl<'a> GraphBuilder<'a> {
                 load_out_dirs_from_check,
                 ..Default::default()
             },
-            false,
         )?;
 
         let cargo_workspace = match project_workspace {
@@ -93,7 +92,7 @@ impl<'a> GraphBuilder<'a> {
         let target_root_path = target.root.as_path();
 
         for krate in hir::Crate::all(self.db) {
-            let crate_name: &str = &krate.declaration_name(self.db).unwrap();
+            let crate_name: &str = &krate.display_name(self.db).unwrap();
 
             trace!("Crate: {:?}", crate_name);
 
@@ -167,11 +166,11 @@ impl<'a> GraphBuilder<'a> {
     fn crate_name(&self, krate: hir::Crate) -> String {
         // Obtain the crate's declaration name:
 
-        let declaration_name = &krate.declaration_name(self.db).unwrap();
+        let display_name = &krate.display_name(self.db).unwrap();
 
         // Since a crate's name may contain `-` we canonicalize it by replacing with `_`:
 
-        declaration_name.replace("-", "_")
+        display_name.replace("-", "_")
     }
 
     fn absolute_module_path(&self, crate_name: &str, module_def: hir::ModuleDef) -> String {
