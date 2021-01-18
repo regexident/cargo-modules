@@ -1,39 +1,136 @@
-use yansi::{Color, Style};
+pub use yansi::Style;
 
-pub(crate) struct VisibilityTheme {
+#[derive(Copy, Clone, Debug)]
+pub(crate) struct Rgb {
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+}
+
+impl From<Rgb> for yansi::Color {
+    fn from(rgba: Rgb) -> Self {
+        yansi::Color::RGB(rgba.r, rgba.g, rgba.b)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct ColorPalette {
+    pub purple: Rgb,
+    pub red: Rgb,
+    pub orange: Rgb,
+    pub yellow: Rgb,
+    pub green: Rgb,
+    pub cyan: Rgb,
+    pub blue: Rgb,
+}
+
+pub(crate) fn color_palette() -> ColorPalette {
+    ColorPalette {
+        purple: Rgb {
+            r: 186,
+            g: 111,
+            b: 167,
+        },
+        red: Rgb {
+            r: 219,
+            g: 83,
+            b: 103,
+        },
+        orange: Rgb {
+            r: 254,
+            g: 148,
+            b: 84,
+        },
+        yellow: Rgb {
+            r: 248,
+            g: 192,
+            b: 76,
+        },
+        green: Rgb {
+            r: 129,
+            g: 193,
+            b: 105,
+        },
+        cyan: Rgb {
+            r: 105,
+            g: 190,
+            b: 210,
+        },
+        blue: Rgb {
+            r: 83,
+            g: 151,
+            b: 200,
+        },
+    }
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct VisibilityColors {
+    pub pub_crate: Rgb,
+    pub pub_module: Rgb,
+    pub pub_private: Rgb,
+    pub pub_global: Rgb,
+    pub pub_super: Rgb,
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct Colors {
+    pub kind: Rgb,
+
+    pub visibility: VisibilityColors,
+    pub cfg: Rgb,
+    pub orphan: Rgb,
+}
+
+pub(crate) fn colors() -> Colors {
+    let color_palette = color_palette();
+
+    Colors {
+        kind: color_palette.blue,
+        visibility: VisibilityColors {
+            pub_crate: color_palette.yellow,
+            pub_module: color_palette.orange,
+            pub_private: color_palette.red,
+            pub_global: color_palette.green,
+            pub_super: color_palette.orange,
+        },
+        cfg: color_palette.cyan,
+        orphan: color_palette.purple,
+    }
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct VisibilityStyles {
     pub pub_crate: Style,
     pub pub_module: Style,
     pub pub_private: Style,
-    pub pub_public: Style,
+    pub pub_global: Style,
     pub pub_super: Style,
 }
 
-pub(crate) struct Theme {
+#[derive(Clone, Debug)]
+pub(crate) struct Styles {
+    pub kind: Style,
     pub name: Style,
-    pub visibility: VisibilityTheme,
+
+    pub visibility: VisibilityStyles,
     pub cfg: Style,
     pub orphan: Style,
 }
 
-// GREEN:  Color::RGB(129, 193, 105)
-// YELLOW: Color::RGB(248, 192,  76)
-// ORANGE: Color::RGB(254, 148,  84)
-// RED:    Color::RGB(219,  83, 103)
-// PURPLE: Color::RGB(186, 111, 167)
-// BLUE:   Color::RGB( 83, 151, 200)
-pub(crate) fn theme() -> Theme {
-    Theme {
+pub(crate) fn styles() -> Styles {
+    let colors = colors();
+    Styles {
+        kind: Style::new(colors.kind.into()),
         name: Style::default(),
-        visibility: VisibilityTheme {
-            pub_crate: Style::new(Color::RGB(248, 192, 76)), // YELLOW TEXT
-            pub_module: Style::new(Color::RGB(254, 148, 84)), // ORANGE TEXT
-            pub_private: Style::new(Color::RGB(219, 83, 103)), // RED TEXT
-            pub_public: Style::new(Color::RGB(129, 193, 105)), // GREEN TEXT
-            pub_super: Style::new(Color::RGB(254, 148, 84)), // ORANGE TEXT
+        visibility: VisibilityStyles {
+            pub_crate: Style::new(colors.visibility.pub_crate.into()),
+            pub_module: Style::new(colors.visibility.pub_module.into()),
+            pub_private: Style::new(colors.visibility.pub_private.into()),
+            pub_global: Style::new(colors.visibility.pub_global.into()),
+            pub_super: Style::new(colors.visibility.pub_super.into()),
         },
-        cfg: Style::new(Color::RGB(83, 151, 200)), // BLUE TEXT
-        orphan: Style::new(Color::RGB(186, 111, 167)), // orphan: Style::new(Color::RGB(0, 0, 0)).bg(Color::RGB(219, 83, 103)), // RED BACKGROUND
-
-                                                       // Style::default().dimmed().bg(Color::RGB(219, 83, 103)), // RED BACKGROUND
+        cfg: Style::new(colors.cfg.into()),
+        orphan: Style::new(colors.orphan.into()),
     }
 }
