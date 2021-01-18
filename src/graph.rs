@@ -11,6 +11,7 @@ use ra_ap_hir::{Module, ModuleDef};
 use ra_ap_ide::RootDatabase;
 
 pub(crate) mod builder;
+pub(super) mod orphans;
 
 #[derive(Clone, Debug)]
 pub struct Node {
