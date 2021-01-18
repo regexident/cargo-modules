@@ -1,7 +1,57 @@
-pub mod graph;
-pub mod runner;
-pub mod theme;
+use clap::{ArgGroup, Clap, ValueHint};
+
 pub(crate) mod format;
 pub mod generate;
+pub(crate) mod graph;
 pub(crate) mod orphans;
 pub(crate) mod printer;
+pub(crate) mod runner;
+pub(crate) mod theme;
+
+#[clap(
+    name = "cargo-modules",
+    about = "Print a crate's module tree or graph.",
+    after_help = r#"
+    If neither `--bin` nor `--example` are given,
+    then if the project only has one bin target it will be run.
+    Otherwise `--bin` specifies the bin target to run.
+    At most one `--bin` can be provided.
+    "#
+)]
+#[derive(Clap, Clone, PartialEq, Debug)]
+pub enum Command {
+    #[clap(name = "generate", about = "Generate a visualization for a crate's structure.")]
+    Generate(generate::Command),
+}
+
+#[derive(Clap, Clone, PartialEq, Debug)]
+#[clap(group = ArgGroup::new("target"))]
+pub struct ProjectOptions {
+    /// Build only this package's library
+    #[clap(long = "lib", group = "target")]
+    pub lib: bool,
+
+    /// Analyze only the specified binary
+    #[clap(long = "bin", group = "target")]
+    pub bin: Option<String>,
+
+    /// Package to analyze (see `cargo help pkgid`)
+    #[clap(short = 'p', long = "package")]
+    pub package: Option<String>,
+
+    #[clap(
+        name = "MANIFEST_DIR",
+        parse(from_os_str),
+        value_hint = ValueHint::DirPath,
+        default_value = "."
+    )]
+    pub manifest_dir: std::path::PathBuf,
+}
+
+impl Command {
+    pub fn run(&self) -> Result<(), anyhow::Error> {
+        match &self {
+            Self::Generate(cmd) => cmd.run(),
+        }
+    }
+}
