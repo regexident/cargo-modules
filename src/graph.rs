@@ -12,6 +12,7 @@ use ra_ap_ide::RootDatabase;
 
 pub(crate) mod builder;
 pub(super) mod orphans;
+pub(super) mod walker;
 
 #[derive(Clone, Debug)]
 pub struct Node {
