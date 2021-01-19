@@ -1,5 +1,6 @@
-use std::path::PathBuf;
+use std::{fmt, path::PathBuf};
 
+use log::trace;
 use petgraph::graph::{DiGraph, NodeIndex};
 use ra_ap_hir as hir;
 use ra_ap_hir::ModuleDef;
@@ -15,6 +16,18 @@ pub enum NodeKind {
     Module,
     Type,
     Orphan,
+}
+
+impl fmt::Display for NodeKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let name = match self {
+            Self::Crate => "Crate",
+            Self::Module => "Module",
+            Self::Type => "Type",
+            Self::Orphan => "Orphan",
+        };
+        write!(f, "{}", name)
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -51,10 +64,35 @@ impl Node {
     }
 }
 
+#[derive(Clone, PartialEq, Debug)]
+pub enum EdgeKind {
+    Uses,
+    Has,
+}
+
+impl fmt::Display for EdgeKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let name = match self {
+            Self::Uses => "Uses",
+            Self::Has => "Has",
+        };
+        write!(f, "{}", name)
+    }
+}
+
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub enum Edge {
     UsesA,
     HasA,
+}
+
+impl Edge {
+    pub fn kind(&self) -> EdgeKind {
+        match self {
+            Self::UsesA => EdgeKind::Uses,
+            Self::HasA => EdgeKind::Has,
+        }
+    }
 }
 
 pub type Graph = DiGraph<Node, Edge, usize>;
@@ -68,36 +106,21 @@ pub fn idx_of_node_with_path(
 
     let node_idx = node_indices.find(|node_idx| {
         let node = &graph[*node_idx];
-
         node.path == path
     });
 
     node_idx.ok_or_else(|| anyhow::anyhow!("No node found with path {:?}", path))
 }
 
-pub fn graph_by_shrinking(
-    graph: &Graph,
-    focus_node_idx: NodeIndex<usize>,
-    max_depth: usize,
-) -> Graph {
+pub fn shrink_graph(graph: &mut Graph, focus_node_idx: NodeIndex<usize>, max_depth: usize) {
     let mut walker = walker::GraphWalker::new();
+
+    trace!(
+        "Walking graph from focus node up to depth {} ...",
+        max_depth
+    );
 
     walker.walk_graph(graph, focus_node_idx, max_depth);
 
-    graph.filter_map(
-        |node_idx, node| {
-            if walker.nodes_visited.contains(&node_idx) {
-                Some(node.to_owned())
-            } else {
-                None
-            }
-        },
-        |edge_idx, edge| {
-            if walker.edges_visited.contains(&edge_idx) {
-                Some(edge.to_owned())
-            } else {
-                None
-            }
-        },
-    )
+    graph.retain_nodes(|_graph, node_idx| walker.nodes_visited.contains(&node_idx));
 }

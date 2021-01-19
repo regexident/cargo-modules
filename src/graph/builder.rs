@@ -72,10 +72,9 @@ impl<'a> Builder<'a> {
         let node_idx = match self.nodes.get(&path) {
             Some(node_idx) => *node_idx,
             None => {
-                let is_external = module_def.module(self.db).map_or(false, |module| {
-                    eprintln!("crate: {:?}", module.krate().display_name(self.db));
-                    module.krate() != krate
-                });
+                let is_external = module_def
+                    .module(self.db)
+                    .map_or(false, |module| module.krate() != krate);
                 self.add_module_node(module_def, &path, is_external)
             }
         };

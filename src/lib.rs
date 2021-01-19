@@ -1,13 +1,13 @@
-use clap::{ArgGroup, Clap, ValueHint};
+use clap::Clap;
 
 pub(crate) mod format;
 pub mod generate;
 pub(crate) mod graph;
+pub(crate) mod options;
 pub(crate) mod orphans;
 pub(crate) mod printer;
 pub(crate) mod runner;
 pub(crate) mod theme;
-pub(crate) mod options;
 
 #[clap(
     name = "cargo-modules",
@@ -21,32 +21,11 @@ pub(crate) mod options;
 )]
 #[derive(Clap, Clone, PartialEq, Debug)]
 pub enum Command {
-    #[clap(name = "generate", about = "Generate a visualization for a crate's structure.")]
-    Generate(generate::Command),
-}
-
-#[derive(Clap, Clone, PartialEq, Debug)]
-#[clap(group = ArgGroup::new("target"))]
-pub struct ProjectOptions {
-    /// Build only this package's library
-    #[clap(long = "lib", group = "target")]
-    pub lib: bool,
-
-    /// Analyze only the specified binary
-    #[clap(long = "bin", group = "target")]
-    pub bin: Option<String>,
-
-    /// Package to analyze (see `cargo help pkgid`)
-    #[clap(short = 'p', long = "package")]
-    pub package: Option<String>,
-
     #[clap(
-        name = "MANIFEST_DIR",
-        parse(from_os_str),
-        value_hint = ValueHint::DirPath,
-        default_value = "."
+        name = "generate",
+        about = "Generate a visualization for a crate's structure."
     )]
-    pub manifest_dir: std::path::PathBuf,
+    Generate(generate::Command),
 }
 
 impl Command {
