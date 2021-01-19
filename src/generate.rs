@@ -57,13 +57,16 @@ impl Command {
 
                 trace!("Searching for start node in full graph ...");
 
-                let start_node_idx = idx_of_node_with_path(&graph, &focus_path[..], db)?;
+                let full_graph_start_node_idx = idx_of_node_with_path(&graph, &focus_path[..], db)?;
 
                 trace!("Shrinking graph to desired depth ...");
 
-                if let Some(max_depth) = graph_options.max_depth {
-                    shrink_graph(&mut graph, start_node_idx, max_depth);
-                }
+                let max_depth = graph_options.max_depth.unwrap_or(usize::MAX);
+                shrink_graph(&mut graph, full_graph_start_node_idx, max_depth);
+
+                trace!("Searching for start node in shrunk graph ...");
+
+                let start_node_idx = idx_of_node_with_path(&graph, &focus_path[..], db)?;
 
                 (graph, start_node_idx)
             };
