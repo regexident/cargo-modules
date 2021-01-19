@@ -7,6 +7,7 @@ pub(crate) mod orphans;
 pub(crate) mod printer;
 pub(crate) mod runner;
 pub(crate) mod theme;
+pub(crate) mod options;
 
 #[clap(
     name = "cargo-modules",

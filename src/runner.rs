@@ -9,7 +9,7 @@ use ra_ap_project_model::{
 };
 use ra_ap_vfs::Vfs;
 
-use crate::ProjectOptions as Options;
+use crate::options::project::Options;
 
 pub struct Runner<'a> {
     project_dir: PathBuf,

@@ -8,12 +8,17 @@ use ra_ap_ide::RootDatabase;
 
 use crate::{
     format::{kind::FormattedKind, visibility::FormattedVisibility},
-    generate::graph::Options,
-    graph::{Edge, Graph, Node},
+    graph::{Edge, Graph, Node, NodeKind},
     theme::{color_palette, colors, Rgb},
 };
 
 const INDENTATION: &'static str = "    ";
+
+#[derive(Clone, Debug)]
+pub struct Options {
+    pub absolute_paths: bool,
+    pub layout: String,
+}
 
 pub struct Printer<'a> {
     options: Options,
@@ -32,6 +37,7 @@ impl<'a> Printer<'a> {
     ) -> Result<(), anyhow::Error> {
         let root_node = &graph[start_node_idx];
         let crate_name = root_node.name();
+        let layout_name = &self.options.layout[..];
 
         println!("digraph {} {{", crate_name);
 
@@ -47,8 +53,8 @@ impl<'a> Printer<'a> {
 
             {i}    // Consider rendering the graph using a different layout algorithm, such as:
             {i}    // [dot, neato, twopi, circo, fdp, sfdp]
-            {i}    layout=sfdp,
-            {i}    K=2.0, // sfdp only
+            {i}    layout={layout},
+            {i}    K=1.0, // sfdp only
             {i}    repulsiveforce=1.0, // sfdp only
             {i}    overlap=false,
             {i}    splines="line"
@@ -56,9 +62,11 @@ impl<'a> Printer<'a> {
             
             {i}    fontname="Helvetica", 
             {i}    fontsize="36",
-            {i}];"#,
+            {i}];
+            "#,
             i = INDENTATION,
             label = crate_name,
+            layout = layout_name,
         );
 
         println!();
@@ -70,7 +78,8 @@ impl<'a> Printer<'a> {
             {i}    fontsize="10",
             {i}    shape="Mrecord", // "box"
             {i}    style="filled"
-            {i}];"#,
+            {i}];
+            "#,
             i = INDENTATION,
         );
 
@@ -81,7 +90,8 @@ impl<'a> Printer<'a> {
             {i}edge [
             {i}    fontname="monospace",
             {i}    fontsize="10",
-            {i}];"#,
+            {i}];
+            "#,
             i = INDENTATION,
         );
 
@@ -127,7 +137,7 @@ impl<'a> Printer<'a> {
             let node: &Node = node_ref.weight();
             let node_idx: NodeIndex<usize> = node_ref.id();
 
-            if !node.is_crate(self.db) {
+            if node.kind(self.db) != NodeKind::Crate {
                 continue;
             }
 
@@ -145,7 +155,7 @@ impl<'a> Printer<'a> {
             let node: &Node = node_ref.weight();
             let node_idx: NodeIndex<usize> = node_ref.id();
 
-            if !node.is_module() {
+            if node.kind(self.db) != NodeKind::Module {
                 continue;
             }
 
@@ -163,7 +173,7 @@ impl<'a> Printer<'a> {
             let node: &Node = node_ref.weight();
             let node_idx: NodeIndex<usize> = node_ref.id();
 
-            if !node.is_orphan() {
+            if node.kind(self.db) != NodeKind::Orphan {
                 continue;
             }
 
@@ -181,7 +191,7 @@ impl<'a> Printer<'a> {
             let node: &Node = node_ref.weight();
             let node_idx: NodeIndex<usize> = node_ref.id();
 
-            if !node.is_type() {
+            if node.kind(self.db) != NodeKind::Type {
                 continue;
             }
 
@@ -243,7 +253,7 @@ impl<'a> Printer<'a> {
                     let visibility = FormattedVisibility::new(module_def, self.db);
                     format!("{}", visibility)
                 };
-                let kind = if node.is_crate(self.db) {
+                let kind = if node.kind(self.db) == NodeKind::Crate {
                     FormattedKind::Crate
                 } else {
                     FormattedKind::new(module_def)
@@ -253,7 +263,7 @@ impl<'a> Printer<'a> {
             None => ("orphan".to_owned(), FormattedKind::Module),
         };
 
-        let identifier = if self.options.with_uses || node.is_external {
+        let identifier = if self.options.absolute_paths || node.is_external {
             node.path.clone()
         } else {
             node.name()

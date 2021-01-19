@@ -101,11 +101,6 @@ fn sub_module_nodes(graph: &mut Graph, module_node_idx: NodeIndex<usize>) -> Vec
         .edges_directed(module_node_idx, petgraph::Direction::Outgoing)
         .filter_map(|edge_ref| {
             let child = &graph[edge_ref.target()];
-
-            if child.is_orphan() {
-                return None;
-            }
-
             Some(child.clone())
         })
         .collect()

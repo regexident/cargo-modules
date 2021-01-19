@@ -12,8 +12,7 @@ use yansi::Style;
 
 use crate::{
     format::{cfg::FormattedCfgExpr, kind::FormattedKind, visibility::FormattedVisibility},
-    generate::tree::Options,
-    graph::{Edge, Graph, Node},
+    graph::{Edge, Graph, Node, NodeKind},
     theme::styles,
 };
 
@@ -22,25 +21,29 @@ struct Twig {
     is_last: bool,
 }
 
+#[derive(Clone, Debug)]
+pub struct Options {}
+
 pub struct Printer<'a> {
-    options: &'a Options,
+    #[allow(dead_code)]
+    options: Options,
     db: &'a RootDatabase,
 }
 
 impl<'a> Printer<'a> {
-    pub fn new(options: &'a Options, db: &'a RootDatabase) -> Self {
+    pub fn new(options: Options, db: &'a RootDatabase) -> Self {
         Self { options, db }
     }
 
     pub fn print(
         &self,
         graph: &Graph,
-        root_node_idx: NodeIndex<usize>,
+        start_node_idx: NodeIndex<usize>,
     ) -> Result<(), anyhow::Error> {
         assert!(!is_cyclic_directed(graph));
 
         let mut twigs: Vec<Twig> = vec![Twig { is_last: true }];
-        self.print_tree(graph, None, root_node_idx, &mut twigs)
+        self.print_tree(graph, None, start_node_idx, &mut twigs)
     }
 
     fn print_tree(
@@ -54,19 +57,7 @@ impl<'a> Printer<'a> {
         let node = &graph[node_idx];
 
         self.print_branch(edge, &twigs[..]);
-
-        if node.is_orphan() {
-            self.print_orphan_node(node);
-        } else if node.is_crate(self.db) {
-            self.print_crate_node(node);
-        } else if node.is_module() {
-            self.print_module_node(node);
-        } else if self.options.with_types && node.is_type() {
-            self.print_type_node(node);
-        } else {
-            return Ok(());
-        }
-
+        self.print_node(node);
         println!();
 
         let mut children: Vec<_> = graph
@@ -83,9 +74,9 @@ impl<'a> Printer<'a> {
                 let node_idx = edge_ref.target();
                 let node = &graph[node_idx];
 
-                if !self.options.with_types && !node.is_module() {
-                    return None;
-                }
+                // if !self.options.with_types && !node.is_module() {
+                //     return None;
+                // }
 
                 let key = node.name();
                 Some((node_idx, edge_idx, key))
@@ -110,8 +101,28 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
+    /// Print a branch:
+    fn print_node(&self, node: &Node) {
+        match node.kind(self.db) {
+            NodeKind::Crate => {
+                self.print_crate_node(node);
+            }
+            NodeKind::Module => {
+                self.print_module_node(node);
+            }
+            NodeKind::Type => {
+                self.print_type_node(node);
+            }
+            NodeKind::Orphan => {
+                self.print_orphan_node(node);
+            }
+        }
+    }
+
     /// Print a crate branch:
     fn print_crate_node(&self, node: &Node) {
+        assert!(node.kind(self.db) == NodeKind::Crate);
+
         let kind = FormattedKind::Crate;
 
         let kind_style = self.kind_style(&kind);
@@ -125,7 +136,7 @@ impl<'a> Printer<'a> {
 
     /// Print a module-def branch:
     fn print_module_node(&self, node: &Node) {
-        assert!(!node.is_orphan());
+        assert!(node.kind(self.db) == NodeKind::Module);
 
         let colon_style = self.colon_style();
 
@@ -155,6 +166,8 @@ impl<'a> Printer<'a> {
     }
 
     fn print_type_node(&self, node: &Node) {
+        assert!(node.kind(self.db) == NodeKind::Type);
+
         self.print_module_node(node)
     }
 
@@ -183,7 +196,7 @@ impl<'a> Printer<'a> {
 
     /// Print a orphan branch:
     fn print_orphan_node(&self, node: &Node) {
-        assert!(node.is_orphan());
+        assert!(node.kind(self.db) == NodeKind::Orphan);
 
         let kind = FormattedKind::Module;
 
