@@ -94,6 +94,10 @@ pub mod generate {
             /// (e.g. dot, neato, twopi, circo, fdp, sfdp).
             #[clap(long = "layout", default_value = "sfdp")]
             pub layout: crate::options::generate::graph::LayoutAlgorithm,
+
+            /// Print nodes with absolute paths, instead of names.
+            #[clap(long = "absolute-paths")]
+            pub absolute_paths: bool,
         }
     }
 

@@ -76,8 +76,8 @@ impl<'a> Printer<'a> {
             {i}node [
             {i}    fontname="monospace",
             {i}    fontsize="10",
-            {i}    shape="Mrecord", // "box"
-            {i}    style="filled"
+            {i}    shape="record",
+            {i}    style="filled",
             {i}];
             "#,
             i = INDENTATION,
@@ -97,34 +97,12 @@ impl<'a> Printer<'a> {
 
         println!();
 
-        println!("{}// Crate Nodes:", INDENTATION);
-        println!();
-        self.print_crate_nodes(graph);
+        self.print_nodes(graph, start_node_idx);
+
         println!();
 
-        println!("{}// Module Nodes:", INDENTATION);
-        println!();
-        self.print_module_nodes(graph);
-        println!();
+        self.print_edges(graph);
 
-        println!("{}// Orphan Nodes:", INDENTATION);
-        println!();
-        self.print_orphan_nodes(graph);
-        println!();
-
-        println!("{}// Type Nodes:", INDENTATION);
-        println!();
-        self.print_type_nodes(graph);
-        println!();
-
-        println!("{}// 'Has a' Edges:", INDENTATION);
-        println!();
-        self.print_has_a_edges(graph);
-        println!();
-
-        println!("{}// 'Uses a' Edges:", INDENTATION);
-        println!();
-        self.print_uses_a_edges(graph);
         println!();
 
         println!("}}");
@@ -132,116 +110,49 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
-    fn print_crate_nodes(&self, graph: &Graph) {
+    fn print_nodes(&self, graph: &Graph, highlight_node_idx: NodeIndex<usize>) {
         for node_ref in graph.node_references() {
             let node: &Node = node_ref.weight();
             let node_idx: NodeIndex<usize> = node_ref.id();
 
-            if node.kind(self.db) != NodeKind::Crate {
-                continue;
-            }
-
             let id = node_idx.index();
-            let name = node.name(); // &node.path[..];
-            let label = format!("mod {}", name);
-            let attributes = self.node_attributes(node);
+            let kind = node.kind(self.db);
 
-            println!(r#"{}{} [label="{}"{}]"#, INDENTATION, id, label, attributes);
-        }
-    }
-
-    fn print_module_nodes(&self, graph: &Graph) {
-        for node_ref in graph.node_references() {
-            let node: &Node = node_ref.weight();
-            let node_idx: NodeIndex<usize> = node_ref.id();
-
-            if node.kind(self.db) != NodeKind::Module {
-                continue;
-            }
-
-            let id = node_idx.index();
+            let is_highlighted = node_idx == highlight_node_idx;
 
             let label = self.node_label(node);
-            let attributes = self.node_attributes(node);
-
-            println!(r#"{}{} [label="{}"{}]"#, INDENTATION, id, label, attributes);
-        }
-    }
-
-    fn print_orphan_nodes(&self, graph: &Graph) {
-        for node_ref in graph.node_references() {
-            let node: &Node = node_ref.weight();
-            let node_idx: NodeIndex<usize> = node_ref.id();
-
-            if node.kind(self.db) != NodeKind::Orphan {
-                continue;
-            }
-
-            let id = node_idx.index();
-
-            let label = self.node_label(node);
-            let attributes = self.node_attributes(node);
-
-            println!(r#"{}{} [label="{}"{}]"#, INDENTATION, id, label, attributes);
-        }
-    }
-
-    fn print_type_nodes(&self, graph: &Graph) {
-        for node_ref in graph.node_references() {
-            let node: &Node = node_ref.weight();
-            let node_idx: NodeIndex<usize> = node_ref.id();
-
-            if node.kind(self.db) != NodeKind::Type {
-                continue;
-            }
-
-            let id = node_idx.index();
-
-            let label = self.node_label(node);
-            let attributes = self.node_attributes(node);
-
-            println!(r#"{}{} [label="{}"{}]"#, INDENTATION, id, label, attributes);
-        }
-    }
-
-    fn print_has_a_edges(&self, graph: &Graph) {
-        for edge_ref in graph.edge_references() {
-            let edge: &Edge = edge_ref.weight();
-
-            if edge != &Edge::HasA {
-                continue;
-            }
-
-            let source = edge_ref.source().index();
-            let target = edge_ref.target().index();
-
-            let label = self.edge_label(edge);
-            let attributes = self.edge_attributes(edge);
+            let attributes = self.node_attributes(node, is_highlighted);
 
             println!(
-                r#"{}{} -> {} [label="{}"{}]"#,
-                INDENTATION, source, target, label, attributes
+                r#"{i}{id} [label="{label}"{attributes}]; // "{kind}" node"#,
+                i = INDENTATION,
+                id = id,
+                label = label,
+                attributes = attributes,
+                kind = kind,
             );
         }
     }
 
-    fn print_uses_a_edges(&self, graph: &Graph) {
+    fn print_edges(&self, graph: &Graph) {
         for edge_ref in graph.edge_references() {
             let edge: &Edge = edge_ref.weight();
 
-            if edge != &Edge::UsesA {
-                continue;
-            }
-
             let source = edge_ref.source().index();
             let target = edge_ref.target().index();
+            let kind = edge.kind();
 
             let label = self.edge_label(edge);
             let attributes = self.edge_attributes(edge);
 
             println!(
-                r#"{}{} -> {} [label="{}"{}]"#,
-                INDENTATION, source, target, label, attributes
+                r#"{i}{source} -> {target} [label="{label}"{attributes}]; // "{kind}" edge"#,
+                i = INDENTATION,
+                source = source,
+                target = target,
+                label = label,
+                attributes = attributes,
+                kind = kind,
             );
         }
     }
@@ -272,9 +183,12 @@ impl<'a> Printer<'a> {
         format!("{} {}|{}", visibility, kind, identifier)
     }
 
-    fn node_attributes(&self, node: &Node) -> String {
-        let color = self.node_color(node);
-        format!(r#", color="{}""#, color)
+    fn node_attributes(&self, node: &Node, is_highlighted: bool) -> String {
+        let fill_color = match is_highlighted {
+            true => self.node_highlight_color(node),
+            false => self.node_color(node),
+        };
+        format!(r#", fillcolor="{}""#, fill_color)
     }
 
     fn node_color(&self, node: &Node) -> String {
@@ -297,6 +211,12 @@ impl<'a> Printer<'a> {
         };
 
         self.hex_color(rgb)
+    }
+
+    fn node_highlight_color(&self, _node: &Node) -> String {
+        let color_palette = color_palette();
+
+        self.hex_color(color_palette.cyan)
     }
 
     fn edge_label(&self, edge: &Edge) -> String {

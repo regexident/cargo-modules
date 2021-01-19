@@ -3,7 +3,7 @@ use log::trace;
 use ra_ap_rust_analyzer::cli::load_cargo;
 
 use crate::{
-    graph::{builder::Builder as GraphBuilder, graph_by_shrinking, idx_of_node_with_path},
+    graph::{builder::Builder as GraphBuilder, idx_of_node_with_path, shrink_graph},
     options::{graph::Options as GraphOptions, project::Options as ProjectOptions},
     runner::Runner,
 };
@@ -43,27 +43,29 @@ impl Command {
         runner.run(|krate| {
             let crate_path = krate.display_name(db).expect("Crate name").to_string();
 
-            trace!("Building graph ...");
-
             let graph_builder = {
                 let graph_options = graph_options.clone();
                 GraphBuilder::new(graph_options, db, &vfs)
             };
 
-            let full_graph = graph_builder.build(krate)?;
-
-            trace!("Finding start node ...");
-
             let focus_path = graph_options.focus_on.clone().unwrap_or(crate_path);
-            let start_node_idx = idx_of_node_with_path(&full_graph, &focus_path[..], db)?;
 
-            trace!("Shrinking graph to desired depth ...");
+            let (graph, start_node_idx) = {
+                trace!("Building graph ...");
 
-            let graph = {
-                match graph_options.max_depth {
-                    Some(max_depth) => graph_by_shrinking(&full_graph, start_node_idx, max_depth),
-                    None => full_graph,
+                let mut graph = graph_builder.build(krate)?;
+
+                trace!("Searching for start node in full graph ...");
+
+                let start_node_idx = idx_of_node_with_path(&graph, &focus_path[..], db)?;
+
+                trace!("Shrinking graph to desired depth ...");
+
+                if let Some(max_depth) = graph_options.max_depth {
+                    shrink_graph(&mut graph, start_node_idx, max_depth);
                 }
+
+                (graph, start_node_idx)
             };
 
             trace!("Printing ...");
