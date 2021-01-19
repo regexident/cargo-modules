@@ -10,19 +10,10 @@ use ra_ap_hir::{self as hir, ModuleSource};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
 
-use crate::graph::{orphans::add_orphan_nodes_to, Edge, Graph, Node};
-
-#[derive(Clone, Debug)]
-pub struct Options {
-    /// Include types (e.g. structs, enums).
-    pub with_types: bool,
-
-    /// Include orphaned modules (i.e. unused files in /src).
-    pub with_orphans: bool,
-
-    /// Include used modules and types.
-    pub with_uses: bool,
-}
+use crate::{
+    graph::{orphans::add_orphan_nodes_to, Edge, Graph, Node},
+    options::graph::Options,
+};
 
 #[derive(Debug)]
 pub struct Builder<'a> {

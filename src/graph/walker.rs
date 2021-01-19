@@ -15,8 +15,8 @@ pub(crate) struct GraphWalker {
 
 impl GraphWalker {
     pub(crate) fn new() -> Self {
-        let mut nodes_visited: HashSet<NodeIndex<usize>> = HashSet::new();
-        let mut edges_visited: HashSet<EdgeIndex<usize>> = HashSet::new();
+        let nodes_visited: HashSet<NodeIndex<usize>> = HashSet::new();
+        let edges_visited: HashSet<EdgeIndex<usize>> = HashSet::new();
 
         Self {
             nodes_visited,
@@ -28,9 +28,9 @@ impl GraphWalker {
         &mut self,
         graph: &Graph,
         origin_node_idx: NodeIndex<usize>,
-        max_distance: usize,
+        max_depth: usize,
     ) -> Graph {
-        self.visit_node_recursively(graph, origin_node_idx, max_distance, 0);
+        self.visit_node_recursively(graph, origin_node_idx, max_depth, 0);
 
         graph.to_owned()
     }
@@ -39,10 +39,10 @@ impl GraphWalker {
         &mut self,
         graph: &Graph,
         node_idx: NodeIndex<usize>,
-        max_distance: usize,
-        distance: usize,
+        max_depth: usize,
+        depth: usize,
     ) {
-        if distance > max_distance {
+        if depth > max_depth {
             return;
         }
 
@@ -57,11 +57,11 @@ impl GraphWalker {
         for edge_ref in edges_directed {
             let edge_idx = edge_ref.id();
 
-            if distance >= max_distance {
+            if depth > max_depth {
                 return;
             }
 
-            if self.nodes_visited.contains(&node_idx) {
+            if self.edges_visited.contains(&edge_idx) {
                 return;
             }
 
@@ -69,7 +69,7 @@ impl GraphWalker {
 
             let target_node_idx = edge_ref.target();
 
-            self.visit_node_recursively(graph, target_node_idx, max_distance, distance + 1);
+            self.visit_node_recursively(graph, target_node_idx, max_depth, depth + 1);
         }
     }
 }

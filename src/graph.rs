@@ -1,18 +1,21 @@
-use std::{collections::HashSet, path::PathBuf};
+use std::path::PathBuf;
 
-use hir::Crate;
-use petgraph::{
-    graph::{DiGraph, EdgeIndex, NodeIndex},
-    visit::EdgeRef,
-    Direction,
-};
+use petgraph::graph::{DiGraph, NodeIndex};
 use ra_ap_hir as hir;
-use ra_ap_hir::{Module, ModuleDef};
+use ra_ap_hir::ModuleDef;
 use ra_ap_ide::RootDatabase;
 
 pub(crate) mod builder;
 pub(super) mod orphans;
 pub(super) mod walker;
+
+#[derive(Clone, PartialEq, Debug)]
+pub enum NodeKind {
+    Crate,
+    Module,
+    Type,
+    Orphan,
+}
 
 #[derive(Clone, Debug)]
 pub struct Node {
@@ -23,30 +26,19 @@ pub struct Node {
 }
 
 impl Node {
-    pub fn is_crate(&self, db: &RootDatabase) -> bool {
-        if let Some(module) = self.module() {
-            module == module.crate_root(db)
-        } else {
-            false
-        }
-    }
-
-    pub fn is_module(&self) -> bool {
-        self.module().is_some()
-    }
-
-    pub fn is_type(&self) -> bool {
-        !self.is_orphan() && !self.is_module()
-    }
-
-    pub fn is_orphan(&self) -> bool {
-        self.hir.is_none()
-    }
-
-    fn module(&self) -> Option<Module> {
-        match &self.hir {
-            Some(ModuleDef::Module(module)) => Some(*module),
-            _ => None,
+    pub fn kind(&self, db: &RootDatabase) -> NodeKind {
+        match self.hir {
+            Some(module_def) => match module_def {
+                ModuleDef::Module(module) => {
+                    if module == module.crate_root(db) {
+                        NodeKind::Crate
+                    } else {
+                        NodeKind::Module
+                    }
+                }
+                _ => NodeKind::Type,
+            },
+            None => NodeKind::Orphan,
         }
     }
 
@@ -65,56 +57,32 @@ pub enum Edge {
     HasA,
 }
 
-impl Edge {
-    pub fn is_uses_a(&self) -> bool {
-        match self {
-            Edge::UsesA => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_has_a(&self) -> bool {
-        match self {
-            Edge::HasA => true,
-            _ => false,
-        }
-    }
-}
-
 pub type Graph = DiGraph<Node, Edge, usize>;
 
-pub fn crate_node_idx(
+pub fn idx_of_node_with_path(
     graph: &Graph,
-    krate: Crate,
-    db: &RootDatabase,
+    path: &str,
+    _db: &RootDatabase,
 ) -> anyhow::Result<NodeIndex<usize>> {
     let mut node_indices = graph.node_indices();
-    let root_module = krate.root_module(db);
 
     let node_idx = node_indices.find(|node_idx| {
         let node = &graph[*node_idx];
 
-        if let Some(ModuleDef::Module(module)) = node.hir {
-            module == root_module
-        } else {
-            false
-        }
+        node.path == path
     });
 
-    node_idx.ok_or_else(|| {
-        let crate_name = &krate.display_name(db).unwrap().to_string();
-        anyhow::anyhow!("No root module found for crate {:?}", crate_name)
-    })
+    node_idx.ok_or_else(|| anyhow::anyhow!("No node found with path {:?}", path))
 }
 
-pub fn scoped_graph(
+pub fn graph_by_shrinking(
     graph: &Graph,
-    origin_node_idx: NodeIndex<usize>,
-    max_distance: usize,
+    focus_node_idx: NodeIndex<usize>,
+    max_depth: usize,
 ) -> Graph {
     let mut walker = walker::GraphWalker::new();
 
-    walker.walk_graph(graph, origin_node_idx, max_distance);
+    walker.walk_graph(graph, focus_node_idx, max_depth);
 
     graph.filter_map(
         |node_idx, node| {
