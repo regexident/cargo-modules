@@ -92,10 +92,7 @@ impl<'a> Builder<'a> {
                     continue;
                 };
 
-                let is_module = match scope_module_def {
-                    hir::ModuleDef::Module(_) => true,
-                    _ => false,
-                };
+                let is_module = matches!(scope_module_def, hir::ModuleDef::Module(_));
 
                 if !self.options.with_types && !is_module {
                     continue;
@@ -173,7 +170,7 @@ impl<'a> Builder<'a> {
 
         match relative_canonical_path {
             Some(canonical_path) => format!("{}::{}", crate_name, canonical_path),
-            None => crate_name.to_owned(),
+            None => crate_name,
         }
     }
 

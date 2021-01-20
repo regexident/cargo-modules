@@ -129,7 +129,7 @@ impl<'a> Runner<'a> {
                     let package = &workspace[*package_idx];
                     package.name == *package_name
                 })
-                .expect(&format!("No package with name {:?}", package_name));
+                .unwrap_or_else(|| panic!("No package with name {:?}", package_name));
             return Ok(package_idx);
         }
 
@@ -208,7 +208,7 @@ impl<'a> Runner<'a> {
         if let Some(bin_name) = &self.options.bin {
             let target = targets.into_iter().find(|target_idx| {
                 let target = &workspace[*target_idx];
-                (target.kind == TargetKind::Bin) && (target.name == &bin_name[..])
+                (target.kind == TargetKind::Bin) && (target.name == bin_name[..])
             });
 
             return target

@@ -99,9 +99,9 @@ fn add_orphan_node(
 fn sub_module_nodes(graph: &mut Graph, module_node_idx: NodeIndex<usize>) -> Vec<Node> {
     graph
         .edges_directed(module_node_idx, petgraph::Direction::Outgoing)
-        .filter_map(|edge_ref| {
+        .map(|edge_ref| {
             let child = &graph[edge_ref.target()];
-            Some(child.clone())
+            child.clone()
         })
         .collect()
 }
@@ -112,9 +112,9 @@ fn mod_dir(file_path: &Path) -> Option<PathBuf> {
 
     match (file_stem, extension) {
         (Some("lib"), Some("rs")) | (Some("main"), Some("rs")) | (Some("mod"), Some("rs")) => {
-            file_path.parent().map(|p| p.to_path_buf()).into()
+            file_path.parent().map(|p| p.to_path_buf())
         }
-        (Some(file_stem), Some("rs")) => file_path.parent().map(|p| p.join(file_stem)).into(),
+        (Some(file_stem), Some("rs")) => file_path.parent().map(|p| p.join(file_stem)),
         _ => None,
     }
 }
