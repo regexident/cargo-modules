@@ -12,12 +12,12 @@ pub(crate) mod theme;
 #[clap(
     name = "cargo-modules",
     about = "Print a crate's module tree or graph.",
-    after_help = r#"
-    If neither `--bin` nor `--example` are given,
-    then if the project only has one bin target it will be run.
-    Otherwise `--bin` specifies the bin target to run.
-    At most one `--bin` can be provided.
-    "#
+    // after_help = r#"
+    // If neither `--bin` nor `--example` are given,
+    // then if the project only has one bin target it will be run.
+    // Otherwise `--bin` specifies the bin target to run.
+    // At most one `--bin` can be provided.
+    // "#
 )]
 #[derive(Clap, Clone, PartialEq, Debug)]
 pub enum Command {
