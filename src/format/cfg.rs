@@ -27,7 +27,7 @@ impl FormattedCfgExpr {
             hir::ModuleDef::BuiltinType(_) => None,
         };
 
-        cfg.map(|cfg| Self::new(cfg))
+        cfg.map(Self::new)
     }
 
     pub fn top_level(&self) -> Vec<CfgExpr> {

@@ -12,7 +12,7 @@ use crate::{
     theme::{color_palette, colors, Rgb},
 };
 
-const INDENTATION: &'static str = "    ";
+const INDENTATION: &str = "    ";
 
 #[derive(Clone, Debug)]
 pub struct Options {
@@ -231,10 +231,10 @@ impl<'a> Printer<'a> {
 
         match edge {
             Edge::UsesA => {
-                format!(r#", color="gray", style="dashed", weight="0.5""#)
+                r#", color="gray", style="dashed", weight="0.5""#.to_string()
             }
             Edge::HasA => {
-                format!(r#", color="black", style="solid", weight="1.0""#)
+                r#", color="black", style="solid", weight="1.0""#.to_string()
             }
         }
     }

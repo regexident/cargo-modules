@@ -180,7 +180,7 @@ impl<'a> Printer<'a> {
             Some(cfg) => cfg
                 .top_level()
                 .into_iter()
-                .map(|cfg| FormattedCfgExpr::new(cfg))
+                .map(FormattedCfgExpr::new)
                 .collect(),
             None => vec![],
         };
