@@ -17,7 +17,6 @@ const INDENTATION: &str = "    ";
 
 #[derive(Clone, Debug)]
 pub struct Options {
-    pub absolute_paths: bool,
     pub layout: String,
 }
 
@@ -199,11 +198,7 @@ impl<'a> Printer<'a> {
     }
 
     fn node_body(&self, node: &Node) -> String {
-        if self.options.absolute_paths {
-            node.path.clone()
-        } else {
-            node.name()
-        }
+        node.path.clone()
     }
 
     fn node_attributes(&self, node: &Node, is_focused: bool) -> String {

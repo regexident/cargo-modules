@@ -84,10 +84,6 @@ pub mod generate {
             #[clap(long = "layout", default_value = "neato")]
             pub layout: crate::options::generate::graph::LayoutAlgorithm,
 
-            /// Print nodes with absolute paths, instead of names.
-            #[clap(long = "absolute-paths")]
-            pub absolute_paths: bool,
-
             /// Include used modules and types
             #[clap(long = "with-uses")]
             pub with_uses: bool,
