@@ -167,25 +167,34 @@ impl<'a> Printer<'a> {
     }
 
     fn node_header(&self, node: &Node) -> String {
-        match node.hir {
-            Some(module_def) => {
-                let absolute_paths = self.options.absolute_paths;
+        let module_def = match node.hir {
+            Some(module_def) => module_def,
+            None => return "orphan module".to_owned(),
+        };
 
-                let is_external = node.krate != Some(self.member_krate);
+        let is_external = node.krate != Some(self.member_krate);
+        let node_kind = node.kind(self.db);
 
-                let visibility = if is_external & !absolute_paths {
-                    FormattedVisibility::Public
+        match node_kind {
+            NodeKind::Crate => {
+                if is_external {
+                    "extern crate".to_owned()
                 } else {
-                    FormattedVisibility::new(module_def, self.db)
+                    "crate".to_owned()
+                }
+            }
+            _ => {
+                let visibility = if is_external {
+                    "extern".to_owned()
+                } else {
+                    FormattedVisibility::new(module_def, self.db).to_string()
                 };
-                let node_kind = node.kind(self.db);
                 let kind = match node_kind {
                     NodeKind::Crate => FormattedKind::Crate,
                     _ => FormattedKind::new(module_def),
                 };
                 format!("{} {}", visibility, kind)
             }
-            None => format!("orphan {}", FormattedKind::Module),
         }
     }
 

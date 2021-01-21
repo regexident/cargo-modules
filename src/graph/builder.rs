@@ -54,36 +54,49 @@ impl<'a> Builder<'a> {
         recursive: bool,
         krate: Crate,
     ) -> anyhow::Result<Option<NodeIndex>> {
-        let path = self.module_path(module_def);
+        let is_module = matches!(module_def, hir::ModuleDef::Module(_));
 
-        trace!("Scanning module {:?}", path);
-
-        let module = if let hir::ModuleDef::Module(module) = module_def {
-            Some(module)
-        } else {
-            None
-        };
-
-        if !self.options.with_types && module.is_none() {
+        if !self.options.with_types && !is_module {
             return Ok(None);
         }
 
-        // Check if already we have any node registered for this path, obtaining its index:
+        let module_def_krate = {
+            match module_def {
+                hir::ModuleDef::Module(module) => Some(module),
+                module_def @ _ => module_def.module(self.db),
+            }
+            .map(|module| module.krate())
+        };
+
+        let is_external = module_def_krate != Some(krate);
+
+        let module_def = if is_external {
+            if let Some(module_def_krate) = module_def_krate {
+                hir::ModuleDef::Module(module_def_krate.root_module(self.db))
+            } else {
+                module_def
+            }
+        } else {
+            module_def
+        };
+
+        let path = self.module_path(module_def);
+
+        // Check if we already have any node registered for this path,
+        // otherwise add a node:
+
         let node_idx = match self.nodes.get(&path) {
             Some(node_idx) => *node_idx,
-            None => {
-                let is_external = module_def
-                    .module(self.db)
-                    .map_or(false, |module| module.krate() != krate);
-                self.add_module_node(module_def, &path, is_external)
-            }
+            None => self.add_module_node(module_def, module_def_krate, &path),
         };
 
         if !recursive {
             return Ok(Some(node_idx));
         }
 
-        if let Some(module) = module {
+        if let hir::ModuleDef::Module(module) = module_def {
+            trace!("Scanning module {:?}", path);
+
             for (_name, scope_def) in module.scope(self.db, None) {
                 let scope_module_def = if let hir::ScopeDef::ModuleDef(scope_module_def) = scope_def
                 {
@@ -107,6 +120,11 @@ impl<'a> Builder<'a> {
                 let scope_node_idx = self.add_module_def(scope_module_def, is_local, krate)?;
 
                 if let Some(scope_node_idx) = scope_node_idx {
+                    if self.graph.contains_edge(node_idx, scope_node_idx) {
+                        // Avoid adding redundant edges:
+                        continue;
+                    }
+
                     let edge = if is_local { Edge::HasA } else { Edge::UsesA };
                     self.add_edge(node_idx, scope_node_idx, edge);
                 }
