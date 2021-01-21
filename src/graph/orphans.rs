@@ -12,7 +12,7 @@ use crate::{
     orphans::PossibleOrphansIterator,
 };
 
-pub(crate) fn add_orphan_nodes_to(graph: &mut Graph, module_idx: NodeIndex<usize>) {
+pub(crate) fn add_orphan_nodes_to(graph: &mut Graph, module_idx: NodeIndex) {
     let module_node = graph[module_idx].clone();
 
     trace!("Searching for orphans of {:?}", module_node.path);
@@ -71,7 +71,7 @@ pub(crate) fn add_orphan_nodes_to(graph: &mut Graph, module_idx: NodeIndex<usize
 
 fn add_orphan_node(
     graph: &mut Graph,
-    module_idx: NodeIndex<usize>,
+    module_idx: NodeIndex,
     orphan_file_path: &Path,
     orphan_name: &str,
 ) {
@@ -96,7 +96,7 @@ fn add_orphan_node(
     graph.add_edge(module_idx, orphan_idx, edge);
 }
 
-fn sub_module_nodes(graph: &mut Graph, module_node_idx: NodeIndex<usize>) -> Vec<Node> {
+fn sub_module_nodes(graph: &mut Graph, module_node_idx: NodeIndex) -> Vec<Node> {
     graph
         .edges_directed(module_node_idx, petgraph::Direction::Outgoing)
         .map(|edge_ref| {

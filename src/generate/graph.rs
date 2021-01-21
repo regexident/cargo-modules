@@ -22,7 +22,7 @@ impl Command {
     pub fn run(
         &self,
         graph: &Graph,
-        start_node_idx: NodeIndex<usize>,
+        start_node_idx: NodeIndex,
         db: &RootDatabase,
     ) -> anyhow::Result<()> {
         let options: &Options = &self.options;
@@ -30,10 +30,8 @@ impl Command {
         trace!("Printing ...");
 
         let printer = {
-            let absolute_paths = options.absolute_paths || options.graph.with_uses;
-
             let printer_options: PrinterOptions = PrinterOptions {
-                absolute_paths,
+                absolute_paths: options.absolute_paths,
                 layout: options.layout.to_string(),
             };
             Printer::new(printer_options, db)

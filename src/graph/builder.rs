@@ -21,7 +21,7 @@ pub struct Builder<'a> {
     db: &'a RootDatabase,
     vfs: &'a Vfs,
     graph: Graph,
-    nodes: HashMap<String, NodeIndex<usize>>,
+    nodes: HashMap<String, NodeIndex>,
 }
 
 impl<'a> Builder<'a> {
@@ -53,7 +53,7 @@ impl<'a> Builder<'a> {
         module_def: hir::ModuleDef,
         recursive: bool,
         krate: Crate,
-    ) -> anyhow::Result<Option<NodeIndex<usize>>> {
+    ) -> anyhow::Result<Option<NodeIndex>> {
         let path = self.module_path(module_def);
 
         trace!("Scanning module {:?}", path);
@@ -179,7 +179,7 @@ impl<'a> Builder<'a> {
         module_def: hir::ModuleDef,
         module_path: &str,
         is_external: bool,
-    ) -> NodeIndex<usize> {
+    ) -> NodeIndex {
         trace!("Adding module node: {:?}", module_path);
 
         let module_path = self.module_path(module_def);
@@ -192,12 +192,7 @@ impl<'a> Builder<'a> {
         node_idx
     }
 
-    fn add_edge(
-        &mut self,
-        source_idx: NodeIndex<usize>,
-        target_idx: NodeIndex<usize>,
-        edge: Edge,
-    ) -> EdgeIndex<usize> {
+    fn add_edge(&mut self, source_idx: NodeIndex, target_idx: NodeIndex, edge: Edge) -> EdgeIndex {
         trace!("Adding edge: {:?} -> {:?}", source_idx, target_idx);
 
         self.graph.add_edge(source_idx, target_idx, edge)

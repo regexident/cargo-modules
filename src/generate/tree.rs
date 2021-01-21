@@ -22,7 +22,7 @@ impl Command {
     pub fn run(
         &self,
         graph: &Graph,
-        start_node_idx: NodeIndex<usize>,
+        start_node_idx: NodeIndex,
         db: &RootDatabase,
     ) -> anyhow::Result<()> {
         let _options: &Options = &self.options;

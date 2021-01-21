@@ -2,7 +2,7 @@
 
 use petgraph::{
     graph::NodeIndex,
-    visit::{EdgeRef, IntoNodeReferences, NodeRef},
+    visit::{IntoNodeReferences, NodeRef},
 };
 use ra_ap_ide::RootDatabase;
 
@@ -30,11 +30,7 @@ impl<'a> Printer<'a> {
         Self { options, db }
     }
 
-    pub fn print(
-        &self,
-        graph: &Graph,
-        start_node_idx: NodeIndex<usize>,
-    ) -> Result<(), anyhow::Error> {
+    pub fn print(&self, graph: &Graph, start_node_idx: NodeIndex) -> Result<(), anyhow::Error> {
         let root_node = &graph[start_node_idx];
         let crate_name = root_node.name();
         let layout_name = &self.options.layout[..];
@@ -110,10 +106,10 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
-    fn print_nodes(&self, graph: &Graph, highlight_node_idx: NodeIndex<usize>) {
+    fn print_nodes(&self, graph: &Graph, highlight_node_idx: NodeIndex) {
         for node_ref in graph.node_references() {
             let node: &Node = node_ref.weight();
-            let node_idx: NodeIndex<usize> = node_ref.id();
+            let node_idx: NodeIndex = node_ref.id();
 
             let id = node_idx.index();
             let kind = node.kind(self.db);
@@ -135,11 +131,13 @@ impl<'a> Printer<'a> {
     }
 
     fn print_edges(&self, graph: &Graph) {
-        for edge_ref in graph.edge_references() {
-            let edge: &Edge = edge_ref.weight();
+        for edge_idx in graph.edge_indices() {
+            let edge = &graph[edge_idx];
+            let (source, target) = graph
+                .edge_endpoints(edge_idx)
+                .map(|(source, target)| (source.index(), target.index()))
+                .unwrap();
 
-            let source = edge_ref.source().index();
-            let target = edge_ref.target().index();
             let kind = edge.kind();
 
             let label = self.edge_label(edge);
@@ -158,29 +156,44 @@ impl<'a> Printer<'a> {
     }
 
     fn node_label(&self, node: &Node) -> String {
-        let (visibility, kind) = match node.hir {
-            Some(module_def) => {
-                let visibility = {
-                    let visibility = FormattedVisibility::new(module_def, self.db);
-                    format!("{}", visibility)
-                };
-                let kind = if node.kind(self.db) == NodeKind::Crate {
-                    FormattedKind::Crate
-                } else {
-                    FormattedKind::new(module_def)
-                };
-                (visibility, kind)
-            }
-            None => ("orphan".to_owned(), FormattedKind::Module),
-        };
+        let header = self.node_header(node);
+        let body = self.node_body(node);
 
-        let identifier = if self.options.absolute_paths || node.is_external {
+        format!("{}|{}", header, body)
+    }
+
+    fn node_header(&self, node: &Node) -> String {
+        match node.hir {
+            Some(module_def) => {
+                let absolute_paths = self.options.absolute_paths;
+
+                let visibility = if node.is_external & !absolute_paths {
+                    FormattedVisibility::Public
+                } else {
+                    FormattedVisibility::new(module_def, self.db)
+                };
+                let node_kind = node.kind(self.db);
+                let kind = match (node_kind, node.is_external, absolute_paths) {
+                    (NodeKind::Crate, _, _) => FormattedKind::Crate,
+                    (NodeKind::Module, true, false) => FormattedKind::Crate,
+                    _ => FormattedKind::new(module_def),
+                };
+                format!("{} {}", visibility, kind)
+            }
+            None => format!("orphan {}", FormattedKind::Module),
+        }
+    }
+
+    fn node_body(&self, node: &Node) -> String {
+        if self.options.absolute_paths {
             node.path.clone()
         } else {
-            node.name()
-        };
-
-        format!("{} {}|{}", visibility, kind, identifier)
+            if node.is_external {
+                node.crate_name()
+            } else {
+                node.name()
+            }
+        }
     }
 
     fn node_attributes(&self, node: &Node, is_highlighted: bool) -> String {
@@ -230,12 +243,8 @@ impl<'a> Printer<'a> {
         // NOTE: To ignore edge in layout add: [constraint=false]
 
         match edge {
-            Edge::UsesA => {
-                r#", color="gray", style="dashed", weight="0.5""#.to_string()
-            }
-            Edge::HasA => {
-                r#", color="black", style="solid", weight="1.0""#.to_string()
-            }
+            Edge::UsesA => r#", color="gray", style="dashed", weight="0.5""#.to_string(),
+            Edge::HasA => r#", color="black", style="solid", weight="1.0""#.to_string(),
         }
     }
 

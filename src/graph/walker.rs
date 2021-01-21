@@ -5,12 +5,12 @@ use petgraph::{graph::NodeIndex, visit::EdgeRef, Direction};
 use crate::graph::Graph;
 
 pub(crate) struct GraphWalker {
-    pub(crate) nodes_visited: HashSet<NodeIndex<usize>>,
+    pub(crate) nodes_visited: HashSet<NodeIndex>,
 }
 
 impl GraphWalker {
     pub(crate) fn new() -> Self {
-        let nodes_visited: HashSet<NodeIndex<usize>> = HashSet::new();
+        let nodes_visited: HashSet<NodeIndex> = HashSet::new();
 
         Self { nodes_visited }
     }
@@ -18,7 +18,7 @@ impl GraphWalker {
     pub(crate) fn walk_graph(
         &mut self,
         graph: &Graph,
-        origin_node_idx: NodeIndex<usize>,
+        origin_node_idx: NodeIndex,
         max_depth: usize,
     ) -> Graph {
         self.visit_node_recursively(graph, origin_node_idx, max_depth, 0);
@@ -29,7 +29,7 @@ impl GraphWalker {
     pub(crate) fn visit_node_recursively(
         &mut self,
         graph: &Graph,
-        node_idx: NodeIndex<usize>,
+        node_idx: NodeIndex,
         max_depth: usize,
         depth: usize,
     ) {

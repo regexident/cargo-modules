@@ -1,7 +1,4 @@
-use std::{
-    fs::ReadDir,
-    path::{PathBuf},
-};
+use std::{fs::ReadDir, path::PathBuf};
 
 pub struct PossibleOrphan {
     pub name: String,

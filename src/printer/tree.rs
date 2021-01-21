@@ -35,11 +35,7 @@ impl<'a> Printer<'a> {
         Self { options, db }
     }
 
-    pub fn print(
-        &self,
-        graph: &Graph,
-        start_node_idx: NodeIndex<usize>,
-    ) -> Result<(), anyhow::Error> {
+    pub fn print(&self, graph: &Graph, start_node_idx: NodeIndex) -> Result<(), anyhow::Error> {
         assert!(!is_cyclic_directed(graph));
 
         let mut twigs: Vec<Twig> = vec![Twig { is_last: true }];
@@ -49,8 +45,8 @@ impl<'a> Printer<'a> {
     fn print_tree(
         &self,
         graph: &Graph,
-        edge_idx: Option<EdgeIndex<usize>>,
-        node_idx: NodeIndex<usize>,
+        edge_idx: Option<EdgeIndex>,
+        node_idx: NodeIndex,
         twigs: &mut Vec<Twig>,
     ) -> Result<(), anyhow::Error> {
         let edge = edge_idx.map(|idx| &graph[idx]);
@@ -138,6 +134,16 @@ impl<'a> Printer<'a> {
     fn print_module_node(&self, node: &Node) {
         assert!(node.kind(self.db) == NodeKind::Module);
 
+        self.print_module_or_crate_node(node)
+    }
+
+    fn print_type_node(&self, node: &Node) {
+        assert!(node.kind(self.db) == NodeKind::Type);
+
+        self.print_module_or_crate_node(node)
+    }
+
+    fn print_module_or_crate_node(&self, node: &Node) {
         let colon_style = self.colon_style();
 
         let module_def = match node.hir {
@@ -163,12 +169,6 @@ impl<'a> Printer<'a> {
         }
 
         self.print_module_def_cfg(module_def);
-    }
-
-    fn print_type_node(&self, node: &Node) {
-        assert!(node.kind(self.db) == NodeKind::Type);
-
-        self.print_module_node(node)
     }
 
     /// Print a module-def's cfg suffix':
