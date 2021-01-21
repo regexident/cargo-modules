@@ -33,7 +33,6 @@ impl Command {
 
         let printer = {
             let printer_options: PrinterOptions = PrinterOptions {
-                absolute_paths: options.absolute_paths,
                 layout: options.layout.to_string(),
             };
             Printer::new(printer_options, member_krate, db)
