@@ -118,10 +118,10 @@ impl<'a> Printer<'a> {
             let id = node_idx.index();
             let kind = node.kind(self.db);
 
-            let is_highlighted = node_idx == start_node_idx;
+            let is_focused = node_idx == start_node_idx;
 
             let label = self.node_label(node);
-            let attributes = self.node_attributes(node, is_highlighted);
+            let attributes = self.node_attributes(node, is_focused);
 
             println!(
                 r#"{i}{id} [label="{label}"{attributes}]; // "{kind}" node"#,
@@ -206,8 +206,8 @@ impl<'a> Printer<'a> {
         }
     }
 
-    fn node_attributes(&self, node: &Node, is_highlighted: bool) -> String {
-        let fill_color = match is_highlighted {
+    fn node_attributes(&self, node: &Node, is_focused: bool) -> String {
+        let fill_color = match is_focused {
             true => self.node_highlight_color(node),
             false => self.node_color(node),
         };
