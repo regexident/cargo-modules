@@ -238,11 +238,9 @@ impl<'a> Printer<'a> {
     }
 
     fn edge_attributes(&self, edge: &Edge) -> String {
-        // NOTE: To ignore edge in layout add: [constraint=false]
-
         match edge {
-            Edge::UsesA => r#", color="gray", style="dashed", weight="0.5""#.to_string(),
-            Edge::HasA => r#", color="black", style="solid", weight="1.0""#.to_string(),
+            Edge::UsesA => r#", color="gray", style="dashed""#.to_string(),
+            Edge::HasA => r#", color="black", style="solid""#.to_string(),
         }
     }
 
