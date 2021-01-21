@@ -104,7 +104,7 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
-    fn print_nodes(&self, graph: &Graph, highlight_node_idx: NodeIndex) {
+    fn print_nodes(&self, graph: &Graph, start_node_idx: NodeIndex) {
         for node_ref in graph.node_references() {
             let node: &Node = node_ref.weight();
             let node_idx: NodeIndex = node_ref.id();
@@ -112,7 +112,7 @@ impl<'a> Printer<'a> {
             let id = node_idx.index();
             let kind = node.kind(self.db);
 
-            let is_highlighted = node_idx == highlight_node_idx;
+            let is_highlighted = node_idx == start_node_idx;
 
             let label = self.node_label(node);
             let attributes = self.node_attributes(node, is_highlighted);
