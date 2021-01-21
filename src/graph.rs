@@ -1,7 +1,7 @@
 use std::{fmt, path::PathBuf};
 
 use log::trace;
-use petgraph::graph::{DiGraph, NodeIndex};
+use petgraph::stable_graph::{NodeIndex, StableGraph};
 use ra_ap_hir as hir;
 use ra_ap_hir::ModuleDef;
 use ra_ap_ide::RootDatabase;
@@ -56,10 +56,20 @@ impl Node {
     }
 
     pub fn name(&self) -> String {
-        let components: Vec<_> = self.path.rsplit("::").collect();
+        let path = &self.path[..];
+        let components: Vec<_> = path.rsplit("::").collect();
         match components.first() {
             Some(name) => (*name).to_owned(),
-            None => unreachable!(),
+            None => path.to_owned(),
+        }
+    }
+
+    pub fn crate_name(&self) -> String {
+        let path = &self.path[..];
+        let components: Vec<_> = path.split("::").collect();
+        match components.first() {
+            Some(name) => (*name).to_owned(),
+            None => path.to_owned(),
         }
     }
 }
@@ -95,13 +105,13 @@ impl Edge {
     }
 }
 
-pub type Graph = DiGraph<Node, Edge, usize>;
+pub type Graph = StableGraph<Node, Edge>;
 
 pub fn idx_of_node_with_path(
     graph: &Graph,
     path: &str,
     _db: &RootDatabase,
-) -> anyhow::Result<NodeIndex<usize>> {
+) -> anyhow::Result<NodeIndex> {
     let mut node_indices = graph.node_indices();
 
     let node_idx = node_indices.find(|node_idx| {
@@ -112,7 +122,7 @@ pub fn idx_of_node_with_path(
     node_idx.ok_or_else(|| anyhow::anyhow!("No node found with path {:?}", path))
 }
 
-pub fn shrink_graph(graph: &mut Graph, focus_node_idx: NodeIndex<usize>, max_depth: usize) {
+pub fn shrink_graph(graph: &mut Graph, focus_node_idx: NodeIndex, max_depth: usize) {
     let mut walker = walker::GraphWalker::new();
 
     trace!(
