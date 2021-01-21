@@ -47,12 +47,6 @@ pub mod generate {
             Sfdp,
         }
 
-        impl Default for LayoutAlgorithm {
-            fn default() -> Self {
-                Self::Sfdp
-            }
-        }
-
         impl FromStr for LayoutAlgorithm {
             type Err = &'static str;
 
@@ -92,7 +86,7 @@ pub mod generate {
 
             /// The graph layout algorithm to use
             /// (e.g. dot, neato, twopi, circo, fdp, sfdp).
-            #[clap(long = "layout", default_value = "sfdp")]
+            #[clap(long = "layout", default_value = "neato")]
             pub layout: crate::options::generate::graph::LayoutAlgorithm,
 
             /// Print nodes with absolute paths, instead of names.
