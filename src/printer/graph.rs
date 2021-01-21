@@ -50,10 +50,8 @@ impl<'a> Printer<'a> {
             {i}    // Consider rendering the graph using a different layout algorithm, such as:
             {i}    // [dot, neato, twopi, circo, fdp, sfdp]
             {i}    layout={layout},
-            {i}    K=1.0, // sfdp only
-            {i}    repulsiveforce=1.0, // sfdp only
             {i}    overlap=false,
-            {i}    splines="line"
+            {i}    splines="line",
             {i}    rankdir=LR,
             
             {i}    fontname="Helvetica", 
