@@ -60,3 +60,7 @@ version = "=0.0.30"
 
 [dependencies.ra_ap_vfs]
 version = "=0.0.30"
+
+[dev-dependencies.insta]
+version = "1.5.2"
+features = ["glob"]
