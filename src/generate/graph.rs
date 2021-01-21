@@ -1,5 +1,6 @@
 use log::trace;
 use petgraph::graph::NodeIndex;
+use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
 pub use crate::options::generate::graph::Options;
@@ -23,6 +24,7 @@ impl Command {
         &self,
         graph: &Graph,
         start_node_idx: NodeIndex,
+        member_krate: hir::Crate,
         db: &RootDatabase,
     ) -> anyhow::Result<()> {
         let options: &Options = &self.options;
@@ -34,7 +36,7 @@ impl Command {
                 absolute_paths: options.absolute_paths,
                 layout: options.layout.to_string(),
             };
-            Printer::new(printer_options, db)
+            Printer::new(printer_options, member_krate, db)
         };
 
         printer.print(&graph, start_node_idx)

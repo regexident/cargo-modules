@@ -4,6 +4,7 @@ use petgraph::{
     graph::NodeIndex,
     visit::{IntoNodeReferences, NodeRef},
 };
+use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
 use crate::{
@@ -22,12 +23,17 @@ pub struct Options {
 
 pub struct Printer<'a> {
     options: Options,
+    member_krate: hir::Crate,
     db: &'a RootDatabase,
 }
 
 impl<'a> Printer<'a> {
-    pub fn new(options: Options, db: &'a RootDatabase) -> Self {
-        Self { options, db }
+    pub fn new(options: Options, member_krate: hir::Crate, db: &'a RootDatabase) -> Self {
+        Self {
+            options,
+            member_krate,
+            db,
+        }
     }
 
     pub fn print(&self, graph: &Graph, start_node_idx: NodeIndex) -> Result<(), anyhow::Error> {
@@ -165,15 +171,16 @@ impl<'a> Printer<'a> {
             Some(module_def) => {
                 let absolute_paths = self.options.absolute_paths;
 
-                let visibility = if node.is_external & !absolute_paths {
+                let is_external = node.krate != Some(self.member_krate);
+
+                let visibility = if is_external & !absolute_paths {
                     FormattedVisibility::Public
                 } else {
                     FormattedVisibility::new(module_def, self.db)
                 };
                 let node_kind = node.kind(self.db);
-                let kind = match (node_kind, node.is_external, absolute_paths) {
-                    (NodeKind::Crate, _, _) => FormattedKind::Crate,
-                    (NodeKind::Module, true, false) => FormattedKind::Crate,
+                let kind = match node_kind {
+                    NodeKind::Crate => FormattedKind::Crate,
                     _ => FormattedKind::new(module_def),
                 };
                 format!("{} {}", visibility, kind)
@@ -186,11 +193,7 @@ impl<'a> Printer<'a> {
         if self.options.absolute_paths {
             node.path.clone()
         } else {
-            if node.is_external {
-                node.crate_name()
-            } else {
-                node.name()
-            }
+            node.name()
         }
     }
 
@@ -206,7 +209,9 @@ impl<'a> Printer<'a> {
         let colors = colors();
         let color_palette = color_palette();
 
-        let rgb = if node.is_external {
+        let is_external = node.krate != Some(self.member_krate);
+
+        let rgb = if is_external {
             color_palette.blue
         } else {
             match node.hir {

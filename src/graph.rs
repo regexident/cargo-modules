@@ -35,7 +35,7 @@ pub struct Node {
     pub path: String,
     pub file_path: Option<PathBuf>,
     pub hir: Option<hir::ModuleDef>,
-    pub is_external: bool,
+    pub krate: Option<hir::Crate>,
 }
 
 impl Node {
