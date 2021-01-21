@@ -177,14 +177,14 @@ impl<'a> Builder<'a> {
     fn add_module_node(
         &mut self,
         module_def: hir::ModuleDef,
+        krate: Option<hir::Crate>,
         module_path: &str,
-        is_external: bool,
     ) -> NodeIndex {
         trace!("Adding module node: {:?}", module_path);
 
         let module_path = self.module_path(module_def);
 
-        let node = self.make_node(module_def, &module_path, is_external);
+        let node = self.make_node(module_def, krate, &module_path);
 
         let node_idx = self.graph.add_node(node);
         self.nodes.insert(module_path, node_idx);
@@ -198,10 +198,10 @@ impl<'a> Builder<'a> {
         self.graph.add_edge(source_idx, target_idx, edge)
     }
 
-    fn make_node(&self, module_def: hir::ModuleDef, module_path: &str, is_external: bool) -> Node {
+    fn make_node(&self, hir: hir::ModuleDef, krate: Option<hir::Crate>, module_path: &str) -> Node {
         let path = module_path.to_owned();
         let file_path = {
-            match module_def {
+            match hir {
                 hir::ModuleDef::Module(module) => Some(module),
                 _ => None,
             }
@@ -210,13 +210,13 @@ impl<'a> Builder<'a> {
                     .map(Into::into)
             })
         };
-        let hir = Some(module_def);
+        let hir = Some(hir);
 
         Node {
             path,
             file_path,
             hir,
-            is_external,
+            krate,
         }
     }
 }

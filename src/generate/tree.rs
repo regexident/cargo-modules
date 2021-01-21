@@ -1,5 +1,6 @@
 use log::trace;
 use petgraph::graph::NodeIndex;
+use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
 pub use crate::options::generate::tree::Options;
@@ -23,6 +24,7 @@ impl Command {
         &self,
         graph: &Graph,
         start_node_idx: NodeIndex,
+        _member_krate: hir::Crate,
         db: &RootDatabase,
     ) -> anyhow::Result<()> {
         let _options: &Options = &self.options;

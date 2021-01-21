@@ -79,12 +79,12 @@ impl Command {
                     assert!(!graph_options.with_uses);
 
                     let command = tree::Command::new(options.clone());
-                    command.run(&graph, start_node_idx, db)
+                    command.run(&graph, start_node_idx, krate, db)
                 }
                 #[allow(unused_variables)]
                 Self::Graph(options) => {
                     let command = graph::Command::new(options.clone());
-                    command.run(&graph, start_node_idx, db)
+                    command.run(&graph, start_node_idx, krate, db)
                 }
             }
         })

@@ -81,12 +81,12 @@ fn add_orphan_node(
         let path = format!("{}::{}", module_node.path, orphan_name);
         let file_path = Some(orphan_file_path.to_owned());
         let hir = None;
-        let is_external = false;
+        let krate = module_node.krate;
         Node {
             path,
             file_path,
             hir,
-            is_external,
+            krate,
         }
     };
 
