@@ -41,7 +41,7 @@ impl<'a> Printer<'a> {
         let crate_name = root_node.name();
         let layout_name = &self.options.layout[..];
 
-        println!("digraph {} {{", crate_name);
+        println!("digraph {{");
 
         println!();
 
