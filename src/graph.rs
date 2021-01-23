@@ -81,14 +81,14 @@ impl Node {
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum EdgeKind {
     Uses,
-    Has,
+    Owns,
 }
 
 impl fmt::Display for EdgeKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = match self {
             Self::Uses => "Uses",
-            Self::Has => "Has",
+            Self::Owns => "Owns",
         };
         write!(f, "{}", name)
     }
@@ -96,15 +96,15 @@ impl fmt::Display for EdgeKind {
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Edge {
-    UsesA,
-    HasA,
+    Uses,
+    Owns,
 }
 
 impl Edge {
     pub fn kind(&self) -> EdgeKind {
         match self {
-            Self::UsesA => EdgeKind::Uses,
-            Self::HasA => EdgeKind::Has,
+            Self::Uses => EdgeKind::Uses,
+            Self::Owns => EdgeKind::Owns,
         }
     }
 }

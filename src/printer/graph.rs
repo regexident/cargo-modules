@@ -255,15 +255,15 @@ impl<'a> Printer<'a> {
 
     fn edge_label(&self, edge: &Edge) -> String {
         match edge {
-            Edge::UsesA => "uses".to_owned(),
-            Edge::HasA => "has".to_owned(),
+            Edge::Uses => "uses".to_owned(),
+            Edge::Owns => "owns".to_owned(),
         }
     }
 
     fn edge_attributes(&self, edge: &Edge) -> String {
         match edge {
-            Edge::UsesA => r#", color="gray", style="dashed""#.to_string(),
-            Edge::HasA => r#", color="black", style="solid""#.to_string(),
+            Edge::Uses => r#", color="gray", style="dashed""#.to_string(),
+            Edge::Owns => r#", color="black", style="solid""#.to_string(),
         }
     }
 

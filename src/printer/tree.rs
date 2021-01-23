@@ -62,17 +62,16 @@ impl<'a> Printer<'a> {
                 let edge_idx = edge_ref.id();
                 let edge = &graph[edge_idx];
 
-                // We're only interested in "has-a" relationships here:
-                if edge != &Edge::HasA {
+                // We're only interested in "owns" relationships here:
+                let is_owns_edge = edge == &Edge::Owns;
+                debug_assert!(is_owns_edge);
+
+                if !is_owns_edge {
                     return None;
                 }
 
                 let node_idx = edge_ref.target();
                 let node = &graph[node_idx];
-
-                // if !self.options.with_types && !node.is_module() {
-                //     return None;
-                // }
 
                 let key = node.name();
                 Some((node_idx, edge_idx, key))
