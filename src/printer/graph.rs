@@ -48,7 +48,7 @@ impl<'a> Printer<'a> {
         indoc::printdoc!(
             r#"
             {i}graph [
-            {i}    label="{label}",
+            {i}    label={label:?},
             {i}    labelloc=t,
 
             {i}    pad=0.4,
@@ -115,7 +115,7 @@ impl<'a> Printer<'a> {
             let node: &Node = node_ref.weight();
             let node_idx: NodeIndex = node_ref.id();
 
-            let id = node_idx.index();
+            let id = &node.path[..];
             let kind = node.kind(self.db);
 
             let is_focused = node_idx == start_node_idx;
@@ -124,7 +124,7 @@ impl<'a> Printer<'a> {
             let attributes = self.node_attributes(node, is_focused);
 
             println!(
-                r#"{i}{id} [label="{label}"{attributes}]; // "{kind}" node"#,
+                r#"{i}{id:?} [label={label:?}{attributes}]; // {kind:?} node"#,
                 i = INDENTATION,
                 id = id,
                 label = label,
@@ -137,10 +137,10 @@ impl<'a> Printer<'a> {
     fn print_edges(&self, graph: &Graph) {
         for edge_idx in graph.edge_indices() {
             let edge = &graph[edge_idx];
-            let (source, target) = graph
-                .edge_endpoints(edge_idx)
-                .map(|(source, target)| (source.index(), target.index()))
-                .unwrap();
+            let (source_idx, target_idx) = graph.edge_endpoints(edge_idx).unwrap();
+
+            let source_id = &graph[source_idx].path[..];
+            let target_id = &graph[target_idx].path[..];
 
             let kind = edge.kind();
 
@@ -148,10 +148,10 @@ impl<'a> Printer<'a> {
             let attributes = self.edge_attributes(edge);
 
             println!(
-                r#"{i}{source} -> {target} [label="{label}"{attributes}]; // "{kind}" edge"#,
+                r#"{i}{source:?} -> {target:?} [label={label:?}{attributes}]; // {kind:?} edge"#,
                 i = INDENTATION,
-                source = source,
-                target = target,
+                source = source_id,
+                target = target_id,
                 label = label,
                 attributes = attributes,
                 kind = kind,
@@ -220,7 +220,7 @@ impl<'a> Printer<'a> {
             true => self.node_highlight_color(node),
             false => self.node_color(node),
         };
-        format!(r#", fillcolor="{}""#, fill_color)
+        format!(r#", fillcolor={:?}"#, fill_color)
     }
 
     fn node_color(&self, node: &Node) -> String {
