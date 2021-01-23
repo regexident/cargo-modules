@@ -172,7 +172,7 @@ impl<'a> Printer<'a> {
             None => return "orphan module".to_owned(),
         };
 
-        let is_external = node.krate != Some(self.member_krate);
+        let is_external = node.krate(self.db) != Some(self.member_krate);
         let node_kind = node.kind(self.db);
 
         match node_kind {
@@ -227,7 +227,7 @@ impl<'a> Printer<'a> {
         let colors = colors();
         let color_palette = color_palette();
 
-        let is_external = node.krate != Some(self.member_krate);
+        let is_external = node.krate(self.db) != Some(self.member_krate);
 
         let rgb = if is_external {
             color_palette.blue

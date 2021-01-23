@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     path::{Path, PathBuf},
 };
 
@@ -10,7 +10,7 @@ use ra_ap_hir::{self as hir, ModuleSource};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
 
-use crate::graph::{orphans::add_orphan_nodes_to, Edge, Graph, Node};
+use crate::graph::{orphans::add_orphan_nodes_to, util, Edge, EdgeKind, Graph, Node};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Options {
@@ -27,155 +27,229 @@ pub struct Builder<'a> {
     options: Options,
     db: &'a RootDatabase,
     vfs: &'a Vfs,
+    krate: hir::Crate,
     graph: Graph,
     nodes: HashMap<String, NodeIndex>,
+    edges: HashMap<(NodeIndex, EdgeKind, NodeIndex), EdgeIndex>,
 }
 
 impl<'a> Builder<'a> {
-    pub fn new(options: Options, db: &'a RootDatabase, vfs: &'a Vfs) -> Self {
+    pub fn new(options: Options, db: &'a RootDatabase, vfs: &'a Vfs, krate: hir::Crate) -> Self {
         let graph = Graph::default();
         let nodes = HashMap::default();
+        let edges = HashMap::default();
         Self {
             options,
             db,
             vfs,
+            krate,
             graph,
             nodes,
+            edges,
         }
     }
 
     pub fn build(mut self, krate: Crate) -> anyhow::Result<Graph> {
-        let root_module = krate.root_module(self.db);
-        let root_module_def = hir::ModuleDef::Module(root_module);
-
         trace!("Scanning project ...");
 
-        self.add_module_def(root_module_def, true, krate)?;
+        self.process_crate(krate)?;
 
         Ok(self.graph)
     }
 
-    fn add_module_def(
+    fn process_crate(&mut self, krate: Crate) -> anyhow::Result<()> {
+        let root_module = krate.root_module(self.db);
+        let root_module_def = hir::ModuleDef::Module(root_module);
+
+        self.process_owned_module_def(None, root_module_def)?;
+
+        Ok(())
+    }
+
+    fn process_owned_module_def(
         &mut self,
-        module_def: hir::ModuleDef,
-        recursive: bool,
-        krate: Crate,
+        owner: Option<(hir::Module, NodeIndex)>,
+        owned_module_def: hir::ModuleDef,
     ) -> anyhow::Result<Option<NodeIndex>> {
-        let is_module = matches!(module_def, hir::ModuleDef::Module(_));
+        if !self.options.with_types {
+            // Check if target is a type (i.e. not a module).
+            let is_module = matches!(owned_module_def, hir::ModuleDef::Module(_));
 
-        if !self.options.with_types && !is_module {
-            return Ok(None);
-        }
-
-        let module_def_krate = {
-            match module_def {
-                hir::ModuleDef::Module(module) => Some(module),
-                module_def @ _ => module_def.module(self.db),
-            }
-            .map(|module| module.krate())
-        };
-
-        let is_external = module_def_krate != Some(krate);
-
-        let module_def = if is_external {
-            if !self.options.with_externs {
+            // If it is a type we bail out:
+            if !is_module {
                 return Ok(None);
             }
-
-            if let Some(module_def_krate) = module_def_krate {
-                hir::ModuleDef::Module(module_def_krate.root_module(self.db))
-            } else {
-                module_def
-            }
-        } else {
-            module_def
-        };
-
-        let path = self.module_path(module_def);
-
-        // Check if we already have any node registered for this path,
-        // otherwise add a node:
-
-        let node_idx = match self.nodes.get(&path) {
-            Some(node_idx) => *node_idx,
-            None => self.add_module_node(module_def, module_def_krate, &path),
-        };
-
-        if !recursive {
-            return Ok(Some(node_idx));
         }
 
-        if let hir::ModuleDef::Module(module) = module_def {
-            trace!("Scanning module {:?}", path);
+        let (_owner_module, owner_idx) = match owner {
+            Some((module, idx)) => (Some(module), Some(idx)),
+            None => (None, None),
+        };
 
-            for (_name, scope_def) in module.scope(self.db, None) {
-                let scope_module_def = if let hir::ScopeDef::ModuleDef(scope_module_def) = scope_def
-                {
-                    scope_module_def
-                } else {
-                    continue;
-                };
+        let owned_path = util::path(owned_module_def, self.db);
 
-                let is_module = matches!(scope_module_def, hir::ModuleDef::Module(_));
+        // Check if we already processed the node:
+        let owned_idx = match self.nodes.get(&owned_path) {
+            Some(node_idx) => {
+                // If we did indeed already process it, then retrieve its index:
+                *node_idx
+            }
+            None => {
+                // Otherwise add a node for owned:
+                self.add_node(owned_module_def)
+            }
+        };
 
-                if !self.options.with_types && !is_module {
-                    continue;
-                }
+        if let Some(owner_idx) = owner_idx {
+            self.add_edge(owner_idx, owned_idx, Edge::HasA);
+        }
 
-                let is_local = Some(module) == scope_module_def.module(self.db);
+        if let hir::ModuleDef::Module(owned_module) = owned_module_def {
+            trace!(
+                "Scanning module {:?}",
+                util::path(owned_module_def, self.db)
+            );
 
-                if !self.options.with_uses && !is_local {
-                    continue;
-                }
+            let mut local_definitions: HashSet<hir::ModuleDef> = HashSet::new();
 
-                let scope_node_idx = self.add_module_def(scope_module_def, is_local, krate)?;
+            for module_sub_def in owned_module.declarations(self.db) {
+                local_definitions.insert(module_sub_def);
 
-                if let Some(scope_node_idx) = scope_node_idx {
-                    if self.graph.contains_edge(node_idx, scope_node_idx) {
-                        // Avoid adding redundant edges:
+                self.process_owned_module_def(Some((owned_module, owned_idx)), module_sub_def)?;
+            }
+
+            for (_name, scope_def) in owned_module.scope(self.db, None) {
+                if let hir::ScopeDef::ModuleDef(scope_module_def) = scope_def {
+                    // Skip local child declarations:
+                    if local_definitions.contains(&scope_module_def) {
                         continue;
                     }
 
-                    let edge = if is_local { Edge::HasA } else { Edge::UsesA };
-                    self.add_edge(node_idx, scope_node_idx, edge);
+                    self.process_used_module_def((owned_module, owned_idx), scope_module_def)?;
                 }
             }
 
             if self.options.with_orphans {
-                add_orphan_nodes_to(&mut self.graph, node_idx);
+                add_orphan_nodes_to(&mut self.graph, owned_idx);
             }
         }
 
-        Ok(Some(node_idx))
+        Ok(Some(owned_idx))
     }
 
-    fn add_module_node(
+    fn process_used_module_def(
         &mut self,
-        module_def: hir::ModuleDef,
-        krate: Option<hir::Crate>,
-    ) -> NodeIndex {
-        let module_path = self.module_path(module_def);
+        user: (hir::Module, NodeIndex),
+        used_module_def: hir::ModuleDef,
+    ) -> anyhow::Result<Option<NodeIndex>> {
+        if !self.options.with_uses {
+            return Ok(None);
+        }
 
-        trace!("Adding module node: {:?}", module_path);
+        let (_user_module, user_idx) = user;
 
-        let node = self.make_node(module_def, krate, &module_path);
+        let mut resolved_module_def = Some(used_module_def);
 
-        let node_idx = self.graph.add_node(node);
-        self.nodes.insert(module_path, node_idx);
+        if !self.options.with_types {
+            // Check if target is a type (i.e. not a module).
+            let is_module = matches!(used_module_def, hir::ModuleDef::Module(_));
 
-        node_idx
+            // If it is a type we need to resolve to its parent module instead:
+            if !is_module {
+                let parent_module = used_module_def.module(self.db);
+                resolved_module_def = parent_module.map(|m| hir::ModuleDef::Module(m));
+            }
+        }
+
+        let module_def_krate = util::krate(used_module_def, self.db);
+
+        // Check if target is from an extern crate.
+        // If it is we need to resolve to its parent module instead:
+        if module_def_krate != Some(self.krate) {
+            resolved_module_def = if self.options.with_externs {
+                module_def_krate.map(|krate| hir::ModuleDef::Module(krate.root_module(self.db)))
+            } else {
+                None
+            };
+        }
+
+        // Depending on the options we might not want to add the target as is,
+        // but resolve it to its module or crate, e.g., so we do that here:
+        let resolved_module_def = match resolved_module_def {
+            Some(resolved_module_def) => resolved_module_def,
+            None => return Ok(None),
+        };
+
+        let used_path = util::path(resolved_module_def, self.db);
+
+        // Check if we already processed the node:
+        let used_idx = match self.nodes.get(&used_path) {
+            Some(node_idx) => {
+                // If we did indeed already process it, then retrieve its index:
+                *node_idx
+            }
+            None => {
+                // Otherwise add a node for target:
+                self.add_node(resolved_module_def)
+            }
+        };
+
+        self.add_edge(user_idx, used_idx, Edge::UsesA);
+
+        Ok(Some(used_idx))
+    }
+
+    fn add_node(&mut self, module_def: hir::ModuleDef) -> NodeIndex {
+        let node_id = util::path(module_def, self.db);
+
+        trace!("Adding module node: {:?}", node_id);
+
+        // Check if we already added an equivalent node:
+        match self.nodes.get(&node_id) {
+            Some(node_idx) => {
+                // If we did indeed already process it, then retrieve its index:
+                *node_idx
+            }
+            None => {
+                // Otherwise add a node:
+                let node_idx = self.graph.add_node(self.node_weight(module_def));
+                self.nodes.insert(node_id, node_idx);
+
+                node_idx
+            }
+        }
     }
 
     fn add_edge(&mut self, source_idx: NodeIndex, target_idx: NodeIndex, edge: Edge) -> EdgeIndex {
-        trace!("Adding edge: {:?} -> {:?}", source_idx, target_idx);
+        let edge_id = (source_idx, edge.kind(), target_idx);
 
-        self.graph.add_edge(source_idx, target_idx, edge)
+        trace!(
+            "Adding edge: {:?} --({:?})-> {:?}",
+            edge_id.0,
+            edge_id.1,
+            edge_id.2
+        );
+
+        // Check if we already added an equivalent edge:
+        match self.edges.get(&edge_id) {
+            Some(edge_idx) => {
+                // If we did indeed already process it, then retrieve its index:
+                *edge_idx
+            }
+            None => {
+                // Otherwise add an edge:
+                let edge_idx = self.graph.add_edge(source_idx, target_idx, edge);
+                self.edges.insert(edge_id, edge_idx);
+
+                edge_idx
+            }
+        }
     }
 
-    fn make_node(&self, hir: hir::ModuleDef, krate: Option<hir::Crate>, module_path: &str) -> Node {
-        let path = module_path.to_owned();
+    fn node_weight(&self, module_def: hir::ModuleDef) -> Node {
+        let path = util::path(module_def, self.db);
         let file_path = {
-            match hir {
+            match module_def {
                 hir::ModuleDef::Module(module) => Some(module),
                 _ => None,
             }
@@ -184,13 +258,13 @@ impl<'a> Builder<'a> {
                     .map(Into::into)
             })
         };
-        let hir = Some(hir);
+
+        let hir = Some(module_def);
 
         Node {
             path,
             file_path,
             hir,
-            krate,
         }
     }
 
@@ -217,34 +291,5 @@ impl<'a> Builder<'a> {
         }
 
         Some(path.to_owned())
-    }
-
-    fn crate_name(&self, krate: hir::Crate) -> String {
-        // Obtain the crate's declaration name:
-        let display_name = &krate.display_name(self.db).unwrap();
-
-        // Since a crate's name may contain `-` we canonicalize it by replacing with `_`:
-        display_name.replace("-", "_")
-    }
-
-    fn module(&self, module_def: hir::ModuleDef) -> hir::Module {
-        match module_def {
-            hir::ModuleDef::Module(module) => module,
-            _ => module_def.module(self.db).unwrap(),
-        }
-    }
-
-    fn module_path(&self, module_def: hir::ModuleDef) -> String {
-        let module = self.module(module_def);
-
-        // Obtain the module's canonicalized name:
-        let crate_name = self.crate_name(module.krate());
-
-        let relative_canonical_path = module_def.canonical_path(self.db);
-
-        match relative_canonical_path {
-            Some(canonical_path) => format!("{}::{}", crate_name, canonical_path),
-            None => crate_name,
-        }
     }
 }
