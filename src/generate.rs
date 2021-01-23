@@ -109,6 +109,7 @@ impl Command {
                 with_types: options.graph.with_types,
                 with_orphans: options.graph.with_orphans,
                 with_uses: false,
+                with_externs: false,
             },
             Self::Graph(options) => GraphBuilderOptions {
                 focus_on: options.graph.focus_on.clone(),
@@ -116,6 +117,7 @@ impl Command {
                 with_types: options.graph.with_types,
                 with_orphans: options.graph.with_orphans,
                 with_uses: options.with_uses,
+                with_externs: options.with_externs,
             },
         }
     }

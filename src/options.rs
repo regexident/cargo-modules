@@ -87,6 +87,10 @@ pub mod generate {
             /// Include used modules and types
             #[clap(long = "with-uses")]
             pub with_uses: bool,
+
+            /// Include used modules and types from extern crates
+            #[clap(long = "with-externs")]
+            pub with_externs: bool,
         }
     }
 

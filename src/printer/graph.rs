@@ -18,6 +18,7 @@ const INDENTATION: &str = "    ";
 #[derive(Clone, Debug)]
 pub struct Options {
     pub layout: String,
+    pub full_paths: bool,
 }
 
 pub struct Printer<'a> {
@@ -198,7 +199,20 @@ impl<'a> Printer<'a> {
     }
 
     fn node_body(&self, node: &Node) -> String {
-        node.path.clone()
+        let path = &node.path[..];
+
+        // If we explicitly want full paths, return it unaltered:
+        if self.options.full_paths {
+            return path.to_owned();
+        }
+
+        // Otherwise try to drop the crate-name from the path:
+        if let Some(index) = path.find("::") {
+            // `index + 2` works here, since wee know ':' to be of single-byte width:
+            path[(index + 2)..].to_owned()
+        } else {
+            path.to_owned()
+        }
     }
 
     fn node_attributes(&self, node: &Node, is_focused: bool) -> String {
