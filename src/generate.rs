@@ -3,7 +3,10 @@ use log::trace;
 use ra_ap_rust_analyzer::cli::load_cargo;
 
 use crate::{
-    graph::{builder::Builder as GraphBuilder, idx_of_node_with_path, shrink_graph},
+    graph::{
+        builder::{Builder as GraphBuilder, Options as GraphBuilderOptions},
+        idx_of_node_with_path, shrink_graph,
+    },
     options::{graph::Options as GraphOptions, project::Options as ProjectOptions},
     runner::Runner,
 };
@@ -44,8 +47,8 @@ impl Command {
             let crate_path = krate.display_name(db).expect("Crate name").to_string();
 
             let graph_builder = {
-                let graph_options = graph_options.clone();
-                GraphBuilder::new(graph_options, db, &vfs)
+                let builder_options = self.builder_options();
+                GraphBuilder::new(builder_options, db, &vfs)
             };
 
             let focus_path = graph_options.focus_on.clone().unwrap_or(crate_path);
@@ -55,7 +58,7 @@ impl Command {
 
                 let mut graph = graph_builder.build(krate)?;
 
-                trace!("Searching for start node in full graph ...");
+                trace!("Searching for start node in graph ...");
 
                 let start_node_idx = idx_of_node_with_path(&graph, &focus_path[..], db)?;
 
@@ -63,10 +66,6 @@ impl Command {
 
                 let max_depth = graph_options.max_depth.unwrap_or(usize::MAX);
                 shrink_graph(&mut graph, start_node_idx, max_depth);
-
-                // trace!("Searching for start node in shrunk graph ...");
-
-                // let start_node_idx = idx_of_node_with_path(&graph, &focus_path[..], db)?;
 
                 (graph, start_node_idx)
             };
@@ -76,8 +75,6 @@ impl Command {
             match &self {
                 #[allow(unused_variables)]
                 Self::Tree(options) => {
-                    assert!(!graph_options.with_uses);
-
                     let command = tree::Command::new(options.clone());
                     command.run(&graph, start_node_idx, krate, db)
                 }
@@ -101,6 +98,25 @@ impl Command {
         match &self {
             Self::Tree(options) => &options.graph,
             Self::Graph(options) => &options.graph,
+        }
+    }
+
+    fn builder_options(&self) -> GraphBuilderOptions {
+        match &self {
+            Self::Tree(options) => GraphBuilderOptions {
+                focus_on: options.graph.focus_on.clone(),
+                max_depth: options.graph.max_depth,
+                with_types: options.graph.with_types,
+                with_orphans: options.graph.with_orphans,
+                with_uses: false,
+            },
+            Self::Graph(options) => GraphBuilderOptions {
+                focus_on: options.graph.focus_on.clone(),
+                max_depth: options.graph.max_depth,
+                with_types: options.graph.with_types,
+                with_orphans: options.graph.with_orphans,
+                with_uses: options.with_uses,
+            },
         }
     }
 }

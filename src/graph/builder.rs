@@ -10,10 +10,16 @@ use ra_ap_hir::{self as hir, ModuleSource};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
 
-use crate::{
-    graph::{orphans::add_orphan_nodes_to, Edge, Graph, Node},
-    options::graph::Options,
-};
+use crate::graph::{orphans::add_orphan_nodes_to, Edge, Graph, Node};
+
+#[derive(Clone, PartialEq, Debug)]
+pub struct Options {
+    pub focus_on: Option<String>,
+    pub max_depth: Option<usize>,
+    pub with_types: bool,
+    pub with_orphans: bool,
+    pub with_uses: bool,
+}
 
 #[derive(Debug)]
 pub struct Builder<'a> {
