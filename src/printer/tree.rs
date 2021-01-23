@@ -12,7 +12,7 @@ use yansi::Style;
 
 use crate::{
     format::{cfg::FormattedCfgExpr, kind::FormattedKind, visibility::FormattedVisibility},
-    graph::{Edge, Graph, Node, NodeKind},
+    graph::{self, Edge, Graph, Node, NodeKind},
     theme::styles,
 };
 
@@ -190,6 +190,16 @@ impl<'a> Printer<'a> {
             let suffix = cfg_chrome_style.paint(")]");
 
             print!(" {}{}{}", prefix, cfg, suffix);
+        }
+
+        if let ModuleDef::Function(function) = module_def {
+            if graph::util::is_test_function(function, self.db) {
+                let prefix = cfg_chrome_style.paint("#[");
+                let cfg = cfg_style.paint("test");
+                let suffix = cfg_chrome_style.paint("]");
+
+                print!(" {}{}{}", prefix, cfg, suffix);
+            }
         }
     }
 
