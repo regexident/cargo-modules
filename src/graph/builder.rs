@@ -86,19 +86,7 @@ impl<'a> Builder<'a> {
             None => (None, None),
         };
 
-        let owned_path = util::path(owned_module_def, self.db);
-
-        // Check if we already processed the node:
-        let owned_idx = match self.nodes.get(&owned_path) {
-            Some(node_idx) => {
-                // If we did indeed already process it, then retrieve its index:
-                *node_idx
-            }
-            None => {
-                // Otherwise add a node for owned:
-                self.add_node(owned_module_def)
-            }
-        };
+        let owned_idx = self.add_node(owned_module_def);
 
         if let Some(owner_idx) = owner_idx {
             self.add_edge(owner_idx, owned_idx, Edge::Owns);
@@ -180,19 +168,7 @@ impl<'a> Builder<'a> {
             None => return Ok(None),
         };
 
-        let used_path = util::path(resolved_module_def, self.db);
-
-        // Check if we already processed the node:
-        let used_idx = match self.nodes.get(&used_path) {
-            Some(node_idx) => {
-                // If we did indeed already process it, then retrieve its index:
-                *node_idx
-            }
-            None => {
-                // Otherwise add a node for target:
-                self.add_node(resolved_module_def)
-            }
-        };
+        let used_idx = self.add_node(resolved_module_def);
 
         self.add_edge(user_idx, used_idx, Edge::Uses);
 
