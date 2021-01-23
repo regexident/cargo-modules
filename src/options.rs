@@ -23,11 +23,6 @@ pub mod graph {
         /// Include orphaned modules (i.e. unused files in /src).
         #[clap(long = "with-orphans")]
         pub with_orphans: bool,
-
-        /// Include used modules and types
-        /// (not supported by `generate tree` command).
-        #[clap(long = "with-uses")]
-        pub with_uses: bool,
     }
 }
 
@@ -92,6 +87,10 @@ pub mod generate {
             /// Print nodes with absolute paths, instead of names.
             #[clap(long = "absolute-paths")]
             pub absolute_paths: bool,
+
+            /// Include used modules and types
+            #[clap(long = "with-uses")]
+            pub with_uses: bool,
         }
     }
 
