@@ -207,11 +207,10 @@ impl<'a> Builder<'a> {
         &mut self,
         module_def: hir::ModuleDef,
         krate: Option<hir::Crate>,
-        module_path: &str,
     ) -> NodeIndex {
-        trace!("Adding module node: {:?}", module_path);
-
         let module_path = self.module_path(module_def);
+
+        trace!("Adding module node: {:?}", module_path);
 
         let node = self.make_node(module_def, krate, &module_path);
 
