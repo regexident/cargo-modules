@@ -101,7 +101,7 @@ impl<'a> Builder<'a> {
         };
 
         if let Some(owner_idx) = owner_idx {
-            self.add_edge(owner_idx, owned_idx, Edge::HasA);
+            self.add_edge(owner_idx, owned_idx, Edge::Owns);
         }
 
         if let hir::ModuleDef::Module(owned_module) = owned_module_def {
@@ -194,7 +194,7 @@ impl<'a> Builder<'a> {
             }
         };
 
-        self.add_edge(user_idx, used_idx, Edge::UsesA);
+        self.add_edge(user_idx, used_idx, Edge::Uses);
 
         Ok(Some(used_idx))
     }

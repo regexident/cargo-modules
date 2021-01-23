@@ -90,7 +90,7 @@ fn add_orphan_node(
 
     let orphan_idx = graph.add_node(orphan_node);
 
-    let edge = Edge::HasA;
+    let edge = Edge::Owns;
     graph.add_edge(module_idx, orphan_idx, edge);
 }
 
