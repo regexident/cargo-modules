@@ -48,7 +48,7 @@ impl Command {
 
             let graph_builder = {
                 let builder_options = self.builder_options();
-                GraphBuilder::new(builder_options, db, &vfs)
+                GraphBuilder::new(builder_options, db, &vfs, krate)
             };
 
             let focus_path = graph_options.focus_on.clone().unwrap_or(crate_path);

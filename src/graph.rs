@@ -8,6 +8,7 @@ use ra_ap_ide::RootDatabase;
 
 pub(crate) mod builder;
 pub(super) mod orphans;
+pub(crate) mod util;
 pub(super) mod walker;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -35,10 +36,13 @@ pub struct Node {
     pub path: String,
     pub file_path: Option<PathBuf>,
     pub hir: Option<hir::ModuleDef>,
-    pub krate: Option<hir::Crate>,
 }
 
 impl Node {
+    pub fn krate(&self, db: &RootDatabase) -> Option<hir::Crate> {
+        self.hir.and_then(|module_def| util::krate(module_def, db))
+    }
+
     pub fn kind(&self, db: &RootDatabase) -> NodeKind {
         match self.hir {
             Some(module_def) => match module_def {
@@ -74,7 +78,7 @@ impl Node {
     }
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum EdgeKind {
     Uses,
     Has,
@@ -90,7 +94,7 @@ impl fmt::Display for EdgeKind {
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Edge {
     UsesA,
     HasA,
