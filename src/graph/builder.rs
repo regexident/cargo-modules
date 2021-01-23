@@ -19,6 +19,7 @@ pub struct Options {
     pub with_types: bool,
     pub with_orphans: bool,
     pub with_uses: bool,
+    pub with_externs: bool,
 }
 
 #[derive(Debug)]
@@ -77,6 +78,10 @@ impl<'a> Builder<'a> {
         let is_external = module_def_krate != Some(krate);
 
         let module_def = if is_external {
+            if !self.options.with_externs {
+                return Ok(None);
+            }
+
             if let Some(module_def_krate) = module_def_krate {
                 hir::ModuleDef::Module(module_def_krate.root_module(self.db))
             } else {
