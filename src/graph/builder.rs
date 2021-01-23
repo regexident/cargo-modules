@@ -149,6 +149,51 @@ impl<'a> Builder<'a> {
         Ok(Some(node_idx))
     }
 
+    fn add_module_node(
+        &mut self,
+        module_def: hir::ModuleDef,
+        krate: Option<hir::Crate>,
+    ) -> NodeIndex {
+        let module_path = self.module_path(module_def);
+
+        trace!("Adding module node: {:?}", module_path);
+
+        let node = self.make_node(module_def, krate, &module_path);
+
+        let node_idx = self.graph.add_node(node);
+        self.nodes.insert(module_path, node_idx);
+
+        node_idx
+    }
+
+    fn add_edge(&mut self, source_idx: NodeIndex, target_idx: NodeIndex, edge: Edge) -> EdgeIndex {
+        trace!("Adding edge: {:?} -> {:?}", source_idx, target_idx);
+
+        self.graph.add_edge(source_idx, target_idx, edge)
+    }
+
+    fn make_node(&self, hir: hir::ModuleDef, krate: Option<hir::Crate>, module_path: &str) -> Node {
+        let path = module_path.to_owned();
+        let file_path = {
+            match hir {
+                hir::ModuleDef::Module(module) => Some(module),
+                _ => None,
+            }
+            .and_then(|module| {
+                self.module_file(module.definition_source(self.db))
+                    .map(Into::into)
+            })
+        };
+        let hir = Some(hir);
+
+        Node {
+            path,
+            file_path,
+            hir,
+            krate,
+        }
+    }
+
     fn module_file(&self, module_source: hir::InFile<hir::ModuleSource>) -> Option<PathBuf> {
         let is_file_module: bool = match &module_source.value {
             ModuleSource::SourceFile(_) => true,
@@ -200,51 +245,6 @@ impl<'a> Builder<'a> {
         match relative_canonical_path {
             Some(canonical_path) => format!("{}::{}", crate_name, canonical_path),
             None => crate_name,
-        }
-    }
-
-    fn add_module_node(
-        &mut self,
-        module_def: hir::ModuleDef,
-        krate: Option<hir::Crate>,
-    ) -> NodeIndex {
-        let module_path = self.module_path(module_def);
-
-        trace!("Adding module node: {:?}", module_path);
-
-        let node = self.make_node(module_def, krate, &module_path);
-
-        let node_idx = self.graph.add_node(node);
-        self.nodes.insert(module_path, node_idx);
-
-        node_idx
-    }
-
-    fn add_edge(&mut self, source_idx: NodeIndex, target_idx: NodeIndex, edge: Edge) -> EdgeIndex {
-        trace!("Adding edge: {:?} -> {:?}", source_idx, target_idx);
-
-        self.graph.add_edge(source_idx, target_idx, edge)
-    }
-
-    fn make_node(&self, hir: hir::ModuleDef, krate: Option<hir::Crate>, module_path: &str) -> Node {
-        let path = module_path.to_owned();
-        let file_path = {
-            match hir {
-                hir::ModuleDef::Module(module) => Some(module),
-                _ => None,
-            }
-            .and_then(|module| {
-                self.module_file(module.definition_source(self.db))
-                    .map(Into::into)
-            })
-        };
-        let hir = Some(hir);
-
-        Node {
-            path,
-            file_path,
-            hir,
-            krate,
         }
     }
 }
