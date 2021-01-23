@@ -20,6 +20,10 @@ pub mod graph {
         #[clap(long = "with-types")]
         pub with_types: bool,
 
+        /// Include tests (e.g. `#[cfg(test)] mod tests { … }`).
+        #[clap(long = "with-tests")]
+        pub with_tests: bool,
+
         /// Include orphaned modules (i.e. unused files in /src).
         #[clap(long = "with-orphans")]
         pub with_orphans: bool,

@@ -17,6 +17,7 @@ pub struct Options {
     pub focus_on: Option<String>,
     pub max_depth: Option<usize>,
     pub with_types: bool,
+    pub with_tests: bool,
     pub with_orphans: bool,
     pub with_uses: bool,
     pub with_externs: bool,
@@ -85,6 +86,22 @@ impl<'a> Builder<'a> {
             Some((module, idx)) => (Some(module), Some(idx)),
             None => (None, None),
         };
+
+        if !self.options.with_tests {
+            match owned_module_def {
+                hir::ModuleDef::Module(owned_module) => {
+                    if util::is_test_module(owned_module, self.db) {
+                        return Ok(None);
+                    }
+                }
+                hir::ModuleDef::Function(owned_function) => {
+                    if util::is_test_function(owned_function, self.db) {
+                        return Ok(None);
+                    }
+                }
+                _ => {}
+            }
+        }
 
         let owned_idx = self.add_node(owned_module_def);
 
