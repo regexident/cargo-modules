@@ -1,7 +1,7 @@
 use std::env;
 
-use clap::Clap;
 use log::debug;
+use structopt::StructOpt;
 use yansi::Paint;
 
 use cargo_modules::Command;
@@ -9,7 +9,12 @@ use cargo_modules::Command;
 fn main() -> anyhow::Result<()> {
     env_logger::init();
 
-    let cmd = Command::parse();
+    let path = env::current_dir()?;
+    eprintln!("The current directory is {}", path.display());
+
+    let cmd = Command::from_args();
+
+    eprintln!("{:#?}", cmd);
 
     match env::var("COLORTERM") {
         Ok(color_term) => match &color_term[..] {

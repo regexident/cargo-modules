@@ -14,10 +14,6 @@ version = "0.4.9"
 
 [dependencies]
 
-# required by bin
-clap = "3.0.0-beta.2"
-petgraph-graphml = "^2.0.1"
-
 # required by lib
 arrayvec = "^0.5.1"
 json = "^0.12.4"
@@ -60,6 +56,21 @@ version = "=0.0.30"
 
 [dependencies.ra_ap_vfs]
 version = "=0.0.30"
+
+# [dependencies.clap]
+# version = "3.0.0-beta.2"
+# features = ["debug"]
+
+[dependencies.structopt]
+version = "0.3"
+
+# required by tests
+
+[dev-dependencies.assert_cmd]
+version = "1.0.2"
+
+[dev-dependencies.shellwords]
+version = "1.1.0"
 
 [dev-dependencies.insta]
 version = "1.5.2"
