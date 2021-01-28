@@ -1,4 +1,4 @@
-use clap::Clap;
+use structopt::StructOpt;
 
 pub(crate) mod format;
 pub mod generate;
@@ -9,7 +9,7 @@ pub(crate) mod printer;
 pub(crate) mod runner;
 pub(crate) mod theme;
 
-#[clap(
+#[structopt(
     name = "cargo-modules",
     about = "Print a crate's module tree or graph.",
     // after_help = r#"
@@ -19,9 +19,9 @@ pub(crate) mod theme;
     // At most one `--bin` can be provided.
     // "#
 )]
-#[derive(Clap, Clone, PartialEq, Debug)]
+#[derive(StructOpt, Clone, PartialEq, Debug)]
 pub enum Command {
-    #[clap(
+    #[structopt(
         name = "generate",
         about = "Generate a visualization for a crate's structure."
     )]

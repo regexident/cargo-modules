@@ -1,31 +1,31 @@
 use std::str::FromStr;
 
-use clap::{ArgGroup, Clap, ValueHint};
+use structopt::{clap::ArgGroup, StructOpt};
 
 pub mod graph {
     use super::*;
 
-    #[derive(Clap, Clone, PartialEq, Debug)]
+    #[derive(StructOpt, Clone, PartialEq, Debug)]
     pub struct Options {
         /// Focus the graph on a particular path's environment.
-        #[clap(long = "focus-on")]
+        #[structopt(long = "focus-on")]
         pub focus_on: Option<String>,
 
         /// The maximum depth of the generated graph
         /// relative to the node selected by '--focus-on'.
-        #[clap(long = "max-depth")]
+        #[structopt(long = "max-depth")]
         pub max_depth: Option<usize>,
 
         /// Include types (e.g. structs, enums).
-        #[clap(long = "with-types")]
+        #[structopt(long = "with-types")]
         pub with_types: bool,
 
         /// Include tests (e.g. `#[cfg(test)] mod tests { … }`).
-        #[clap(long = "with-tests")]
+        #[structopt(long = "with-tests")]
         pub with_tests: bool,
 
         /// Include orphaned modules (i.e. unused files in /src).
-        #[clap(long = "with-orphans")]
+        #[structopt(long = "with-orphans")]
         pub with_orphans: bool,
     }
 }
@@ -75,25 +75,25 @@ pub mod generate {
             }
         }
 
-        #[derive(Clap, Clone, PartialEq, Debug)]
+        #[derive(StructOpt, Clone, PartialEq, Debug)]
         pub struct Options {
-            #[clap(flatten)]
+            #[structopt(flatten)]
             pub project: crate::options::project::Options,
 
-            #[clap(flatten)]
+            #[structopt(flatten)]
             pub graph: crate::options::graph::Options,
 
             /// The graph layout algorithm to use
             /// (e.g. dot, neato, twopi, circo, fdp, sfdp).
-            #[clap(long = "layout", default_value = "neato")]
+            #[structopt(long = "layout", default_value = "neato")]
             pub layout: crate::options::generate::graph::LayoutAlgorithm,
 
             /// Include used modules and types
-            #[clap(long = "with-uses")]
+            #[structopt(long = "with-uses")]
             pub with_uses: bool,
 
             /// Include used modules and types from extern crates
-            #[clap(long = "with-externs")]
+            #[structopt(long = "with-externs")]
             pub with_externs: bool,
         }
     }
@@ -101,12 +101,12 @@ pub mod generate {
     pub mod tree {
         use super::*;
 
-        #[derive(Clap, Clone, PartialEq, Debug)]
+        #[derive(StructOpt, Clone, PartialEq, Debug)]
         pub struct Options {
-            #[clap(flatten)]
+            #[structopt(flatten)]
             pub project: crate::options::project::Options,
 
-            #[clap(flatten)]
+            #[structopt(flatten)]
             pub graph: crate::options::graph::Options,
         }
     }
@@ -115,27 +115,22 @@ pub mod generate {
 pub mod project {
     use super::*;
 
-    #[derive(Clap, Clone, PartialEq, Debug)]
-    #[clap(group = ArgGroup::new("target"))]
+    #[derive(StructOpt, Clone, PartialEq, Debug)]
+    #[structopt(group = ArgGroup::with_name("target"))]
     pub struct Options {
         /// Process only this package's library.
-        #[clap(long = "lib", group = "target")]
+        #[structopt(long = "lib", group = "target")]
         pub lib: bool,
 
         /// Process only the specified binary.
-        #[clap(long = "bin", group = "target")]
+        #[structopt(long = "bin", group = "target")]
         pub bin: Option<String>,
 
         /// Package to process (see `cargo help pkgid`).
-        #[clap(short = 'p', long = "package")]
+        #[structopt(short = "p", long = "package")]
         pub package: Option<String>,
 
-        #[clap(
-        name = "MANIFEST_DIR",
-        parse(from_os_str),
-        value_hint = ValueHint::DirPath,
-        default_value = "."
-    )]
+        #[structopt(name = "MANIFEST_DIR", parse(from_os_str), default_value = ".")]
         pub manifest_dir: std::path::PathBuf,
     }
 }

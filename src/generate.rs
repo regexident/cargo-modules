@@ -1,6 +1,6 @@
-use clap::Clap;
 use log::trace;
 use ra_ap_rust_analyzer::cli::load_cargo;
+use structopt::StructOpt;
 
 use crate::{
     graph::{
@@ -14,12 +14,12 @@ use crate::{
 pub mod graph;
 pub mod tree;
 
-#[derive(Clap, Clone, PartialEq, Debug)]
+#[derive(StructOpt, Clone, PartialEq, Debug)]
 pub enum Command {
-    #[clap(name = "tree", about = "Print crate as a tree.")]
+    #[structopt(name = "tree", about = "Print crate as a tree.")]
     Tree(tree::Options),
 
-    #[clap(
+    #[structopt(
         name = "graph",
         about = "Print crate as a graph.",
         after_help = r#"
