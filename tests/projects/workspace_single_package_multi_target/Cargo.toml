@@ -1,0 +1,14 @@
+[package]
+name = "package_multi_target"
+version = "0.1.0"
+edition = "2018"
+
+# [lib]
+# name = "package_multi_target"
+# path = "src/main.rs"
+
+# [[bin]]
+# name = "package_multi_target"
+# path = "src/main.rs"
+
+[workspace]

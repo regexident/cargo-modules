@@ -1,0 +1,10 @@
+[package]
+name = "package_lib_target"
+version = "0.1.0"
+edition = "2018"
+
+# [lib]
+# name = "package_lib_target"
+# path = "src/lib.rs"
+
+[workspace]
