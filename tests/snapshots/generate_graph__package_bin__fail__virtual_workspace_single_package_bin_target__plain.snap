@@ -1,0 +1,10 @@
+---
+source: tests/generate_graph.rs
+expression: output
+---
+Error: No package found with name "workspace-package".
+
+Packages present in workspace:
+- package_bin_target
+
+

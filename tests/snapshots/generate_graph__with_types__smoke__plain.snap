@@ -1,0 +1,132 @@
+---
+source: tests/generate_graph.rs
+expression: output
+---
+digraph {
+
+    graph [
+        label="smoke",
+        labelloc=t,
+
+        pad=0.4,
+
+        // Consider rendering the graph using a different layout algorithm, such as:
+        // [dot, neato, twopi, circo, fdp, sfdp]
+        layout=neato,
+        overlap=false,
+        splines="line",
+        rankdir=LR,
+
+        fontname="Helvetica", 
+        fontsize="36",
+    ];
+
+    node [
+        fontname="monospace",
+        fontsize="10",
+        shape="record",
+        style="filled",
+    ];
+
+    edge [
+        fontname="monospace",
+        fontsize="10",
+    ];
+
+    "smoke" [label="crate|smoke", fillcolor="#69bed2"]; // Crate node
+    "smoke::orphans" [label="pub(crate) mod|orphans", fillcolor="#f8c04c"]; // Module node
+    "smoke::uses" [label="pub(crate) mod|uses", fillcolor="#f8c04c"]; // Module node
+    "smoke::uses::cycle" [label="pub(self) mod|uses::cycle", fillcolor="#db5367"]; // Module node
+    "smoke::uses::cycle::node_0" [label="pub(self) mod|uses::cycle::node_0", fillcolor="#db5367"]; // Module node
+    "smoke::uses::cycle::node_1" [label="pub(self) mod|uses::cycle::node_1", fillcolor="#db5367"]; // Module node
+    "smoke::uses::cycle::node_1::node_2" [label="pub(self) mod|uses::cycle::node_1::node_2", fillcolor="#db5367"]; // Module node
+    "smoke::hierarchy" [label="pub(crate) mod|hierarchy", fillcolor="#f8c04c"]; // Module node
+    "smoke::hierarchy::lorem" [label="pub(self) mod|hierarchy::lorem", fillcolor="#db5367"]; // Module node
+    "smoke::hierarchy::lorem::ipsum" [label="pub(self) mod|hierarchy::lorem::ipsum", fillcolor="#db5367"]; // Module node
+    "smoke::hierarchy::lorem::dolor" [label="pub(self) mod|hierarchy::lorem::dolor", fillcolor="#db5367"]; // Module node
+    "smoke::hierarchy::lorem::dolor::sit" [label="pub(self) mod|hierarchy::lorem::dolor::sit", fillcolor="#db5367"]; // Module node
+    "smoke::hierarchy::lorem::dolor::sit::amet" [label="pub(self) mod|hierarchy::lorem::dolor::sit::amet", fillcolor="#db5367"]; // Module node
+    "smoke::hierarchy::lorem::consectetur" [label="pub(self) mod|hierarchy::lorem::consectetur", fillcolor="#db5367"]; // Module node
+    "smoke::hierarchy::lorem::consectetur::adipiscing" [label="pub(self) mod|hierarchy::lorem::consectetur::adipiscing", fillcolor="#db5367"]; // Module node
+    "smoke::hierarchy::lorem::consectetur::adipiscing::elit" [label="pub(self) mod|hierarchy::lorem::consectetur::adipiscing::elit", fillcolor="#db5367"]; // Module node
+    "smoke::visibility" [label="pub(crate) mod|visibility", fillcolor="#f8c04c"]; // Module node
+    "smoke::visibility::mods" [label="pub(self) mod|visibility::mods", fillcolor="#db5367"]; // Module node
+    "smoke::visibility::mods::pub_public" [label="pub mod|visibility::mods::pub_public", fillcolor="#81c169"]; // Module node
+    "smoke::visibility::mods::pub_crate" [label="pub(crate) mod|visibility::mods::pub_crate", fillcolor="#f8c04c"]; // Module node
+    "smoke::visibility::mods::pub_module" [label="pub mod|visibility::mods::pub_module", fillcolor="#81c169"]; // Module node
+    "smoke::visibility::mods::pub_super" [label="pub(super) mod|visibility::mods::pub_super", fillcolor="#fe9454"]; // Module node
+    "smoke::visibility::mods::pub_private" [label="pub(self) mod|visibility::mods::pub_private", fillcolor="#db5367"]; // Module node
+    "smoke::visibility::structs" [label="pub(self) mod|visibility::structs", fillcolor="#db5367"]; // Module node
+    "smoke::visibility::structs::PubPublic" [label="pub struct|visibility::structs::PubPublic", fillcolor="#81c169"]; // Type node
+    "smoke::visibility::structs::PubCrate" [label="pub(crate) struct|visibility::structs::PubCrate", fillcolor="#f8c04c"]; // Type node
+    "smoke::visibility::structs::PubModule" [label="pub struct|visibility::structs::PubModule", fillcolor="#81c169"]; // Type node
+    "smoke::visibility::structs::PubSuper" [label="pub(super) struct|visibility::structs::PubSuper", fillcolor="#fe9454"]; // Type node
+    "smoke::visibility::structs::PubPrivate" [label="pub(self) struct|visibility::structs::PubPrivate", fillcolor="#db5367"]; // Type node
+    "smoke::visibility::enums" [label="pub(self) mod|visibility::enums", fillcolor="#db5367"]; // Module node
+    "smoke::visibility::enums::PubPublic" [label="pub enum|visibility::enums::PubPublic", fillcolor="#81c169"]; // Type node
+    "smoke::visibility::enums::PubCrate" [label="pub(crate) enum|visibility::enums::PubCrate", fillcolor="#f8c04c"]; // Type node
+    "smoke::visibility::enums::PubModule" [label="pub enum|visibility::enums::PubModule", fillcolor="#81c169"]; // Type node
+    "smoke::visibility::enums::PubSuper" [label="pub(super) enum|visibility::enums::PubSuper", fillcolor="#fe9454"]; // Type node
+    "smoke::visibility::enums::PubPrivate" [label="pub(self) enum|visibility::enums::PubPrivate", fillcolor="#db5367"]; // Type node
+    "smoke::visibility::unions" [label="pub(self) mod|visibility::unions", fillcolor="#db5367"]; // Module node
+    "smoke::visibility::unions::PubPublic" [label="pub union|visibility::unions::PubPublic", fillcolor="#81c169"]; // Type node
+    "smoke::visibility::unions::PubCrate" [label="pub(crate) union|visibility::unions::PubCrate", fillcolor="#f8c04c"]; // Type node
+    "smoke::visibility::unions::PubModule" [label="pub union|visibility::unions::PubModule", fillcolor="#81c169"]; // Type node
+    "smoke::visibility::unions::PubSuper" [label="pub(super) union|visibility::unions::PubSuper", fillcolor="#fe9454"]; // Type node
+    "smoke::visibility::unions::PubPrivate" [label="pub(self) union|visibility::unions::PubPrivate", fillcolor="#db5367"]; // Type node
+    "smoke::visibility::fns" [label="pub(self) mod|visibility::fns", fillcolor="#db5367"]; // Module node
+    "smoke::visibility::fns::pub_public" [label="pub fn|visibility::fns::pub_public", fillcolor="#81c169"]; // Type node
+    "smoke::visibility::fns::pub_crate" [label="pub(crate) fn|visibility::fns::pub_crate", fillcolor="#f8c04c"]; // Type node
+    "smoke::visibility::fns::pub_module" [label="pub fn|visibility::fns::pub_module", fillcolor="#81c169"]; // Type node
+    "smoke::visibility::fns::pub_super" [label="pub(super) fn|visibility::fns::pub_super", fillcolor="#fe9454"]; // Type node
+    "smoke::visibility::fns::pub_private" [label="pub(self) fn|visibility::fns::pub_private", fillcolor="#db5367"]; // Type node
+
+    "smoke" -> "smoke::orphans" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke" -> "smoke::uses" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::uses" -> "smoke::uses::cycle" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::uses::cycle" -> "smoke::uses::cycle::node_0" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::uses::cycle" -> "smoke::uses::cycle::node_1" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::uses::cycle::node_1" -> "smoke::uses::cycle::node_1::node_2" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke" -> "smoke::hierarchy" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::hierarchy" -> "smoke::hierarchy::lorem" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::hierarchy::lorem" -> "smoke::hierarchy::lorem::ipsum" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::hierarchy::lorem" -> "smoke::hierarchy::lorem::dolor" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::hierarchy::lorem::dolor" -> "smoke::hierarchy::lorem::dolor::sit" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::hierarchy::lorem::dolor::sit" -> "smoke::hierarchy::lorem::dolor::sit::amet" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::hierarchy::lorem" -> "smoke::hierarchy::lorem::consectetur" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::hierarchy::lorem::consectetur" -> "smoke::hierarchy::lorem::consectetur::adipiscing" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::hierarchy::lorem::consectetur::adipiscing" -> "smoke::hierarchy::lorem::consectetur::adipiscing::elit" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke" -> "smoke::visibility" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility" -> "smoke::visibility::mods" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::mods" -> "smoke::visibility::mods::pub_public" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::mods" -> "smoke::visibility::mods::pub_crate" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::mods" -> "smoke::visibility::mods::pub_module" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::mods" -> "smoke::visibility::mods::pub_super" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::mods" -> "smoke::visibility::mods::pub_private" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility" -> "smoke::visibility::structs" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::structs" -> "smoke::visibility::structs::PubPublic" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::structs" -> "smoke::visibility::structs::PubCrate" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::structs" -> "smoke::visibility::structs::PubModule" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::structs" -> "smoke::visibility::structs::PubSuper" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::structs" -> "smoke::visibility::structs::PubPrivate" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility" -> "smoke::visibility::enums" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::enums" -> "smoke::visibility::enums::PubPublic" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::enums" -> "smoke::visibility::enums::PubCrate" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::enums" -> "smoke::visibility::enums::PubModule" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::enums" -> "smoke::visibility::enums::PubSuper" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::enums" -> "smoke::visibility::enums::PubPrivate" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility" -> "smoke::visibility::unions" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::unions" -> "smoke::visibility::unions::PubPublic" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::unions" -> "smoke::visibility::unions::PubCrate" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::unions" -> "smoke::visibility::unions::PubModule" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::unions" -> "smoke::visibility::unions::PubSuper" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::unions" -> "smoke::visibility::unions::PubPrivate" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility" -> "smoke::visibility::fns" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::fns" -> "smoke::visibility::fns::pub_public" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::fns" -> "smoke::visibility::fns::pub_crate" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::fns" -> "smoke::visibility::fns::pub_module" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::fns" -> "smoke::visibility::fns::pub_super" [label="owns", color="black", style="solid"]; // Owns edge
+    "smoke::visibility::fns" -> "smoke::visibility::fns::pub_private" [label="owns", color="black", style="solid"]; // Owns edge
+
+}
+

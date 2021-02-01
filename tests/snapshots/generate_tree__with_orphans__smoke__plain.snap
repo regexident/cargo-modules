@@ -1,0 +1,34 @@
+---
+source: tests/generate_tree.rs
+expression: output
+---
+crate smoke
+├── mod hierarchy: pub(crate)
+│   └── mod lorem: pub(self)
+│       ├── mod consectetur: pub(self)
+│       │   └── mod adipiscing: pub(self)
+│       │       └── mod elit: pub(self)
+│       ├── mod dolor: pub(self)
+│       │   └── mod sit: pub(self)
+│       │       └── mod amet: pub(self)
+│       └── mod ipsum: pub(self)
+├── mod orphan: orphan
+├── mod orphans: pub(crate)
+│   └── mod orphan: orphan
+├── mod uses: pub(crate)
+│   └── mod cycle: pub(self)
+│       ├── mod node_0: pub(self)
+│       └── mod node_1: pub(self)
+│           └── mod node_2: pub(self)
+└── mod visibility: pub(crate)
+    ├── mod enums: pub(self)
+    ├── mod fns: pub(self)
+    ├── mod mods: pub(self)
+    │   ├── mod pub_crate: pub(crate)
+    │   ├── mod pub_module: pub
+    │   ├── mod pub_private: pub(self)
+    │   ├── mod pub_public: pub
+    │   └── mod pub_super: pub(super)
+    ├── mod structs: pub(self)
+    └── mod unions: pub(self)
+

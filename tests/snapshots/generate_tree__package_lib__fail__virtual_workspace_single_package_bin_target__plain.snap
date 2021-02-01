@@ -1,0 +1,10 @@
+---
+source: tests/generate_tree.rs
+expression: output
+---
+Error: No library target found.
+
+Targets present in package:
+- package_bin_target (--bin package_bin_target)
+
+
