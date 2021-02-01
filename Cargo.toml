@@ -25,37 +25,37 @@ env_logger = "0.8.2"
 indoc = "1.0.3"
 
 [dependencies.ra_ap_base_db]
-version = "=0.0.30"
+version = "=0.0.35"
 
 [dependencies.ra_ap_cfg]
-version = "=0.0.30"
+version = "=0.0.35"
 
 [dependencies.ra_ap_hir]
-version = "=0.0.30"
+version = "=0.0.35"
 
 [dependencies.ra_ap_ide]
-version = "=0.0.30"
+version = "=0.0.35"
 
 [dependencies.ra_ap_ide_db]
-version = "=0.0.30"
+version = "=0.0.35"
 
 [dependencies.ra_ap_paths]
-version = "0.0.30"
+version = "0.0.35"
 
 [dependencies.ra_ap_project_model]
-version = "=0.0.30"
+version = "=0.0.35"
 
 [dependencies.ra_ap_syntax]
-version = "=0.0.30"
+version = "=0.0.35"
 
 [dependencies.ra_ap_rust-analyzer]
-version = "=0.0.30"
+version = "=0.0.35"
 
 [dependencies.ra_ap_text_edit]
-version = "=0.0.30"
+version = "=0.0.35"
 
 [dependencies.ra_ap_vfs]
-version = "=0.0.30"
+version = "=0.0.35"
 
 # [dependencies.clap]
 # version = "3.0.0-beta.2"

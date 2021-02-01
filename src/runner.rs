@@ -5,7 +5,8 @@ use ra_ap_hir::{self as hir, Crate};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_paths::AbsPathBuf;
 use ra_ap_project_model::{
-    CargoConfig, CargoWorkspace, Package, ProjectManifest, ProjectWorkspace, Target, TargetKind,
+    CargoConfig, CargoWorkspace, Package, PackageData, ProjectManifest, ProjectWorkspace, Target,
+    TargetData, TargetKind,
 };
 use ra_ap_vfs::Vfs;
 
@@ -30,7 +31,7 @@ impl<'a> Runner<'a> {
 
     pub fn run<F>(&self, f: F) -> anyhow::Result<()>
     where
-        F: FnOnce(Crate) -> anyhow::Result<()>,
+        F: FnOnce(Crate, &PackageData, &TargetData) -> anyhow::Result<()>,
     {
         let project_dir = std::env::current_dir()?.join(&self.project_dir);
         let abs_project_dir = AbsPathBuf::assert(project_dir);
@@ -61,7 +62,9 @@ impl<'a> Runner<'a> {
             rustc_source: None,
         };
 
-        let project_workspace = ProjectWorkspace::load(manifest, &config)?;
+        let project_workspace = ProjectWorkspace::load(manifest, &config, &|progress| {
+            trace!("Processing {} ...", progress);
+        })?;
 
         let workspace = match project_workspace {
             ProjectWorkspace::Cargo { cargo, .. } => cargo,
@@ -97,7 +100,7 @@ impl<'a> Runner<'a> {
         let crate_name = krate.display_name(self.db).unwrap().to_string();
         trace!("Selected crate: {:#?}", crate_name);
 
-        f(krate)
+        f(krate, package, target)
     }
 
     fn package(&self, workspace: &CargoWorkspace) -> anyhow::Result<Package> {
@@ -114,36 +117,46 @@ impl<'a> Runner<'a> {
             anyhow::bail!("No packages found");
         }
 
-        // If project contains a single packages, just pick it:
-
-        if package_count == 1 {
-            return Ok(packages[0]);
-        }
-
-        // If project contains multiple packages, select the one provided via options:
-
-        if let Some(package_name) = &self.options.package {
-            let package_idx = packages
-                .into_iter()
-                .find(|package_idx| {
-                    let package = &workspace[*package_idx];
-                    package.name == *package_name
-                })
-                .unwrap_or_else(|| panic!("No package with name {:?}", package_name));
-            return Ok(package_idx);
-        }
-
-        // If no package was provided via options bail out:
+        // If no (or a non-existent) package was provided via options bail out:
 
         let package_list_items: Vec<_> = packages
-            .into_iter()
+            .iter()
             .map(|package_idx| {
-                let package = &workspace[package_idx];
+                let package = &workspace[*package_idx];
                 format!("- {}", package.name)
             })
             .collect();
 
         let package_list = package_list_items.join("\n");
+
+        // If project contains multiple packages, select the one provided via options:
+
+        if let Some(package_name) = &self.options.package {
+            let package_idx = packages.into_iter().find(|package_idx| {
+                let package = &workspace[*package_idx];
+                package.name == *package_name
+            });
+
+            return package_idx.ok_or_else(|| {
+                anyhow::anyhow!(
+                    indoc::indoc! {
+                        "No package found with name {:?}.
+
+                        Packages present in workspace:
+                        {}
+                        "
+                    },
+                    package_name,
+                    package_list,
+                )
+            });
+        }
+
+        // If project contains a single packages, just pick it:
+
+        if package_count == 1 {
+            return Ok(packages[0]);
+        }
 
         Err(anyhow::anyhow!(
             indoc::indoc! {
@@ -188,39 +201,12 @@ impl<'a> Runner<'a> {
             anyhow::bail!("No targets found");
         }
 
-        // If project contains a single target, just pick it:
-
-        if target_count == 1 {
-            return Ok(targets[0]);
-        }
-
-        // If package contains multiple targets, select the one provided via options:
-
-        if self.options.lib {
-            let target = targets.into_iter().find(|target_idx| {
-                let target = &workspace[*target_idx];
-                target.kind == TargetKind::Lib
-            });
-
-            return target.ok_or_else(|| anyhow::anyhow!("No library target found"));
-        }
-
-        if let Some(bin_name) = &self.options.bin {
-            let target = targets.into_iter().find(|target_idx| {
-                let target = &workspace[*target_idx];
-                (target.kind == TargetKind::Bin) && (target.name == bin_name[..])
-            });
-
-            return target
-                .ok_or_else(|| anyhow::anyhow!("No binary target found with name {:?}", bin_name));
-        }
-
-        // If no target was provided via options bail out:
+        // If no (or a non-existent) target was provided via options bail out:
 
         let target_list_items: Vec<_> = targets
-            .into_iter()
+            .iter()
             .map(|target_idx| {
-                let target = &workspace[target_idx];
+                let target = &workspace[*target_idx];
                 match target.kind {
                     TargetKind::Bin => format!("- {} (--bin {})", target.name, target.name),
                     TargetKind::Lib => format!("- {} (--lib)", target.name),
@@ -233,6 +219,55 @@ impl<'a> Runner<'a> {
             .collect();
 
         let target_list = target_list_items.join("\n");
+
+        // If package contains multiple targets, select the one provided via options:
+
+        if self.options.lib {
+            let target = targets.into_iter().find(|target_idx| {
+                let target = &workspace[*target_idx];
+                target.kind == TargetKind::Lib
+            });
+
+            return target.ok_or_else(|| {
+                anyhow::anyhow!(
+                    indoc::indoc! {
+                        "No library target found.
+
+                        Targets present in package:
+                        {}
+                        "
+                    },
+                    target_list,
+                )
+            });
+        }
+
+        if let Some(bin_name) = &self.options.bin {
+            let target = targets.into_iter().find(|target_idx| {
+                let target = &workspace[*target_idx];
+                (target.kind == TargetKind::Bin) && (target.name == bin_name[..])
+            });
+
+            return target.ok_or_else(|| {
+                anyhow::anyhow!(
+                    indoc::indoc! {
+                        "No binary target found with name {:?}.
+
+                        Targets present in package:
+                        {}
+                        "
+                    },
+                    bin_name,
+                    target_list,
+                )
+            });
+        }
+
+        // If project contains a single target, just pick it:
+
+        if target_count == 1 {
+            return Ok(targets[0]);
+        }
 
         Err(anyhow::anyhow!(
             indoc::indoc! {

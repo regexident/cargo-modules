@@ -27,18 +27,31 @@ impl Command {
         member_krate: hir::Crate,
         db: &RootDatabase,
     ) -> anyhow::Result<()> {
-        let options: &Options = &self.options;
+        self.validate_options()?;
 
         trace!("Printing ...");
 
         let printer = {
             let printer_options: PrinterOptions = PrinterOptions {
-                layout: options.layout.to_string(),
-                full_paths: options.with_externs,
+                layout: self.options.layout.to_string(),
+                full_paths: self.options.with_externs,
             };
             Printer::new(printer_options, member_krate, db)
         };
 
         printer.print(&graph, start_node_idx)
+    }
+
+    fn validate_options(&self) -> anyhow::Result<()> {
+        match &self.options {
+            Options {
+                with_uses: false,
+                with_externs: true,
+                ..
+            } => Err(anyhow::anyhow!(
+                "Option `--with-externs` requires option `--with-uses`"
+            )),
+            _ => Ok(()),
+        }
     }
 }

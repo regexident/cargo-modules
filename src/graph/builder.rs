@@ -123,6 +123,10 @@ impl<'a> Builder<'a> {
                 self.process_owned_module_def(Some((owned_module, owned_idx)), module_sub_def)?;
             }
 
+            if self.options.with_orphans && local_definitions.is_empty() {
+                add_orphan_nodes_to(&mut self.graph, owned_idx);
+            }
+
             for (_name, scope_def) in owned_module.scope(self.db, None) {
                 if let hir::ScopeDef::ModuleDef(scope_module_def) = scope_def {
                     // Skip local child declarations:
@@ -133,9 +137,11 @@ impl<'a> Builder<'a> {
                     self.process_used_module_def((owned_module, owned_idx), scope_module_def)?;
                 }
             }
+        }
 
+        if let Some(owner_idx) = owner_idx {
             if self.options.with_orphans {
-                add_orphan_nodes_to(&mut self.graph, owned_idx);
+                add_orphan_nodes_to(&mut self.graph, owner_idx);
             }
         }
 
@@ -265,6 +271,7 @@ impl<'a> Builder<'a> {
         let is_file_module: bool = match &module_source.value {
             ModuleSource::SourceFile(_) => true,
             ModuleSource::Module(_) => false,
+            ModuleSource::BlockExpr(_) => false,
         };
 
         if !is_file_module {
