@@ -1,0 +1,7 @@
+[package]
+name = "workspace_multi_package"
+version = "0.1.0"
+edition = "2018"
+
+[workspace]
+members = ["package_bin_target", "package_lib_target", "package_multi_target"]

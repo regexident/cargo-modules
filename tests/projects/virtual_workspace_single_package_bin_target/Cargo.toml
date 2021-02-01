@@ -1,0 +1,2 @@
+[workspace]
+members = ["package_bin_target"]
