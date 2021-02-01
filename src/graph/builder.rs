@@ -168,7 +168,7 @@ impl<'a> Builder<'a> {
             // If it is a type we need to resolve to its parent module instead:
             if !is_module {
                 let parent_module = used_module_def.module(self.db);
-                resolved_module_def = parent_module.map(|m| hir::ModuleDef::Module(m));
+                resolved_module_def = parent_module.map(hir::ModuleDef::Module);
             }
         }
 
