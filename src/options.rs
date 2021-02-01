@@ -78,6 +78,9 @@ pub mod generate {
         #[derive(StructOpt, Clone, PartialEq, Debug)]
         pub struct Options {
             #[structopt(flatten)]
+            pub general: crate::options::general::Options,
+
+            #[structopt(flatten)]
             pub project: crate::options::project::Options,
 
             #[structopt(flatten)]
@@ -103,6 +106,9 @@ pub mod generate {
 
         #[derive(StructOpt, Clone, PartialEq, Debug)]
         pub struct Options {
+            #[structopt(flatten)]
+            pub general: crate::options::general::Options,
+
             #[structopt(flatten)]
             pub project: crate::options::project::Options,
 
@@ -132,5 +138,17 @@ pub mod project {
 
         #[structopt(name = "MANIFEST_DIR", parse(from_os_str), default_value = ".")]
         pub manifest_dir: std::path::PathBuf,
+    }
+}
+
+pub mod general {
+    use super::*;
+
+    #[derive(StructOpt, Clone, PartialEq, Debug)]
+    #[structopt(group = ArgGroup::with_name("target"))]
+    pub struct Options {
+        /// Enable verbose messages during command execution.
+        #[structopt(long = "verbose")]
+        pub verbose: bool,
     }
 }

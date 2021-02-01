@@ -7,7 +7,10 @@ use crate::{
         builder::{Builder as GraphBuilder, Options as GraphBuilderOptions},
         idx_of_node_with_path, shrink_graph,
     },
-    options::{graph::Options as GraphOptions, project::Options as ProjectOptions},
+    options::{
+        general::Options as GeneralOptions, graph::Options as GraphOptions,
+        project::Options as ProjectOptions,
+    },
     runner::Runner,
 };
 
@@ -32,6 +35,7 @@ pub enum Command {
 
 impl Command {
     pub fn run(&self) -> Result<(), anyhow::Error> {
+        let general_options = self.general_options();
         let project_options = self.project_options();
         let graph_options = self.graph_options();
 
@@ -43,15 +47,23 @@ impl Command {
 
         let runner = Runner::new(project_path, project_options.to_owned(), db, &vfs);
 
-        runner.run(|krate| {
-            let crate_path = krate.display_name(db).expect("Crate name").to_string();
+        runner.run(|krate, package, target| {
+            let crate_name = krate.display_name(db).expect("Crate name").to_string();
+
+            if general_options.verbose {
+                eprintln!();
+                eprintln!("crate: {}", crate_name);
+                eprintln!("└── package: {}", package.name);
+                eprintln!("    └── target: {}", target.name);
+                eprintln!();
+            }
 
             let graph_builder = {
                 let builder_options = self.builder_options();
                 GraphBuilder::new(builder_options, db, &vfs, krate)
             };
 
-            let focus_path = graph_options.focus_on.clone().unwrap_or(crate_path);
+            let focus_path = graph_options.focus_on.clone().unwrap_or(crate_name);
 
             let (graph, start_node_idx) = {
                 trace!("Building graph ...");
@@ -85,6 +97,13 @@ impl Command {
                 }
             }
         })
+    }
+
+    fn general_options(&self) -> &GeneralOptions {
+        match &self {
+            Self::Tree(options) => &options.general,
+            Self::Graph(options) => &options.general,
+        }
     }
 
     fn project_options(&self) -> &ProjectOptions {
