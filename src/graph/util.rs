@@ -17,7 +17,7 @@ pub(crate) fn krate(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<hir
 pub(crate) fn module(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<hir::Module> {
     match module_def {
         hir::ModuleDef::Module(module) => Some(module),
-        module_def @ _ => module_def.module(db),
+        module_def => module_def.module(db),
     }
 }
 
@@ -44,7 +44,7 @@ pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> String {
 // it_works() { … }
 pub(crate) fn is_test_function(function: hir::Function, db: &RootDatabase) -> bool {
     let attrs = function.attrs(db);
-    attrs.by_key("test".into()).exists()
+    attrs.by_key("test").exists()
 }
 
 // #[cfg(test)]
@@ -63,8 +63,8 @@ fn is_test_cfg(cfg: CfgExpr) -> bool {
             CfgAtom::Flag(flag) => flag == "test",
             CfgAtom::KeyValue { .. } => false,
         },
-        CfgExpr::All(cfgs) => cfgs.into_iter().any(|cfg| is_test_cfg(cfg)),
-        CfgExpr::Any(cfgs) => cfgs.into_iter().any(|cfg| is_test_cfg(cfg)),
+        CfgExpr::All(cfgs) => cfgs.into_iter().any(is_test_cfg),
+        CfgExpr::Any(cfgs) => cfgs.into_iter().any(is_test_cfg),
         CfgExpr::Not(cfg) => is_test_cfg(*cfg),
     }
 }
