@@ -35,8 +35,8 @@ digraph {
 
     "smoke" [label="crate|smoke", fillcolor="#69bed2"]; // Crate node
     "smoke::orphans" [label="pub(crate) mod|orphans", fillcolor="#f8c04c"]; // Module node
-    "smoke::orphans::orphan" [label="orphan module|orphans::orphan", fillcolor="#5397c8"]; // Orphan node
-    "smoke::orphan" [label="orphan module|orphan", fillcolor="#5397c8"]; // Orphan node
+    "smoke::orphans::orphan" [label="orphan module|orphans::orphan", fillcolor="#ba6fa7"]; // Orphan node
+    "smoke::orphan" [label="orphan module|orphan", fillcolor="#ba6fa7"]; // Orphan node
     "smoke::uses" [label="pub(crate) mod|uses", fillcolor="#f8c04c"]; // Module node
     "smoke::uses::cycle" [label="pub(self) mod|uses::cycle", fillcolor="#db5367"]; // Module node
     "smoke::uses::cycle::node_0" [label="pub(self) mod|uses::cycle::node_0", fillcolor="#db5367"]; // Module node

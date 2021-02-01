@@ -229,19 +229,21 @@ impl<'a> Printer<'a> {
 
         let is_external = node.krate(self.db) != Some(self.member_krate);
 
-        let rgb = if is_external {
-            color_palette.blue
-        } else {
-            match node.hir {
-                Some(module_def) => match FormattedVisibility::new(module_def, self.db) {
-                    FormattedVisibility::Crate => colors.visibility.pub_crate,
-                    FormattedVisibility::Module(_) => colors.visibility.pub_module,
-                    FormattedVisibility::Private => colors.visibility.pub_private,
-                    FormattedVisibility::Public => colors.visibility.pub_global,
-                    FormattedVisibility::Super => colors.visibility.pub_super,
-                },
-                None => colors.orphan,
+        let rgb = match node.hir {
+            Some(module_def) => {
+                if is_external {
+                    color_palette.blue
+                } else {
+                    match FormattedVisibility::new(module_def, self.db) {
+                        FormattedVisibility::Crate => colors.visibility.pub_crate,
+                        FormattedVisibility::Module(_) => colors.visibility.pub_module,
+                        FormattedVisibility::Private => colors.visibility.pub_private,
+                        FormattedVisibility::Public => colors.visibility.pub_global,
+                        FormattedVisibility::Super => colors.visibility.pub_super,
+                    }
+                }
             }
+            None => colors.orphan,
         };
 
         self.hex_color(rgb)
