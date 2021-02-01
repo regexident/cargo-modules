@@ -1,0 +1,40 @@
+---
+source: tests/generate_graph.rs
+expression: output
+---
+digraph {
+
+    graph [
+        label="package_lib_target",
+        labelloc=t,
+
+        pad=0.4,
+
+        // Consider rendering the graph using a different layout algorithm, such as:
+        // [dot, neato, twopi, circo, fdp, sfdp]
+        layout=neato,
+        overlap=false,
+        splines="line",
+        rankdir=LR,
+
+        fontname="Helvetica", 
+        fontsize="36",
+    ];
+
+    node [
+        fontname="monospace",
+        fontsize="10",
+        shape="record",
+        style="filled",
+    ];
+
+    edge [
+        fontname="monospace",
+        fontsize="10",
+    ];
+
+    "package_lib_target" [label="crate|package_lib_target", fillcolor="#69bed2"]; // Crate node
+
+
+}
+

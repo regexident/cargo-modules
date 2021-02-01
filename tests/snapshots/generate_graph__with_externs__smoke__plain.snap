@@ -1,0 +1,6 @@
+---
+source: tests/generate_graph.rs
+expression: output
+---
+Error: Option `--with-externs` requires option `--with-uses`
+

@@ -1,0 +1,12 @@
+---
+source: tests/generate_tree.rs
+expression: output
+---
+Error: No package found with name "foobar".
+
+Packages present in workspace:
+- package_bin_target
+- package_lib_target
+- package_multi_target
+
+
