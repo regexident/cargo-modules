@@ -15,14 +15,14 @@ version = "0.4.9"
 [dependencies]
 
 # required by lib
-arrayvec = "^0.5.1"
-json = "^0.12.4"
-petgraph = "^0.5.1"
-anyhow = "^1.0.32"
-yansi = "^0.5.0"
-log = "0.4.11"
-env_logger = "0.8.2"
-indoc = "1.0.3"
+arrayvec = "~0.5.1"
+json = "~0.12.4"
+petgraph = "~0.5.1"
+anyhow = "~1.0.32"
+yansi = "~0.5.0"
+log = "~0.4.11"
+env_logger = "~0.8.2"
+indoc = "~1.0.3"
 
 [dependencies.ra_ap_base_db]
 version = "=0.0.35"
@@ -40,7 +40,7 @@ version = "=0.0.35"
 version = "=0.0.35"
 
 [dependencies.ra_ap_paths]
-version = "0.0.35"
+version = "=0.0.35"
 
 [dependencies.ra_ap_project_model]
 version = "=0.0.35"
@@ -62,16 +62,16 @@ version = "=0.0.35"
 # features = ["debug"]
 
 [dependencies.structopt]
-version = "0.3"
+version = "~0.3"
 
 # required by tests
 
 [dev-dependencies.assert_cmd]
-version = "1.0.2"
+version = "~1.0.2"
 
 [dev-dependencies.shellwords]
-version = "1.1.0"
+version = "~1.1.0"
 
 [dev-dependencies.insta]
-version = "1.5.2"
+version = "~1.5.2"
 features = ["glob"]
