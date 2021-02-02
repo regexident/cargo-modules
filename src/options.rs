@@ -136,6 +136,23 @@ pub mod project {
         #[structopt(short = "p", long = "package")]
         pub package: Option<String>,
 
+        /// Do not activate the `default` feature.
+        #[structopt(long = "no-default-features")]
+        pub no_default_features: bool,
+
+        /// Activate all available features
+        #[structopt(long = "all-features")]
+        pub all_features: bool,
+
+        /// List of features to activate.
+        /// This will be ignored if `--cargo-all-features` is provided.
+        #[structopt(long = "features")]
+        pub features: Vec<String>,
+
+        /// rustc target
+        #[structopt(long = "target")]
+        pub target: Option<String>,
+
         #[structopt(name = "MANIFEST_DIR", parse(from_os_str), default_value = ".")]
         pub manifest_dir: std::path::PathBuf,
     }
