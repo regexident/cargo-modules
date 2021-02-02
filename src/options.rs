@@ -122,14 +122,14 @@ pub mod project {
     use super::*;
 
     #[derive(StructOpt, Clone, PartialEq, Debug)]
-    #[structopt(group = ArgGroup::with_name("target"))]
+    #[structopt(group = ArgGroup::with_name("target-group"))]
     pub struct Options {
         /// Process only this package's library.
-        #[structopt(long = "lib", group = "target")]
+        #[structopt(long = "lib", group = "target-group")]
         pub lib: bool,
 
         /// Process only the specified binary.
-        #[structopt(long = "bin", group = "target")]
+        #[structopt(long = "bin", group = "target-group")]
         pub bin: Option<String>,
 
         /// Package to process (see `cargo help pkgid`).
@@ -145,7 +145,7 @@ pub mod general {
     use super::*;
 
     #[derive(StructOpt, Clone, PartialEq, Debug)]
-    #[structopt(group = ArgGroup::with_name("target"))]
+    #[structopt(group = ArgGroup::with_name("target-group"))]
     pub struct Options {
         /// Enable verbose messages during command execution.
         #[structopt(long = "verbose")]
