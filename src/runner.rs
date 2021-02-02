@@ -39,20 +39,20 @@ impl<'a> Runner<'a> {
 
         let config = CargoConfig {
             // Do not activate the `default` feature.
-            no_default_features: false,
+            no_default_features: self.options.no_default_features,
 
             // Activate all available features
-            all_features: false,
+            all_features: self.options.all_features,
 
             // List of features to activate.
             // This will be ignored if `cargo_all_features` is true.
-            features: vec![],
+            features: self.options.features.clone(),
 
             // Runs cargo check on launch to figure out the correct values of OUT_DIR
             load_out_dirs_from_check: false,
 
             // rustc target
-            target: None,
+            target: self.options.target.clone(),
 
             // Don't load sysroot crates (`std`, `core` & friends). Might be useful
             // when debugging isolated issues.
