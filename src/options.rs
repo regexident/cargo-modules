@@ -92,7 +92,7 @@ pub mod generate {
             pub layout: crate::options::generate::graph::LayoutAlgorithm,
 
             /// Include used modules and types
-            #[structopt(long = "with-uses")]
+            #[structopt(long = "with-uses", required_if("with-externs", "true"))]
             pub with_uses: bool,
 
             /// Include used modules and types from extern crates
