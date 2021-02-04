@@ -1,6 +1,8 @@
 ---
 source: tests/generate_tree.rs
 expression: output
+
 ---
+
 crate package_lib_target
 
