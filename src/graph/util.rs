@@ -112,10 +112,10 @@ pub fn cfgs(hir: hir::ModuleDef, db: &RootDatabase) -> Vec<CfgExpr> {
 
     match cfg {
         CfgExpr::Invalid => vec![],
-        cfg @ CfgExpr::Atom(_) => vec![cfg.clone()],
-        CfgExpr::All(cfgs) => cfgs.clone(),
-        cfg @ CfgExpr::Any(_) => vec![cfg.clone()],
-        cfg @ CfgExpr::Not(_) => vec![cfg.clone()],
+        cfg @ CfgExpr::Atom(_) => vec![cfg],
+        CfgExpr::All(cfgs) => cfgs,
+        cfg @ CfgExpr::Any(_) => vec![cfg],
+        cfg @ CfgExpr::Not(_) => vec![cfg],
     }
 }
 

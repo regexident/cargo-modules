@@ -13,11 +13,7 @@ use yansi::Style;
 use crate::{
     graph::{
         edge::{Edge, EdgeKind},
-        node::{
-            attr::{NodeCfgAttr, NodeTestAttr},
-            visibility::NodeVisibility,
-            Node, NodeKind,
-        },
+        node::{visibility::NodeVisibility, Node, NodeKind},
         Graph,
     },
     theme::styles,

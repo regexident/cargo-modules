@@ -311,7 +311,7 @@ impl<'a> Builder<'a> {
     fn cfg_attrs(&self, module_def: hir::ModuleDef) -> Vec<NodeCfgAttr> {
         util::cfgs(module_def, self.db)
             .into_iter()
-            .filter_map(|cfg| NodeCfgAttr::new(cfg))
+            .filter_map(NodeCfgAttr::new)
             .collect()
     }
 
