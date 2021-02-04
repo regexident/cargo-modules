@@ -1,6 +1,7 @@
 ---
 source: tests/generate_graph.rs
 expression: output
+
 ---
 digraph {
 
@@ -33,8 +34,9 @@ digraph {
         fontsize="10",
     ];
 
-    "package_bin_target" [label="crate|package_bin_target", fillcolor="#69bed2"]; // Crate node
+    "package_bin_target" [label="crate|package_bin_target", fillcolor="#69bed2"]; // "crate" node
 
 
 }
+
 
