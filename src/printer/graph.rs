@@ -208,10 +208,7 @@ impl Printer {
             None => Some("orphan".to_owned()),
         };
 
-        let kind = match node.kind.display_name() {
-            Some(display_name) => display_name,
-            None => "mod",
-        };
+        let kind = node.kind.display_name().unwrap_or("mod");
 
         if let Some(visibility) = visibility {
             write!(f, "{} ", visibility)?;

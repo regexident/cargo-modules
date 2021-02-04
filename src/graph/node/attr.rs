@@ -19,12 +19,8 @@ impl NodeCfgAttr {
             CfgExpr::Atom(CfgAtom::KeyValue { key, value }) => {
                 Some(Self::KeyValue(key.to_string(), value.to_string()))
             }
-            CfgExpr::All(cfgs) => Some(Self::All(
-                cfgs.into_iter().filter_map(|cfg| Self::new(cfg)).collect(),
-            )),
-            CfgExpr::Any(cfgs) => Some(Self::Any(
-                cfgs.into_iter().filter_map(|cfg| Self::new(cfg)).collect(),
-            )),
+            CfgExpr::All(cfgs) => Some(Self::All(cfgs.into_iter().filter_map(Self::new).collect())),
+            CfgExpr::Any(cfgs) => Some(Self::Any(cfgs.into_iter().filter_map(Self::new).collect())),
             CfgExpr::Not(cfg) => Self::new(*cfg).map(|cfg| Self::Not(Box::new(cfg))),
         }
     }
