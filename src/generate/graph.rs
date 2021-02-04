@@ -39,7 +39,13 @@ impl Command {
             Printer::new(printer_options, member_krate, db)
         };
 
-        printer.print(&graph, start_node_idx)
+        let mut string = String::new();
+
+        printer.fmt(&mut string, &graph, start_node_idx)?;
+
+        print!("{}", string);
+
+        Ok(())
     }
 
     fn validate_options(&self) -> anyhow::Result<()> {

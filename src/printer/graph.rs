@@ -1,5 +1,7 @@
 //! Printer for displaying crate as a graoh.
 
+use std::fmt::{self, Write};
+
 use petgraph::{
     graph::NodeIndex,
     visit::{IntoNodeReferences, NodeRef},
@@ -8,8 +10,11 @@ use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
 use crate::{
-    format::{kind::FormattedKind, visibility::FormattedVisibility},
-    graph::{Edge, Graph, Node, NodeKind},
+    graph::{
+        edge::{Edge, EdgeKind},
+        node::{visibility::NodeVisibility, Node, NodeKind},
+        util, Graph,
+    },
     theme::{color_palette, colors, Rgb},
 };
 
@@ -21,31 +26,36 @@ pub struct Options {
     pub full_paths: bool,
 }
 
-pub struct Printer<'a> {
+pub struct Printer {
     options: Options,
-    member_krate: hir::Crate,
-    db: &'a RootDatabase,
+    member_krate: String,
 }
 
-impl<'a> Printer<'a> {
-    pub fn new(options: Options, member_krate: hir::Crate, db: &'a RootDatabase) -> Self {
+impl Printer {
+    pub fn new(options: Options, member_krate: hir::Crate, db: &RootDatabase) -> Self {
+        let member_krate = util::krate_name(member_krate, db);
         Self {
             options,
             member_krate,
-            db,
         }
     }
 
-    pub fn print(&self, graph: &Graph, start_node_idx: NodeIndex) -> Result<(), anyhow::Error> {
+    pub fn fmt(
+        &self,
+        f: &mut dyn fmt::Write,
+        graph: &Graph,
+        start_node_idx: NodeIndex,
+    ) -> Result<(), anyhow::Error> {
         let root_node = &graph[start_node_idx];
-        let crate_name = root_node.name();
+        let crate_name = root_node.display_name();
         let layout_name = &self.options.layout[..];
 
-        println!("digraph {{");
+        writeln!(f, "digraph {{")?;
 
-        println!();
+        writeln!(f)?;
 
-        indoc::printdoc!(
+        indoc::writedoc!(
+            f,
             r#"
             {i}graph [
             {i}    label={label:?},
@@ -67,11 +77,12 @@ impl<'a> Printer<'a> {
             i = INDENTATION,
             label = crate_name,
             layout = layout_name,
-        );
+        )?;
 
-        println!();
+        writeln!(f)?;
 
-        indoc::printdoc!(
+        indoc::writedoc!(
+            f,
             r#"
             {i}node [
             {i}    fontname="monospace",
@@ -81,11 +92,12 @@ impl<'a> Printer<'a> {
             {i}];
             "#,
             i = INDENTATION,
-        );
+        )?;
 
-        println!();
+        writeln!(f)?;
 
-        indoc::printdoc!(
+        indoc::writedoc!(
+            f,
             r#"
             {i}edge [
             {i}    fontname="monospace",
@@ -93,61 +105,70 @@ impl<'a> Printer<'a> {
             {i}];
             "#,
             i = INDENTATION,
-        );
+        )?;
 
-        println!();
+        writeln!(f)?;
 
-        self.print_nodes(graph, start_node_idx);
+        self.fmt_nodes(f, graph, start_node_idx)?;
 
-        println!();
+        writeln!(f)?;
 
-        self.print_edges(graph);
+        self.fmt_edges(f, graph)?;
 
-        println!();
+        writeln!(f)?;
 
-        println!("}}");
+        writeln!(f, "}}")?;
 
         Ok(())
     }
 
-    fn print_nodes(&self, graph: &Graph, start_node_idx: NodeIndex) {
+    fn fmt_nodes(
+        &self,
+        f: &mut dyn fmt::Write,
+        graph: &Graph,
+        start_node_idx: NodeIndex,
+    ) -> fmt::Result {
         for node_ref in graph.node_references() {
             let node: &Node = node_ref.weight();
             let node_idx: NodeIndex = node_ref.id();
 
-            let id = &node.path[..];
-            let kind = node.kind(self.db);
+            let id = node.path.join("::");
+            let kind = node.kind.display_name().unwrap_or("orphan");
 
             let is_focused = node_idx == start_node_idx;
 
-            let label = self.node_label(node);
+            let label = self.node_label(node)?;
             let attributes = self.node_attributes(node, is_focused);
 
-            println!(
+            writeln!(
+                f,
                 r#"{i}{id:?} [label={label:?}{attributes}]; // {kind:?} node"#,
                 i = INDENTATION,
                 id = id,
                 label = label,
                 attributes = attributes,
                 kind = kind,
-            );
+            )?;
         }
+
+        Ok(())
     }
 
-    fn print_edges(&self, graph: &Graph) {
+    fn fmt_edges(&self, f: &mut dyn fmt::Write, graph: &Graph) -> fmt::Result {
         for edge_idx in graph.edge_indices() {
             let edge = &graph[edge_idx];
             let (source_idx, target_idx) = graph.edge_endpoints(edge_idx).unwrap();
 
-            let source_id = &graph[source_idx].path[..];
-            let target_id = &graph[target_idx].path[..];
+            let source_id = graph[source_idx].path.join("::");
+            let target_id = graph[target_idx].path.join("::");
 
-            let kind = edge.kind();
+            let kind = edge.kind.display_name();
 
             let label = self.edge_label(edge);
             let attributes = self.edge_attributes(edge);
 
-            println!(
+            writeln!(
+                f,
                 r#"{i}{source:?} -> {target:?} [label={label:?}{attributes}]; // {kind:?} edge"#,
                 i = INDENTATION,
                 source = source_id,
@@ -155,64 +176,62 @@ impl<'a> Printer<'a> {
                 label = label,
                 attributes = attributes,
                 kind = kind,
-            );
+            )?;
         }
+
+        Ok(())
     }
 
-    fn node_label(&self, node: &Node) -> String {
-        let header = self.node_header(node);
-        let body = self.node_body(node);
+    fn node_label(&self, node: &Node) -> Result<String, fmt::Error> {
+        let mut label = String::new();
 
-        format!("{}|{}", header, body)
+        self.fmt_node_header(&mut label, node)?;
+        write!(&mut label, "|")?;
+        self.fmt_node_body(&mut label, node)?;
+
+        Ok(label)
     }
 
-    fn node_header(&self, node: &Node) -> String {
-        let module_def = match node.hir {
-            Some(module_def) => module_def,
-            None => return "orphan module".to_owned(),
-        };
+    fn fmt_node_header(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
+        let is_external = node.krate != Some(self.member_krate.clone());
 
-        let is_external = node.krate(self.db) != Some(self.member_krate);
-        let node_kind = node.kind(self.db);
-
-        match node_kind {
-            NodeKind::Crate => {
+        let visibility = match &node.visibility {
+            Some(visibility) => {
                 if is_external {
-                    "extern crate".to_owned()
+                    Some("external".to_owned())
+                } else if node.kind == NodeKind::Crate {
+                    None
                 } else {
-                    "crate".to_owned()
+                    Some(format!("{}", visibility))
                 }
             }
-            _ => {
-                let visibility = if is_external {
-                    "extern".to_owned()
-                } else {
-                    FormattedVisibility::new(module_def, self.db).to_string()
-                };
-                let kind = match node_kind {
-                    NodeKind::Crate => FormattedKind::Crate,
-                    _ => FormattedKind::new(module_def),
-                };
-                format!("{} {}", visibility, kind)
-            }
+            None => Some("orphan".to_owned()),
+        };
+
+        let kind = match node.kind.display_name() {
+            Some(display_name) => display_name,
+            None => "mod",
+        };
+
+        if let Some(visibility) = visibility {
+            write!(f, "{} ", visibility)?;
         }
+
+        write!(f, "{}", kind)
     }
 
-    fn node_body(&self, node: &Node) -> String {
-        let path = &node.path[..];
-
-        // If we explicitly want full paths, return it unaltered:
-        if self.options.full_paths {
-            return path.to_owned();
-        }
-
-        // Otherwise try to drop the crate-name from the path:
-        if let Some(index) = path.find("::") {
-            // `index + 2` works here, since wee know ':' to be of single-byte width:
-            path[(index + 2)..].to_owned()
+    fn fmt_node_body(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
+        let path = if self.options.full_paths {
+            // If we explicitly want full paths, return it unaltered:
+            node.path.join("::")
+        } else if node.path.len() > 1 {
+            // Otherwise try to drop the crate-name from the path:
+            node.path[1..].join("::")
         } else {
-            path.to_owned()
-        }
+            node.path.join("::")
+        };
+
+        write!(f, "{}", path)
     }
 
     fn node_attributes(&self, node: &Node, is_focused: bool) -> String {
@@ -227,19 +246,19 @@ impl<'a> Printer<'a> {
         let colors = colors();
         let color_palette = color_palette();
 
-        let is_external = node.krate(self.db) != Some(self.member_krate);
+        let is_external = node.krate.as_ref() != Some(&self.member_krate);
 
-        let rgb = match node.hir {
-            Some(module_def) => {
+        let rgb = match &node.visibility {
+            Some(visibility) => {
                 if is_external {
                     color_palette.blue
                 } else {
-                    match FormattedVisibility::new(module_def, self.db) {
-                        FormattedVisibility::Crate => colors.visibility.pub_crate,
-                        FormattedVisibility::Module(_) => colors.visibility.pub_module,
-                        FormattedVisibility::Private => colors.visibility.pub_private,
-                        FormattedVisibility::Public => colors.visibility.pub_global,
-                        FormattedVisibility::Super => colors.visibility.pub_super,
+                    match visibility {
+                        NodeVisibility::Crate => colors.visibility.pub_crate,
+                        NodeVisibility::Module(_) => colors.visibility.pub_module,
+                        NodeVisibility::Private => colors.visibility.pub_private,
+                        NodeVisibility::Public => colors.visibility.pub_global,
+                        NodeVisibility::Super => colors.visibility.pub_super,
                     }
                 }
             }
@@ -256,16 +275,13 @@ impl<'a> Printer<'a> {
     }
 
     fn edge_label(&self, edge: &Edge) -> String {
-        match edge {
-            Edge::Uses => "uses".to_owned(),
-            Edge::Owns => "owns".to_owned(),
-        }
+        edge.kind.display_name().to_owned()
     }
 
     fn edge_attributes(&self, edge: &Edge) -> String {
-        match edge {
-            Edge::Uses => r#", color="gray", style="dashed""#.to_string(),
-            Edge::Owns => r#", color="black", style="solid""#.to_string(),
+        match edge.kind {
+            EdgeKind::Uses => r#", color="gray", style="dashed""#.to_owned(),
+            EdgeKind::Owns => r#", color="black", style="solid""#.to_owned(),
         }
     }
 

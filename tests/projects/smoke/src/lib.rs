@@ -38,44 +38,46 @@ mod hierarchy {
 }
 
 mod visibility {
-    mod mods {
-        pub mod pub_public {}
-        pub(crate) mod pub_crate {}
-        pub(in crate::lorem) mod pub_module {}
-        pub(super) mod pub_super {}
-        mod pub_private {}
-    }
+    mod dummy {
+        mod mods {
+            pub mod pub_public {}
+            pub(crate) mod pub_crate {}
+            pub(in crate::visibility) mod pub_module {}
+            pub(super) mod pub_super {}
+            mod pub_private {}
+        }
 
-    mod structs {
-        pub struct PubPublic {}
-        pub(crate) struct PubCrate {}
-        pub(in crate::lorem) struct PubModule {}
-        pub(super) struct PubSuper {}
-        struct PubPrivate {}
-    }
+        mod structs {
+            pub struct PubPublic {}
+            pub(crate) struct PubCrate {}
+            pub(in crate::visibility) struct PubModule {}
+            pub(super) struct PubSuper {}
+            struct PubPrivate {}
+        }
 
-    mod enums {
-        pub enum PubPublic {}
-        pub(crate) enum PubCrate {}
-        pub(in crate::lorem) enum PubModule {}
-        pub(super) enum PubSuper {}
-        enum PubPrivate {}
-    }
+        mod enums {
+            pub enum PubPublic {}
+            pub(crate) enum PubCrate {}
+            pub(in crate::visibility) enum PubModule {}
+            pub(super) enum PubSuper {}
+            enum PubPrivate {}
+        }
 
-    mod unions {
-        pub union PubPublic {}
-        pub(crate) union PubCrate {}
-        pub(in crate::lorem) union PubModule {}
-        pub(super) union PubSuper {}
-        union PubPrivate {}
-    }
+        mod unions {
+            pub union PubPublic {}
+            pub(crate) union PubCrate {}
+            pub(in crate::visibility) union PubModule {}
+            pub(super) union PubSuper {}
+            union PubPrivate {}
+        }
 
-    mod fns {
-        pub fn pub_public() {}
-        pub(crate) fn pub_crate() {}
-        pub(in crate::lorem) fn pub_module() {}
-        pub(super) fn pub_super() {}
-        fn pub_private() {}
+        mod fns {
+            pub fn pub_public() {}
+            pub(crate) fn pub_crate() {}
+            pub(in crate::visibility) fn pub_module() {}
+            pub(super) fn pub_super() {}
+            fn pub_private() {}
+        }
     }
 }
 
