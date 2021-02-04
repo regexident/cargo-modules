@@ -3,14 +3,22 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use hir::Crate;
 use log::trace;
 use petgraph::graph::{EdgeIndex, NodeIndex};
-use ra_ap_hir::{self as hir, ModuleSource};
+use ra_ap_hir::{self as hir, Crate, ModuleSource};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
 
-use crate::graph::{orphans::add_orphan_nodes_to, util, Edge, EdgeKind, Graph, Node};
+use crate::graph::{
+    edge::{Edge, EdgeKind},
+    node::{
+        attr::{NodeAttrs, NodeCfgAttr, NodeTestAttr},
+        visibility::NodeVisibility,
+        Node, NodeKind,
+    },
+    orphans::add_orphan_nodes_to,
+    util, Graph,
+};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Options {
@@ -30,7 +38,7 @@ pub struct Builder<'a> {
     vfs: &'a Vfs,
     krate: hir::Crate,
     graph: Graph,
-    nodes: HashMap<String, NodeIndex>,
+    nodes: HashMap<Vec<String>, NodeIndex>,
     edges: HashMap<(NodeIndex, EdgeKind, NodeIndex), EdgeIndex>,
 }
 
@@ -39,6 +47,7 @@ impl<'a> Builder<'a> {
         let graph = Graph::default();
         let nodes = HashMap::default();
         let edges = HashMap::default();
+
         Self {
             options,
             db,
@@ -103,10 +112,16 @@ impl<'a> Builder<'a> {
             }
         }
 
-        let owned_idx = self.add_node(owned_module_def);
+        let owned_idx = match self.add_node(owned_module_def) {
+            Some(owned_idx) => owned_idx,
+            None => return Ok(None),
+        };
 
         if let Some(owner_idx) = owner_idx {
-            self.add_edge(owner_idx, owned_idx, Edge::Owns);
+            let edge = Edge {
+                kind: EdgeKind::Owns,
+            };
+            self.add_edge(owner_idx, owned_idx, edge);
         }
 
         if let hir::ModuleDef::Module(owned_module) = owned_module_def {
@@ -191,14 +206,16 @@ impl<'a> Builder<'a> {
             None => return Ok(None),
         };
 
-        let used_idx = self.add_node(resolved_module_def);
-
-        self.add_edge(user_idx, used_idx, Edge::Uses);
-
-        Ok(Some(used_idx))
+        Ok(self.add_node(resolved_module_def).map(|used_idx| {
+            let edge = Edge {
+                kind: EdgeKind::Uses,
+            };
+            self.add_edge(user_idx, used_idx, edge);
+            used_idx
+        }))
     }
 
-    fn add_node(&mut self, module_def: hir::ModuleDef) -> NodeIndex {
+    fn add_node(&mut self, module_def: hir::ModuleDef) -> Option<NodeIndex> {
         let node_id = util::path(module_def, self.db);
 
         trace!("Adding module node: {:?}", node_id);
@@ -207,20 +224,25 @@ impl<'a> Builder<'a> {
         match self.nodes.get(&node_id) {
             Some(node_idx) => {
                 // If we did indeed already process it, then retrieve its index:
-                *node_idx
+                Some(*node_idx)
             }
             None => {
-                // Otherwise add a node:
-                let node_idx = self.graph.add_node(self.node_weight(module_def));
+                // Otherwise try to add a node:
+                let node = match self.node_weight(module_def) {
+                    Some(node) => node,
+                    None => return None,
+                };
+
+                let node_idx = self.graph.add_node(node);
                 self.nodes.insert(node_id, node_idx);
 
-                node_idx
+                Some(node_idx)
             }
         }
     }
 
     fn add_edge(&mut self, source_idx: NodeIndex, target_idx: NodeIndex, edge: Edge) -> EdgeIndex {
-        let edge_id = (source_idx, edge.kind(), target_idx);
+        let edge_id = (source_idx, edge.kind, target_idx);
 
         trace!(
             "Adding edge: {:?} --({:?})-> {:?}",
@@ -245,7 +267,12 @@ impl<'a> Builder<'a> {
         }
     }
 
-    fn node_weight(&self, module_def: hir::ModuleDef) -> Node {
+    fn node_weight(&self, module_def: hir::ModuleDef) -> Option<Node> {
+        let krate = {
+            let krate = util::krate(module_def, self.db);
+            krate.map(|krate| util::krate_name(krate, self.db))
+        };
+
         let path = util::path(module_def, self.db);
         let file_path = {
             match module_def {
@@ -258,12 +285,46 @@ impl<'a> Builder<'a> {
             })
         };
 
-        let hir = Some(module_def);
+        let kind = match NodeKind::from(module_def, self.db) {
+            Some(kind) => kind,
+            None => return None,
+        };
 
-        Node {
+        let visibility = Some(NodeVisibility::new(module_def, self.db));
+
+        let attrs = {
+            let cfgs: Vec<_> = self.cfg_attrs(module_def);
+            let test = self.test_attr(module_def);
+            NodeAttrs { cfgs, test }
+        };
+
+        Some(Node {
+            krate,
             path,
             file_path,
-            hir,
+            kind,
+            visibility,
+            attrs,
+        })
+    }
+
+    fn cfg_attrs(&self, module_def: hir::ModuleDef) -> Vec<NodeCfgAttr> {
+        util::cfgs(module_def, self.db)
+            .into_iter()
+            .filter_map(|cfg| NodeCfgAttr::new(cfg))
+            .collect()
+    }
+
+    fn test_attr(&self, module_def: hir::ModuleDef) -> Option<NodeTestAttr> {
+        let function = match module_def {
+            hir::ModuleDef::Function(function) => function,
+            _ => return None,
+        };
+
+        if util::is_test_function(function, self.db) {
+            Some(NodeTestAttr)
+        } else {
+            None
         }
     }
 

@@ -1,3 +1,5 @@
+use std::fmt::Write;
+
 use log::trace;
 use petgraph::graph::NodeIndex;
 use ra_ap_hir as hir;
@@ -11,6 +13,7 @@ use crate::{
 };
 
 pub struct Command {
+    #[allow(dead_code)]
     options: Options,
 }
 
@@ -25,17 +28,23 @@ impl Command {
         graph: &Graph,
         start_node_idx: NodeIndex,
         _member_krate: hir::Crate,
-        db: &RootDatabase,
+        _db: &RootDatabase,
     ) -> anyhow::Result<()> {
-        let _options: &Options = &self.options;
-
         trace!("Printing ...");
 
         let printer = {
             let printer_options = PrinterOptions {};
-            Printer::new(printer_options, db)
+            Printer::new(printer_options)
         };
 
-        printer.print(&graph, start_node_idx)
+        let mut string = String::new();
+
+        writeln!(&mut string)?;
+
+        printer.fmt(&mut string, &graph, start_node_idx)?;
+
+        print!("{}", string);
+
+        Ok(())
     }
 }

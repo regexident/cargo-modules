@@ -1,18 +1,25 @@
 //! Printer for displaying module structure as a tree.
 
+use std::fmt;
+
 use petgraph::{
     algo::is_cyclic_directed,
     graph::{EdgeIndex, NodeIndex},
     visit::EdgeRef,
     Direction,
 };
-use ra_ap_hir::ModuleDef;
-use ra_ap_ide::RootDatabase;
 use yansi::Style;
 
 use crate::{
-    format::{cfg::FormattedCfgExpr, kind::FormattedKind, visibility::FormattedVisibility},
-    graph::{self, Edge, Graph, Node, NodeKind},
+    graph::{
+        edge::{Edge, EdgeKind},
+        node::{
+            attr::{NodeCfgAttr, NodeTestAttr},
+            visibility::NodeVisibility,
+            Node, NodeKind,
+        },
+        Graph,
+    },
     theme::styles,
 };
 
@@ -24,26 +31,31 @@ struct Twig {
 #[derive(Clone, Debug)]
 pub struct Options {}
 
-pub struct Printer<'a> {
+pub struct Printer {
     #[allow(dead_code)]
     options: Options,
-    db: &'a RootDatabase,
 }
 
-impl<'a> Printer<'a> {
-    pub fn new(options: Options, db: &'a RootDatabase) -> Self {
-        Self { options, db }
+impl Printer {
+    pub fn new(options: Options) -> Self {
+        Self { options }
     }
 
-    pub fn print(&self, graph: &Graph, start_node_idx: NodeIndex) -> Result<(), anyhow::Error> {
+    pub fn fmt(
+        &self,
+        f: &mut dyn fmt::Write,
+        graph: &Graph,
+        start_node_idx: NodeIndex,
+    ) -> Result<(), anyhow::Error> {
         assert!(!is_cyclic_directed(graph));
 
         let mut twigs: Vec<Twig> = vec![Twig { is_last: true }];
-        self.print_tree(graph, None, start_node_idx, &mut twigs)
+        self.fmt_tree(f, graph, None, start_node_idx, &mut twigs)
     }
 
-    fn print_tree(
+    fn fmt_tree(
         &self,
+        f: &mut dyn fmt::Write,
         graph: &Graph,
         edge_idx: Option<EdgeIndex>,
         node_idx: NodeIndex,
@@ -52,9 +64,9 @@ impl<'a> Printer<'a> {
         let edge = edge_idx.map(|idx| &graph[idx]);
         let node = &graph[node_idx];
 
-        self.print_branch(edge, &twigs[..]);
-        self.print_node(node);
-        println!();
+        self.fmt_branch(f, edge, &twigs[..])?;
+        self.fmt_node(f, node)?;
+        writeln!(f)?;
 
         let mut children: Vec<_> = graph
             .edges_directed(node_idx, Direction::Outgoing)
@@ -63,7 +75,7 @@ impl<'a> Printer<'a> {
                 let edge = &graph[edge_idx];
 
                 // We're only interested in "owns" relationships here:
-                let is_owns_edge = edge == &Edge::Owns;
+                let is_owns_edge = edge.kind == EdgeKind::Owns;
                 debug_assert!(is_owns_edge);
 
                 if !is_owns_edge {
@@ -73,7 +85,7 @@ impl<'a> Printer<'a> {
                 let node_idx = edge_ref.target();
                 let node = &graph[node_idx];
 
-                let key = node.name();
+                let key = node.display_name();
                 Some((node_idx, edge_idx, key))
             })
             .collect();
@@ -89,140 +101,125 @@ impl<'a> Printer<'a> {
         for (pos, (node_idx, edge_idx, _)) in children.into_iter().enumerate() {
             let is_last = pos + 1 == count;
             twigs.push(Twig { is_last });
-            self.print_tree(graph, Some(edge_idx), node_idx, twigs)?;
+            self.fmt_tree(f, graph, Some(edge_idx), node_idx, twigs)?;
             twigs.pop();
         }
 
         Ok(())
     }
 
-    /// Print a branch:
-    fn print_node(&self, node: &Node) {
-        match node.kind(self.db) {
-            NodeKind::Crate => {
-                self.print_crate_node(node);
-            }
-            NodeKind::Module => {
-                self.print_module_node(node);
-            }
-            NodeKind::Type => {
-                self.print_type_node(node);
-            }
-            NodeKind::Orphan => {
-                self.print_orphan_node(node);
-            }
+    fn fmt_node(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
+        self.fmt_node_kind(f, node)?;
+        write!(f, " ")?;
+        self.fmt_node_name(f, node)?;
+
+        if node.kind == NodeKind::Crate {
+            return Ok(());
         }
+
+        self.fmt_node_colon(f, node)?;
+        write!(f, " ")?;
+        self.fmt_node_visibility(f, node)?;
+
+        if !node.attrs.is_empty() {
+            write!(f, " ")?;
+            self.fmt_node_attrs(f, node)?;
+        }
+
+        Ok(())
     }
 
-    /// Print a crate branch:
-    fn print_crate_node(&self, node: &Node) {
-        assert!(node.kind(self.db) == NodeKind::Crate);
+    fn fmt_node_kind(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
+        let kind_style = self.kind_style();
 
-        let kind = FormattedKind::Crate;
+        let display_name = node.kind.display_name().unwrap_or("mod");
+        let kind = kind_style.paint(display_name);
 
-        let kind_style = self.kind_style(&kind);
-        let name_style = self.name_style(&kind);
+        write!(f, "{}", kind)?;
 
-        let kind = kind_style.paint(kind);
-        let name = name_style.paint(node.name());
-
-        print!("{} {}", kind, name);
+        Ok(())
     }
 
-    /// Print a module-def branch:
-    fn print_module_node(&self, node: &Node) {
-        assert!(node.kind(self.db) == NodeKind::Module);
-
-        self.print_module_or_crate_node(node)
-    }
-
-    fn print_type_node(&self, node: &Node) {
-        assert!(node.kind(self.db) == NodeKind::Type);
-
-        self.print_module_or_crate_node(node)
-    }
-
-    fn print_module_or_crate_node(&self, node: &Node) {
+    fn fmt_node_colon(&self, f: &mut dyn fmt::Write, _node: &Node) -> fmt::Result {
         let colon_style = self.colon_style();
 
-        let module_def = match node.hir {
-            Some(module_def) => module_def,
-            None => unreachable!(),
-        };
+        let colon = colon_style.paint(":");
+        write!(f, "{}", colon)?;
 
-        let name = node.name();
-        let kind = FormattedKind::new(module_def);
-        let visibility = FormattedVisibility::new(module_def, self.db);
-
-        let kind_style = self.kind_style(&kind);
-        let name_style = self.name_style(&kind);
-        let visibility_style = self.visibility_style(&visibility, &kind);
-
-        {
-            let kind = kind_style.paint(kind);
-            let name = name_style.paint(name);
-            let colon = colon_style.paint(":");
-            let visibility = visibility_style.paint(format!("{}", visibility));
-
-            print!("{} {}{} {}", kind, name, colon, visibility);
-        }
-
-        self.print_module_def_cfg(module_def);
+        Ok(())
     }
 
-    /// Print a module-def's cfg suffix':
-    fn print_module_def_cfg(&self, module_def: ModuleDef) {
-        let cfg_chrome_style = self.cfg_chrome_style();
-        let cfg_style = self.cfg_style();
-
-        let cfgs: Vec<_> = match FormattedCfgExpr::from_hir(module_def, self.db) {
-            Some(cfg) => cfg
-                .top_level()
-                .into_iter()
-                .map(FormattedCfgExpr::new)
-                .collect(),
-            None => vec![],
-        };
-
-        for cfg in cfgs {
-            let prefix = cfg_chrome_style.paint("#[cfg(");
-            let cfg = cfg_style.paint(cfg);
-            let suffix = cfg_chrome_style.paint(")]");
-
-            print!(" {}{}{}", prefix, cfg, suffix);
-        }
-
-        if let ModuleDef::Function(function) = module_def {
-            if graph::util::is_test_function(function, self.db) {
-                let prefix = cfg_chrome_style.paint("#[");
-                let cfg = cfg_style.paint("test");
-                let suffix = cfg_chrome_style.paint("]");
-
-                print!(" {}{}{}", prefix, cfg, suffix);
+    fn fmt_node_visibility(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
+        let (visibility, visibility_style) = match &node.visibility {
+            Some(visibility) => {
+                let visibility_style = self.visibility_style(&visibility);
+                (format!("{}", visibility), visibility_style)
             }
+            None => {
+                let orphan_style = self.orphan_style();
+                ("orphan".to_owned(), orphan_style)
+            }
+        };
+
+        let visibility = visibility_style.paint(visibility);
+        write!(f, "{}", visibility)?;
+
+        Ok(())
+    }
+
+    fn fmt_node_name(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
+        let name_style = self.name_style();
+
+        let name = name_style.paint(node.display_name());
+        write!(f, "{}", name)?;
+
+        Ok(())
+    }
+
+    fn fmt_node_attrs(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
+        let attr_chrome_style = self.attr_chrome_style();
+        let attr_style = self.attr_style();
+
+        let mut is_first = true;
+
+        if let Some(test_attr) = &node.attrs.test {
+            let prefix = attr_chrome_style.paint("#[");
+            let cfg = attr_style.paint(test_attr);
+            let suffix = attr_chrome_style.paint("]");
+
+            write!(f, "{}{}{}", prefix, cfg, suffix)?;
+
+            is_first = false;
         }
+
+        let attr_chrome_style = self.attr_chrome_style();
+        let attr_style = self.attr_style();
+
+        for cfg in &node.attrs.cfgs[..] {
+            if !is_first {
+                write!(f, ", ")?;
+            }
+
+            let prefix = attr_chrome_style.paint("#[cfg(");
+            let cfg = attr_style.paint(cfg);
+            let suffix = attr_chrome_style.paint(")]");
+
+            write!(f, "{}{}{}", prefix, cfg, suffix)?;
+
+            is_first = false;
+        }
+
+        Ok(())
     }
 
-    /// Print a orphan branch:
-    fn print_orphan_node(&self, node: &Node) {
-        assert!(node.kind(self.db) == NodeKind::Orphan);
-
-        let kind = FormattedKind::Module;
-
-        let kind_style = self.kind_style(&kind);
-        let name_style = self.name_style(&kind);
-        let orphan_style = self.orphan_style();
-
-        let kind = kind_style.paint(kind);
-        let name = name_style.paint(node.name());
-        let orphan = orphan_style.paint("orphan");
-
-        print!("{} {}: {}", kind, name, orphan);
-    }
-
-    fn print_branch(&self, _edge: Option<&Edge>, twigs: &[Twig]) {
+    fn fmt_branch(
+        &self,
+        f: &mut dyn fmt::Write,
+        _edge: Option<&Edge>,
+        twigs: &[Twig],
+    ) -> fmt::Result {
         let prefix = self.branch_prefix(&twigs[..]);
-        print!("{}", self.branch_style().paint(&prefix));
+        write!(f, "{}", self.branch_style().paint(&prefix))
     }
 
     /// Print a branch's prefix:
@@ -272,7 +269,7 @@ impl<'a> Printer<'a> {
         Style::default().dimmed()
     }
 
-    fn cfg_chrome_style(&self) -> Style {
+    fn attr_chrome_style(&self) -> Style {
         Style::default().dimmed()
     }
 
@@ -280,43 +277,25 @@ impl<'a> Printer<'a> {
         Style::default().dimmed()
     }
 
-    fn name_style(&self, kind: &FormattedKind) -> Style {
+    fn name_style(&self) -> Style {
         let styles = styles();
-        let base = styles.name;
-
-        match kind {
-            FormattedKind::Crate => base,
-            FormattedKind::Module => base,
-            _ => base.dimmed(),
-        }
+        styles.name
     }
 
-    fn kind_style(&self, kind: &FormattedKind) -> Style {
+    fn kind_style(&self) -> Style {
         let styles = styles();
-        let base = styles.kind;
-
-        match kind {
-            FormattedKind::Crate => base,
-            FormattedKind::Module => base,
-            _ => base.dimmed(),
-        }
+        styles.kind
     }
 
-    fn visibility_style(&self, visibility: &FormattedVisibility, kind: &FormattedKind) -> Style {
+    fn visibility_style(&self, visibility: &NodeVisibility) -> Style {
         let styles = styles().visibility;
 
-        let base = match visibility {
-            FormattedVisibility::Crate => styles.pub_crate,
-            FormattedVisibility::Module(_) => styles.pub_module,
-            FormattedVisibility::Private => styles.pub_private,
-            FormattedVisibility::Public => styles.pub_global,
-            FormattedVisibility::Super => styles.pub_super,
-        };
-
-        match kind {
-            FormattedKind::Crate => base,
-            FormattedKind::Module => base,
-            _ => base.dimmed(),
+        match visibility {
+            NodeVisibility::Crate => styles.pub_crate,
+            NodeVisibility::Module(_) => styles.pub_module,
+            NodeVisibility::Private => styles.pub_private,
+            NodeVisibility::Public => styles.pub_global,
+            NodeVisibility::Super => styles.pub_super,
         }
     }
 
@@ -325,8 +304,8 @@ impl<'a> Printer<'a> {
         styles.orphan
     }
 
-    fn cfg_style(&self) -> Style {
+    fn attr_style(&self) -> Style {
         let styles = styles();
-        styles.cfg
+        styles.attr
     }
 }

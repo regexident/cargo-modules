@@ -8,7 +8,11 @@ use log::{debug, trace};
 use petgraph::{graph::NodeIndex, visit::EdgeRef};
 
 use crate::{
-    graph::{Edge, Graph, Node},
+    graph::{
+        edge::{Edge, EdgeKind},
+        node::{attr::NodeAttrs, Node, NodeKind},
+        Graph,
+    },
     orphans::PossibleOrphansIterator,
 };
 
@@ -42,7 +46,7 @@ pub(crate) fn add_orphan_nodes_to(graph: &mut Graph, module_idx: NodeIndex) {
 
     let existing_module_names: HashSet<String> = existing_modules
         .into_iter()
-        .map(|module| module.name())
+        .map(|module| module.display_name())
         .collect();
 
     if !dir_path.exists() {
@@ -78,19 +82,36 @@ fn add_orphan_node(
     let module_node = &graph[module_idx];
 
     let orphan_node = {
-        let path = format!("{}::{}", module_node.path, orphan_name);
+        let krate = module_node.krate.clone();
+        let path = {
+            let mut path = module_node.path.clone();
+            path.push(orphan_name.to_owned());
+            path
+        };
         let file_path = Some(orphan_file_path.to_owned());
-        let hir = None;
+        let kind = NodeKind::Orphan;
+        let visibility = None;
+        let attrs = {
+            let cfgs = vec![];
+            let test = None;
+            NodeAttrs { cfgs, test }
+        };
+
         Node {
+            krate,
             path,
             file_path,
-            hir,
+            kind,
+            visibility,
+            attrs,
         }
     };
 
     let orphan_idx = graph.add_node(orphan_node);
 
-    let edge = Edge::Owns;
+    let edge = Edge {
+        kind: EdgeKind::Owns,
+    };
     graph.add_edge(module_idx, orphan_idx, edge);
 }
 

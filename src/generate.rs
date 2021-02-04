@@ -5,7 +5,7 @@ use structopt::StructOpt;
 use crate::{
     graph::{
         builder::{Builder as GraphBuilder, Options as GraphBuilderOptions},
-        idx_of_node_with_path, shrink_graph,
+        util,
     },
     options::{
         general::Options as GeneralOptions, graph::Options as GraphOptions,
@@ -63,7 +63,10 @@ impl Command {
                 GraphBuilder::new(builder_options, db, &vfs, krate)
             };
 
-            let focus_path = graph_options.focus_on.clone().unwrap_or(crate_name);
+            let focus_path: Vec<_> = {
+                let path_string = graph_options.focus_on.clone().unwrap_or(crate_name);
+                path_string.split("::").map(|c| c.to_owned()).collect()
+            };
 
             let (graph, start_node_idx) = {
                 trace!("Building graph ...");
@@ -72,12 +75,12 @@ impl Command {
 
                 trace!("Searching for start node in graph ...");
 
-                let start_node_idx = idx_of_node_with_path(&graph, &focus_path[..], db)?;
+                let start_node_idx = util::idx_of_node_with_path(&graph, &focus_path[..], db)?;
 
                 trace!("Shrinking graph to desired depth ...");
 
                 let max_depth = graph_options.max_depth.unwrap_or(usize::MAX);
-                shrink_graph(&mut graph, start_node_idx, max_depth);
+                util::shrink_graph(&mut graph, start_node_idx, max_depth);
 
                 (graph, start_node_idx)
             };

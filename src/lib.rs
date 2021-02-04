@@ -1,6 +1,5 @@
 use structopt::StructOpt;
 
-pub(crate) mod format;
 pub mod generate;
 pub(crate) mod graph;
 pub(crate) mod options;

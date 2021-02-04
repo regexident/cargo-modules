@@ -78,7 +78,7 @@ pub(crate) struct Colors {
     pub kind: Rgb,
 
     pub visibility: VisibilityColors,
-    pub cfg: Rgb,
+    pub attr: Rgb,
     pub orphan: Rgb,
 }
 
@@ -94,7 +94,7 @@ pub(crate) fn colors() -> Colors {
             pub_global: color_palette.green,
             pub_super: color_palette.orange,
         },
-        cfg: color_palette.cyan,
+        attr: color_palette.cyan,
         orphan: color_palette.purple,
     }
 }
@@ -114,7 +114,7 @@ pub(crate) struct Styles {
     pub name: Style,
 
     pub visibility: VisibilityStyles,
-    pub cfg: Style,
+    pub attr: Style,
     pub orphan: Style,
 }
 
@@ -130,7 +130,7 @@ pub(crate) fn styles() -> Styles {
             pub_global: Style::new(colors.visibility.pub_global.into()),
             pub_super: Style::new(colors.visibility.pub_super.into()),
         },
-        cfg: Style::new(colors.cfg.into()),
+        attr: Style::new(colors.attr.into()),
         orphan: Style::new(colors.orphan.into()),
     }
 }
