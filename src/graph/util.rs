@@ -52,22 +52,20 @@ pub(crate) fn module(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<hi
     }
 }
 
-pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> Vec<String> {
-    let mut path = vec![];
+pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> String {
+    let mut path = String::new();
 
     let krate = krate(module_def, db);
 
     // Obtain the module's krate's name (unless it's a builtin type, which have no crate):
     if let Some(krate_name) = krate.map(|krate| krate_name(krate, db)) {
-        path.push(krate_name);
+        path.push_str(krate_name.as_str());
     }
 
     // Obtain the module's canonicalized name:
     if let Some(relative_canonical_path) = module_def.canonical_path(db) {
-        let components = relative_canonical_path
-            .split("::")
-            .map(|component| component.to_owned());
-        path.extend(components);
+        path.push_str("::");
+        path.push_str(relative_canonical_path.as_str());
     }
 
     assert!(!path.is_empty());

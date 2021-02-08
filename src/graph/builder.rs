@@ -38,7 +38,7 @@ pub struct Builder<'a> {
     vfs: &'a Vfs,
     krate: hir::Crate,
     graph: Graph,
-    nodes: HashMap<Vec<String>, NodeIndex>,
+    nodes: HashMap<String, NodeIndex>,
     edges: HashMap<(NodeIndex, EdgeKind, NodeIndex), EdgeIndex>,
 }
 
@@ -273,7 +273,11 @@ impl<'a> Builder<'a> {
             krate.map(|krate| util::krate_name(krate, self.db))
         };
 
-        let path = util::path(module_def, self.db);
+        let path: Vec<_> = util::path(module_def, self.db)
+            .split("::")
+            .map(|s| s.to_owned())
+            .collect();
+
         let file_path = {
             match module_def {
                 hir::ModuleDef::Module(module) => Some(module),
