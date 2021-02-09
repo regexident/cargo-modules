@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{path::PathBuf, str::FromStr};
 
 use structopt::{clap::ArgGroup, StructOpt};
 
@@ -153,8 +153,12 @@ pub mod project {
         #[structopt(long = "target")]
         pub target: Option<String>,
 
-        #[structopt(name = "MANIFEST_DIR", parse(from_os_str), default_value = ".")]
-        pub manifest_dir: std::path::PathBuf,
+        #[structopt(
+            long = "manifest-path",
+            parse(from_os_str),
+            default_value = "./Cargo.toml"
+        )]
+        pub manifest_path: PathBuf,
     }
 }
 
