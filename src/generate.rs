@@ -39,8 +39,7 @@ impl Command {
         let project_options = self.project_options();
         let graph_options = self.graph_options();
 
-        let path = project_options.manifest_dir.as_path();
-        let project_path = path.canonicalize()?;
+        let project_path = project_options.manifest_path.as_path().canonicalize()?;
 
         let (host, vfs) = load_cargo(&project_path, true, false).unwrap();
         let db = host.raw_database();
