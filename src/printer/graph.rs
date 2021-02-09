@@ -15,7 +15,7 @@ use crate::{
         node::{visibility::NodeVisibility, Node, NodeKind},
         util, Graph,
     },
-    theme::{color_palette, colors, Rgb},
+    theme::graph::{edge_styles, node_styles},
 };
 
 const INDENTATION: &str = "    ";
@@ -109,7 +109,7 @@ impl Printer {
 
         writeln!(f)?;
 
-        self.fmt_nodes(f, graph, start_node_idx)?;
+        self.fmt_nodes(f, graph)?;
 
         writeln!(f)?;
 
@@ -122,23 +122,15 @@ impl Printer {
         Ok(())
     }
 
-    fn fmt_nodes(
-        &self,
-        f: &mut dyn fmt::Write,
-        graph: &Graph,
-        start_node_idx: NodeIndex,
-    ) -> fmt::Result {
+    fn fmt_nodes(&self, f: &mut dyn fmt::Write, graph: &Graph) -> fmt::Result {
         for node_ref in graph.node_references() {
             let node: &Node = node_ref.weight();
-            let node_idx: NodeIndex = node_ref.id();
 
             let id = node.path.join("::");
             let kind = node.kind.display_name().unwrap_or("orphan");
 
-            let is_focused = node_idx == start_node_idx;
-
             let label = self.node_label(node)?;
-            let attributes = self.node_attributes(node, is_focused);
+            let attributes = self.node_attributes(node);
 
             writeln!(
                 f,
@@ -231,44 +223,25 @@ impl Printer {
         write!(f, "{}", path)
     }
 
-    fn node_attributes(&self, node: &Node, is_focused: bool) -> String {
-        let fill_color = match is_focused {
-            true => self.node_highlight_color(node),
-            false => self.node_color(node),
-        };
-        format!(r#", fillcolor={:?}"#, fill_color)
-    }
+    fn node_attributes(&self, node: &Node) -> String {
+        let styles = node_styles();
 
-    fn node_color(&self, node: &Node) -> String {
-        let colors = colors();
-        let color_palette = color_palette();
-
-        let is_external = node.krate.as_ref() != Some(&self.member_krate);
-
-        let rgb = match &node.visibility {
-            Some(visibility) => {
-                if is_external {
-                    color_palette.blue
-                } else {
-                    match visibility {
-                        NodeVisibility::Crate => colors.visibility.pub_crate,
-                        NodeVisibility::Module(_) => colors.visibility.pub_module,
-                        NodeVisibility::Private => colors.visibility.pub_private,
-                        NodeVisibility::Public => colors.visibility.pub_global,
-                        NodeVisibility::Super => colors.visibility.pub_super,
-                    }
-                }
-            }
-            None => colors.orphan,
+        let style = match &node.kind {
+            NodeKind::Crate => styles.krate,
+            NodeKind::Orphan => styles.orphan,
+            _ => match &node.visibility {
+                Some(visibility) => match visibility {
+                    NodeVisibility::Crate => styles.visibility.pub_crate,
+                    NodeVisibility::Module(_) => styles.visibility.pub_module,
+                    NodeVisibility::Private => styles.visibility.pub_private,
+                    NodeVisibility::Public => styles.visibility.pub_global,
+                    NodeVisibility::Super => styles.visibility.pub_super,
+                },
+                None => styles.visibility.pub_global,
+            },
         };
 
-        self.hex_color(rgb)
-    }
-
-    fn node_highlight_color(&self, _node: &Node) -> String {
-        let color_palette = color_palette();
-
-        self.hex_color(color_palette.cyan)
+        format!(r#", fillcolor="{}""#, style.fill_color)
     }
 
     fn edge_label(&self, edge: &Edge) -> String {
@@ -276,14 +249,13 @@ impl Printer {
     }
 
     fn edge_attributes(&self, edge: &Edge) -> String {
-        match edge.kind {
-            EdgeKind::Uses => r#", color="gray", style="dashed""#.to_owned(),
-            EdgeKind::Owns => r#", color="black", style="solid""#.to_owned(),
-        }
-    }
+        let styles = edge_styles();
 
-    fn hex_color(&self, rgb: Rgb) -> String {
-        let Rgb { r, g, b, .. } = rgb;
-        format!("#{:02x}{:02x}{:02x}", r, g, b)
+        let style = match edge.kind {
+            EdgeKind::Uses { .. } => styles.uses,
+            EdgeKind::Owns => styles.owns,
+        };
+
+        format!(r#", color="{}", style="{}""#, style.color, style.stroke)
     }
 }

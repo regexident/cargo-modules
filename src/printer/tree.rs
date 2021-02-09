@@ -16,7 +16,7 @@ use crate::{
         node::{visibility::NodeVisibility, Node, NodeKind},
         Graph,
     },
-    theme::styles,
+    theme::tree::styles,
 };
 
 #[derive(Debug)]
