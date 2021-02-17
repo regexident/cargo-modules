@@ -128,15 +128,9 @@ Any file `src/../foo.rs` or `src/../foo/mod.rs` that is not linked by its
 To keep false positives to a minimum `cargo-modules` excludes all build scripts
 as well as `lib.rs` and `main.rs` from the selection of potential orphans.
 
-### Plain Mode
+### Monochrome Mode
 
-If you, for some reason, need to remove the coloring, use:
-
-```bash
-cargo modules --plain tree
-
-cargo modules --plain graph
-```
+cargo-modules checks for the presence of a `NO_COLOR` environment variable that, when present (regardless of its value), prevents the addition of ANSI color.
 
 ### Help
 
