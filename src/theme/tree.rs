@@ -17,8 +17,8 @@ pub(crate) struct ColorPalette {
 }
 
 enum ColorDepth {
-    Bits8,
-    Bits24,
+    Fixed,
+    Rgb,
 }
 
 fn color_depth() -> Option<ColorDepth> {
@@ -27,16 +27,16 @@ fn color_depth() -> Option<ColorDepth> {
     }
 
     match env::var("COLORTERM").as_deref() {
-        Ok("truecolor") | Ok("24bit") => return Some(ColorDepth::Bits24),
+        Ok("truecolor") | Ok("24bit") => return Some(ColorDepth::Rgb),
         _ => {}
     };
 
-    Some(ColorDepth::Bits8)
+    Some(ColorDepth::Fixed)
 }
 
 pub(crate) fn color_palette() -> ColorPalette {
     match color_depth() {
-        Some(ColorDepth::Bits8) => ColorPalette {
+        Some(ColorDepth::Fixed) => ColorPalette {
             purple: Color::Fixed(133),
             red: Color::Fixed(167),
             orange: Color::Fixed(209),
@@ -48,7 +48,7 @@ pub(crate) fn color_palette() -> ColorPalette {
             gray: Color::Fixed(8),
             white: Color::Fixed(15),
         },
-        Some(ColorDepth::Bits24) => ColorPalette {
+        Some(ColorDepth::Rgb) => ColorPalette {
             purple: Color::RGB(186, 111, 167),
             red: Color::RGB(219, 83, 103),
             orange: Color::RGB(254, 148, 84),
