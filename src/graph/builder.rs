@@ -149,7 +149,7 @@ impl<'a> Builder<'a> {
                         continue;
                     }
 
-                    self.process_used_module_def((owned_module, owned_idx), scope_module_def)?;
+                    self.process_used_module_def((owned_module, owned_idx), scope_module_def);
                 }
             }
         }
@@ -167,9 +167,9 @@ impl<'a> Builder<'a> {
         &mut self,
         user: (hir::Module, NodeIndex),
         used_module_def: hir::ModuleDef,
-    ) -> anyhow::Result<Option<NodeIndex>> {
+    ) -> Option<NodeIndex> {
         if !self.options.with_uses {
-            return Ok(None);
+            return None;
         }
 
         let (_user_module, user_idx) = user;
@@ -203,16 +203,16 @@ impl<'a> Builder<'a> {
         // but resolve it to its module or crate, e.g., so we do that here:
         let resolved_module_def = match resolved_module_def {
             Some(resolved_module_def) => resolved_module_def,
-            None => return Ok(None),
+            None => return None,
         };
 
-        Ok(self.add_node(resolved_module_def).map(|used_idx| {
+        self.add_node(resolved_module_def).map(|used_idx| {
             let edge = Edge {
                 kind: EdgeKind::Uses,
             };
             self.add_edge(user_idx, used_idx, edge);
             used_idx
-        }))
+        })
     }
 
     fn add_node(&mut self, module_def: hir::ModuleDef) -> Option<NodeIndex> {
