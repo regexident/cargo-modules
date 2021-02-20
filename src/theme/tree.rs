@@ -96,16 +96,16 @@ pub(crate) struct Styles {
 pub(crate) fn styles() -> Styles {
     let color_palette = color_palette();
     Styles {
-        kind: Style::new(color_palette.blue.into()),
+        kind: Style::new(color_palette.blue),
         name: Style::default(),
         visibility: VisibilityStyles {
-            pub_crate: Style::new(color_palette.yellow.into()),
-            pub_module: Style::new(color_palette.orange.into()),
-            pub_private: Style::new(color_palette.red.into()),
-            pub_global: Style::new(color_palette.green.into()),
-            pub_super: Style::new(color_palette.orange.into()),
+            pub_crate: Style::new(color_palette.yellow),
+            pub_module: Style::new(color_palette.orange),
+            pub_private: Style::new(color_palette.red),
+            pub_global: Style::new(color_palette.green),
+            pub_super: Style::new(color_palette.orange),
         },
-        attr: Style::new(color_palette.cyan.into()),
-        orphan: Style::new(color_palette.purple.into()),
+        attr: Style::new(color_palette.cyan),
+        orphan: Style::new(color_palette.purple),
     }
 }
