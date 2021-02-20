@@ -2,6 +2,17 @@ use std::{path::PathBuf, str::FromStr};
 
 use structopt::{clap::ArgGroup, StructOpt};
 
+use crate::commands::Command;
+
+#[derive(StructOpt, Clone, PartialEq, Debug)]
+pub struct Options {
+    #[structopt(hidden = true, possible_value("modules"))]
+    pub dummy: Option<String>,
+
+    #[structopt(subcommand)]
+    pub command: Command,
+}
+
 pub mod graph {
     use super::*;
 
