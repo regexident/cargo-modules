@@ -1,6 +1,7 @@
 ---
 source: tests/generate_tree.rs
 expression: output
+
 ---
 Error: No package found with name "workspace-package".
 

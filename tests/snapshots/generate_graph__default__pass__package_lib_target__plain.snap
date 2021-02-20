@@ -34,9 +34,8 @@ digraph {
         fontsize="10",
     ];
 
-    "package_lib_target" [label="crate|package_lib_target", fillcolor="#69bed2"]; // "crate" node
+    "package_lib_target" [label="crate|package_lib_target", fillcolor="#5397c8"]; // "crate" node
 
 
 }
-
 

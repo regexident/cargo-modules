@@ -112,6 +112,7 @@ dependencies = [
  "anyhow",
  "arrayvec",
  "assert_cmd",
+ "bitflags",
  "env_logger",
  "indoc",
  "insta",

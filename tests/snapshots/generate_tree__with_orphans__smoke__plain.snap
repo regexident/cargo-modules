@@ -3,7 +3,6 @@ source: tests/generate_tree.rs
 expression: output
 
 ---
-
 crate smoke
 ├── mod hierarchy: pub(crate)
 │   └── mod lorem: pub(self)
