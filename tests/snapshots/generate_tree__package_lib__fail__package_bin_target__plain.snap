@@ -1,6 +1,7 @@
 ---
 source: tests/generate_tree.rs
 expression: output
+
 ---
 Error: No library target found.
 

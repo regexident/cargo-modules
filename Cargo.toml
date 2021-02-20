@@ -74,3 +74,6 @@ version = "~1.1.0"
 
 [dev-dependencies.insta]
 version = "~1.5.2"
+
+[dev-dependencies.bitflags]
+version = "~1.2.1"

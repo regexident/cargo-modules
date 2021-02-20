@@ -3,18 +3,32 @@
 use std::{path::PathBuf, str::from_utf8};
 
 use assert_cmd::Command;
+use bitflags::bitflags;
 use shellwords::split;
+
+bitflags! {
+    pub struct ColorModes: u8 {
+        const PLAIN = 0b00000001;
+        const ANSI = 0b00000010;
+        const TRUE_COLOR = 0b00000100;
+
+        const ALL_COLORS = Self::ANSI.bits | Self::TRUE_COLOR.bits;
+        const ALL = Self::PLAIN.bits | Self::ANSI.bits | Self::TRUE_COLOR.bits;
+    }
+}
 
 pub fn stdout(mut cmd: Command) -> String {
     let assert = cmd.assert().success();
     let output = assert.get_output();
-    from_utf8(&output.stdout).unwrap().to_owned()
+    let output_str = from_utf8(&output.stdout).unwrap();
+    output_str.trim_start().to_owned()
 }
 
 pub fn stderr(mut cmd: Command) -> String {
     let assert = cmd.assert().failure();
     let output = assert.get_output();
-    from_utf8(&output.stderr).unwrap().to_owned()
+    let output_str = from_utf8(&output.stderr).unwrap();
+    output_str.trim_start().to_owned()
 }
 
 pub fn cmd(dir: &str, args: &str) -> Command {
@@ -39,96 +53,88 @@ pub fn cmd(dir: &str, args: &str) -> Command {
     command
 }
 
-macro_rules! test_plain_cmds {
-    (args: $args:expr, output: $output:ident, projects: [$(,)?]) => {};
-    (args: $args:expr, output: $output:ident, projects: [$head:ident, $($tail:ident),* $(,)?]) => {
-        test_plain_cmds!(args: $args, output: $output, project: $head);
-        test_plain_cmds!(args: $args, output: $output, projects: [$($tail),* ,]);
-    };
-    (args: $args:expr, output: $output:ident, project: $project:ident) => {
-        mod $project {
-            test_plain_cmd!(
-                args: $args,
-                output: $output,
-                name: plain,
-                project: $project
-            );
-        }
-    };
-}
-
-macro_rules! test_colored_cmds {
-    (args: $args:expr, output: $output:ident, projects: [$(,)?]) => {};
-    (args: $args:expr, output: $output:ident, projects: [$head:ident, $($tail:ident),* $(,)?]) => {
-        test_plain_cmds!(args: $args, output: $output, project: $head);
-        test_plain_cmds!(args: $args, output: $output, projects: [$($tail),* ,]);
-    };
-    (args: $args:expr, output: $output:ident, project: $project:ident) => {
-        mod $project {
-            test_colored_cmd!(
-                args: $args,
-                output: $output,
-                name: colored,
-                project: $project
-            );
-        }
-    };
-}
-
-macro_rules! test_plain_cmd {
-    (args: $args:expr, output: $output:ident, project: $project:ident) => {
-        test_plain_cmd!(
-            args: $args,
-            output: $output,
-            name: $project,
-            project: $project
-        );
-    };
-    (args: $args:expr, output: $output:ident, name: $name:ident, project: $project:ident) => {
+macro_rules! test_cmds {
+    (
+        args: $args:expr,
+        output: $output:ident,
+        color_modes: $color_modes:expr,
+        projects: [$(,)?]
+    ) => {};
+    (
+        args: $args:expr,
+        output: $output:ident,
+        color_modes: $color_modes:expr,
+        projects: [$head:ident,
+        $($tail:ident),* $(,)?]
+    ) => {
         test_cmd!(
             args: $args,
             output: $output,
-            name: $name,
-            colored: false,
-            project: $project
+            color_modes: $color_modes,
+            project: $head
         );
-    };
-}
-
-macro_rules! test_colored_cmd {
-    (args: $args:expr, output: $output:ident, project: $project:ident) => {
-        test_colored_cmd!(
+        test_cmds!(
             args: $args,
             output: $output,
-            name: $project,
-            project: $project
-        );
-    };
-    (args: $args:expr, output: $output:ident, name: $name:ident, project: $project:ident) => {
-        test_cmd!(
-            args: $args,
-            output: $output,
-            name: $name,
-            colored: true,
-            project: $project
+            color_modes: $color_modes,
+            projects: [$($tail),* ,]
         );
     };
 }
 
 macro_rules! test_cmd {
-    (args: $args:expr, output: $output:ident, name: $name:ident, colored: $colored:expr, project: $project:ident) => {
-        #[test]
-        fn $name() {
-            let mut cmd = crate::util::cmd(stringify!($project), $args);
+    (
+        args: $args:expr,
+        output: $output:ident,
+        color_modes: $color_modes:expr,
+        project: $project:ident
+    ) => {
+        mod $project {
+            #[allow(unused_imports)]
+            use super::*;
+            use crate::util::ColorModes;
 
-            if $colored {
-                cmd.env("COLORTERM", "truecolor");
-            } else {
-                cmd.env_remove("COLORTERM");
+            #[test]
+            fn plain() {
+                if !$color_modes.contains(ColorModes::PLAIN) {
+                    return;
+                }
+
+                let mut cmd = crate::util::cmd(stringify!($project), $args);
+
+                cmd.env("NO_COLOR", "1");
+
+                let output = crate::util::$output(cmd);
+                insta::assert_snapshot!(output);
             }
 
-            let output = crate::util::$output(cmd);
-            insta::assert_snapshot!(output);
+            #[test]
+            fn ansi() {
+                if !$color_modes.contains(ColorModes::ANSI) {
+                    return;
+                }
+
+                let mut cmd = crate::util::cmd(stringify!($project), $args);
+
+                cmd.env_remove("COLORTERM");
+
+                let output = crate::util::$output(cmd);
+                insta::assert_snapshot!(output);
+            }
+
+            #[test]
+            fn truecolor() {
+                if !$color_modes.contains(ColorModes::TRUE_COLOR) {
+                    return;
+                }
+
+                let mut cmd = crate::util::cmd(stringify!($project), $args);
+
+                cmd.env("COLORTERM", "truecolor");
+
+                let output = crate::util::$output(cmd);
+                insta::assert_snapshot!(output);
+            }
         }
     };
 }

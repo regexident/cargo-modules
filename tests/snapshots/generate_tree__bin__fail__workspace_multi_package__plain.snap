@@ -1,6 +1,7 @@
 ---
 source: tests/generate_tree.rs
 expression: output
+
 ---
 Error: Multiple packages present in workspace,
 please explicitly select one via --package flag.
