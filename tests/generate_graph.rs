@@ -332,6 +332,10 @@ mod with_uses_with_externs {
 
 mod with_uses_with_externs_with_sysroot {
     test_cmd!(
+        attrs: [
+            // `sysroot` is expensive, so only run on release builds:
+            #[ignore]
+        ],
         args: "generate graph \
                 --with-uses \
                 --with-externs \

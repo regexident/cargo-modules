@@ -58,26 +58,43 @@ macro_rules! test_cmds {
         args: $args:expr,
         output: $output:ident,
         color_modes: $color_modes:expr,
-        projects: [$(,)?]
-    ) => {};
+        projects: [$($projects:ident),+ $(,)?]
+    ) => {
+        test_cmds!(
+            attrs: [],
+            args: $args,
+            output: $output,
+            color_modes: $color_modes,
+            projects: [ $($projects),* ]
+        );
+    };
     (
+        attrs: [ $(#[$attrs:meta]),* $(,)? ],
         args: $args:expr,
         output: $output:ident,
         color_modes: $color_modes:expr,
-        projects: [$head:ident,
-        $($tail:ident),* $(,)?]
+        projects: [ $(,)? ]
+    ) => {};
+    (
+        attrs: [ $(#[$attrs:meta]),* $(,)? ],
+        args: $args:expr,
+        output: $output:ident,
+        color_modes: $color_modes:expr,
+        projects: [ $head:ident $(, $tail:ident)* $(,)? ]
     ) => {
         test_cmd!(
+            attrs: [ $(#[$attrs]),* ],
             args: $args,
             output: $output,
             color_modes: $color_modes,
             project: $head
         );
         test_cmds!(
+            attrs: [ $(#[$attrs]),* ],
             args: $args,
             output: $output,
             color_modes: $color_modes,
-            projects: [$($tail),* ,]
+            projects: [ $($tail),* ]
         );
     };
 }
@@ -89,11 +106,27 @@ macro_rules! test_cmd {
         color_modes: $color_modes:expr,
         project: $project:ident
     ) => {
+        test_cmd!(
+            attrs: [],
+            args: $args,
+            output: $output,
+            color_modes: $color_modes,
+            project: $project
+        );
+    };
+    (
+        attrs: [ $(#[$attrs:meta]),* $(,)? ],
+        args: $args:expr,
+        output: $output:ident,
+        color_modes: $color_modes:expr,
+        project: $project:ident
+    ) => {
         mod $project {
             #[allow(unused_imports)]
             use super::*;
             use crate::util::ColorModes;
 
+            $(#[$attrs])*
             #[test]
             fn plain() {
                 if !$color_modes.contains(ColorModes::PLAIN) {
@@ -108,6 +141,7 @@ macro_rules! test_cmd {
                 insta::assert_snapshot!(output);
             }
 
+            $(#[$attrs])*
             #[test]
             fn ansi() {
                 if !$color_modes.contains(ColorModes::ANSI) {
@@ -122,6 +156,7 @@ macro_rules! test_cmd {
                 insta::assert_snapshot!(output);
             }
 
+            $(#[$attrs])*
             #[test]
             fn truecolor() {
                 if !$color_modes.contains(ColorModes::TRUE_COLOR) {
