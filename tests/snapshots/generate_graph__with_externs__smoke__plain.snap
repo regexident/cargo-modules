@@ -3,5 +3,18 @@ source: tests/generate_graph.rs
 expression: output
 
 ---
+cargo-modules 0.5.0-beta.3
+Print a crate's module tree or graph.
+
+USAGE:
+    cargo-modules <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    generate    Generate a visualization for a crate's structure.
+    help        Prints this message or the help of the given subcommand(s)
 Error: Option `--with-externs` requires option `--with-uses`
 
