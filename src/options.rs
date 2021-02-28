@@ -151,7 +151,7 @@ pub mod project {
         #[structopt(long = "no-default-features")]
         pub no_default_features: bool,
 
-        /// Activate all available features
+        /// Activate all available features.
         #[structopt(long = "all-features")]
         pub all_features: bool,
 
@@ -160,15 +160,12 @@ pub mod project {
         #[structopt(long = "features")]
         pub features: Vec<String>,
 
-        /// rustc target
+        /// Analyze for target triple.
         #[structopt(long = "target")]
         pub target: Option<String>,
 
-        #[structopt(
-            long = "manifest-path",
-            parse(from_os_str),
-            default_value = "./Cargo.toml"
-        )]
+        /// Path to Cargo.toml.
+        #[structopt(long = "manifest-path", parse(from_os_str), default_value = ".")]
         pub manifest_path: PathBuf,
     }
 }
@@ -179,7 +176,7 @@ pub mod general {
     #[derive(StructOpt, Clone, PartialEq, Debug)]
     #[structopt(group = ArgGroup::with_name("target-group"))]
     pub struct Options {
-        /// Enable verbose messages during command execution.
+        /// Use verbose output.
         #[structopt(long = "verbose")]
         pub verbose: bool,
     }
