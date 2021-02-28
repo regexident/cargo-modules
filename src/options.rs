@@ -164,6 +164,10 @@ pub mod project {
         #[structopt(long = "target")]
         pub target: Option<String>,
 
+        /// Include sysroot crates (`std`, `core` & friends) in analysis.
+        #[structopt(long = "with-sysroot")]
+        pub with_sysroot: bool,
+
         /// Path to Cargo.toml.
         #[structopt(long = "manifest-path", parse(from_os_str), default_value = ".")]
         pub manifest_path: PathBuf,

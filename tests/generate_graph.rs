@@ -329,3 +329,15 @@ mod with_uses_with_externs {
         project: smoke
     );
 }
+
+mod with_uses_with_externs_with_sysroot {
+    test_cmd!(
+        args: "generate graph \
+                --with-uses \
+                --with-externs \
+                --with-sysroot",
+        output: stdout,
+        color_modes: ColorModes::PLAIN,
+        project: smoke
+    );
+}

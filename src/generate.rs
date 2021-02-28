@@ -90,28 +90,27 @@ impl Command {
 
     fn load_project_workspace(
         &self,
-        options: &ProjectOptions,
+        project_options: &ProjectOptions,
         progress: &dyn Fn(String),
     ) -> anyhow::Result<ProjectWorkspace> {
-        let project_path = options.manifest_path.as_path().canonicalize()?;
+        let project_path = project_options.manifest_path.as_path().canonicalize()?;
 
         let cargo_config = CargoConfig {
             // Do not activate the `default` feature.
-            no_default_features: options.no_default_features,
+            no_default_features: project_options.no_default_features,
 
             // Activate all available features
-            all_features: options.all_features,
+            all_features: project_options.all_features,
 
             // List of features to activate.
             // This will be ignored if `cargo_all_features` is true.
-            features: options.features.clone(),
+            features: project_options.features.clone(),
 
-            // rustc target
-            target: options.target.clone(),
+            // Target triple
+            target: project_options.target.clone(),
 
-            // Don't load sysroot crates (`std`, `core` & friends). Might be useful
-            // when debugging isolated issues.
-            no_sysroot: true,
+            // Don't load sysroot crates (`std`, `core` & friends).
+            no_sysroot: !(project_options.with_sysroot && self.with_sysroot()),
 
             // rustc private crate source
             rustc_source: None,
@@ -150,7 +149,7 @@ impl Command {
         progress: &dyn Fn(String),
     ) -> anyhow::Result<(AnalysisHost, Vfs)> {
         let load_cargo_config = LoadCargoConfig {
-            load_out_dirs_from_check: false,
+            load_out_dirs_from_check: true,
             with_proc_macro: true,
         };
 
@@ -211,6 +210,17 @@ impl Command {
         util::shrink_graph(&mut graph, start_node_idx, max_depth);
 
         Ok((graph, start_node_idx))
+    }
+
+    fn with_sysroot(&self) -> bool {
+        match &self {
+            Self::Tree(_) => false,
+            Self::Graph(options) => {
+                // We only need to include sysroot if we include extern uses
+                // and didn't explicitly request sysroot to be excluded:
+                options.with_uses && options.with_externs
+            }
+        }
     }
 
     fn general_options(&self) -> &GeneralOptions {

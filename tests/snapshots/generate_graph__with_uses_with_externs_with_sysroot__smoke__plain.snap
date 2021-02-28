@@ -42,6 +42,8 @@ digraph {
     "smoke::uses::cycle::node_1" [label="pub(self) mod|smoke::uses::cycle::node_1", fillcolor="#db5367"]; // "mod" node
     "smoke::uses::cycle::node_1::node_2" [label="pub(self) mod|smoke::uses::cycle::node_1::node_2", fillcolor="#db5367"]; // "mod" node
     "smoke::hierarchy" [label="pub(crate) mod|smoke::hierarchy", fillcolor="#f8c04c"]; // "mod" node
+    "core" [label="external crate|core", fillcolor="#5397c8"]; // "crate" node
+    "alloc" [label="external crate|alloc", fillcolor="#5397c8"]; // "crate" node
     "smoke::hierarchy::lorem" [label="pub(self) mod|smoke::hierarchy::lorem", fillcolor="#db5367"]; // "mod" node
     "smoke::hierarchy::lorem::ipsum" [label="pub(self) mod|smoke::hierarchy::lorem::ipsum", fillcolor="#db5367"]; // "mod" node
     "smoke::hierarchy::lorem::dolor" [label="pub(self) mod|smoke::hierarchy::lorem::dolor", fillcolor="#db5367"]; // "mod" node
@@ -70,6 +72,8 @@ digraph {
     "smoke::uses::cycle" -> "smoke::uses::cycle::node_1" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke::uses::cycle::node_1" -> "smoke::uses::cycle::node_1::node_2" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke::uses" -> "smoke::hierarchy" [label="uses", color="#7f7f7f", style="Dashed"]; // "uses" edge
+    "smoke::uses" -> "core" [label="uses", color="#7f7f7f", style="Dashed"]; // "uses" edge
+    "smoke::uses" -> "alloc" [label="uses", color="#7f7f7f", style="Dashed"]; // "uses" edge
     "smoke" -> "smoke::hierarchy" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke::hierarchy" -> "smoke::hierarchy::lorem" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke::hierarchy::lorem" -> "smoke::hierarchy::lorem::ipsum" [label="owns", color="#000000", style="solid"]; // "owns" edge
