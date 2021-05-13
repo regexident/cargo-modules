@@ -214,7 +214,7 @@ impl Printer {
         _edge: Option<&Edge>,
         twigs: &[Twig],
     ) -> fmt::Result {
-        let prefix = self.branch_prefix(&twigs[..]);
+        let prefix = self.branch_prefix(twigs);
         write!(f, "{}", self.branch_style().paint(&prefix))
     }
 
