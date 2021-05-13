@@ -4,7 +4,7 @@ use ra_ap_hir::{self, Crate};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
 use ra_ap_paths::AbsPathBuf;
 use ra_ap_project_model::{
-    CargoConfig, PackageData, ProjectManifest, ProjectWorkspace, TargetData,
+    CargoConfig, PackageData, ProcMacroClient, ProjectManifest, ProjectWorkspace, TargetData,
 };
 use ra_ap_rust_analyzer::cli::{load_workspace, LoadCargoConfig};
 use ra_ap_vfs::Vfs;
@@ -65,7 +65,8 @@ impl Command {
             eprintln!();
         }
 
-        let (host, vfs) = self.analyze_project_workspace(project_workspace, &progress)?;
+        let (host, vfs, _proc_macro_client) =
+            self.analyze_project_workspace(project_workspace, &progress)?;
         let db = host.raw_database();
 
         let krate = self.find_crate(db, &vfs, &target)?;
@@ -147,10 +148,11 @@ impl Command {
         &self,
         project_workspace: ProjectWorkspace,
         progress: &dyn Fn(String),
-    ) -> anyhow::Result<(AnalysisHost, Vfs)> {
+    ) -> anyhow::Result<(AnalysisHost, Vfs, Option<ProcMacroClient>)> {
         let load_cargo_config = LoadCargoConfig {
             load_out_dirs_from_check: true,
             with_proc_macro: true,
+            wrap_rustc: true,
         };
 
         load_workspace(project_workspace, &load_cargo_config, &progress)
