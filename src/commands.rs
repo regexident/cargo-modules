@@ -1,4 +1,6 @@
 use structopt::StructOpt;
+
+#[derive(StructOpt, Clone, PartialEq, Debug)]
 #[structopt(
     name = "cargo-modules",
     about = "Print a crate's module tree or graph.",
@@ -9,7 +11,6 @@ use structopt::StructOpt;
     // At most one `--bin` can be provided.
     // "#
 )]
-#[derive(StructOpt, Clone, PartialEq, Debug)]
 pub enum Command {
     #[structopt(
         name = "generate",
