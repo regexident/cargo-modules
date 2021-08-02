@@ -2,3 +2,8 @@ target
 **/*.rs.bk
 .DS_Store
 tests/**/Cargo.lock
+*~
+\#*\#
+.\#*
+.emacs.desktop
+
