@@ -41,7 +41,7 @@ impl Command {
 
         let mut string = String::new();
 
-        printer.fmt(&mut string, &graph, start_node_idx)?;
+        printer.fmt(&mut string, graph, start_node_idx)?;
 
         print!("{}", string);
 
