@@ -347,7 +347,7 @@ impl<'a> Builder<'a> {
         let vfs_path = self.vfs.file_path(file_id);
         let abs_path = vfs_path.as_path().expect("Could not convert to path");
 
-        let path: &Path = &*abs_path;
+        let path: &Path = abs_path.as_ref();
 
         let file_extension = path.extension().and_then(|ext| ext.to_str());
 

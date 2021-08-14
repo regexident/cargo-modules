@@ -1,7 +1,7 @@
 use std::fmt;
 
 use ra_ap_hir as hir;
-use ra_ap_ide_db::RootDatabase;
+use ra_ap_ide_db::{defs::Definition, RootDatabase};
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum NodeVisibility {
@@ -14,7 +14,8 @@ pub enum NodeVisibility {
 
 impl<'a> NodeVisibility {
     pub fn new(hir: hir::ModuleDef, db: &RootDatabase) -> Self {
-        let visibility = hir.definition_visibility(db);
+        let definition = Definition::ModuleDef(hir);
+        let visibility = definition.visibility(db);
 
         let parent_module = match hir.module(db) {
             Some(module) => module,

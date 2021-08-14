@@ -92,6 +92,7 @@ pub fn select_target(
                 TargetKind::Test => false,
                 TargetKind::Bench => false,
                 TargetKind::Other => false,
+                TargetKind::BuildScript => false,
             }
         })
         .collect();
@@ -117,6 +118,7 @@ pub fn select_target(
                 TargetKind::Test => unreachable!(),
                 TargetKind::Bench => unreachable!(),
                 TargetKind::Other => unreachable!(),
+                TargetKind::BuildScript => unreachable!(),
             }
         })
         .collect();

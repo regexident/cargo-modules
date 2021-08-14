@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use log::{debug, trace};
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
 use ra_ap_hir::{self, Crate};
@@ -6,7 +8,7 @@ use ra_ap_paths::AbsPathBuf;
 use ra_ap_project_model::{
     CargoConfig, PackageData, ProcMacroClient, ProjectManifest, ProjectWorkspace, TargetData,
 };
-use ra_ap_rust_analyzer::cli::{load_workspace, LoadCargoConfig};
+use ra_ap_rust_analyzer::cli::load_cargo::{load_workspace, LoadCargoConfig};
 use ra_ap_vfs::Vfs;
 use structopt::StructOpt;
 
@@ -49,11 +51,16 @@ impl Command {
         let project_options = self.project_options();
         let graph_options = self.graph_options();
 
+        let project_path = project_options.manifest_path.as_path().canonicalize()?;
+        let cargo_config = self.cargo_config(project_options);
+        let load_config = self.load_config();
+
         let progress = |string| {
             trace!("Progress: {}", string);
         };
 
-        let project_workspace = self.load_project_workspace(project_options, &progress)?;
+        let project_workspace =
+            self.load_project_workspace(&project_path, &cargo_config, &progress)?;
 
         let (package, target) = self.select_target(&project_workspace, project_options)?;
 
@@ -65,8 +72,12 @@ impl Command {
             eprintln!();
         }
 
-        let (host, vfs, _proc_macro_client) =
-            self.analyze_project_workspace(project_workspace, &progress)?;
+        let (host, vfs, _proc_macro_client) = self.analyze_project_workspace(
+            project_workspace,
+            &cargo_config,
+            &load_config,
+            &progress,
+        )?;
         let db = host.raw_database();
 
         let krate = self.find_crate(db, &vfs, &target)?;
@@ -89,38 +100,67 @@ impl Command {
         }
     }
 
+    fn cargo_config(&self, project_options: &ProjectOptions) -> CargoConfig {
+        // Do not activate the `default` feature.
+        let no_default_features = project_options.no_default_features;
+
+        // Activate all available features
+        let all_features = project_options.all_features;
+
+        // List of features to activate.
+        // (This will be ignored if `cargo_all_features` is true.)
+        let features = project_options.features.clone();
+
+        // Target triple
+        let target = project_options.target.clone();
+
+        // Don't load sysroot crates (`std`, `core` & friends).
+        let no_sysroot = !(project_options.with_sysroot && self.with_sysroot());
+
+        // rustc private crate source
+        let rustc_source = None;
+
+        // crates to disable `#[cfg(test)]` on
+        let unset_test_crates = vec![];
+
+        // Setup RUSTC_WRAPPER to point to `rust-analyzer` binary itself.
+        // (We use that to compile only proc macros and build scripts
+        // during the initial `cargo check`.)
+        let wrap_rustc_in_build_scripts = true;
+
+        CargoConfig {
+            no_default_features,
+            all_features,
+            features,
+            target,
+            no_sysroot,
+            rustc_source,
+            unset_test_crates,
+            wrap_rustc_in_build_scripts,
+        }
+    }
+
+    fn load_config(&self) -> LoadCargoConfig {
+        LoadCargoConfig {
+            load_out_dirs_from_check: true,
+            with_proc_macro: true,
+            prefill_caches: false,
+        }
+    }
+
     fn load_project_workspace(
         &self,
-        project_options: &ProjectOptions,
+        project_path: &Path,
+        cargo_config: &CargoConfig,
         progress: &dyn Fn(String),
     ) -> anyhow::Result<ProjectWorkspace> {
-        let project_path = project_options.manifest_path.as_path().canonicalize()?;
-
-        let cargo_config = CargoConfig {
-            // Do not activate the `default` feature.
-            no_default_features: project_options.no_default_features,
-
-            // Activate all available features
-            all_features: project_options.all_features,
-
-            // List of features to activate.
-            // This will be ignored if `cargo_all_features` is true.
-            features: project_options.features.clone(),
-
-            // Target triple
-            target: project_options.target.clone(),
-
-            // Don't load sysroot crates (`std`, `core` & friends).
-            no_sysroot: !(project_options.with_sysroot && self.with_sysroot()),
-
-            // rustc private crate source
-            rustc_source: None,
-        };
+        // let project_path = project_options.manifest_path.as_path().canonicalize()?;
+        // let cargo_config = Self::cargo_config(project_options);
 
         let root = AbsPathBuf::assert(std::env::current_dir()?.join(project_path));
         let root = ProjectManifest::discover_single(&root)?;
 
-        ProjectWorkspace::load(root, &cargo_config, &progress)
+        ProjectWorkspace::load(root, cargo_config, &progress)
     }
 
     fn select_target(
@@ -131,6 +171,9 @@ impl Command {
         let cargo_workspace = match project_workspace {
             ProjectWorkspace::Cargo { cargo, .. } => Ok(cargo),
             ProjectWorkspace::Json { .. } => Err(anyhow::anyhow!("Unexpected JSON workspace")),
+            ProjectWorkspace::DetachedFiles { .. } => {
+                Err(anyhow::anyhow!("Unexpected detached files"))
+            }
         }?;
 
         let package_idx = select_package(cargo_workspace, options)?;
@@ -147,15 +190,11 @@ impl Command {
     fn analyze_project_workspace(
         &self,
         project_workspace: ProjectWorkspace,
+        cargo_config: &CargoConfig,
+        load_config: &LoadCargoConfig,
         progress: &dyn Fn(String),
     ) -> anyhow::Result<(AnalysisHost, Vfs, Option<ProcMacroClient>)> {
-        let load_cargo_config = LoadCargoConfig {
-            load_out_dirs_from_check: true,
-            with_proc_macro: true,
-            wrap_rustc: true,
-        };
-
-        load_workspace(project_workspace, &load_cargo_config, &progress)
+        load_workspace(project_workspace, cargo_config, load_config, &progress)
     }
 
     fn find_crate(
