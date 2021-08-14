@@ -41,7 +41,7 @@ impl Command {
 
         writeln!(&mut string)?;
 
-        printer.fmt(&mut string, &graph, start_node_idx)?;
+        printer.fmt(&mut string, graph, start_node_idx)?;
 
         print!("{}", string);
 

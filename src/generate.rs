@@ -53,9 +53,9 @@ impl Command {
             trace!("Progress: {}", string);
         };
 
-        let project_workspace = self.load_project_workspace(&project_options, &progress)?;
+        let project_workspace = self.load_project_workspace(project_options, &progress)?;
 
-        let (package, target) = self.select_target(&project_workspace, &project_options)?;
+        let (package, target) = self.select_target(&project_workspace, project_options)?;
 
         if general_options.verbose {
             eprintln!();
@@ -187,7 +187,7 @@ impl Command {
     ) -> anyhow::Result<(StableGraph<Node, Edge>, NodeIndex)> {
         let graph_builder = {
             let builder_options = self.builder_options();
-            GraphBuilder::new(builder_options, db, &vfs, krate)
+            GraphBuilder::new(builder_options, db, vfs, krate)
         };
 
         let focus_path: Vec<_> = {

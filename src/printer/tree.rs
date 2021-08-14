@@ -90,7 +90,7 @@ impl Printer {
         children.sort_by(|lhs, rhs| {
             let (_lhs_node, _lhs_edge, lhs_key) = lhs;
             let (_rhs_node, _rhs_edge, rhs_key) = rhs;
-            lhs_key.cmp(&rhs_key)
+            lhs_key.cmp(rhs_key)
         });
 
         let count = children.len();
@@ -148,7 +148,7 @@ impl Printer {
     fn fmt_node_visibility(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
         let (visibility, visibility_style) = match &node.visibility {
             Some(visibility) => {
-                let visibility_style = self.visibility_style(&visibility);
+                let visibility_style = self.visibility_style(visibility);
                 (format!("{}", visibility), visibility_style)
             }
             None => {
