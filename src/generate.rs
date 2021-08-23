@@ -5,8 +5,9 @@ use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
 use ra_ap_hir::{self, Crate};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
 use ra_ap_paths::AbsPathBuf;
+use ra_ap_proc_macro_api::ProcMacroClient;
 use ra_ap_project_model::{
-    CargoConfig, PackageData, ProcMacroClient, ProjectManifest, ProjectWorkspace, TargetData,
+    CargoConfig, PackageData, ProjectManifest, ProjectWorkspace, TargetData,
 };
 use ra_ap_rust_analyzer::cli::load_cargo::{load_workspace, LoadCargoConfig};
 use ra_ap_vfs::Vfs;

@@ -22,57 +22,27 @@ yansi = "0.5.0"
 log = "0.4.11"
 env_logger = "0.9.0"
 indoc = "1.0.3"
+structopt = "~0.3"
 
-[dependencies.ra_ap_base_db]
-version = "=0.0.68"
-
-[dependencies.ra_ap_cfg]
-version = "=0.0.68"
-
-[dependencies.ra_ap_hir]
-version = "=0.0.68"
-
-[dependencies.ra_ap_ide]
-version = "=0.0.68"
-
-[dependencies.ra_ap_ide_db]
-version = "=0.0.68"
-
-[dependencies.ra_ap_paths]
-version = "=0.0.68"
-
-[dependencies.ra_ap_project_model]
-version = "=0.0.68"
-
-[dependencies.ra_ap_syntax]
-version = "=0.0.68"
-
-[dependencies.ra_ap_rust-analyzer]
-version = "=0.0.68"
-
-[dependencies.ra_ap_text_edit]
-version = "=0.0.68"
-
-[dependencies.ra_ap_vfs]
-version = "=0.0.68"
+ra_ap_base_db = "=0.0.70"
+ra_ap_cfg = "=0.0.70"
+ra_ap_hir = "=0.0.70"
+ra_ap_ide = "=0.0.70"
+ra_ap_ide_db = "=0.0.70"
+ra_ap_paths = "=0.0.70"
+ra_ap_proc_macro_api = "=0.0.70"
+ra_ap_project_model = "=0.0.70"
+ra_ap_syntax = "=0.0.70"
+ra_ap_rust-analyzer = "=0.0.70"
+ra_ap_text_edit = "=0.0.70"
+ra_ap_vfs = "=0.0.70"
 
 # [dependencies.clap]
 # version = "3.0.0-beta.2"
 # features = ["debug"]
 
-[dependencies.structopt]
-version = "~0.3"
-
 # required by tests
-
-[dev-dependencies.assert_cmd]
-version = "2.0"
-
-[dev-dependencies.shellwords]
-version = "1.1"
-
-[dev-dependencies.insta]
-version = "1.6"
-
-[dev-dependencies.bitflags]
-version = "1.2"
+assert_cmd = "2.0"
+shellwords = "1.1"
+insta = "1.7.2"
+bitflags = "1.3.2"
