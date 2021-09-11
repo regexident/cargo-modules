@@ -300,3 +300,26 @@ mod with_types {
         project: smoke
     );
 }
+
+mod github_issue_80 {
+    mod with_tests {
+        test_cmd!(
+            args: "generate tree \
+                    --with-types \
+                    --with-tests",
+            output: stdout,
+            color_modes: ColorModes::PLAIN,
+            project: github_issue_80
+        );
+    }
+
+    mod without_tests {
+        test_cmd!(
+            args: "generate tree \
+                    --with-types",
+            output: stdout,
+            color_modes: ColorModes::PLAIN,
+            project: github_issue_80
+        );
+    }
+}
