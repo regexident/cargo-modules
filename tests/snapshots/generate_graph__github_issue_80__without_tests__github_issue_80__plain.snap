@@ -1,0 +1,58 @@
+---
+source: tests/generate_graph.rs
+expression: output
+
+---
+digraph {
+
+    graph [
+        label="github_issue_80",
+        labelloc=t,
+
+        pad=0.4,
+
+        // Consider rendering the graph using a different layout algorithm, such as:
+        // [dot, neato, twopi, circo, fdp, sfdp]
+        layout=neato,
+        overlap=false,
+        splines="line",
+        rankdir=LR,
+
+        fontname="Helvetica", 
+        fontsize="36",
+    ];
+
+    node [
+        fontname="monospace",
+        fontsize="10",
+        shape="record",
+        style="filled",
+    ];
+
+    edge [
+        fontname="monospace",
+        fontsize="10",
+    ];
+
+    "github_issue_80" [label="crate|github_issue_80", fillcolor="#5397c8"]; // "crate" node
+    "github_issue_80::Placebo" [label="pub struct|Placebo", fillcolor="#81c169"]; // "struct" node
+    "github_issue_80::OnlyExistsWithTest" [label="pub struct|OnlyExistsWithTest", fillcolor="#81c169"]; // "struct" node
+    "github_issue_80::imported" [label="pub mod|imported", fillcolor="#81c169"]; // "mod" node
+    "github_issue_80::imported::Placebo" [label="pub struct|imported::Placebo", fillcolor="#81c169"]; // "struct" node
+    "github_issue_80::imported::OnlyUsedWithTest" [label="pub struct|imported::OnlyUsedWithTest", fillcolor="#81c169"]; // "struct" node
+    "github_issue_80::imported::OnlyUsedWithoutTest" [label="pub struct|imported::OnlyUsedWithoutTest", fillcolor="#81c169"]; // "struct" node
+    "github_issue_80::importing" [label="pub mod|importing", fillcolor="#81c169"]; // "mod" node
+
+    "github_issue_80" -> "github_issue_80::Placebo" [label="owns", color="#000000", style="solid"]; // "owns" edge
+    "github_issue_80" -> "github_issue_80::OnlyExistsWithTest" [label="owns", color="#000000", style="solid"]; // "owns" edge
+    "github_issue_80" -> "github_issue_80::imported" [label="owns", color="#000000", style="solid"]; // "owns" edge
+    "github_issue_80::imported" -> "github_issue_80::imported::Placebo" [label="owns", color="#000000", style="solid"]; // "owns" edge
+    "github_issue_80::imported" -> "github_issue_80::imported::OnlyUsedWithTest" [label="owns", color="#000000", style="solid"]; // "owns" edge
+    "github_issue_80::imported" -> "github_issue_80::imported::OnlyUsedWithoutTest" [label="owns", color="#000000", style="solid"]; // "owns" edge
+    "github_issue_80" -> "github_issue_80::importing" [label="owns", color="#000000", style="solid"]; // "owns" edge
+    "github_issue_80::importing" -> "github_issue_80::imported::OnlyUsedWithTest" [label="uses", color="#7f7f7f", style="Dashed"]; // "uses" edge
+    "github_issue_80::importing" -> "github_issue_80::imported::Placebo" [label="uses", color="#7f7f7f", style="Dashed"]; // "uses" edge
+    "github_issue_80" -> "github_issue_80::imported::OnlyUsedWithTest" [label="uses", color="#7f7f7f", style="Dashed"]; // "uses" edge
+
+}
+
