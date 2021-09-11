@@ -365,3 +365,13 @@ mod with_uses_with_externs_with_sysroot {
         project: smoke
     );
 }
+
+mod github_issue_79 {
+    test_cmd!(
+        args: "generate graph \
+                --with-uses",
+        output: stdout,
+        color_modes: ColorModes::PLAIN,
+        project: github_issue_79
+    );
+}
