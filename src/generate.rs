@@ -5,7 +5,7 @@ use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
 use ra_ap_hir::{self, Crate};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
 use ra_ap_paths::AbsPathBuf;
-use ra_ap_proc_macro_api::ProcMacroClient;
+use ra_ap_proc_macro_api::ProcMacroServer;
 use ra_ap_project_model::{
     CargoConfig, PackageData, ProjectManifest, ProjectWorkspace, TargetData,
 };
@@ -190,12 +190,17 @@ impl Command {
 
     fn analyze_project_workspace(
         &self,
-        project_workspace: ProjectWorkspace,
+        mut workspace: ProjectWorkspace,
         cargo_config: &CargoConfig,
         load_config: &LoadCargoConfig,
         progress: &dyn Fn(String),
-    ) -> anyhow::Result<(AnalysisHost, Vfs, Option<ProcMacroClient>)> {
-        load_workspace(project_workspace, cargo_config, load_config, &progress)
+    ) -> anyhow::Result<(AnalysisHost, Vfs, Option<ProcMacroServer>)> {
+        if load_config.load_out_dirs_from_check {
+            let build_scripts = workspace.run_build_scripts(cargo_config, progress)?;
+            workspace.set_build_scripts(build_scripts)
+        }
+
+        load_workspace(workspace, load_config)
     }
 
     fn find_crate(
