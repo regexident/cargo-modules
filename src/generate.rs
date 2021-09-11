@@ -7,7 +7,7 @@ use ra_ap_ide::{AnalysisHost, RootDatabase};
 use ra_ap_paths::AbsPathBuf;
 use ra_ap_proc_macro_api::ProcMacroServer;
 use ra_ap_project_model::{
-    CargoConfig, PackageData, ProjectManifest, ProjectWorkspace, TargetData,
+    CargoConfig, PackageData, ProjectManifest, ProjectWorkspace, TargetData, UnsetTestCrates,
 };
 use ra_ap_rust_analyzer::cli::load_cargo::{load_workspace, LoadCargoConfig};
 use ra_ap_vfs::Vfs;
@@ -102,6 +102,8 @@ impl Command {
     }
 
     fn cargo_config(&self, project_options: &ProjectOptions) -> CargoConfig {
+        let graph_options = self.graph_options();
+
         // Do not activate the `default` feature.
         let no_default_features = project_options.no_default_features;
 
@@ -122,7 +124,10 @@ impl Command {
         let rustc_source = None;
 
         // crates to disable `#[cfg(test)]` on
-        let unset_test_crates = vec![];
+        let unset_test_crates = match graph_options.with_tests {
+            true => UnsetTestCrates::None,
+            false => UnsetTestCrates::All,
+        };
 
         // Setup RUSTC_WRAPPER to point to `rust-analyzer` binary itself.
         // (We use that to compile only proc macros and build scripts
@@ -155,9 +160,6 @@ impl Command {
         cargo_config: &CargoConfig,
         progress: &dyn Fn(String),
     ) -> anyhow::Result<ProjectWorkspace> {
-        // let project_path = project_options.manifest_path.as_path().canonicalize()?;
-        // let cargo_config = Self::cargo_config(project_options);
-
         let root = AbsPathBuf::assert(std::env::current_dir()?.join(project_path));
         let root = ProjectManifest::discover_single(&root)?;
 
