@@ -8,7 +8,7 @@ STDERR:
 STDOUT:
 
 crate github_issue_80
-├── struct OnlyExistsWithTest: pub #[cfg(test)]
+├── struct OnlyExistsWithoutTest: pub #[cfg(not(test))]
 ├── struct Placebo: pub
 ├── mod imported: pub
 │   ├── struct OnlyUsedWithTest: pub
