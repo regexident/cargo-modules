@@ -21,7 +21,7 @@ pub enum Command {
 
 impl Command {
     pub fn run(&self) -> Result<(), anyhow::Error> {
-        match &self {
+        match self {
             Self::Generate(cmd) => cmd.run(),
         }
     }

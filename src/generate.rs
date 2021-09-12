@@ -87,7 +87,7 @@ impl Command {
 
         trace!("Generating ...");
 
-        match &self {
+        match self {
             #[allow(unused_variables)]
             Self::Tree(options) => {
                 let command = tree::Command::new(options.clone());
@@ -262,7 +262,7 @@ impl Command {
     }
 
     fn with_sysroot(&self) -> bool {
-        match &self {
+        match self {
             Self::Tree(_) => false,
             Self::Graph(options) => {
                 // We only need to include sysroot if we include extern uses
@@ -273,28 +273,28 @@ impl Command {
     }
 
     fn general_options(&self) -> &GeneralOptions {
-        match &self {
+        match self {
             Self::Tree(options) => &options.general,
             Self::Graph(options) => &options.general,
         }
     }
 
     fn project_options(&self) -> &ProjectOptions {
-        match &self {
+        match self {
             Self::Tree(options) => &options.project,
             Self::Graph(options) => &options.project,
         }
     }
 
     fn graph_options(&self) -> &GraphOptions {
-        match &self {
+        match self {
             Self::Tree(options) => &options.graph,
             Self::Graph(options) => &options.graph,
         }
     }
 
     fn builder_options(&self) -> GraphBuilderOptions {
-        match &self {
+        match self {
             Self::Tree(options) => GraphBuilderOptions {
                 focus_on: options.graph.focus_on.clone(),
                 max_depth: options.graph.max_depth,
