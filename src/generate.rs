@@ -144,7 +144,7 @@ impl Command {
     fn load_config(&self) -> LoadCargoConfig {
         LoadCargoConfig {
             load_out_dirs_from_check: true,
-            with_proc_macro: true,
+            with_proc_macro: false,
             prefill_caches: false,
         }
     }
