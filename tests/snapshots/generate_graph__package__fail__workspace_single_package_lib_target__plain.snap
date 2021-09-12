@@ -3,9 +3,12 @@ source: tests/generate_graph.rs
 expression: output
 
 ---
+STDERR:
 Error: No package found with name "foobar".
 
 Packages present in workspace:
 - package_lib_target
 
+
+STDOUT:
 

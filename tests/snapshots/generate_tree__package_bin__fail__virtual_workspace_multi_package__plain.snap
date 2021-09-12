@@ -3,6 +3,7 @@ source: tests/generate_tree.rs
 expression: output
 
 ---
+STDERR:
 Error: No package found with name "workspace-package".
 
 Packages present in workspace:
@@ -10,4 +11,6 @@ Packages present in workspace:
 - package_lib_target
 - package_multi_target
 
+
+STDOUT:
 
