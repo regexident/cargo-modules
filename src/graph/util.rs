@@ -1,5 +1,5 @@
 use log::trace;
-use ra_ap_cfg::{CfgAtom, CfgExpr};
+use ra_ap_cfg::CfgExpr;
 use ra_ap_hir::{self as hir, HasAttrs};
 use ra_ap_ide_db::RootDatabase;
 
@@ -78,28 +78,6 @@ pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> String {
 pub(crate) fn is_test_function(function: hir::Function, db: &RootDatabase) -> bool {
     let attrs = function.attrs(db);
     attrs.by_key("test").exists()
-}
-
-// #[cfg(test)]
-// mod tests() { … }
-pub(crate) fn is_test_module(module: hir::Module, db: &RootDatabase) -> bool {
-    match module.attrs(db).cfg() {
-        Some(cfg) => is_test_cfg(cfg),
-        None => false,
-    }
-}
-
-pub fn is_test_cfg(cfg: CfgExpr) -> bool {
-    match cfg {
-        CfgExpr::Invalid => false,
-        CfgExpr::Atom(atom) => match atom {
-            CfgAtom::Flag(flag) => flag == "test",
-            CfgAtom::KeyValue { .. } => false,
-        },
-        CfgExpr::All(cfgs) => cfgs.into_iter().any(is_test_cfg),
-        CfgExpr::Any(cfgs) => cfgs.into_iter().any(is_test_cfg),
-        CfgExpr::Not(cfg) => is_test_cfg(*cfg),
-    }
 }
 
 pub fn cfgs(hir: hir::ModuleDef, db: &RootDatabase) -> Vec<CfgExpr> {

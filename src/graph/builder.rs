@@ -97,18 +97,10 @@ impl<'a> Builder<'a> {
         };
 
         if !self.options.with_tests {
-            match owned_module_def {
-                hir::ModuleDef::Module(owned_module) => {
-                    if util::is_test_module(owned_module, self.db) {
-                        return Ok(None);
-                    }
+            if let hir::ModuleDef::Function(owned_function) = owned_module_def {
+                if util::is_test_function(owned_function, self.db) {
+                    return Ok(None);
                 }
-                hir::ModuleDef::Function(owned_function) => {
-                    if util::is_test_function(owned_function, self.db) {
-                        return Ok(None);
-                    }
-                }
-                _ => {}
             }
         }
 
