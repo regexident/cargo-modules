@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: '0 3 * * 0-6'
+    - cron: "0 3 * * 0-6"
 
 jobs:
   check:
@@ -37,9 +37,6 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --release
-      - run: cargo test
-      - run: cargo test --release -- --ignored
 
   fmt:
     name: Rustfmt
