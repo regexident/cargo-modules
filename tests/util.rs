@@ -3,18 +3,13 @@
 use std::{path::PathBuf, str::from_utf8};
 
 use assert_cmd::Command;
-use bitflags::bitflags;
 use shellwords::split;
 
-bitflags! {
-    pub struct ColorModes: u8 {
-        const PLAIN = 0b00000001;
-        const ANSI = 0b00000010;
-        const TRUE_COLOR = 0b00000100;
-
-        const ALL_COLORS = Self::ANSI.bits | Self::TRUE_COLOR.bits;
-        const ALL = Self::PLAIN.bits | Self::ANSI.bits | Self::TRUE_COLOR.bits;
-    }
+#[allow(dead_code)]
+pub enum ColorMode {
+    Plain,
+    Ansi,
+    TrueColor,
 }
 
 pub fn output(mut cmd: Command, expect_success: bool) -> (String, String) {
@@ -58,14 +53,14 @@ macro_rules! test_cmds {
     (
         args: $args:expr,
         success: $success:expr,
-        color_modes: $color_modes:expr,
+        color_mode: $color_mode:expr,
         projects: [$($projects:ident),+ $(,)?]
     ) => {
         test_cmds!(
             attrs: [],
             args: $args,
             success: $success,
-            color_modes: $color_modes,
+            color_mode: $color_mode,
             projects: [ $($projects),* ]
         );
     };
@@ -73,28 +68,28 @@ macro_rules! test_cmds {
         attrs: [ $(#[$attrs:meta]),* $(,)? ],
         args: $args:expr,
         success: $success:expr,
-        color_modes: $color_modes:expr,
+        color_mode: $color_mode:expr,
         projects: [ $(,)? ]
     ) => {};
     (
         attrs: [ $(#[$attrs:meta]),* $(,)? ],
         args: $args:expr,
         success: $success:expr,
-        color_modes: $color_modes:expr,
+        color_mode: $color_mode:expr,
         projects: [ $head:ident $(, $tail:ident)* $(,)? ]
     ) => {
         test_cmd!(
             attrs: [ $(#[$attrs]),* ],
             args: $args,
             success: $success,
-            color_modes: $color_modes,
+            color_mode: $color_mode,
             project: $head
         );
         test_cmds!(
             attrs: [ $(#[$attrs]),* ],
             args: $args,
             success: $success,
-            color_modes: $color_modes,
+            color_mode: $color_mode,
             projects: [ $($tail),* ]
         );
     };
@@ -104,14 +99,14 @@ macro_rules! test_cmd {
     (
         args: $args:expr,
         success: $success:expr,
-        color_modes: $color_modes:expr,
+        color_mode: $color_mode:expr,
         project: $project:ident
     ) => {
         test_cmd!(
             attrs: [],
             args: $args,
             success: $success,
-            color_modes: $color_modes,
+            color_mode: $color_mode,
             project: $project
         );
     };
@@ -119,64 +114,33 @@ macro_rules! test_cmd {
         attrs: [ $(#[$attrs:meta]),* $(,)? ],
         args: $args:expr,
         success: $success:expr,
-        color_modes: $color_modes:expr,
+        color_mode: $color_mode:expr,
         project: $project:ident
     ) => {
-        mod $project {
-            #[allow(unused_imports)]
-            use super::*;
-            use crate::util::ColorModes;
+        $(#[$attrs])*
+        #[test]
+        fn $project() {
+            use crate::util::ColorMode;
 
-            $(#[$attrs])*
-            #[test]
-            fn plain() {
-                if !$color_modes.contains(ColorModes::PLAIN) {
-                    return;
-                }
+            let mut cmd = crate::util::cmd(stringify!($project), $args);
 
-                let mut cmd = crate::util::cmd(stringify!($project), $args);
-
-                cmd.env("NO_COLOR", "1");
-
-                let (stdout, stderr) = crate::util::output(cmd, $success);
-                let output = format!("STDERR:\n{}\nSTDOUT:\n{}", stderr, stdout);
-
-                insta::assert_snapshot!(output);
+            #[allow(unreachable_patterns)]
+            match $color_mode {
+                ColorMode::Plain => {
+                    cmd.env("NO_COLOR", "1");
+                },
+                ColorMode::Ansi => {
+                    cmd.env_remove("COLORTERM");
+                },
+                ColorMode::TrueColor => {
+                    cmd.env("COLORTERM", "truecolor");
+                },
             }
 
-            $(#[$attrs])*
-            #[test]
-            fn ansi() {
-                if !$color_modes.contains(ColorModes::ANSI) {
-                    return;
-                }
+            let (stdout, stderr) = crate::util::output(cmd, $success);
+            let output = format!("STDERR:\n{}\nSTDOUT:\n{}", stderr, stdout);
 
-                let mut cmd = crate::util::cmd(stringify!($project), $args);
-
-                cmd.env_remove("COLORTERM");
-
-                let (stdout, stderr) = crate::util::output(cmd, $success);
-                let output = format!("STDERR:\n{}\nSTDOUT:\n{}", stderr, stdout);
-
-                insta::assert_snapshot!(output);
-            }
-
-            $(#[$attrs])*
-            #[test]
-            fn truecolor() {
-                if !$color_modes.contains(ColorModes::TRUE_COLOR) {
-                    return;
-                }
-
-                let mut cmd = crate::util::cmd(stringify!($project), $args);
-
-                cmd.env("COLORTERM", "truecolor");
-
-                let (stdout, stderr) = crate::util::output(cmd, $success);
-                let output = format!("STDERR:\n{}\nSTDOUT:\n{}", stderr, stdout);
-
-                insta::assert_snapshot!(output);
-            }
+            insta::assert_snapshot!(output);
         }
     };
 }

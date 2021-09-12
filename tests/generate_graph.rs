@@ -1,13 +1,33 @@
 #[macro_use]
 mod util;
 
-mod smoke {
-    test_cmd!(
-        args: "generate graph",
-        success: true,
-        color_modes: ColorModes::PLAIN,
-        project: smoke
-    );
+mod colors {
+    mod plain {
+        test_cmd!(
+            args: "generate graph",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod ansi {
+        test_cmd!(
+            args: "generate graph",
+            success: true,
+            color_mode: ColorMode::Ansi,
+            project: smoke
+        );
+    }
+
+    mod truecolor {
+        test_cmd!(
+            args: "generate graph",
+            success: true,
+            color_mode: ColorMode::TrueColor,
+            project: smoke
+        );
+    }
 }
 
 mod default {
@@ -15,7 +35,7 @@ mod default {
         test_cmds!(
             args: "generate graph",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 package_lib_target,
@@ -31,7 +51,7 @@ mod default {
         test_cmds!(
             args: "generate graph",
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_multi_target,
                 virtual_workspace_single_package_multi_target,
@@ -47,7 +67,7 @@ mod lib {
             args: "generate graph \
                     --lib",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_lib_target,
                 package_multi_target,
@@ -64,7 +84,7 @@ mod lib {
             args: "generate graph \
                     --lib", // does not exist
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 virtual_workspace_single_package_bin_target,
@@ -80,7 +100,7 @@ mod bin {
             args: "generate graph \
                     --bin package_bin_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 virtual_workspace_single_package_bin_target,
@@ -92,7 +112,7 @@ mod bin {
             args: "generate graph \
                     --bin package_multi_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_multi_target,
                 virtual_workspace_single_package_multi_target,
@@ -106,7 +126,7 @@ mod bin {
             args: "generate graph \
                     --bin foobar", // does not exist
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_lib_target,
                 package_multi_target,
@@ -127,7 +147,7 @@ mod package {
             args: "generate graph \
                     --package package_lib_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_lib_target,
                 virtual_workspace_single_package_lib_target,
@@ -139,7 +159,7 @@ mod package {
             args: "generate graph \
                     --package package_bin_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 virtual_workspace_single_package_bin_target,
@@ -153,7 +173,7 @@ mod package {
             args: "generate graph \
                     --package foobar",
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 package_lib_target,
@@ -178,7 +198,7 @@ mod package_lib {
                     --package package_lib_target \
                     --lib",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_lib_target,
                 workspace_single_package_lib_target,
@@ -191,7 +211,7 @@ mod package_lib {
                     --package package_multi_target \
                     --lib",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_multi_target,
                 workspace_single_package_multi_target,
@@ -206,7 +226,7 @@ mod package_lib {
                     --package package_bin_target \
                     --lib", // does not exist
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 workspace_single_package_bin_target,
@@ -223,7 +243,7 @@ mod package_bin {
                     --package package_bin_target \
                     --bin package_bin_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 workspace_single_package_bin_target,
@@ -236,7 +256,7 @@ mod package_bin {
                     --package package_multi_target \
                     --bin package_multi_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_multi_target,
                 workspace_single_package_multi_target,
@@ -251,7 +271,7 @@ mod package_bin {
                     --package workspace-package \
                     --bin foobar", // does not exist
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 package_lib_target,
@@ -274,7 +294,7 @@ mod with_orphans {
         args: "generate graph \
                 --with-orphans",
         success: true,
-        color_modes: ColorModes::PLAIN,
+        color_mode: ColorMode::Plain,
         project: smoke
     );
 }
@@ -284,7 +304,7 @@ mod with_tests {
         args: "generate graph \
                 --with-tests",
         success: true,
-        color_modes: ColorModes::PLAIN,
+        color_mode: ColorMode::Plain,
         project: smoke
     );
 }
@@ -294,7 +314,7 @@ mod with_types {
         args: "generate graph \
                 --with-types",
         success: true,
-        color_modes: ColorModes::PLAIN,
+        color_mode: ColorMode::Plain,
         project: smoke
     );
 }
@@ -304,7 +324,7 @@ mod with_uses {
         args: "generate graph \
                 --with-uses",
         success: true,
-        color_modes: ColorModes::PLAIN,
+        color_mode: ColorMode::Plain,
         project: smoke
     );
 }
@@ -314,7 +334,7 @@ mod with_externs {
         args: "generate graph \
                 --with-externs",
         success: false,
-        color_modes: ColorModes::PLAIN,
+        color_mode: ColorMode::Plain,
         project: smoke
     );
 }
@@ -325,7 +345,7 @@ mod with_uses_with_externs {
                 --with-uses \
                 --with-externs",
         success: true,
-        color_modes: ColorModes::PLAIN,
+        color_mode: ColorMode::Plain,
         project: smoke
     );
 }
@@ -341,7 +361,7 @@ mod with_uses_with_externs_with_sysroot {
                 --with-externs \
                 --with-sysroot",
         success: true,
-        color_modes: ColorModes::PLAIN,
+        color_mode: ColorMode::Plain,
         project: smoke
     );
 }
