@@ -279,6 +279,14 @@ impl Command {
         }
     }
 
+    #[allow(dead_code)]
+    fn general_options_mut(&mut self) -> &mut GeneralOptions {
+        match self {
+            Self::Tree(options) => &mut options.general,
+            Self::Graph(options) => &mut options.general,
+        }
+    }
+
     fn project_options(&self) -> &ProjectOptions {
         match self {
             Self::Tree(options) => &options.project,
@@ -286,10 +294,26 @@ impl Command {
         }
     }
 
+    #[allow(dead_code)]
+    fn project_options_mut(&mut self) -> &mut ProjectOptions {
+        match self {
+            Self::Tree(options) => &mut options.project,
+            Self::Graph(options) => &mut options.project,
+        }
+    }
+
     fn graph_options(&self) -> &GraphOptions {
         match self {
             Self::Tree(options) => &options.graph,
             Self::Graph(options) => &options.graph,
+        }
+    }
+
+    #[allow(dead_code)]
+    fn graph_options_mut(&mut self) -> &mut GraphOptions {
+        match self {
+            Self::Tree(options) => &mut options.graph,
+            Self::Graph(options) => &mut options.graph,
         }
     }
 
