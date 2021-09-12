@@ -49,7 +49,7 @@ impl Command {
     }
 
     fn validate_options(&self) -> anyhow::Result<()> {
-        match &self.options {
+        match self.options {
             Options {
                 with_uses: false,
                 with_externs: true,
