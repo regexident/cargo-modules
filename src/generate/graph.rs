@@ -49,15 +49,12 @@ impl Command {
     }
 
     fn validate_options(&self) -> anyhow::Result<()> {
-        match self.options {
-            Options {
-                with_uses: false,
-                with_externs: true,
-                ..
-            } => Err(anyhow::anyhow!(
-                "Option `--with-externs` requires option `--with-uses`"
-            )),
-            _ => Ok(()),
+        let options = &self.options;
+
+        if options.with_externs && !options.with_uses {
+            anyhow::bail!("Option `--with-externs` requires option `--with-uses`");
         }
+
+        Ok(())
     }
 }

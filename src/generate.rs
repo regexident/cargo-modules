@@ -47,6 +47,13 @@ pub enum Command {
 }
 
 impl Command {
+    pub(crate) fn sanitize(&mut self) {
+        if self.graph_options().with_tests && !self.project_options().cfg_test {
+            debug!("Enabling `--cfg-test`, which is implied by `--with-tests`");
+            self.project_options_mut().cfg_test = true;
+        }
+    }
+
     pub fn run(&self) -> Result<(), anyhow::Error> {
         let general_options = self.general_options();
         let project_options = self.project_options();
@@ -102,8 +109,6 @@ impl Command {
     }
 
     fn cargo_config(&self, project_options: &ProjectOptions) -> CargoConfig {
-        let graph_options = self.graph_options();
-
         // Do not activate the `default` feature.
         let no_default_features = project_options.no_default_features;
 
@@ -124,7 +129,7 @@ impl Command {
         let rustc_source = None;
 
         // crates to disable `#[cfg(test)]` on
-        let unset_test_crates = match graph_options.with_tests {
+        let unset_test_crates = match project_options.cfg_test {
             true => UnsetTestCrates::None,
             false => UnsetTestCrates::All,
         };

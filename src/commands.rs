@@ -20,6 +20,12 @@ pub enum Command {
 }
 
 impl Command {
+    pub(crate) fn sanitize(&mut self) {
+        match self {
+            Self::Generate(cmd) => cmd.sanitize(),
+        }
+    }
+
     pub fn run(&self) -> Result<(), anyhow::Error> {
         match self {
             Self::Generate(cmd) => cmd.run(),
