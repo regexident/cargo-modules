@@ -17,18 +17,19 @@ bitflags! {
     }
 }
 
-pub fn stdout(mut cmd: Command) -> String {
-    let assert = cmd.assert().success();
+pub fn output(mut cmd: Command, expect_success: bool) -> (String, String) {
+    let assert = cmd.assert();
+    let assert = if expect_success {
+        assert.success()
+    } else {
+        assert.failure()
+    };
     let output = assert.get_output();
-    let output_str = from_utf8(&output.stdout).unwrap();
-    output_str.trim_start().to_owned()
-}
-
-pub fn stderr(mut cmd: Command) -> String {
-    let assert = cmd.assert().failure();
-    let output = assert.get_output();
-    let output_str = from_utf8(&output.stderr).unwrap();
-    output_str.trim_start().to_owned()
+    let stdout_str = from_utf8(&output.stdout).unwrap();
+    let stderr_str = from_utf8(&output.stderr).unwrap();
+    let stdout = stdout_str.to_owned();
+    let stderr = stderr_str.to_owned();
+    (stdout, stderr)
 }
 
 pub fn cmd(dir: &str, args: &str) -> Command {
@@ -56,14 +57,14 @@ pub fn cmd(dir: &str, args: &str) -> Command {
 macro_rules! test_cmds {
     (
         args: $args:expr,
-        output: $output:ident,
+        success: $success:expr,
         color_modes: $color_modes:expr,
         projects: [$($projects:ident),+ $(,)?]
     ) => {
         test_cmds!(
             attrs: [],
             args: $args,
-            output: $output,
+            success: $success,
             color_modes: $color_modes,
             projects: [ $($projects),* ]
         );
@@ -71,28 +72,28 @@ macro_rules! test_cmds {
     (
         attrs: [ $(#[$attrs:meta]),* $(,)? ],
         args: $args:expr,
-        output: $output:ident,
+        success: $success:expr,
         color_modes: $color_modes:expr,
         projects: [ $(,)? ]
     ) => {};
     (
         attrs: [ $(#[$attrs:meta]),* $(,)? ],
         args: $args:expr,
-        output: $output:ident,
+        success: $success:expr,
         color_modes: $color_modes:expr,
         projects: [ $head:ident $(, $tail:ident)* $(,)? ]
     ) => {
         test_cmd!(
             attrs: [ $(#[$attrs]),* ],
             args: $args,
-            output: $output,
+            success: $success,
             color_modes: $color_modes,
             project: $head
         );
         test_cmds!(
             attrs: [ $(#[$attrs]),* ],
             args: $args,
-            output: $output,
+            success: $success,
             color_modes: $color_modes,
             projects: [ $($tail),* ]
         );
@@ -102,14 +103,14 @@ macro_rules! test_cmds {
 macro_rules! test_cmd {
     (
         args: $args:expr,
-        output: $output:ident,
+        success: $success:expr,
         color_modes: $color_modes:expr,
         project: $project:ident
     ) => {
         test_cmd!(
             attrs: [],
             args: $args,
-            output: $output,
+            success: $success,
             color_modes: $color_modes,
             project: $project
         );
@@ -117,7 +118,7 @@ macro_rules! test_cmd {
     (
         attrs: [ $(#[$attrs:meta]),* $(,)? ],
         args: $args:expr,
-        output: $output:ident,
+        success: $success:expr,
         color_modes: $color_modes:expr,
         project: $project:ident
     ) => {
@@ -137,7 +138,9 @@ macro_rules! test_cmd {
 
                 cmd.env("NO_COLOR", "1");
 
-                let output = crate::util::$output(cmd);
+                let (stdout, stderr) = crate::util::output(cmd, $success);
+                let output = format!("STDERR:\n{}\nSTDOUT:\n{}", stderr, stdout);
+
                 insta::assert_snapshot!(output);
             }
 
@@ -152,7 +155,9 @@ macro_rules! test_cmd {
 
                 cmd.env_remove("COLORTERM");
 
-                let output = crate::util::$output(cmd);
+                let (stdout, stderr) = crate::util::output(cmd, $success);
+                let output = format!("STDERR:\n{}\nSTDOUT:\n{}", stderr, stdout);
+
                 insta::assert_snapshot!(output);
             }
 
@@ -167,7 +172,9 @@ macro_rules! test_cmd {
 
                 cmd.env("COLORTERM", "truecolor");
 
-                let output = crate::util::$output(cmd);
+                let (stdout, stderr) = crate::util::output(cmd, $success);
+                let output = format!("STDERR:\n{}\nSTDOUT:\n{}", stderr, stdout);
+
                 insta::assert_snapshot!(output);
             }
         }

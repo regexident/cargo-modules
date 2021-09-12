@@ -3,6 +3,7 @@ source: tests/generate_tree.rs
 expression: output
 
 ---
+STDERR:
 Error: Multiple targets present in package,
 please explicitly select one via --lib or --bin flag.
 
@@ -10,4 +11,6 @@ Targets present in package:
 - package_multi_target (--lib)
 - package_multi_target (--bin package_multi_target)
 
+
+STDOUT:
 

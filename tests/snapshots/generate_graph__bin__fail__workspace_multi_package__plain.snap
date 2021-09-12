@@ -3,6 +3,7 @@ source: tests/generate_graph.rs
 expression: output
 
 ---
+STDERR:
 Error: Multiple packages present in workspace,
 please explicitly select one via --package flag.
 
@@ -12,4 +13,6 @@ Packages present in workspace:
 - package_multi_target
 - workspace_multi_package
 
+
+STDOUT:
 

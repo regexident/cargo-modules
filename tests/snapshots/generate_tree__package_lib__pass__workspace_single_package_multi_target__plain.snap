@@ -3,5 +3,9 @@ source: tests/generate_tree.rs
 expression: output
 
 ---
+STDERR:
+
+STDOUT:
+
 crate package_multi_target
 

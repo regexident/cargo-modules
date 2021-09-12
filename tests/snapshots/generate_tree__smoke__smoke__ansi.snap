@@ -3,6 +3,10 @@ source: tests/generate_tree.rs
 expression: output
 
 ---
+STDERR:
+
+STDOUT:
+
 [2m[0m[38;5;68mcrate[0m smoke
 [2m├── [0m[38;5;68mmod[0m hierarchy[2m:[0m [38;5;215mpub(crate)[0m
 [2m│   └── [0m[38;5;68mmod[0m lorem[2m:[0m [38;5;167mpub(self)[0m

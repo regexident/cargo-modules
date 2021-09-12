@@ -4,7 +4,7 @@ mod util;
 mod smoke {
     test_cmd!(
         args: "generate graph",
-        output: stdout,
+        success: true,
         color_modes: ColorModes::PLAIN,
         project: smoke
     );
@@ -14,7 +14,7 @@ mod default {
     mod pass {
         test_cmds!(
             args: "generate graph",
-            output: stdout,
+            success: true,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_bin_target,
@@ -30,7 +30,7 @@ mod default {
     mod fail {
         test_cmds!(
             args: "generate graph",
-            output: stderr,
+            success: false,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_multi_target,
@@ -46,7 +46,7 @@ mod lib {
         test_cmds!(
             args: "generate graph \
                     --lib",
-            output: stdout,
+            success: true,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_lib_target,
@@ -63,7 +63,7 @@ mod lib {
         test_cmds!(
             args: "generate graph \
                     --lib", // does not exist
-            output: stderr,
+            success: false,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_bin_target,
@@ -79,7 +79,7 @@ mod bin {
         test_cmds!(
             args: "generate graph \
                     --bin package_bin_target",
-            output: stdout,
+            success: true,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_bin_target,
@@ -91,7 +91,7 @@ mod bin {
         test_cmds!(
             args: "generate graph \
                     --bin package_multi_target",
-            output: stdout,
+            success: true,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_multi_target,
@@ -105,7 +105,7 @@ mod bin {
         test_cmds!(
             args: "generate graph \
                     --bin foobar", // does not exist
-            output: stderr,
+            success: false,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_lib_target,
@@ -126,7 +126,7 @@ mod package {
         test_cmds!(
             args: "generate graph \
                     --package package_lib_target",
-            output: stdout,
+            success: true,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_lib_target,
@@ -138,7 +138,7 @@ mod package {
         test_cmds!(
             args: "generate graph \
                     --package package_bin_target",
-            output: stdout,
+            success: true,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_bin_target,
@@ -152,7 +152,7 @@ mod package {
         test_cmds!(
             args: "generate graph \
                     --package foobar",
-            output: stderr,
+            success: false,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_bin_target,
@@ -177,7 +177,7 @@ mod package_lib {
             args: "generate graph \
                     --package package_lib_target \
                     --lib",
-            output: stdout,
+            success: true,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_lib_target,
@@ -190,7 +190,7 @@ mod package_lib {
             args: "generate graph \
                     --package package_multi_target \
                     --lib",
-            output: stdout,
+            success: true,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_multi_target,
@@ -205,7 +205,7 @@ mod package_lib {
             args: "generate graph \
                     --package package_bin_target \
                     --lib", // does not exist
-            output: stderr,
+            success: false,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_bin_target,
@@ -222,7 +222,7 @@ mod package_bin {
             args: "generate graph \
                     --package package_bin_target \
                     --bin package_bin_target",
-            output: stdout,
+            success: true,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_bin_target,
@@ -235,7 +235,7 @@ mod package_bin {
             args: "generate graph \
                     --package package_multi_target \
                     --bin package_multi_target",
-            output: stdout,
+            success: true,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_multi_target,
@@ -250,7 +250,7 @@ mod package_bin {
             args: "generate graph \
                     --package workspace-package \
                     --bin foobar", // does not exist
-            output: stderr,
+            success: false,
             color_modes: ColorModes::PLAIN,
             projects: [
                 package_bin_target,
@@ -273,7 +273,7 @@ mod with_orphans {
     test_cmd!(
         args: "generate graph \
                 --with-orphans",
-        output: stdout,
+        success: true,
         color_modes: ColorModes::PLAIN,
         project: smoke
     );
@@ -283,7 +283,7 @@ mod with_tests {
     test_cmd!(
         args: "generate graph \
                 --with-tests",
-        output: stdout,
+        success: true,
         color_modes: ColorModes::PLAIN,
         project: smoke
     );
@@ -293,7 +293,7 @@ mod with_types {
     test_cmd!(
         args: "generate graph \
                 --with-types",
-        output: stdout,
+        success: true,
         color_modes: ColorModes::PLAIN,
         project: smoke
     );
@@ -303,7 +303,7 @@ mod with_uses {
     test_cmd!(
         args: "generate graph \
                 --with-uses",
-        output: stdout,
+        success: true,
         color_modes: ColorModes::PLAIN,
         project: smoke
     );
@@ -313,7 +313,7 @@ mod with_externs {
     test_cmd!(
         args: "generate graph \
                 --with-externs",
-        output: stderr,
+        success: false,
         color_modes: ColorModes::PLAIN,
         project: smoke
     );
@@ -324,7 +324,7 @@ mod with_uses_with_externs {
         args: "generate graph \
                 --with-uses \
                 --with-externs",
-        output: stdout,
+        success: true,
         color_modes: ColorModes::PLAIN,
         project: smoke
     );
@@ -340,7 +340,7 @@ mod with_uses_with_externs_with_sysroot {
                 --with-uses \
                 --with-externs \
                 --with-sysroot",
-        output: stdout,
+        success: true,
         color_modes: ColorModes::PLAIN,
         project: smoke
     );

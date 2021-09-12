@@ -3,9 +3,12 @@ source: tests/generate_tree.rs
 expression: output
 
 ---
+STDERR:
 Error: No package found with name "workspace-package".
 
 Packages present in workspace:
 - package_bin_target
 
+
+STDOUT:
 
