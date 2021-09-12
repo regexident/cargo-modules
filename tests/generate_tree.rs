@@ -1,13 +1,15 @@
 #[macro_use]
 mod util;
 
-mod smoke {
-    test_cmd!(
-        args: "generate tree",
-        success: true,
-        color_modes: ColorModes::ALL,
-        project: smoke
-    );
+mod colors {
+    mod plain {
+        test_cmd!(
+            args: "generate tree",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
 }
 
 mod default {
@@ -15,7 +17,7 @@ mod default {
         test_cmds!(
             args: "generate tree",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 package_lib_target,
@@ -31,7 +33,7 @@ mod default {
         test_cmds!(
             args: "generate tree",
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_multi_target,
                 virtual_workspace_single_package_multi_target,
@@ -47,7 +49,7 @@ mod lib {
             args: "generate tree \
                     --lib",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_lib_target,
                 package_multi_target,
@@ -64,7 +66,7 @@ mod lib {
             args: "generate tree \
                     --lib", // does not exist
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 virtual_workspace_single_package_bin_target,
@@ -80,7 +82,7 @@ mod bin {
             args: "generate tree \
                     --bin package_bin_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 virtual_workspace_single_package_bin_target,
@@ -92,7 +94,7 @@ mod bin {
             args: "generate tree \
                     --bin package_multi_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_multi_target,
                 virtual_workspace_single_package_multi_target,
@@ -106,7 +108,7 @@ mod bin {
             args: "generate tree \
                     --bin foobar", // does not exist
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_lib_target,
                 package_multi_target,
@@ -127,7 +129,7 @@ mod package {
             args: "generate tree \
                     --package package_lib_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_lib_target,
                 virtual_workspace_single_package_lib_target,
@@ -139,7 +141,7 @@ mod package {
             args: "generate tree \
                     --package package_bin_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 virtual_workspace_single_package_bin_target,
@@ -153,7 +155,7 @@ mod package {
             args: "generate tree \
                     --package foobar",
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 package_lib_target,
@@ -178,7 +180,7 @@ mod package_lib {
                     --package package_lib_target \
                     --lib",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_lib_target,
                 workspace_single_package_lib_target,
@@ -191,7 +193,7 @@ mod package_lib {
                     --package package_multi_target \
                     --lib",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_multi_target,
                 workspace_single_package_multi_target,
@@ -206,7 +208,7 @@ mod package_lib {
                     --package package_bin_target \
                     --lib", // does not exist
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 workspace_single_package_bin_target,
@@ -223,7 +225,7 @@ mod package_bin {
                     --package package_bin_target \
                     --bin package_bin_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 workspace_single_package_bin_target,
@@ -236,7 +238,7 @@ mod package_bin {
                     --package package_multi_target \
                     --bin package_multi_target",
             success: true,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_multi_target,
                 workspace_single_package_multi_target,
@@ -251,7 +253,7 @@ mod package_bin {
                     --package workspace-package \
                     --bin foobar", // does not exist
             success: false,
-            color_modes: ColorModes::PLAIN,
+            color_mode: ColorMode::Plain,
             projects: [
                 package_bin_target,
                 package_lib_target,
@@ -274,7 +276,7 @@ mod with_orphans {
         args: "generate tree \
                 --with-orphans",
         success: true,
-        color_modes: ColorModes::PLAIN,
+        color_mode: ColorMode::Plain,
         project: smoke
     );
 }
@@ -284,7 +286,7 @@ mod with_tests {
         args: "generate tree \
                 --with-tests",
         success: true,
-        color_modes: ColorModes::PLAIN,
+        color_mode: ColorMode::Plain,
         project: smoke
     );
 }
@@ -294,7 +296,7 @@ mod with_types {
         args: "generate tree \
                 --with-types",
         success: true,
-        color_modes: ColorModes::PLAIN,
+        color_mode: ColorMode::Plain,
         project: smoke
     );
 }
