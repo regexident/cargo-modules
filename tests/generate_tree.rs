@@ -307,8 +307,8 @@ mod github_issue_80 {
             args: "generate tree \
                     --with-types \
                     --with-tests",
-            output: stdout,
-            color_modes: ColorModes::PLAIN,
+            success: true,
+            color_mode: ColorMode::Plain,
             project: github_issue_80
         );
     }
@@ -317,8 +317,8 @@ mod github_issue_80 {
         test_cmd!(
             args: "generate tree \
                     --with-types",
-            output: stdout,
-            color_modes: ColorModes::PLAIN,
+            success: true,
+            color_mode: ColorMode::Plain,
             project: github_issue_80
         );
     }

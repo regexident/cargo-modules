@@ -3,6 +3,9 @@ source: tests/generate_graph.rs
 expression: output
 
 ---
+STDERR:
+
+STDOUT:
 digraph {
 
     graph [

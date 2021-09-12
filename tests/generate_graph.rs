@@ -370,8 +370,8 @@ mod github_issue_79 {
     test_cmd!(
         args: "generate graph \
                 --with-uses",
-        output: stdout,
-        color_modes: ColorModes::PLAIN,
+        success: true,
+        color_mode: ColorMode::Plain,
         project: github_issue_79
     );
 }
@@ -383,8 +383,8 @@ mod github_issue_80 {
                     --with-uses \
                     --with-types \
                     --with-tests",
-            output: stdout,
-            color_modes: ColorModes::PLAIN,
+            success: true,
+            color_mode: ColorMode::Plain,
             project: github_issue_80
         );
     }
@@ -394,8 +394,8 @@ mod github_issue_80 {
             args: "generate graph \
                     --with-uses \
                     --with-types",
-            output: stdout,
-            color_modes: ColorModes::PLAIN,
+            success: true,
+            color_mode: ColorMode::Plain,
             project: github_issue_80
         );
     }
