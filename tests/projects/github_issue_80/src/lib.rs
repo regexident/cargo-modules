@@ -43,7 +43,6 @@ pub mod only_exists_with_test {
     pub struct OnlyExistsWithoutTest {}
 }
 
-// Somehow this module and its contents end up getting omitted:
 #[cfg(not(test))]
 pub mod only_exists_without_test {
     pub struct Placebo {}
