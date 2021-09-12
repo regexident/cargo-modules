@@ -13,6 +13,14 @@ pub struct Options {
     pub command: Command,
 }
 
+impl Options {
+    pub fn sanitized_command(self) -> Command {
+        let mut command = self.command;
+        command.sanitize();
+        command
+    }
+}
+
 pub mod graph {
     use super::*;
 
@@ -31,7 +39,7 @@ pub mod graph {
         #[structopt(long = "with-types")]
         pub with_types: bool,
 
-        /// Include tests (e.g. `#[cfg(test)] mod tests { … }`).
+        /// Include tests (e.g. `#[test] fn …`).
         #[structopt(long = "with-tests")]
         pub with_tests: bool,
 
@@ -103,7 +111,7 @@ pub mod generate {
             pub layout: crate::options::generate::graph::LayoutAlgorithm,
 
             /// Include used modules and types
-            #[structopt(long = "with-uses", required_if("with-externs", "true"))]
+            #[structopt(long = "with-uses")]
             pub with_uses: bool,
 
             /// Include used modules and types from extern crates
@@ -163,6 +171,10 @@ pub mod project {
         /// Analyze for target triple.
         #[structopt(long = "target")]
         pub target: Option<String>,
+
+        /// Analyze with `#[cfg(test)]` enabled.
+        #[structopt(long = "cfg-test")]
+        pub cfg_test: bool,
 
         /// Include sysroot crates (`std`, `core` & friends) in analysis.
         #[structopt(long = "with-sysroot")]

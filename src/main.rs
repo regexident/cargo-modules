@@ -23,6 +23,6 @@ fn main() -> anyhow::Result<()> {
     }
 
     let options = Options::from_args();
-
-    options.command.run()
+    let command = options.sanitized_command();
+    command.run()
 }
