@@ -3,6 +3,10 @@ source: tests/generate_tree.rs
 expression: output
 
 ---
+STDERR:
+
+STDOUT:
+
 crate github_issue_80
 ├── struct OnlyExistsWithTest: pub #[cfg(test)]
 ├── struct Placebo: pub
@@ -10,5 +14,8 @@ crate github_issue_80
 │   ├── struct OnlyUsedWithTest: pub
 │   ├── struct OnlyUsedWithoutTest: pub
 │   └── struct Placebo: pub
-└── mod importing: pub
+├── mod importing: pub
+└── mod only_exists_with_test: pub #[cfg(test)]
+    ├── struct OnlyExistsWithTest: pub #[cfg(test)]
+    └── struct Placebo: pub
 
