@@ -21,6 +21,7 @@ pub(crate) struct ColorPalette {
     pub blue: Color,
     pub black: Color,
     pub gray: Color,
+    #[allow(dead_code)]
     pub white: Color,
 }
 
@@ -64,6 +65,7 @@ pub(crate) struct NodeStyles {
     pub krate: NodeStyle,
     pub visibility: NodeVisibilityStyles,
     pub orphan: NodeStyle,
+    #[allow(dead_code)]
     pub test: NodeStyle,
 }
 

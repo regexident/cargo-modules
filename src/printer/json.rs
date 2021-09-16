@@ -3,22 +3,9 @@
 use json::object;
 use std::fmt;
 
-use petgraph::{
-    algo::is_cyclic_directed,
-    graph::{EdgeIndex, NodeIndex},
-    visit::EdgeRef,
-    Direction,
-};
-use yansi::Style;
+use petgraph::{algo::is_cyclic_directed, graph::NodeIndex, visit::EdgeRef, Direction};
 
-use crate::{
-    graph::{
-        edge::{Edge, EdgeKind},
-        node::{visibility::NodeVisibility, Node, NodeKind},
-        Graph,
-    },
-    theme::tree::styles,
-};
+use crate::graph::{edge::EdgeKind, node::Node, Graph};
 
 #[derive(Clone, Debug)]
 pub struct Options {}
@@ -42,7 +29,7 @@ impl Printer {
 
         let mut parents: Vec<NodeIndex> = Vec::new();
         writeln!(f, "[")?;
-        self.fmt_tree(f, graph, None, start_node_idx, &mut parents)?;
+        self.fmt_tree(f, graph, start_node_idx, &mut parents)?;
         writeln!(f, "]")?;
 
         Ok(())
@@ -52,19 +39,17 @@ impl Printer {
         &self,
         f: &mut dyn fmt::Write,
         graph: &Graph,
-        edge_idx: Option<EdgeIndex>,
         parent_idx: NodeIndex,
         parents: &mut Vec<NodeIndex>,
     ) -> Result<(), anyhow::Error> {
-        let edge = edge_idx.map(|idx| &graph[idx]);
         let node = &graph[parent_idx];
 
-        if parents.len() > 0 {
+        if !parents.is_empty() {
             write!(f, ",")?;
         }
         writeln!(f, "{}", Self::node_to_json_string(node))?;
 
-        let mut children: Vec<_> = graph
+        let children_iter = graph
             .edges_directed(parent_idx, Direction::Outgoing)
             .filter_map(|edge_ref| {
                 let edge_idx = edge_ref.id();
@@ -78,16 +63,13 @@ impl Printer {
                 }
 
                 let node_idx = edge_ref.target();
-                let node = &graph[node_idx];
 
-                let key = node.display_name();
-                Some((node_idx, edge_idx, key))
-            })
-            .collect();
+                Some(node_idx)
+            });
 
         parents.push(parent_idx);
-        for (pos, (node_idx, edge_idx, key)) in children.into_iter().enumerate() {
-            self.fmt_tree(f, graph, Some(edge_idx), node_idx, parents)?;
+        for node_idx in children_iter {
+            self.fmt_tree(f, graph, node_idx, parents)?;
         }
         parents.pop();
         Ok(())
@@ -97,7 +79,7 @@ impl Printer {
         let file_path = node
             .file_path
             .as_ref()
-            .map(|path| path.as_os_str().to_str().clone());
+            .map(|path| path.as_os_str().to_str());
         let visibility = node
             .visibility
             .as_ref()
