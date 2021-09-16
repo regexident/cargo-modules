@@ -28,6 +28,7 @@ use crate::{
 };
 
 pub mod graph;
+pub mod json;
 pub mod tree;
 
 #[derive(StructOpt, Clone, PartialEq, Debug)]
@@ -44,6 +45,9 @@ pub enum Command {
         "#
     )]
     Graph(graph::Options),
+
+    #[structopt(name = "json", about = "Print crate as a json file")]
+    Json(json::Options),
 }
 
 impl Command {
@@ -103,6 +107,12 @@ impl Command {
             #[allow(unused_variables)]
             Self::Graph(options) => {
                 let command = graph::Command::new(options.clone());
+                command.run(&graph, start_node_idx, krate, db)
+            }
+
+            #[allow(unused_variables)]
+            Self::Json(options) => {
+                let command = json::Command::new(options.clone());
                 command.run(&graph, start_node_idx, krate, db)
             }
         }
@@ -269,6 +279,7 @@ impl Command {
     fn with_sysroot(&self) -> bool {
         match self {
             Self::Tree(_) => false,
+            Self::Json(_) => false, // TODO: Not sure if we need this
             Self::Graph(options) => {
                 // We only need to include sysroot if we include extern uses
                 // and didn't explicitly request sysroot to be excluded:
@@ -280,6 +291,7 @@ impl Command {
     fn general_options(&self) -> &GeneralOptions {
         match self {
             Self::Tree(options) => &options.general,
+            Self::Json(options) => &options.general,
             Self::Graph(options) => &options.general,
         }
     }
@@ -288,6 +300,7 @@ impl Command {
     fn general_options_mut(&mut self) -> &mut GeneralOptions {
         match self {
             Self::Tree(options) => &mut options.general,
+            Self::Json(options) => &mut options.general,
             Self::Graph(options) => &mut options.general,
         }
     }
@@ -295,6 +308,7 @@ impl Command {
     fn project_options(&self) -> &ProjectOptions {
         match self {
             Self::Tree(options) => &options.project,
+            Self::Json(options) => &options.project,
             Self::Graph(options) => &options.project,
         }
     }
@@ -303,6 +317,7 @@ impl Command {
     fn project_options_mut(&mut self) -> &mut ProjectOptions {
         match self {
             Self::Tree(options) => &mut options.project,
+            Self::Json(options) => &mut options.project,
             Self::Graph(options) => &mut options.project,
         }
     }
@@ -310,6 +325,7 @@ impl Command {
     fn graph_options(&self) -> &GraphOptions {
         match self {
             Self::Tree(options) => &options.graph,
+            Self::Json(options) => &options.graph,
             Self::Graph(options) => &options.graph,
         }
     }
@@ -318,6 +334,7 @@ impl Command {
     fn graph_options_mut(&mut self) -> &mut GraphOptions {
         match self {
             Self::Tree(options) => &mut options.graph,
+            Self::Json(options) => &mut options.graph,
             Self::Graph(options) => &mut options.graph,
         }
     }
@@ -325,6 +342,15 @@ impl Command {
     fn builder_options(&self) -> GraphBuilderOptions {
         match self {
             Self::Tree(options) => GraphBuilderOptions {
+                focus_on: options.graph.focus_on.clone(),
+                max_depth: options.graph.max_depth,
+                with_types: options.graph.with_types,
+                with_tests: options.graph.with_tests,
+                with_orphans: options.graph.with_orphans,
+                with_uses: false,
+                with_externs: false,
+            },
+            Self::Json(options) => GraphBuilderOptions {
                 focus_on: options.graph.focus_on.clone(),
                 max_depth: options.graph.max_depth,
                 with_types: options.graph.with_types,

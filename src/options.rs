@@ -135,6 +135,22 @@ pub mod generate {
             pub graph: crate::options::graph::Options,
         }
     }
+
+    pub mod json {
+        use super::*;
+
+        #[derive(StructOpt, Clone, PartialEq, Debug)]
+        pub struct Options {
+            #[structopt(flatten)]
+            pub general: crate::options::general::Options,
+
+            #[structopt(flatten)]
+            pub project: crate::options::project::Options,
+
+            #[structopt(flatten)]
+            pub graph: crate::options::graph::Options,
+        }
+    }
 }
 
 pub mod project {

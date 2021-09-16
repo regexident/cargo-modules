@@ -1,0 +1,50 @@
+use std::fmt::Write;
+
+use log::trace;
+use petgraph::graph::NodeIndex;
+use ra_ap_hir as hir;
+use ra_ap_ide::RootDatabase;
+
+pub use crate::options::generate::json::Options;
+
+use crate::{
+    graph::Graph,
+    printer::json::{Options as PrinterOptions, Printer},
+};
+
+pub struct Command {
+    #[allow(dead_code)]
+    options: Options,
+}
+
+impl Command {
+    pub fn new(options: Options) -> Self {
+        Self { options }
+    }
+
+    #[doc(hidden)]
+    pub fn run(
+        &self,
+        graph: &Graph,
+        start_node_idx: NodeIndex,
+        _member_krate: hir::Crate,
+        _db: &RootDatabase,
+    ) -> anyhow::Result<()> {
+        trace!("Printing ...");
+
+        let printer = {
+            let printer_options = PrinterOptions {};
+            Printer::new(printer_options)
+        };
+
+        let mut string = String::new();
+
+        writeln!(&mut string)?;
+
+        printer.fmt(&mut string, graph, start_node_idx)?;
+
+        print!("{}", string);
+
+        Ok(())
+    }
+}
