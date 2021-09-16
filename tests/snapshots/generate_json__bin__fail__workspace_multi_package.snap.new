@@ -1,0 +1,18 @@
+---
+source: tests/generate_json.rs
+expression: output
+
+---
+STDERR:
+Error: Multiple packages present in workspace,
+please explicitly select one via --package flag.
+
+Packages present in workspace:
+- package_bin_target
+- package_lib_target
+- package_multi_target
+- workspace_multi_package
+
+
+STDOUT:
+

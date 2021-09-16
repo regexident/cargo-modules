@@ -1,0 +1,15 @@
+---
+source: tests/generate_json.rs
+expression: output
+
+---
+STDERR:
+Error: No binary target found with name "foobar".
+
+Targets present in package:
+- package_multi_target (--lib)
+- package_multi_target (--bin package_multi_target)
+
+
+STDOUT:
+

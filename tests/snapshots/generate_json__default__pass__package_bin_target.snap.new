@@ -1,0 +1,13 @@
+---
+source: tests/generate_json.rs
+expression: output
+
+---
+STDERR:
+
+STDOUT:
+
+[
+{"module":"package_bin_target","path":"/Users/grayson/code/contrib/cargo-modules/tests/projects/package_bin_target/src/main.rs","kind":"crate","visibility":"pub","attributes":[]}
+]
+

@@ -1,0 +1,41 @@
+---
+source: tests/generate_json.rs
+expression: output
+
+---
+STDERR:
+
+STDOUT:
+
+[
+{"module":"smoke","path":"/Users/grayson/code/contrib/cargo-modules/tests/projects/smoke/src/lib.rs","kind":"crate","visibility":"pub","attributes":[]}
+,{"module":"smoke::tests","path":null,"kind":"mod","visibility":"pub(crate)","attributes":["test"]}
+,{"module":"smoke::visibility","path":null,"kind":"mod","visibility":"pub(crate)","attributes":[]}
+,{"module":"smoke::visibility::dummy","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::visibility::dummy::fns","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::visibility::dummy::unions","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::visibility::dummy::enums","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::visibility::dummy::structs","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::visibility::dummy::mods","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::visibility::dummy::mods::pub_private","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::visibility::dummy::mods::pub_super","path":null,"kind":"mod","visibility":"pub(super)","attributes":[]}
+,{"module":"smoke::visibility::dummy::mods::pub_module","path":null,"kind":"mod","visibility":"pub(in crate::visibility)","attributes":[]}
+,{"module":"smoke::visibility::dummy::mods::pub_crate","path":null,"kind":"mod","visibility":"pub(crate)","attributes":[]}
+,{"module":"smoke::visibility::dummy::mods::pub_public","path":null,"kind":"mod","visibility":"pub","attributes":[]}
+,{"module":"smoke::hierarchy","path":null,"kind":"mod","visibility":"pub(crate)","attributes":[]}
+,{"module":"smoke::hierarchy::lorem","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::hierarchy::lorem::consectetur","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::hierarchy::lorem::consectetur::adipiscing","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::hierarchy::lorem::consectetur::adipiscing::elit","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::hierarchy::lorem::dolor","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::hierarchy::lorem::dolor::sit","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::hierarchy::lorem::dolor::sit::amet","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::hierarchy::lorem::ipsum","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::uses","path":null,"kind":"mod","visibility":"pub(crate)","attributes":[]}
+,{"module":"smoke::uses::cycle","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::uses::cycle::node_1","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::uses::cycle::node_1::node_2","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::uses::cycle::node_0","path":null,"kind":"mod","visibility":"pub(self)","attributes":[]}
+,{"module":"smoke::orphans","path":"/Users/grayson/code/contrib/cargo-modules/tests/projects/smoke/src/orphans/mod.rs","kind":"mod","visibility":"pub(crate)","attributes":[]}
+]
+

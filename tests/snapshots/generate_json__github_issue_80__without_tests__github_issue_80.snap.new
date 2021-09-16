@@ -1,0 +1,23 @@
+---
+source: tests/generate_json.rs
+expression: output
+
+---
+STDERR:
+
+STDOUT:
+
+[
+{"module":"github_issue_80","path":"/Users/grayson/code/contrib/cargo-modules/tests/projects/github_issue_80/src/lib.rs","kind":"crate","visibility":"pub","attributes":[]}
+,{"module":"github_issue_80::only_exists_without_test","path":null,"kind":"mod","visibility":"pub","attributes":["not(test)"]}
+,{"module":"github_issue_80::only_exists_without_test::OnlyExistsWithoutTest","path":null,"kind":"struct","visibility":"pub","attributes":["not(test)"]}
+,{"module":"github_issue_80::only_exists_without_test::Placebo","path":null,"kind":"struct","visibility":"pub","attributes":[]}
+,{"module":"github_issue_80::importing","path":null,"kind":"mod","visibility":"pub","attributes":[]}
+,{"module":"github_issue_80::imported","path":null,"kind":"mod","visibility":"pub","attributes":[]}
+,{"module":"github_issue_80::imported::OnlyUsedWithoutTest","path":null,"kind":"struct","visibility":"pub","attributes":[]}
+,{"module":"github_issue_80::imported::OnlyUsedWithTest","path":null,"kind":"struct","visibility":"pub","attributes":[]}
+,{"module":"github_issue_80::imported::Placebo","path":null,"kind":"struct","visibility":"pub","attributes":[]}
+,{"module":"github_issue_80::OnlyExistsWithoutTest","path":null,"kind":"struct","visibility":"pub","attributes":["not(test)"]}
+,{"module":"github_issue_80::Placebo","path":null,"kind":"struct","visibility":"pub","attributes":[]}
+]
+
