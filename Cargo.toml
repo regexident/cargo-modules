@@ -10,7 +10,7 @@ edition = "2018"
 name = "cargo-modules"
 readme = "README.md"
 repository = "https://github.com/regexident/cargo-modules"
-version = "0.5.4"
+version = "0.5.5"
 
 [dependencies]
 
@@ -37,6 +37,7 @@ ra_ap_rust-analyzer = "0.0.76"
 ra_ap_text_edit = "0.0.76"
 ra_ap_vfs = "0.0.76"
 
+# Required to compile snapshot 0.0.76 of rust-analyzer:
 [dependencies.salsa]
 version = "=0.17.0-pre.1"
 
