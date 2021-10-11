@@ -45,6 +45,7 @@ version = "=0.17.0-pre.1"
 # features = ["debug"]
 
 # required by tests
+[dev-dependencies]
 assert_cmd = "2.0.1"
 shellwords = "1.1"
 insta = "1.8.0"
