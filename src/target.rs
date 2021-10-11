@@ -5,7 +5,7 @@ use crate::options::project::Options;
 pub fn select_package(workspace: &CargoWorkspace, options: &Options) -> anyhow::Result<Package> {
     let packages: Vec<_> = workspace
         .packages()
-        .filter(|idx| workspace[*idx].is_member)
+        .filter(|idx| workspace[*idx].is_local)
         .collect();
 
     let package_count = packages.len();
