@@ -62,7 +62,13 @@ pub(crate) fn add_orphan_nodes_to(graph: &mut Graph, module_idx: NodeIndex) {
         }
     };
 
-    for possible_orphan in PossibleOrphansIterator::new(read_dir) {
+    let mut possible_orphans: Vec<_> = PossibleOrphansIterator::new(read_dir).collect();
+
+    // Directory traversal can be platform-dependent, so in order to make the output
+    // uniform we give up some performance and sort the list of possible orphans:
+    possible_orphans.sort_by(|lhs, rhs| lhs.name.cmp(&rhs.name));
+
+    for possible_orphan in possible_orphans {
         let crate::orphans::PossibleOrphan { name, path } = possible_orphan;
 
         if existing_module_names.contains(&name) {

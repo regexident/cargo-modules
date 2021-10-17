@@ -39,8 +39,8 @@ digraph {
 
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
     "smoke::orphans" [label="pub(crate) mod|orphans", fillcolor="#f8c04c"]; // "mod" node
-    "smoke::orphans::orphan" [label="orphan mod|orphans::orphan", fillcolor="#ba6fa7"]; // "orphan" node
-    "smoke::orphan" [label="orphan mod|orphan", fillcolor="#ba6fa7"]; // "orphan" node
+    "smoke::orphans::bar" [label="orphan mod|orphans::bar", fillcolor="#ba6fa7"]; // "orphan" node
+    "smoke::orphans::foo" [label="orphan mod|orphans::foo", fillcolor="#ba6fa7"]; // "orphan" node
     "smoke::uses" [label="pub(crate) mod|uses", fillcolor="#f8c04c"]; // "mod" node
     "smoke::uses::cycle" [label="pub(self) mod|uses::cycle", fillcolor="#db5367"]; // "mod" node
     "smoke::uses::cycle::node_0" [label="pub(self) mod|uses::cycle::node_0", fillcolor="#db5367"]; // "mod" node
@@ -69,8 +69,8 @@ digraph {
     "smoke::visibility::dummy::fns" [label="pub(self) mod|visibility::dummy::fns", fillcolor="#db5367"]; // "mod" node
 
     "smoke" -> "smoke::orphans" [label="owns", color="#000000", style="solid"]; // "owns" edge
-    "smoke::orphans" -> "smoke::orphans::orphan" [label="owns", color="#000000", style="solid"]; // "owns" edge
-    "smoke" -> "smoke::orphan" [label="owns", color="#000000", style="solid"]; // "owns" edge
+    "smoke::orphans" -> "smoke::orphans::bar" [label="owns", color="#000000", style="solid"]; // "owns" edge
+    "smoke::orphans" -> "smoke::orphans::foo" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke" -> "smoke::uses" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke::uses" -> "smoke::uses::cycle" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke::uses::cycle" -> "smoke::uses::cycle::node_0" [label="owns", color="#000000", style="solid"]; // "owns" edge
