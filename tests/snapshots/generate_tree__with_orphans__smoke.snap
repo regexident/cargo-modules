@@ -17,9 +17,9 @@ crate smoke
 │       │   └── mod sit: pub(self)
 │       │       └── mod amet: pub(self)
 │       └── mod ipsum: pub(self)
-├── mod orphan: orphan
 ├── mod orphans: pub(crate)
-│   └── mod orphan: orphan
+│   ├── mod bar: orphan
+│   └── mod foo: orphan
 ├── mod uses: pub(crate)
 │   └── mod cycle: pub(self)
 │       ├── mod node_0: pub(self)

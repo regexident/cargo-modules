@@ -146,10 +146,8 @@ impl<'a> Builder<'a> {
             }
         }
 
-        if let Some(owner_idx) = owner_idx {
-            if self.options.with_orphans {
-                add_orphan_nodes_to(&mut self.graph, owner_idx);
-            }
+        if self.options.with_orphans {
+            add_orphan_nodes_to(&mut self.graph, owned_idx);
         }
 
         Ok(Some(owned_idx))
