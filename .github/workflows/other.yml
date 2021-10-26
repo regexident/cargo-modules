@@ -1,0 +1,18 @@
+name: Other
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    name: Check license headers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: apache/skywalking-eyes@v0.2.0
+        with:
+          log: info
+          config: .github/configs/skywalking-eyes.yml
