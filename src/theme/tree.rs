@@ -15,8 +15,11 @@ pub(crate) struct ColorPalette {
     pub green: Color,
     pub cyan: Color,
     pub blue: Color,
+    #[allow(dead_code)]
     pub black: Color,
+    #[allow(dead_code)]
     pub gray: Color,
+    #[allow(dead_code)]
     pub white: Color,
 }
 
