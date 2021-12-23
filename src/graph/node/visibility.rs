@@ -4,8 +4,8 @@
 
 use std::fmt;
 
-use ra_ap_hir as hir;
-use ra_ap_ide_db::{defs::Definition, RootDatabase};
+use ra_ap_hir::{self as hir, HasVisibility};
+use ra_ap_ide_db::RootDatabase;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum NodeVisibility {
@@ -18,8 +18,7 @@ pub enum NodeVisibility {
 
 impl<'a> NodeVisibility {
     pub fn new(hir: hir::ModuleDef, db: &RootDatabase) -> Self {
-        let definition = Definition::ModuleDef(hir);
-        let visibility = definition.visibility(db);
+        let visibility = hir.visibility(db);
 
         let parent_module = match hir.module(db) {
             Some(module) => module,
@@ -30,7 +29,7 @@ impl<'a> NodeVisibility {
         let krate_module = parent_module.krate().root_module(db);
 
         match visibility {
-            Some(hir::Visibility::Module(visibility_module_id)) => {
+            hir::Visibility::Module(visibility_module_id) => {
                 let visibility_module = hir::Module::from(visibility_module_id);
                 if visibility_module == krate_module {
                     Self::Crate
@@ -46,9 +45,7 @@ impl<'a> NodeVisibility {
                     Self::Module(path)
                 }
             }
-            Some(hir::Visibility::Public) => Self::Public,
-            // The crate's top-most root module doesn't have an explicit visibility:
-            None => Self::Public,
+            hir::Visibility::Public => Self::Public,
         }
     }
 }
