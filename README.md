@@ -98,7 +98,7 @@ OPTIONS:
 
 
         If you have xdot installed on your system, you can run this using:
-        `cargo modules generate dependencies | xdot -`
+        `cargo modules generate graph | xdot -`
 ```
 
 ### No-Color Mode
