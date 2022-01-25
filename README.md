@@ -101,6 +101,12 @@ OPTIONS:
         `cargo modules generate graph | xdot -`
 ```
 
+This is the result of using `cargo-module` to generate a tree or a graph of its own repo using the `--lib` and `--with-types` options:
+
+![Tree output of cargo modules generate tree --lib --with-types](docs/tree_output.png)
+
+![Tree output of cargo modules generate graph --lib --with-types | xdot -](docs/graph_output.svg)
+
 ### No-Color Mode
 
 cargo-modules checks for the presence of a `NO_COLOR` environment variable that, when present (regardless of its value), prevents the addition of color to the console output.
