@@ -60,6 +60,38 @@ OPTIONS:
         --target <target>                  rustc target
 ```
 
+The following image is the result of using the following command to generate a tree of the `smoke` test project within its own repo:
+
+```bash
+cd ./tests/projects/smoke
+cargo-modules generate tree --with-types --with-tests --with-orphans
+```
+
+![Output of `cargo modules generate tree …`](docs/tree_output.png)
+
+#### Line Structure
+
+The individual lines are structured as follows:
+
+```plain
+└── <keyword> <name>: <visibility> <test-attributes>
+```
+
+#### Line Colors
+
+The `<keyword>` is highlighted in 🔵 blue to visually separate it from the name.
+Test modules and functions have their corresponding `<test-attributes>` (i.e. `#[cfg(test)]` / `#[test]`) printed next to them in gray and cyan.
+
+The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-and-privacy.html)) is further more highlighted by the following colors:
+
+| Color     | Meaning                                                                            |
+|-----------|------------------------------------------------------------------------------------|
+| 🟢 green  | Items visible to all and everything (i.e. `pub`)                                   |
+| 🟡 yellow | Items visible to the current crate (i.e. `pub(crate)`)                             |
+| 🟠 orange | Items visible to a certain parent module (i.e. `pub(in path)`)                     |
+| 🔴 red    | Items visible to the current module (i.e. `pub(self)`, implied by lack of `pub …`) |
+| 🟣 purple | Orphaned modules (i.e. a file exists on disk but no corresponding `mod …`)         |
+
 ### Print crate as a graph
 
 ```bash
@@ -101,11 +133,39 @@ OPTIONS:
         `cargo modules generate graph | xdot -`
 ```
 
-This is the result of using `cargo-module` to generate a tree or a graph of its own repo using the `--lib` and `--with-types` options:
+The following image is the result of using the following command to generate a graph of the `smoke` test project within its own repo:
 
-![Tree output of cargo modules generate tree --lib --with-types](docs/tree_output.png)
+```bash
+cd ./tests/projects/smoke
+cargo-modules generate graph --with-types --with-tests --with-orphans | dot -Tsvg
+```
 
-![Tree output of cargo modules generate graph --lib --with-types | xdot -](docs/graph_output.svg)
+![Output of `cargo modules generate graph …`](docs/graph_output.svg)
+
+#### Node Structure
+
+The individual nodes are structured as follows:
+
+```plain
+┌────────────────────────┐
+│ <visibility> <keyword> │
+├────────────────────────┤
+│         <path>         │
+└────────────────────────┘
+```
+
+#### Node Colors
+
+The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-and-privacy.html)) is further more highlighted by the following colors:
+
+| Color     | Meaning                                                                            |
+|-----------|------------------------------------------------------------------------------------|
+| 🔵 blue   | Crates (i.e. their implicit root module)                                           |
+| 🟢 green  | Items visible to all and everything (i.e. `pub`)                                   |
+| 🟡 yellow | Items visible to the current crate (i.e. `pub(crate)`)                             |
+| 🟠 orange | Items visible to a certain parent module (i.e. `pub(in path)`)                     |
+| 🔴 red    | Items visible to the current module (i.e. `pub(self)`, implied by lack of `pub …`) |
+| 🟣 purple | Orphaned modules (i.e. a file exists on disk but no corresponding `mod …`)         |
 
 ### No-Color Mode
 
