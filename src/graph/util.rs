@@ -42,7 +42,7 @@ pub(crate) fn krate_name(krate: hir::Crate, db: &RootDatabase) -> String {
     let display_name = &krate.display_name(db).unwrap();
 
     // Since a crate's name may contain `-` we canonicalize it by replacing with `_`:
-    display_name.replace("-", "_")
+    display_name.replace('-', "_")
 }
 
 pub(crate) fn krate(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<hir::Crate> {
