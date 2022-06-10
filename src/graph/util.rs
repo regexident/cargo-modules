@@ -110,5 +110,6 @@ pub fn cfg(hir: hir::ModuleDef, db: &RootDatabase) -> Option<CfgExpr> {
         hir::ModuleDef::Trait(r#trait) => r#trait.attrs(db).cfg(),
         hir::ModuleDef::TypeAlias(r#type) => r#type.attrs(db).cfg(),
         hir::ModuleDef::BuiltinType(_) => None,
+        hir::ModuleDef::Macro(_) => None,
     }
 }
