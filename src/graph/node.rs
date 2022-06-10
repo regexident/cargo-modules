@@ -56,6 +56,7 @@ impl NodeKind {
             hir::ModuleDef::Trait(_) => Some(NodeKind::Trait),
             hir::ModuleDef::TypeAlias(_) => Some(NodeKind::TypeAlias),
             hir::ModuleDef::BuiltinType(_) => Some(NodeKind::Type(TypeNode::BuiltinType)),
+            hir::ModuleDef::Macro(_) => None,
         }
     }
 
