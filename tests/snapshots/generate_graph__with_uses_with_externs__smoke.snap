@@ -72,7 +72,7 @@ digraph {
     "smoke::uses::cycle" -> "smoke::uses::cycle::node_0" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke::uses::cycle" -> "smoke::uses::cycle::node_1" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke::uses::cycle::node_1" -> "smoke::uses::cycle::node_1::node_2" [label="owns", color="#000000", style="solid"]; // "owns" edge
-    "smoke::uses" -> "smoke::hierarchy" [label="uses", color="#7f7f7f", style="Dashed"]; // "uses" edge
+    "smoke::uses" -> "smoke::hierarchy" [label="uses", color="#7f7f7f", style="dashed"]; // "uses" edge
     "smoke" -> "smoke::hierarchy" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke::hierarchy" -> "smoke::hierarchy::lorem" [label="owns", color="#000000", style="solid"]; // "owns" edge
     "smoke::hierarchy::lorem" -> "smoke::hierarchy::lorem::ipsum" [label="owns", color="#000000", style="solid"]; // "owns" edge

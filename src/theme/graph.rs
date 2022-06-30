@@ -101,7 +101,7 @@ impl fmt::Display for Stroke {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = match self {
             Self::Solid => "solid",
-            Self::Dashed => "Dashed",
+            Self::Dashed => "dashed",
         };
         write!(f, "{}", name)
     }
