@@ -16,7 +16,7 @@ pub enum NodeVisibility {
     Super,
 }
 
-impl<'a> NodeVisibility {
+impl NodeVisibility {
     pub fn new(hir: hir::ModuleDef, db: &RootDatabase) -> Self {
         let visibility = hir.visibility(db);
 
