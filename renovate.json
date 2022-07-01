@@ -13,6 +13,8 @@
       "matchPackagePatterns": [
         "*"
       ],
+      "excludePackagePatterns": ["^ra_ap_"],
+      "allowedVersions": "!/^=/",
       "groupName": "all other dependencies",
       "groupSlug": "other-dependencies",
       "schedule": ["before 2am on monday"]
