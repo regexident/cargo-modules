@@ -143,6 +143,8 @@ impl Command {
         // during the initial `cargo check`.)
         let wrap_rustc_in_build_scripts = true;
 
+        let run_build_script_command = None;
+
         CargoConfig {
             no_default_features,
             all_features,
@@ -152,6 +154,7 @@ impl Command {
             rustc_source,
             unset_test_crates,
             wrap_rustc_in_build_scripts,
+            run_build_script_command,
         }
     }
 
