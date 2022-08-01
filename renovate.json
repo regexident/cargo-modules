@@ -7,7 +7,7 @@
       "matchPackagePatterns": ["^ra_ap_"],
       "groupName": "rust-analyzer dependencies",
       "groupSlug": "rust-analyzer-dependencies",
-      "schedule": ["before 2am on monday"]
+      "schedule": ["before 2am"]
     },
     {
       "matchPackagePatterns": [
@@ -17,7 +17,7 @@
       "allowedVersions": "!/^=/",
       "groupName": "all other dependencies",
       "groupSlug": "other-dependencies",
-      "schedule": ["before 2am on monday"]
+      "schedule": ["before 2am"]
     }
   ]
 }
