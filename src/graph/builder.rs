@@ -24,7 +24,7 @@ use crate::graph::{
     util, Graph,
 };
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Options {
     pub focus_on: Option<String>,
     pub max_depth: Option<usize>,

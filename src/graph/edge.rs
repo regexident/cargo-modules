@@ -29,7 +29,7 @@ impl fmt::Display for EdgeKind {
     }
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Edge {
     pub kind: EdgeKind,
 }
