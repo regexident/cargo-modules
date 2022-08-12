@@ -4,7 +4,7 @@
 
 use structopt::StructOpt;
 
-#[derive(StructOpt, Clone, PartialEq, Debug)]
+#[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
 #[structopt(
     name = "cargo-modules",
     about = "Print a crate's module tree or graph.",

@@ -34,7 +34,7 @@ use crate::{
 pub mod graph;
 pub mod tree;
 
-#[derive(StructOpt, Clone, PartialEq, Debug)]
+#[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
 pub enum Command {
     #[structopt(name = "tree", about = "Print crate as a tree.")]
     Tree(tree::Options),

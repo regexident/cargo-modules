@@ -72,7 +72,7 @@ impl fmt::Display for NodeCfgAttr {
     }
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct NodeTestAttr;
 
 impl fmt::Display for NodeTestAttr {

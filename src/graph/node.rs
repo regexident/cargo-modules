@@ -10,7 +10,7 @@ use ra_ap_ide_db::RootDatabase;
 pub(crate) mod attr;
 pub(crate) mod visibility;
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum TypeNode {
     Struct,
     Union,
@@ -18,13 +18,13 @@ pub enum TypeNode {
     BuiltinType,
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum ValueNode {
     Const,
     Static,
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum NodeKind {
     Crate,
     Function,

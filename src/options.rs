@@ -8,7 +8,7 @@ use structopt::{clap::ArgGroup, StructOpt};
 
 use crate::commands::Command;
 
-#[derive(StructOpt, Clone, PartialEq, Debug)]
+#[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
 pub struct Options {
     #[structopt(hidden = true, possible_value("modules"))]
     pub dummy: Option<String>,
@@ -28,7 +28,7 @@ impl Options {
 pub mod graph {
     use super::*;
 
-    #[derive(StructOpt, Clone, PartialEq, Debug)]
+    #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
     pub struct Options {
         /// Focus the graph on a particular path's environment.
         #[structopt(long = "focus-on")]
@@ -59,7 +59,7 @@ pub mod generate {
     pub mod graph {
         use super::*;
 
-        #[derive(Clone, PartialEq, Debug)]
+        #[derive(Clone, PartialEq, Eq, Debug)]
         pub enum LayoutAlgorithm {
             Dot,
             Neato,
@@ -98,7 +98,7 @@ pub mod generate {
             }
         }
 
-        #[derive(StructOpt, Clone, PartialEq, Debug)]
+        #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
         pub struct Options {
             #[structopt(flatten)]
             pub general: crate::options::general::Options,
@@ -127,7 +127,7 @@ pub mod generate {
     pub mod tree {
         use super::*;
 
-        #[derive(StructOpt, Clone, PartialEq, Debug)]
+        #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
         pub struct Options {
             #[structopt(flatten)]
             pub general: crate::options::general::Options,
@@ -144,7 +144,7 @@ pub mod generate {
 pub mod project {
     use super::*;
 
-    #[derive(StructOpt, Clone, PartialEq, Debug)]
+    #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
     #[structopt(group = ArgGroup::with_name("target-group"))]
     pub struct Options {
         /// Process only this package's library.
@@ -193,7 +193,7 @@ pub mod project {
 pub mod general {
     use super::*;
 
-    #[derive(StructOpt, Clone, PartialEq, Debug)]
+    #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
     #[structopt(group = ArgGroup::with_name("target-group"))]
     pub struct Options {
         /// Use verbose output.

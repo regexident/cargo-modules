@@ -7,7 +7,7 @@ use std::fmt;
 use ra_ap_hir::{self as hir, HasVisibility};
 use ra_ap_ide_db::RootDatabase;
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum NodeVisibility {
     Crate,
     Module(String),
