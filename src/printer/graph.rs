@@ -127,7 +127,10 @@ impl Printer {
             let node: &Node = node_ref.weight();
 
             let id = node.path.join("::");
-            let kind = node.kind.display_name().unwrap_or("orphan");
+            let kind = node
+                .kind
+                .display_name()
+                .unwrap_or_else(|| "orphan".to_owned());
 
             let label = self.node_label(node)?;
             let attributes = self.node_attributes(node);
@@ -198,7 +201,7 @@ impl Printer {
             None => Some("orphan".to_owned()),
         };
 
-        let kind = node.kind.display_name().unwrap_or("mod");
+        let kind = node.kind.display_name().unwrap_or_else(|| "mod".to_owned());
 
         if let Some(visibility) = visibility {
             write!(f, "{} ", visibility)?;
