@@ -35,6 +35,22 @@ impl FunctionNode {
 }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
+pub struct TraitNode {
+    is_unsafe: bool,
+}
+
+impl TraitNode {
+    pub fn display_name(&self) -> Option<String> {
+        let mut keywords = vec![];
+        if self.is_unsafe {
+            keywords.push("unsafe");
+        }
+        keywords.push("trait");
+        Some(keywords.join(" "))
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum TypeNode {
     Struct,
     Union,
@@ -74,7 +90,7 @@ pub enum NodeKind {
     Function(FunctionNode),
     Module,
     Orphan,
-    Trait,
+    Trait(TraitNode),
     Type(TypeNode),
     TypeAlias,
     Value(ValueNode),
@@ -83,25 +99,29 @@ pub enum NodeKind {
 impl NodeKind {
     pub fn from(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<Self> {
         match module_def {
-            hir::ModuleDef::Module(module) => {
-                if module == module.crate_root(db) {
+            hir::ModuleDef::Module(def) => {
+                if def.is_crate_root(db) {
                     Some(NodeKind::Crate)
                 } else {
                     Some(NodeKind::Module)
                 }
             }
-            hir::ModuleDef::Function(function) => Some(NodeKind::Function(FunctionNode {
-                is_unsafe: function.is_unsafe_to_call(db),
-                is_async: function.is_async(db),
-                is_const: function.is_const(db),
+            hir::ModuleDef::Function(def) => Some(NodeKind::Function(FunctionNode {
+                is_unsafe: def.is_unsafe_to_call(db),
+                is_async: def.is_async(db),
+                is_const: def.is_const(db),
             })),
-            hir::ModuleDef::Adt(hir::Adt::Struct(_)) => Some(NodeKind::Type(TypeNode::Struct)),
-            hir::ModuleDef::Adt(hir::Adt::Union(_)) => Some(NodeKind::Type(TypeNode::Union)),
-            hir::ModuleDef::Adt(hir::Adt::Enum(_)) => Some(NodeKind::Type(TypeNode::Enum)),
+            hir::ModuleDef::Adt(def) => match def {
+                hir::Adt::Struct(_) => Some(NodeKind::Type(TypeNode::Struct)),
+                hir::Adt::Union(_) => Some(NodeKind::Type(TypeNode::Union)),
+                hir::Adt::Enum(_) => Some(NodeKind::Type(TypeNode::Enum)),
+            },
             hir::ModuleDef::Variant(_) => None,
             hir::ModuleDef::Const(_) => Some(NodeKind::Value(ValueNode::Const)),
             hir::ModuleDef::Static(_) => Some(NodeKind::Value(ValueNode::Static)),
-            hir::ModuleDef::Trait(_) => Some(NodeKind::Trait),
+            hir::ModuleDef::Trait(def) => Some(NodeKind::Trait(TraitNode {
+                is_unsafe: def.is_unsafe(db),
+            })),
             hir::ModuleDef::TypeAlias(_) => Some(NodeKind::TypeAlias),
             hir::ModuleDef::BuiltinType(_) => Some(NodeKind::Type(TypeNode::BuiltinType)),
             hir::ModuleDef::Macro(_) => None,
@@ -114,7 +134,7 @@ impl NodeKind {
             Self::Function(node) => node.display_name(),
             Self::Module => Some("mod".to_owned()),
             Self::Orphan => None,
-            Self::Trait => Some("trait".to_owned()),
+            Self::Trait(node) => node.display_name(),
             Self::Type(node) => node.display_name(),
             Self::TypeAlias => Some("type".to_owned()),
             Self::Value(node) => node.display_name(),
