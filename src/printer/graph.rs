@@ -155,23 +155,29 @@ impl Printer {
             let edge = &graph[edge_idx];
             let (source_idx, target_idx) = graph.edge_endpoints(edge_idx).unwrap();
 
-            let source_id = graph[source_idx].path.join("::");
-            let target_id = graph[target_idx].path.join("::");
+            let source = graph[source_idx].path.join("::");
+            let target = graph[target_idx].path.join("::");
 
             let kind = edge.kind.display_name();
 
             let label = self.edge_label(edge);
             let attributes = self.edge_attributes(edge);
 
+            let constraint = match edge.kind {
+                EdgeKind::Uses => "[constraint=false]",
+                EdgeKind::Owns => "[constraint=true]",
+            };
+
             writeln!(
                 f,
-                r#"{i}{source:?} -> {target:?} [label={label:?}{attributes}]; // {kind:?} edge"#,
+                r#"{i}{source:?} -> {target:?} [label={label:?}{attributes}] {constraint}; // {kind:?} edge"#,
                 i = INDENTATION,
-                source = source_id,
-                target = target_id,
+                source = source,
+                target = target,
                 label = label,
                 attributes = attributes,
                 kind = kind,
+                constraint = constraint
             )?;
         }
 
