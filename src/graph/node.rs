@@ -11,11 +11,46 @@ pub(crate) mod attr;
 pub(crate) mod visibility;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
+pub struct FunctionNode {
+    is_unsafe: bool,
+    is_async: bool,
+    is_const: bool,
+}
+
+impl FunctionNode {
+    pub fn display_name(&self) -> Option<String> {
+        let mut keywords = vec![];
+        if self.is_const {
+            keywords.push("const");
+        }
+        if self.is_async {
+            keywords.push("async");
+        }
+        if self.is_unsafe {
+            keywords.push("unsafe");
+        }
+        keywords.push("fn");
+        Some(keywords.join(" "))
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum TypeNode {
     Struct,
     Union,
     Enum,
     BuiltinType,
+}
+
+impl TypeNode {
+    pub fn display_name(&self) -> Option<String> {
+        match self {
+            Self::Struct => Some("struct".to_owned()),
+            Self::Union => Some("union".to_owned()),
+            Self::Enum => Some("enum".to_owned()),
+            Self::BuiltinType => Some("builtin".to_owned()),
+        }
+    }
 }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -24,10 +59,19 @@ pub enum ValueNode {
     Static,
 }
 
+impl ValueNode {
+    pub fn display_name(&self) -> Option<String> {
+        match self {
+            Self::Const => Some("const".to_owned()),
+            Self::Static => Some("static".to_owned()),
+        }
+    }
+}
+
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum NodeKind {
     Crate,
-    Function,
+    Function(FunctionNode),
     Module,
     Orphan,
     Trait,
@@ -46,7 +90,11 @@ impl NodeKind {
                     Some(NodeKind::Module)
                 }
             }
-            hir::ModuleDef::Function(_) => Some(NodeKind::Function),
+            hir::ModuleDef::Function(function) => Some(NodeKind::Function(FunctionNode {
+                is_unsafe: function.is_unsafe_to_call(db),
+                is_async: function.is_async(db),
+                is_const: function.is_const(db),
+            })),
             hir::ModuleDef::Adt(hir::Adt::Struct(_)) => Some(NodeKind::Type(TypeNode::Struct)),
             hir::ModuleDef::Adt(hir::Adt::Union(_)) => Some(NodeKind::Type(TypeNode::Union)),
             hir::ModuleDef::Adt(hir::Adt::Enum(_)) => Some(NodeKind::Type(TypeNode::Enum)),
@@ -60,20 +108,16 @@ impl NodeKind {
         }
     }
 
-    pub fn display_name(&self) -> Option<&'static str> {
+    pub fn display_name(&self) -> Option<String> {
         match self {
-            Self::Crate => Some("crate"),
-            Self::Function => Some("fn"),
-            Self::Module => Some("mod"),
+            Self::Crate => Some("crate".to_owned()),
+            Self::Function(node) => node.display_name(),
+            Self::Module => Some("mod".to_owned()),
             Self::Orphan => None,
-            Self::Trait => Some("trait"),
-            Self::Type(TypeNode::Struct) => Some("struct"),
-            Self::Type(TypeNode::Union) => Some("union"),
-            Self::Type(TypeNode::Enum) => Some("enum"),
-            Self::Type(TypeNode::BuiltinType) => Some("builtin"),
-            Self::TypeAlias => Some("type"),
-            Self::Value(ValueNode::Const) => Some("const"),
-            Self::Value(ValueNode::Static) => Some("static"),
+            Self::Trait => Some("trait".to_owned()),
+            Self::Type(node) => node.display_name(),
+            Self::TypeAlias => Some("type".to_owned()),
+            Self::Value(node) => node.display_name(),
         }
     }
 }

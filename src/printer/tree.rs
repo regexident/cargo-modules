@@ -132,7 +132,7 @@ impl Printer {
     fn fmt_node_kind(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
         let kind_style = self.kind_style();
 
-        let display_name = node.kind.display_name().unwrap_or("mod");
+        let display_name = node.kind.display_name().unwrap_or_else(|| "mod".to_owned());
         let kind = kind_style.paint(display_name);
 
         write!(f, "{}", kind)?;
