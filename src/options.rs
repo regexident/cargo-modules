@@ -40,9 +40,13 @@ pub mod graph {
         #[structopt(long = "max-depth")]
         pub max_depth: Option<usize>,
 
-        /// Include types (e.g. structs, enums).
+        /// Include types (e.g. structs, unions, enums).
         #[structopt(long = "with-types")]
         pub with_types: bool,
+
+        /// Include functions (e.g. fns, async fns, const fns).
+        #[structopt(long = "with-fns")]
+        pub with_fns: bool,
 
         /// Include tests (e.g. `#[test] fn …`).
         #[structopt(long = "with-tests")]

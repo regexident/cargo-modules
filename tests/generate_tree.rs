@@ -301,6 +301,16 @@ mod with_types {
     );
 }
 
+mod with_fns {
+    test_cmd!(
+        args: "generate tree \
+                --with-fns",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: smoke
+    );
+}
+
 mod github_issue_80 {
     mod with_tests {
         test_cmd!(

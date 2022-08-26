@@ -29,6 +29,7 @@ pub struct Options {
     pub focus_on: Option<String>,
     pub max_depth: Option<usize>,
     pub with_types: bool,
+    pub with_fns: bool,
     pub with_tests: bool,
     pub with_orphans: bool,
     pub with_uses: bool,
@@ -86,11 +87,24 @@ impl<'a> Builder<'a> {
         owned_module_def: hir::ModuleDef,
     ) -> anyhow::Result<Option<NodeIndex>> {
         if !self.options.with_types {
-            // Check if target is a type (i.e. not a module).
-            let is_module = matches!(owned_module_def, hir::ModuleDef::Module(_));
+            // Check if target is a type:
+            let is_type = matches!(
+                owned_module_def,
+                hir::ModuleDef::Adt(_) | hir::ModuleDef::Trait(_) | hir::ModuleDef::TypeAlias(_)
+            );
 
             // If it is a type we bail out:
-            if !is_module {
+            if is_type {
+                return Ok(None);
+            }
+        }
+
+        if !self.options.with_fns {
+            // Check if target is a function:
+            let is_fn = matches!(owned_module_def, hir::ModuleDef::Function(_));
+
+            // If it is a type we bail out:
+            if is_fn {
                 return Ok(None);
             }
         }
@@ -171,11 +185,25 @@ impl<'a> Builder<'a> {
         let mut resolved_module_def = Some(used_module_def);
 
         if !self.options.with_types {
-            // Check if target is a type (i.e. not a module).
-            let is_module = matches!(used_module_def, hir::ModuleDef::Module(_));
+            // Check if target is a type:
+            let is_type = matches!(
+                used_module_def,
+                hir::ModuleDef::Adt(_) | hir::ModuleDef::Trait(_) | hir::ModuleDef::TypeAlias(_)
+            );
 
             // If it is a type we need to resolve to its parent module instead:
-            if !is_module {
+            if is_type {
+                let parent_module = used_module_def.module(self.db);
+                resolved_module_def = parent_module.map(hir::ModuleDef::Module);
+            }
+        }
+
+        if !self.options.with_fns {
+            // Check if target is a type:
+            let is_fn = matches!(used_module_def, hir::ModuleDef::Function(_));
+
+            // If it is a type we need to resolve to its parent module instead:
+            if is_fn {
                 let parent_module = used_module_def.module(self.db);
                 resolved_module_def = parent_module.map(hir::ModuleDef::Module);
             }
