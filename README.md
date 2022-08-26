@@ -47,6 +47,7 @@ FLAGS:
         --with-orphans           Include orphaned modules (i.e. unused files in /src)
         --with-tests             Include tests (e.g. `#[cfg(test)] mod tests { … }`)
         --with-types             Include types (e.g. structs, enums)
+        --with-fns               Include functions (e.g. fns, async fns, const fns)
 
 OPTIONS:
         --bin <bin>                        Process only the specified binary
@@ -84,8 +85,8 @@ Test modules and functions have their corresponding `<test-attributes>` (i.e. `#
 
 The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-and-privacy.html)) is further more highlighted by the following colors:
 
-| Color     | Meaning                                                                            |
-|-----------|------------------------------------------------------------------------------------|
+| Color    | Meaning                                                                            |
+| -------- | ---------------------------------------------------------------------------------- |
 | 🟢 green  | Items visible to all and everything (i.e. `pub`)                                   |
 | 🟡 yellow | Items visible to the current crate (i.e. `pub(crate)`)                             |
 | 🟠 orange | Items visible to a certain parent module (i.e. `pub(in path)`)                     |
@@ -158,8 +159,8 @@ The individual nodes are structured as follows:
 
 The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-and-privacy.html)) is further more highlighted by the following colors:
 
-| Color     | Meaning                                                                            |
-|-----------|------------------------------------------------------------------------------------|
+| Color    | Meaning                                                                            |
+| -------- | ---------------------------------------------------------------------------------- |
 | 🔵 blue   | Crates (i.e. their implicit root module)                                           |
 | 🟢 green  | Items visible to all and everything (i.e. `pub`)                                   |
 | 🟡 yellow | Items visible to the current crate (i.e. `pub(crate)`)                             |

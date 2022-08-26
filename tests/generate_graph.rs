@@ -319,6 +319,16 @@ mod with_types {
     );
 }
 
+mod with_fns {
+    test_cmd!(
+        args: "generate graph \
+                --with-fns",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: smoke
+    );
+}
+
 mod with_uses {
     test_cmd!(
         args: "generate graph \
