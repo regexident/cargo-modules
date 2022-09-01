@@ -41,5 +41,5 @@ ra_ap_vfs = "=0.0.122"
 [dev-dependencies]
 assert_cmd = "2.0.4"
 shellwords = "1.1"
-insta = "1.19.0"
+insta = "1.19.1"
 bitflags = "1.3.2"
