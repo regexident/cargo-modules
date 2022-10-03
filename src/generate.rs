@@ -8,10 +8,12 @@ use log::{debug, trace};
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
 use ra_ap_hir::{self, Crate};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
+use ra_ap_ide_db::FxHashMap;
 use ra_ap_paths::AbsPathBuf;
 use ra_ap_proc_macro_api::ProcMacroServer;
 use ra_ap_project_model::{
-    CargoConfig, PackageData, ProjectManifest, ProjectWorkspace, TargetData, UnsetTestCrates,
+    CargoConfig, CargoFeatures, PackageData, ProjectManifest, ProjectWorkspace, RustcSource,
+    TargetData, UnsetTestCrates,
 };
 use ra_ap_rust_analyzer::cli::load_cargo::{load_workspace, LoadCargoConfig};
 use ra_ap_vfs::Vfs;
@@ -113,21 +115,25 @@ impl Command {
     }
 
     fn cargo_config(&self, project_options: &ProjectOptions) -> CargoConfig {
-        // Do not activate the `default` feature.
-        let no_default_features = project_options.no_default_features;
-
-        // Activate all available features
-        let all_features = project_options.all_features;
-
-        // List of features to activate.
-        // (This will be ignored if `cargo_all_features` is true.)
-        let features = project_options.features.clone();
+        // List of features to activate (or deactivate).
+        let features = if project_options.all_features {
+            CargoFeatures::All
+        } else {
+            CargoFeatures::Selected {
+                features: project_options.features.clone(),
+                no_default_features: project_options.no_default_features,
+            }
+        };
 
         // Target triple
         let target = project_options.target.clone();
 
-        // Don't load sysroot crates (`std`, `core` & friends).
-        let no_sysroot = !(project_options.with_sysroot && self.with_sysroot());
+        // Whether to load sysroot crates (`std`, `core` & friends).
+        let sysroot = if project_options.with_sysroot && self.with_sysroot() {
+            Some(RustcSource::Discover)
+        } else {
+            None
+        };
 
         // rustc private crate source
         let rustc_source = None;
@@ -145,16 +151,18 @@ impl Command {
 
         let run_build_script_command = None;
 
+        // FIXME: support extra environment variables via CLI:
+        let extra_env = FxHashMap::default();
+
         CargoConfig {
-            no_default_features,
-            all_features,
             features,
             target,
-            no_sysroot,
+            sysroot,
             rustc_source,
             unset_test_crates,
             wrap_rustc_in_build_scripts,
             run_build_script_command,
+            extra_env,
         }
     }
 
@@ -214,7 +222,7 @@ impl Command {
             workspace.set_build_scripts(build_scripts)
         }
 
-        load_workspace(workspace, load_config)
+        load_workspace(workspace, &cargo_config.extra_env, load_config)
     }
 
     fn find_crate(
