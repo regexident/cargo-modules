@@ -25,6 +25,7 @@ Please make sure to add your changes to the appropriate categories:
 ### Changed
 
 - Updated to latest crate dependencies.
+- Made graph layout algorithm ignore `"uses"` edges in constraint calculation.
 
 ### Deprecated
 
