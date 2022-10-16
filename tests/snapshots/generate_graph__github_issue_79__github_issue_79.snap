@@ -43,14 +43,14 @@ digraph {
     "github_issue_79::a::d" [label="pub mod|a::d", fillcolor="#81c169"]; // "mod" node
     "github_issue_79::a::d::e" [label="pub(self) mod|a::d::e", fillcolor="#db5367"]; // "mod" node
 
-    "github_issue_79" -> "github_issue_79::a" [label="owns", color="#000000", style="solid"]; // "owns" edge
-    "github_issue_79::a" -> "github_issue_79::a::b" [label="owns", color="#000000", style="solid"]; // "owns" edge
-    "github_issue_79::a::b" -> "github_issue_79::a::b::c" [label="owns", color="#000000", style="solid"]; // "owns" edge
-    "github_issue_79::a::b" -> "github_issue_79::a::b::c" [label="uses", color="#7f7f7f", style="dashed"]; // "uses" edge
-    "github_issue_79::a" -> "github_issue_79::a::d" [label="owns", color="#000000", style="solid"]; // "owns" edge
-    "github_issue_79::a::d" -> "github_issue_79::a::d::e" [label="owns", color="#000000", style="solid"]; // "owns" edge
-    "github_issue_79::a" -> "github_issue_79::a::b::c" [label="uses", color="#7f7f7f", style="dashed"]; // "uses" edge
-    "github_issue_79::a" -> "github_issue_79::a::d" [label="uses", color="#7f7f7f", style="dashed"]; // "uses" edge
+    "github_issue_79" -> "github_issue_79::a" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_79::a" -> "github_issue_79::a::b" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_79::a::b" -> "github_issue_79::a::b::c" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_79::a::b" -> "github_issue_79::a::b::c" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "github_issue_79::a" -> "github_issue_79::a::d" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_79::a::d" -> "github_issue_79::a::d::e" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_79::a" -> "github_issue_79::a::b::c" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "github_issue_79::a" -> "github_issue_79::a::d" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 
 }
 
