@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated to latest crate dependencies.
+
 ### Deprecated
 
 - n/a
