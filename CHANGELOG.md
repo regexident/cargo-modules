@@ -24,7 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated to latest crate dependencies.
+- n/a
 
 ### Deprecated
 
@@ -50,7 +50,14 @@ Please make sure to add your changes to the appropriate categories:
 
 - n/a
 
+## [0.5.13] - 2022-10-24
+
+### Changed
+
+- Updated to latest crate dependencies.
+
 ## [0.5.12] - 2022-10-16
+
 ### Changed
 
 - Updated to latest crate dependencies.
