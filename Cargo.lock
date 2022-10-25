@@ -106,7 +106,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-modules"
-version = "0.5.13"
+version = "0.5.14"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -116,6 +116,7 @@ dependencies = [
  "insta",
  "json",
  "log",
+ "lsp-types",
  "petgraph 0.6.2",
  "ra_ap_base_db",
  "ra_ap_cfg",

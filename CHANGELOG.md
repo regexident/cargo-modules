@@ -50,6 +50,12 @@ Please make sure to add your changes to the appropriate categories:
 
 - n/a
 
+## [0.5.14] - 2022-10-25
+
+### Fixed
+
+- Upstream semver bug in rust-analyzer that would prevent running `cargo install` for `0.5.12` and `0.5.13` ([issue](https://github.com/regexident/cargo-modules/issues/137)).
+
 ## [0.5.13] - 2022-10-24
 
 ### Changed
