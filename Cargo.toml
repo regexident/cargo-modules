@@ -37,6 +37,9 @@ ra_ap_rust-analyzer = "=0.0.134"
 ra_ap_text_edit = "=0.0.134"
 ra_ap_vfs = "=0.0.134"
 
+# Temporary fix for https://github.com/regexident/cargo-modules/issues/137
+lsp-types = "=0.93.1"
+
 # required by tests
 [dev-dependencies]
 assert_cmd = "2.0.5"
