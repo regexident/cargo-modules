@@ -24,7 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated `rust-analyzer` dependencies to `v0.0.137`.
 
 ### Deprecated
 
