@@ -12,8 +12,8 @@ use ra_ap_ide_db::FxHashMap;
 use ra_ap_paths::AbsPathBuf;
 use ra_ap_proc_macro_api::ProcMacroServer;
 use ra_ap_project_model::{
-    CargoConfig, CargoFeatures, PackageData, ProjectManifest, ProjectWorkspace, RustcSource,
-    TargetData, UnsetTestCrates,
+    CargoConfig, CargoFeatures, InvocationLocation, InvocationStrategy, PackageData,
+    ProjectManifest, ProjectWorkspace, RustcSource, TargetData, UnsetTestCrates,
 };
 use ra_ap_rust_analyzer::cli::load_cargo::{load_workspace, LoadCargoConfig};
 use ra_ap_vfs::Vfs;
@@ -154,6 +154,9 @@ impl Command {
         // FIXME: support extra environment variables via CLI:
         let extra_env = FxHashMap::default();
 
+        let invocation_strategy = InvocationStrategy::PerWorkspace;
+        let invocation_location = InvocationLocation::Workspace;
+
         CargoConfig {
             features,
             target,
@@ -163,6 +166,8 @@ impl Command {
             wrap_rustc_in_build_scripts,
             run_build_script_command,
             extra_env,
+            invocation_strategy,
+            invocation_location,
         }
     }
 
