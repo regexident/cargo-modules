@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "CHANGELOG.md"
   schedule:
     - cron: "0 3 * * 0-6"
 
