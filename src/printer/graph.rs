@@ -51,8 +51,9 @@ impl Printer {
         start_node_idx: NodeIndex,
     ) -> Result<(), anyhow::Error> {
         let root_node = &graph[start_node_idx];
-        let crate_name = root_node.display_name();
-        let layout_name = &self.options.layout[..];
+        let label = root_node.display_path();
+        let layout = &self.options.layout[..];
+        let i = INDENTATION;
 
         writeln!(f, "digraph {{")?;
 
@@ -78,9 +79,6 @@ impl Printer {
             {i}    fontsize="36",
             {i}];
             "#,
-            i = INDENTATION,
-            label = crate_name,
-            layout = layout_name,
         )?;
 
         writeln!(f)?;
@@ -95,7 +93,6 @@ impl Printer {
             {i}    style="filled",
             {i}];
             "#,
-            i = INDENTATION,
         )?;
 
         writeln!(f)?;
@@ -108,7 +105,6 @@ impl Printer {
             {i}    fontsize="10",
             {i}];
             "#,
-            i = INDENTATION,
         )?;
 
         writeln!(f)?;
@@ -136,14 +132,11 @@ impl Printer {
             let label = self.node_label(node)?;
             let attributes = self.node_attributes(node);
 
+            let i = INDENTATION;
+
             writeln!(
                 f,
                 r#"{i}{id:?} [label={label:?}{attributes}]; // {kind:?} node"#,
-                i = INDENTATION,
-                id = id,
-                label = label,
-                attributes = attributes,
-                kind = kind,
             )?;
         }
 
@@ -168,16 +161,11 @@ impl Printer {
                 EdgeKind::Owns => "[constraint=true]",
             };
 
+            let i = INDENTATION;
+
             writeln!(
                 f,
                 r#"{i}{source:?} -> {target:?} [label={label:?}{attributes}] {constraint}; // {kind:?} edge"#,
-                i = INDENTATION,
-                source = source,
-                target = target,
-                label = label,
-                attributes = attributes,
-                kind = kind,
-                constraint = constraint
             )?;
         }
 
