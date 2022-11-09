@@ -20,7 +20,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Support for accepting a full use-tree (e.g. `foo:bar::{self, baz, blee::*}`), instead of just simple paths.
 
 ### Changed
 
