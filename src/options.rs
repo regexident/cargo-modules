@@ -30,12 +30,13 @@ pub mod graph {
 
     #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
     pub struct Options {
-        /// Focus the graph on a particular path's environment.
+        /// Focus the graph on a particular path or use-tree's environment,
+        /// e.g. "foo:bar::{self, baz, blee::*}".
         #[structopt(long = "focus-on")]
         pub focus_on: Option<String>,
 
         /// The maximum depth of the generated graph
-        /// relative to the node selected by '--focus-on'.
+        /// relative to the crate's root node, or nodes selected by '--focus-on'.
         #[structopt(long = "max-depth")]
         pub max_depth: Option<usize>,
 

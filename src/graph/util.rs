@@ -2,12 +2,19 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+use std::collections::HashSet;
+
 use log::trace;
+use petgraph::visit::{EdgeRef, IntoEdgeReferences};
 use ra_ap_cfg::CfgExpr;
 use ra_ap_hir::{self as hir, HasAttrs};
 use ra_ap_ide_db::RootDatabase;
 
-use crate::graph::{walker::GraphWalker, Graph, NodeIndex};
+use crate::graph::{
+    edge::{Edge, EdgeKind},
+    walker::GraphWalker,
+    Graph, NodeIndex,
+};
 
 pub fn idx_of_node_with_path(
     graph: &Graph,
@@ -24,17 +31,146 @@ pub fn idx_of_node_with_path(
     node_idx.ok_or_else(|| anyhow::anyhow!("No node found with path {:?}", path))
 }
 
-pub fn shrink_graph(graph: &mut Graph, focus_node_idx: NodeIndex, max_depth: usize) {
-    let mut walker = GraphWalker::new();
-
+pub fn shrink_graph<'a, I>(graph: &mut Graph, focus_node_idxs: I, max_depth: usize)
+where
+    I: 'a + IntoIterator<Item = &'a NodeIndex>,
+{
     trace!(
-        "Walking graph from focus node up to depth {} ...",
+        "Shrinking graph from focus nodes up to depth {} ...",
         max_depth
     );
 
-    walker.walk_graph(graph, focus_node_idx, max_depth);
+    // This stuff is essentially asking to be implemented using some kind of datalog.
+    // Alas the datafrog turned out to be a bit too unergonomic for my liking,
+    // requiring to many intermediary rules, etc. So here we are, doing it in pure Rust.
+    // It's not pretty, but it works, I guess?
 
-    graph.retain_nodes(|_graph, node_idx| walker.nodes_visited.contains(&node_idx));
+    let nodes_to_keep = select_nodes_to_keep(graph, focus_node_idxs, max_depth);
+
+    redirect_uses_edges(graph, |node_idx| nodes_to_keep.contains(&node_idx));
+
+    graph.retain_nodes(|_graph, node_idx| nodes_to_keep.contains(&node_idx));
+}
+
+fn select_nodes_to_keep<'a, I>(
+    graph: &Graph,
+    focus_node_idxs: I,
+    max_depth: usize,
+) -> HashSet<NodeIndex>
+where
+    I: 'a + IntoIterator<Item = &'a NodeIndex>,
+{
+    let mut nodes_to_keep: HashSet<NodeIndex> = HashSet::default();
+
+    // Walk graph, collecting visited nodes:
+    for focus_node_idx in focus_node_idxs {
+        // Walks from a node to its descendants in the graph (i.e. sub-items & dependencies):
+        let mut descendants_walker = GraphWalker::new(petgraph::Direction::Outgoing);
+        descendants_walker.walk_graph(graph, *focus_node_idx, |_edge, _node, depth| {
+            depth <= max_depth
+        });
+        nodes_to_keep.extend(descendants_walker.nodes_visited);
+
+        // Walks from a node to its ascendants in the graph (i.e. super-items & dependents):
+        let mut ascendants_walker = GraphWalker::new(petgraph::Direction::Incoming);
+        ascendants_walker.walk_graph(graph, *focus_node_idx, |edge, _node, depth| {
+            (edge.kind == EdgeKind::Owns) || (depth <= max_depth)
+        });
+        nodes_to_keep.extend(ascendants_walker.nodes_visited);
+    }
+    nodes_to_keep
+}
+
+// Re-attach any "uses" edges of unvisited nodes with the node associated
+// with their nearest parent module that will remain alive after shrinking:
+fn redirect_uses_edges<F>(graph: &mut Graph, predicate: F) -> bool
+where
+    F: Fn(NodeIndex) -> bool,
+{
+    let mut pending_edges: Vec<_> = vec![];
+    let mut retired_edges: Vec<_> = vec![];
+
+    let predicate = &predicate;
+
+    for edge_ref in graph.edge_references() {
+        let edge_idx = edge_ref.id();
+
+        if edge_ref.weight().kind != EdgeKind::Uses {
+            // We're only caring about "uses" edges here:
+            continue;
+        }
+
+        let mut source_idx: NodeIndex = edge_ref.source();
+        let mut target_idx: NodeIndex = edge_ref.target();
+
+        let source_is_alive = predicate(source_idx);
+        let target_is_alive = predicate(target_idx);
+
+        if !source_is_alive {
+            // Source node is not alive, so find its nearest parent module that is:
+            let node_idx = nearest_matching_parent(graph, source_idx, predicate);
+            match node_idx {
+                Some(node_idx) => {
+                    source_idx = node_idx;
+                }
+                None => continue,
+            }
+        } else if !target_is_alive {
+            // Target node is not alive, so find its nearest parent module that is:
+            let node_idx = nearest_matching_parent(graph, target_idx, predicate);
+            match node_idx {
+                Some(node_idx) => target_idx = node_idx,
+                None => continue,
+            }
+        } else {
+            // Both nodes are alive, nothing to do!
+            continue;
+        }
+
+        let edge = Edge {
+            kind: EdgeKind::Uses,
+        };
+
+        retired_edges.push(edge_idx);
+        pending_edges.push((source_idx, target_idx, edge));
+    }
+
+    if pending_edges.is_empty() {
+        return false;
+    }
+
+    // Remove edges
+    for edge_idx in retired_edges {
+        graph.remove_edge(edge_idx);
+    }
+
+    for (source_idx, target_idx, edge) in pending_edges {
+        graph.update_edge(source_idx, target_idx, edge);
+    }
+
+    true
+}
+
+fn nearest_matching_parent<F>(graph: &Graph, node_idx: NodeIndex, predicate: F) -> Option<NodeIndex>
+where
+    F: Fn(NodeIndex) -> bool,
+{
+    graph
+        .edges_directed(node_idx, petgraph::Direction::Incoming)
+        .find_map(|edge_ref| {
+            let edge = edge_ref.weight();
+            match edge.kind {
+                EdgeKind::Uses => None,
+                EdgeKind::Owns => {
+                    let source_idx = edge_ref.source();
+                    if predicate(source_idx) {
+                        Some(edge_ref.source())
+                    } else {
+                        None
+                    }
+                }
+            }
+        })
 }
 
 pub(crate) fn krate_name(krate: hir::Crate, db: &RootDatabase) -> String {
