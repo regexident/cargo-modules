@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::path::Path;
+use std::{collections::HashSet, path::Path};
 
 use log::{debug, trace};
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
@@ -16,6 +16,7 @@ use ra_ap_project_model::{
     ProjectManifest, ProjectWorkspace, RustcSource, TargetData, UnsetTestCrates,
 };
 use ra_ap_rust_analyzer::cli::load_cargo::{load_workspace, LoadCargoConfig};
+use ra_ap_syntax::{ast, AstNode, SourceFile};
 use ra_ap_vfs::Vfs;
 use structopt::StructOpt;
 
@@ -24,7 +25,7 @@ use crate::{
         builder::{Builder as GraphBuilder, Options as GraphBuilderOptions},
         edge::Edge,
         node::Node,
-        util,
+        util::{self, idx_of_node_with_path},
     },
     options::{
         general::Options as GeneralOptions, graph::Options as GraphOptions,
@@ -96,20 +97,26 @@ impl Command {
 
         let krate = self.find_crate(db, &vfs, &target)?;
 
-        let (graph, start_node_idx) = self.build_graph(db, &vfs, krate, graph_options)?;
+        let (graph, start_node_idxs) = self.build_graph(db, &vfs, krate, graph_options)?;
 
         trace!("Generating ...");
 
         match self {
             #[allow(unused_variables)]
             Self::Tree(options) => {
-                let command = tree::Command::new(options.clone());
-                command.run(&graph, start_node_idx, krate, db)
+                for start_node_idx in start_node_idxs {
+                    let command = tree::Command::new(options.clone());
+                    command.run(&graph, start_node_idx, krate, db)?;
+                }
+                Ok(())
             }
             #[allow(unused_variables)]
             Self::Graph(options) => {
-                let command = graph::Command::new(options.clone());
-                command.run(&graph, start_node_idx, krate, db)
+                for start_node_idx in start_node_idxs {
+                    let command = graph::Command::new(options.clone());
+                    command.run(&graph, start_node_idx, krate, db)?;
+                }
+                Ok(())
             }
         }
     }
@@ -256,34 +263,123 @@ impl Command {
         vfs: &Vfs,
         krate: Crate,
         options: &GraphOptions,
-    ) -> anyhow::Result<(StableGraph<Node, Edge>, NodeIndex)> {
+    ) -> anyhow::Result<(StableGraph<Node, Edge>, HashSet<NodeIndex>)> {
         let graph_builder = {
             let builder_options = self.builder_options();
             GraphBuilder::new(builder_options, db, vfs, krate)
         };
 
-        let focus_path: Vec<_> = {
-            let path_string = options
-                .focus_on
-                .clone()
-                .unwrap_or_else(|| krate.display_name(db).unwrap().to_string());
-            path_string.split("::").map(|c| c.to_owned()).collect()
+        let crate_name = krate.display_name(db).unwrap().to_string();
+
+        let focus_on = match &options.focus_on {
+            Some(string) => string.to_owned(),
+            None => crate_name.clone(),
         };
+
+        let syntax = format!("use {};", focus_on);
+        let use_tree: ast::UseTree = Self::parse_ast(&syntax);
 
         trace!("Constructing graph ...");
 
         let mut graph = graph_builder.build(krate)?;
 
-        trace!("Searching for start node in graph ...");
+        trace!("Searching for focus nodes in graph ...");
 
-        let start_node_idx = util::idx_of_node_with_path(&graph, &focus_path[..], db)?;
+        let focus_node_idxs: Vec<NodeIndex> = graph
+            .node_indices()
+            .filter(|node_idx| {
+                let node = &graph[*node_idx];
+                let node_path: ast::Path = {
+                    let syntax = node.path.join("::");
+                    Self::parse_ast(&syntax)
+                };
+                Self::use_tree_matches_path(&use_tree, &node_path)
+            })
+            .collect();
 
-        trace!("Shrinking graph to desired depth ...");
+        if focus_node_idxs.is_empty() {
+            anyhow::bail!("No node found matching use tree '{:?}'", focus_on);
+        }
+
+        let crate_path = vec![crate_name];
+        let crate_node_idx = idx_of_node_with_path(&graph, &crate_path[..], db).unwrap();
+        let crate_node_idxs: HashSet<_> = HashSet::from_iter([crate_node_idx]);
 
         let max_depth = options.max_depth.unwrap_or(usize::MAX);
-        util::shrink_graph(&mut graph, start_node_idx, max_depth);
+        util::shrink_graph(&mut graph, focus_node_idxs.iter(), max_depth);
 
-        Ok((graph, start_node_idx))
+        Ok((graph, crate_node_idxs))
+    }
+
+    // https://github.com/rust-lang/rust-analyzer/blob/36a70b7435c48837018c71576d7bb4e8f763f501/crates/syntax/src/ast/make.rs#L821
+    fn parse_ast<N: AstNode>(text: &str) -> N {
+        let parse = SourceFile::parse(text);
+        let node = match parse.tree().syntax().descendants().find_map(N::cast) {
+            Some(it) => it,
+            None => {
+                let node = std::any::type_name::<N>();
+                panic!("Failed to make ast node `{node}` from text {text}")
+            }
+        };
+        let node = node.clone_subtree();
+        assert_eq!(node.syntax().text_range().start(), 0.into());
+        node
+    }
+
+    fn use_tree_matches_path(use_tree: &ast::UseTree, path: &ast::Path) -> bool {
+        let mut path_segments_iter = path.segments();
+
+        if let Some(use_tree_path) = use_tree.path() {
+            for use_tree_segment in use_tree_path.segments() {
+                match path_segments_iter.next() {
+                    Some(path_segment) => {
+                        if use_tree_segment.syntax().text() == path_segment.syntax().text() {
+                            continue;
+                        } else {
+                            return false;
+                        }
+                    }
+                    None => {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        let path_segments: Vec<_> = path_segments_iter.collect();
+
+        if path_segments.is_empty() {
+            return use_tree.is_simple_path() || Self::tree_contains_self(use_tree);
+        }
+
+        if use_tree.star_token().is_some() {
+            return path_segments.len() == 1;
+        }
+
+        let path_suffix = ast::make::path_from_segments(path_segments, false);
+
+        use_tree
+            .use_tree_list()
+            .into_iter()
+            .flat_map(|list| list.use_trees())
+            .any(|use_tree| Self::use_tree_matches_path(&use_tree, &path_suffix))
+    }
+
+    fn path_is_self(path: &ast::Path) -> bool {
+        path.segment().and_then(|seg| seg.self_token()).is_some() && path.qualifier().is_none()
+    }
+
+    fn tree_is_self(tree: &ast::UseTree) -> bool {
+        tree.path()
+            .as_ref()
+            .map(Self::path_is_self)
+            .unwrap_or(false)
+    }
+
+    fn tree_contains_self(tree: &ast::UseTree) -> bool {
+        tree.use_tree_list()
+            .map(|tree_list| tree_list.use_trees().any(|tree| Self::tree_is_self(&tree)))
+            .unwrap_or(false)
     }
 
     fn with_sysroot(&self) -> bool {
