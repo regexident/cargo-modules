@@ -323,3 +323,35 @@ mod github_issue_80 {
         );
     }
 }
+
+mod max_depth {
+    mod depth_0 {
+        test_cmd!(
+            args: "generate tree \
+                    --max-depth 0",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod depth_1 {
+        test_cmd!(
+            args: "generate tree \
+                    --max-depth 1",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod depth_2 {
+        test_cmd!(
+            args: "generate tree \
+                    --max-depth 2",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+}
