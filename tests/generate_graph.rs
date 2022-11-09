@@ -366,6 +366,49 @@ mod with_uses_with_externs_with_sysroot {
     );
 }
 
+mod focus_on {
+    mod simple_path {
+        test_cmd!(
+            args: "generate graph \
+                    --with-uses \
+                    --focus-on \"smoke::visibility::dummy\"",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+    mod glob_path {
+        test_cmd!(
+            args: "generate graph \
+                    --with-uses \
+                    --focus-on \"smoke::visibility::*\"",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+    mod self_path {
+        test_cmd!(
+            args: "generate graph \
+                    --with-uses \
+                    --focus-on \"smoke::visibility::dummy::{self}\"",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+    mod tree {
+        test_cmd!(
+            args: "generate graph \
+                    --with-uses \
+                    --focus-on \"smoke::visibility::{dummy, hierarchy}\"",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+}
+
 mod max_depth {
     mod depth_0 {
         test_cmd!(
