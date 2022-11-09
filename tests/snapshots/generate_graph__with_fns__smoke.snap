@@ -61,24 +61,14 @@ digraph {
     "smoke::visibility::dummy::mods::pub_super" [label="pub(super) mod|visibility::dummy::mods::pub_super", fillcolor="#fe9454"]; // "mod" node
     "smoke::visibility::dummy::mods::pub_private" [label="pub(self) mod|visibility::dummy::mods::pub_private", fillcolor="#db5367"]; // "mod" node
     "smoke::visibility::dummy::structs" [label="pub(self) mod|visibility::dummy::structs", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::structs::PubPublic" [label="pub struct|visibility::dummy::structs::PubPublic", fillcolor="#81c169"]; // "struct" node
-    "smoke::visibility::dummy::structs::PubCrate" [label="pub(crate) struct|visibility::dummy::structs::PubCrate", fillcolor="#f8c04c"]; // "struct" node
-    "smoke::visibility::dummy::structs::PubModule" [label="pub(in crate::visibility) struct|visibility::dummy::structs::PubModule", fillcolor="#fe9454"]; // "struct" node
-    "smoke::visibility::dummy::structs::PubSuper" [label="pub(super) struct|visibility::dummy::structs::PubSuper", fillcolor="#fe9454"]; // "struct" node
-    "smoke::visibility::dummy::structs::PubPrivate" [label="pub(self) struct|visibility::dummy::structs::PubPrivate", fillcolor="#db5367"]; // "struct" node
     "smoke::visibility::dummy::enums" [label="pub(self) mod|visibility::dummy::enums", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::enums::PubPublic" [label="pub enum|visibility::dummy::enums::PubPublic", fillcolor="#81c169"]; // "enum" node
-    "smoke::visibility::dummy::enums::PubCrate" [label="pub(crate) enum|visibility::dummy::enums::PubCrate", fillcolor="#f8c04c"]; // "enum" node
-    "smoke::visibility::dummy::enums::PubModule" [label="pub(in crate::visibility) enum|visibility::dummy::enums::PubModule", fillcolor="#fe9454"]; // "enum" node
-    "smoke::visibility::dummy::enums::PubSuper" [label="pub(super) enum|visibility::dummy::enums::PubSuper", fillcolor="#fe9454"]; // "enum" node
-    "smoke::visibility::dummy::enums::PubPrivate" [label="pub(self) enum|visibility::dummy::enums::PubPrivate", fillcolor="#db5367"]; // "enum" node
     "smoke::visibility::dummy::unions" [label="pub(self) mod|visibility::dummy::unions", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::unions::PubPublic" [label="pub union|visibility::dummy::unions::PubPublic", fillcolor="#81c169"]; // "union" node
-    "smoke::visibility::dummy::unions::PubCrate" [label="pub(crate) union|visibility::dummy::unions::PubCrate", fillcolor="#f8c04c"]; // "union" node
-    "smoke::visibility::dummy::unions::PubModule" [label="pub(in crate::visibility) union|visibility::dummy::unions::PubModule", fillcolor="#fe9454"]; // "union" node
-    "smoke::visibility::dummy::unions::PubSuper" [label="pub(super) union|visibility::dummy::unions::PubSuper", fillcolor="#fe9454"]; // "union" node
-    "smoke::visibility::dummy::unions::PubPrivate" [label="pub(self) union|visibility::dummy::unions::PubPrivate", fillcolor="#db5367"]; // "union" node
     "smoke::visibility::dummy::fns" [label="pub(self) mod|visibility::dummy::fns", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::fns::pub_public" [label="pub fn|visibility::dummy::fns::pub_public", fillcolor="#81c169"]; // "fn" node
+    "smoke::visibility::dummy::fns::pub_crate" [label="pub(crate) fn|visibility::dummy::fns::pub_crate", fillcolor="#f8c04c"]; // "fn" node
+    "smoke::visibility::dummy::fns::pub_module" [label="pub(in crate::visibility) fn|visibility::dummy::fns::pub_module", fillcolor="#fe9454"]; // "fn" node
+    "smoke::visibility::dummy::fns::pub_super" [label="pub(super) fn|visibility::dummy::fns::pub_super", fillcolor="#fe9454"]; // "fn" node
+    "smoke::visibility::dummy::fns::pub_private" [label="pub(self) fn|visibility::dummy::fns::pub_private", fillcolor="#db5367"]; // "fn" node
 
     "smoke" -> "smoke::orphans" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::uses" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -104,24 +94,14 @@ digraph {
     "smoke::visibility::dummy::mods" -> "smoke::visibility::dummy::mods::pub_super" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::mods" -> "smoke::visibility::dummy::mods::pub_private" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::structs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::structs" -> "smoke::visibility::dummy::structs::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::structs" -> "smoke::visibility::dummy::structs::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::structs" -> "smoke::visibility::dummy::structs::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::structs" -> "smoke::visibility::dummy::structs::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::structs" -> "smoke::visibility::dummy::structs::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::enums" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::enums" -> "smoke::visibility::dummy::enums::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::enums" -> "smoke::visibility::dummy::enums::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::enums" -> "smoke::visibility::dummy::enums::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::enums" -> "smoke::visibility::dummy::enums::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::enums" -> "smoke::visibility::dummy::enums::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::unions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::fns" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::fns" -> "smoke::visibility::dummy::fns::pub_public" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::fns" -> "smoke::visibility::dummy::fns::pub_crate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::fns" -> "smoke::visibility::dummy::fns::pub_module" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::fns" -> "smoke::visibility::dummy::fns::pub_super" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::fns" -> "smoke::visibility::dummy::fns::pub_private" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
 

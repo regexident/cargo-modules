@@ -25,12 +25,12 @@ crate smoke
 └── mod visibility: pub(crate)
     └── mod dummy: pub(self)
         ├── mod enums: pub(self)
-        │   ├── enum PubCrate: pub(crate)
-        │   ├── enum PubModule: pub(in crate::visibility)
-        │   ├── enum PubPrivate: pub(self)
-        │   ├── enum PubPublic: pub
-        │   └── enum PubSuper: pub(super)
         ├── mod fns: pub(self)
+        │   ├── fn pub_crate: pub(crate)
+        │   ├── fn pub_module: pub(in crate::visibility)
+        │   ├── fn pub_private: pub(self)
+        │   ├── fn pub_public: pub
+        │   └── fn pub_super: pub(super)
         ├── mod mods: pub(self)
         │   ├── mod pub_crate: pub(crate)
         │   ├── mod pub_module: pub(in crate::visibility)
@@ -38,15 +38,5 @@ crate smoke
         │   ├── mod pub_public: pub
         │   └── mod pub_super: pub(super)
         ├── mod structs: pub(self)
-        │   ├── struct PubCrate: pub(crate)
-        │   ├── struct PubModule: pub(in crate::visibility)
-        │   ├── struct PubPrivate: pub(self)
-        │   ├── struct PubPublic: pub
-        │   └── struct PubSuper: pub(super)
         └── mod unions: pub(self)
-            ├── union PubCrate: pub(crate)
-            ├── union PubModule: pub(in crate::visibility)
-            ├── union PubPrivate: pub(self)
-            ├── union PubPublic: pub
-            └── union PubSuper: pub(super)
 
