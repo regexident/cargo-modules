@@ -8,55 +8,58 @@ use petgraph::{graph::NodeIndex, visit::EdgeRef, Direction};
 
 use crate::graph::Graph;
 
+use super::{edge::Edge, node::Node};
+
 pub(crate) struct GraphWalker {
+    direction: Direction,
     pub(crate) nodes_visited: HashSet<NodeIndex>,
 }
 
 impl GraphWalker {
-    pub(crate) fn new() -> Self {
-        let nodes_visited: HashSet<NodeIndex> = HashSet::new();
+    pub(crate) fn new(direction: Direction) -> Self {
+        let nodes_visited = HashSet::default();
 
-        Self { nodes_visited }
+        Self {
+            direction,
+            nodes_visited,
+        }
     }
 
-    pub(crate) fn walk_graph(
-        &mut self,
-        graph: &Graph,
-        origin_node_idx: NodeIndex,
-        max_depth: usize,
-    ) -> Graph {
-        self.visit_node_recursively(graph, origin_node_idx, max_depth, 0);
-
-        graph.to_owned()
+    pub(crate) fn walk_graph<F>(&mut self, graph: &Graph, origin_node_idx: NodeIndex, predicate: F)
+    where
+        F: Fn(&Edge, &Node, usize) -> bool,
+    {
+        self.visit_node_recursively(graph, origin_node_idx, 0, &predicate);
     }
 
-    pub(crate) fn visit_node_recursively(
+    pub(crate) fn visit_node_recursively<F>(
         &mut self,
         graph: &Graph,
         node_idx: NodeIndex,
-        max_depth: usize,
         depth: usize,
-    ) {
-        if depth > max_depth {
-            return;
-        }
-
+        predicate: &F,
+    ) where
+        F: Fn(&Edge, &Node, usize) -> bool,
+    {
         if self.nodes_visited.contains(&node_idx) {
             return;
         }
 
         self.nodes_visited.insert(node_idx);
 
-        let edges_directed = graph.edges_directed(node_idx, Direction::Outgoing);
+        let edges_directed = graph.edges_directed(node_idx, self.direction);
 
         for edge_ref in edges_directed {
-            if depth > max_depth {
-                return;
+            let node_idx = match self.direction {
+                Direction::Outgoing => edge_ref.target(),
+                Direction::Incoming => edge_ref.source(),
+            };
+
+            if !predicate(edge_ref.weight(), &graph[node_idx], depth + 1) {
+                continue;
             }
 
-            let target_node_idx = edge_ref.target();
-
-            self.visit_node_recursively(graph, target_node_idx, max_depth, depth + 1);
+            self.visit_node_recursively(graph, node_idx, depth + 1, predicate);
         }
     }
 }
