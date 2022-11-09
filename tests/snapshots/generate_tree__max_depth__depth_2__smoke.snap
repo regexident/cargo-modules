@@ -1,0 +1,17 @@
+---
+source: tests/generate_tree.rs
+expression: output
+---
+STDERR:
+
+STDOUT:
+
+crate smoke
+├── mod hierarchy: pub(crate)
+│   └── mod lorem: pub(self)
+├── mod orphans: pub(crate)
+├── mod uses: pub(crate)
+│   └── mod cycle: pub(self)
+└── mod visibility: pub(crate)
+    └── mod dummy: pub(self)
+

@@ -366,6 +366,41 @@ mod with_uses_with_externs_with_sysroot {
     );
 }
 
+mod max_depth {
+    mod depth_0 {
+        test_cmd!(
+            args: "generate graph \
+                    --with-uses \
+                    --max-depth 0",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod depth_1 {
+        test_cmd!(
+            args: "generate graph \
+                    --with-uses \
+                    --max-depth 1",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod depth_2 {
+        test_cmd!(
+            args: "generate graph \
+                    --with-uses \
+                    --max-depth 2",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+}
+
 mod github_issue_79 {
     test_cmd!(
         args: "generate graph \

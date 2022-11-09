@@ -1,0 +1,52 @@
+---
+source: tests/generate_graph.rs
+expression: output
+---
+STDERR:
+
+STDOUT:
+digraph {
+
+    graph [
+        label="smoke",
+        labelloc=t,
+
+        pad=0.4,
+
+        // Consider rendering the graph using a different layout algorithm, such as:
+        // [dot, neato, twopi, circo, fdp, sfdp]
+        layout=neato,
+        overlap=false,
+        splines="line",
+        rankdir=LR,
+
+        fontname="Helvetica", 
+        fontsize="36",
+    ];
+
+    node [
+        fontname="monospace",
+        fontsize="10",
+        shape="record",
+        style="filled",
+    ];
+
+    edge [
+        fontname="monospace",
+        fontsize="10",
+    ];
+
+    "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
+    "smoke::orphans" [label="pub(crate) mod|orphans", fillcolor="#f8c04c"]; // "mod" node
+    "smoke::uses" [label="pub(crate) mod|uses", fillcolor="#f8c04c"]; // "mod" node
+    "smoke::hierarchy" [label="pub(crate) mod|hierarchy", fillcolor="#f8c04c"]; // "mod" node
+    "smoke::visibility" [label="pub(crate) mod|visibility", fillcolor="#f8c04c"]; // "mod" node
+
+    "smoke" -> "smoke::orphans" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::uses" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::uses" -> "smoke::hierarchy" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "smoke::hierarchy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::visibility" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+
+}
+
