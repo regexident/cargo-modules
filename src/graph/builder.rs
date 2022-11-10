@@ -29,6 +29,7 @@ pub struct Options {
     pub focus_on: Option<String>,
     pub max_depth: Option<usize>,
     pub with_types: bool,
+    pub with_traits: bool,
     pub with_fns: bool,
     pub with_tests: bool,
     pub with_orphans: bool,
@@ -90,11 +91,21 @@ impl<'a> Builder<'a> {
             // Check if target is a type:
             let is_type = matches!(
                 owned_module_def,
-                hir::ModuleDef::Adt(_) | hir::ModuleDef::Trait(_) | hir::ModuleDef::TypeAlias(_)
+                hir::ModuleDef::Adt(_) | hir::ModuleDef::TypeAlias(_)
             );
 
             // If it is a type we bail out:
             if is_type {
+                return Ok(None);
+            }
+        }
+
+        if !self.options.with_traits {
+            // Check if target is a function:
+            let is_trait = matches!(owned_module_def, hir::ModuleDef::Trait(_));
+
+            // If it is a type we bail out:
+            if is_trait {
                 return Ok(None);
             }
         }
@@ -188,11 +199,22 @@ impl<'a> Builder<'a> {
             // Check if target is a type:
             let is_type = matches!(
                 used_module_def,
-                hir::ModuleDef::Adt(_) | hir::ModuleDef::Trait(_) | hir::ModuleDef::TypeAlias(_)
+                hir::ModuleDef::Adt(_) | hir::ModuleDef::TypeAlias(_)
             );
 
             // If it is a type we need to resolve to its parent module instead:
             if is_type {
+                let parent_module = used_module_def.module(self.db);
+                resolved_module_def = parent_module.map(hir::ModuleDef::Module);
+            }
+        }
+
+        if !self.options.with_traits {
+            // Check if target is a type:
+            let is_trait = matches!(used_module_def, hir::ModuleDef::Trait(_));
+
+            // If it is a type we need to resolve to its parent module instead:
+            if is_trait {
                 let parent_module = used_module_def.module(self.db);
                 resolved_module_def = parent_module.map(hir::ModuleDef::Module);
             }
