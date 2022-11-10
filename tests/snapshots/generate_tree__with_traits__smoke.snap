@@ -17,7 +17,6 @@ crate smoke
 │       │       └── mod amet: pub(self)
 │       └── mod ipsum: pub(self)
 ├── mod orphans: pub(crate)
-├── mod tests: pub(crate) #[cfg(test)]
 ├── mod uses: pub(crate)
 │   └── mod cycle: pub(self)
 │       ├── mod node_0: pub(self)
@@ -35,7 +34,7 @@ crate smoke
         │   └── mod pub_super: pub(super)
         ├── mod structs: pub(self)
         ├── mod traits: pub(self)
-        │   ├── mod r#unsafe: pub(self)
-        │   └── mod safe: pub(self)
+        │   ├── mod safe: pub(self)
+        │   └── mod unsafe: pub(self)
         └── mod unions: pub(self)
 
