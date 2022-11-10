@@ -39,26 +39,30 @@ USAGE:
 
 FLAGS:
         --all-features           Activate all available features
+        --cfg-test               Analyze with `#[cfg(test)]` enabled
     -h, --help                   Prints help information
         --lib                    Process only this package's library
         --no-default-features    Do not activate the `default` feature
     -V, --version                Prints version information
-        --verbose                Enable verbose messages during command execution
-        --with-orphans           Include orphaned modules (i.e. unused files in /src)
-        --with-tests             Include tests (e.g. `#[cfg(test)] mod tests { … }`)
-        --with-types             Include types (e.g. structs, enums)
+        --verbose                Use verbose output
         --with-fns               Include functions (e.g. fns, async fns, const fns)
+        --with-orphans           Include orphaned modules (i.e. unused files in /src)
+        --with-sysroot           Include sysroot crates (`std`, `core` & friends) in analysis
+        --with-tests             Include tests (e.g. `#[test] fn …`)
+        --with-traits            Include traits (e.g. trait, unsafe trait)
+        --with-types             Include types (e.g. structs, unions, enums)
 
 OPTIONS:
         --bin <bin>                        Process only the specified binary
         --features <features>...           List of features to activate. This will be ignored if `--cargo-all-features`
                                            is provided
-        --focus-on <focus-on>              Focus the graph on a particular path's environment
-        --manifest-path <manifest-path>     [default: ./Cargo.toml]
-        --max-depth <max-depth>            The maximum depth of the generated graph relative to the node selected by
-                                           '--focus-on'
+        --focus-on <focus-on>              Focus the graph on a particular path or use-tree's environment, e.g.
+                                           "foo:bar::{self, baz, blee::*}"
+        --manifest-path <manifest-path>    Path to Cargo.toml [default: .]
+        --max-depth <max-depth>            The maximum depth of the generated graph relative to the crate's root node,
+                                           or nodes selected by '--focus-on'
     -p, --package <package>                Package to process (see `cargo help pkgid`)
-        --target <target>                  rustc target
+        --target <target>                  Analyze for target triple
 ```
 
 The following image is the result of using the following command to generate a tree of the `smoke` test project within its own repo:
@@ -105,33 +109,38 @@ USAGE:
 
 FLAGS:
         --all-features           Activate all available features
+        --cfg-test               Analyze with `#[cfg(test)]` enabled
     -h, --help                   Prints help information
         --lib                    Process only this package's library
         --no-default-features    Do not activate the `default` feature
     -V, --version                Prints version information
-        --verbose                Enable verbose messages during command execution
+        --verbose                Use verbose output
         --with-externs           Include used modules and types from extern crates
+        --with-fns               Include functions (e.g. fns, async fns, const fns)
         --with-orphans           Include orphaned modules (i.e. unused files in /src)
-        --with-tests             Include tests (e.g. `#[cfg(test)] mod tests { … }`)
-        --with-types             Include types (e.g. structs, enums)
+        --with-sysroot           Include sysroot crates (`std`, `core` & friends) in analysis
+        --with-tests             Include tests (e.g. `#[test] fn …`)
+        --with-traits            Include traits (e.g. trait, unsafe trait)
+        --with-types             Include types (e.g. structs, unions, enums)
         --with-uses              Include used modules and types
 
 OPTIONS:
         --bin <bin>                        Process only the specified binary
         --features <features>...           List of features to activate. This will be ignored if `--cargo-all-features`
                                            is provided
-        --focus-on <focus-on>              Focus the graph on a particular path's environment
+        --focus-on <focus-on>              Focus the graph on a particular path or use-tree's environment, e.g.
+                                           "foo:bar::{self, baz, blee::*}"
         --layout <layout>                  The graph layout algorithm to use (e.g. dot, neato, twopi, circo, fdp, sfdp)
                                            [default: neato]
-        --manifest-path <manifest-path>     [default: ./Cargo.toml]
-        --max-depth <max-depth>            The maximum depth of the generated graph relative to the node selected by
-                                           '--focus-on'
+        --manifest-path <manifest-path>    Path to Cargo.toml [default: .]
+        --max-depth <max-depth>            The maximum depth of the generated graph relative to the crate's root node,
+                                           or nodes selected by '--focus-on'
     -p, --package <package>                Package to process (see `cargo help pkgid`)
-        --target <target>                  rustc target
+        --target <target>                  Analyze for target triple
 
 
         If you have xdot installed on your system, you can run this using:
-        `cargo modules generate graph | xdot -`
+        `cargo modules generate dependencies | xdot -`
 ```
 
 The following image is the result of using the following command to generate a graph of the `smoke` test project within its own repo:
