@@ -20,6 +20,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
+- Support for conditionally filtering functions via `--with-fns` CLI option.
 - Support for accepting a full use-tree (e.g. `foo:bar::{self, baz, blee::*}`), instead of just simple paths.
 
 ### Changed
