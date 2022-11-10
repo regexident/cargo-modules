@@ -44,6 +44,10 @@ pub mod graph {
         #[structopt(long = "with-types")]
         pub with_types: bool,
 
+        /// Include traits (e.g. trait, unsafe trait).
+        #[structopt(long = "with-traits")]
+        pub with_traits: bool,
+
         /// Include functions (e.g. fns, async fns, const fns).
         #[structopt(long = "with-fns")]
         pub with_fns: bool,
