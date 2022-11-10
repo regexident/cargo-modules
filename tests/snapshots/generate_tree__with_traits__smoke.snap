@@ -34,7 +34,17 @@ crate smoke
         │   └── mod pub_super: pub(super)
         ├── mod structs: pub(self)
         ├── mod traits: pub(self)
-        │   ├── mod safe: pub(self)
-        │   └── mod unsafe: pub(self)
+        │   ├── mod r#unsafe: pub(self)
+        │   │   ├── unsafe trait PubCrate: pub(crate)
+        │   │   ├── unsafe trait PubModule: pub(in crate::visibility)
+        │   │   ├── unsafe trait PubPrivate: pub(self)
+        │   │   ├── unsafe trait PubPublic: pub
+        │   │   └── unsafe trait PubSuper: pub(super)
+        │   └── mod safe: pub(self)
+        │       ├── trait PubCrate: pub(crate)
+        │       ├── trait PubModule: pub(in crate::visibility)
+        │       ├── trait PubPrivate: pub(self)
+        │       ├── trait PubPublic: pub
+        │       └── trait PubSuper: pub(super)
         └── mod unions: pub(self)
 
