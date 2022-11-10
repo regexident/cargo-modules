@@ -71,6 +71,24 @@ mod visibility {
             union PubPrivate {}
         }
 
+        mod traits {
+            mod safe {
+                pub trait PubPublic {}
+                pub(crate) trait PubCrate {}
+                pub(in crate::visibility) trait PubModule {}
+                pub(super) trait PubSuper {}
+                trait PubPrivate {}
+            }
+
+            mod r#unsafe {
+                pub unsafe trait PubPublic {}
+                pub(crate) unsafe trait PubCrate {}
+                pub(in crate::visibility) unsafe trait PubModule {}
+                pub(super) unsafe trait PubSuper {}
+                unsafe trait PubPrivate {}
+            }
+        }
+
         mod fns {
             pub fn pub_public() {}
             pub(crate) fn pub_crate() {}

@@ -63,6 +63,9 @@ digraph {
     "smoke::visibility::dummy::structs" [label="pub(self) mod|visibility::dummy::structs", fillcolor="#db5367"]; // "mod" node
     "smoke::visibility::dummy::enums" [label="pub(self) mod|visibility::dummy::enums", fillcolor="#db5367"]; // "mod" node
     "smoke::visibility::dummy::unions" [label="pub(self) mod|visibility::dummy::unions", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::traits" [label="pub(self) mod|visibility::dummy::traits", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::traits::safe" [label="pub(self) mod|visibility::dummy::traits::safe", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::traits::r#unsafe" [label="pub(self) mod|visibility::dummy::traits::r#unsafe", fillcolor="#db5367"]; // "mod" node
     "smoke::visibility::dummy::fns" [label="pub(self) mod|visibility::dummy::fns", fillcolor="#db5367"]; // "mod" node
 
     "smoke" -> "smoke::orphans" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -92,6 +95,9 @@ digraph {
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::structs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::enums" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::unions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy" -> "smoke::visibility::dummy::traits" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits" -> "smoke::visibility::dummy::traits::safe" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits" -> "smoke::visibility::dummy::traits::r#unsafe" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::fns" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }

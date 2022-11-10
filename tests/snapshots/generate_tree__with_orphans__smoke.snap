@@ -1,7 +1,6 @@
 ---
 source: tests/generate_tree.rs
 expression: output
-
 ---
 STDERR:
 
@@ -36,5 +35,8 @@ crate smoke
         │   ├── mod pub_public: pub
         │   └── mod pub_super: pub(super)
         ├── mod structs: pub(self)
+        ├── mod traits: pub(self)
+        │   ├── mod r#unsafe: pub(self)
+        │   └── mod safe: pub(self)
         └── mod unions: pub(self)
 
