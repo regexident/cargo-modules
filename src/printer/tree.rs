@@ -12,12 +12,13 @@ use petgraph::{
     visit::EdgeRef,
     Direction,
 };
+use ra_ap_ide::RootDatabase;
 use yansi::Style;
 
 use crate::{
     graph::{
         edge::{Edge, EdgeKind},
-        node::{visibility::NodeVisibility, Node, NodeKind},
+        node::{visibility::NodeVisibility, Node},
         Graph,
     },
     theme::tree::styles,
@@ -31,14 +32,15 @@ struct Twig {
 #[derive(Clone, Debug)]
 pub struct Options {}
 
-pub struct Printer {
+pub struct Printer<'a> {
     #[allow(dead_code)]
     options: Options,
+    db: &'a RootDatabase,
 }
 
-impl Printer {
-    pub fn new(options: Options) -> Self {
-        Self { options }
+impl<'a> Printer<'a> {
+    pub fn new(options: Options, db: &'a RootDatabase) -> Self {
+        Self { options, db }
     }
 
     pub fn fmt(
@@ -113,7 +115,7 @@ impl Printer {
         write!(f, " ")?;
         self.fmt_node_name(f, node)?;
 
-        if node.kind == NodeKind::Crate {
+        if node.is_crate(self.db) {
             return Ok(());
         }
 
@@ -132,7 +134,9 @@ impl Printer {
     fn fmt_node_kind(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
         let kind_style = self.kind_style();
 
-        let display_name = node.kind.display_name().unwrap_or_else(|| "mod".to_owned());
+        let display_name = node
+            .kind_display_name(self.db)
+            .unwrap_or_else(|| "mod".to_owned());
         let kind = kind_style.paint(display_name);
 
         write!(f, "{}", kind)?;
