@@ -14,7 +14,7 @@ use petgraph::{graph::NodeIndex, visit::EdgeRef};
 use crate::{
     graph::{
         edge::{Edge, EdgeKind},
-        node::{attr::NodeAttrs, Node, NodeKind},
+        node::{attr::NodeAttrs, Node},
         Graph,
     },
     orphans::PossibleOrphansIterator,
@@ -99,7 +99,7 @@ fn add_orphan_node(
             path
         };
         let file_path = Some(orphan_file_path.to_owned());
-        let kind = NodeKind::Orphan;
+        let hir = None;
         let visibility = None;
         let attrs = {
             let cfgs = vec![];
@@ -111,7 +111,7 @@ fn add_orphan_node(
             krate,
             path,
             file_path,
-            kind,
+            hir,
             visibility,
             attrs,
         }

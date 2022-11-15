@@ -32,13 +32,13 @@ impl Command {
         graph: &Graph,
         start_node_idx: NodeIndex,
         _member_krate: hir::Crate,
-        _db: &RootDatabase,
+        db: &RootDatabase,
     ) -> anyhow::Result<()> {
         trace!("Printing ...");
 
         let printer = {
             let printer_options = PrinterOptions {};
-            Printer::new(printer_options)
+            Printer::new(printer_options, db)
         };
 
         let mut string = String::new();

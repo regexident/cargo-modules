@@ -18,7 +18,7 @@ use crate::graph::{
     node::{
         attr::{NodeAttrs, NodeCfgAttr, NodeTestAttr},
         visibility::NodeVisibility,
-        Node, NodeKind,
+        Node,
     },
     orphans::add_orphan_nodes_to,
     util, Graph,
@@ -333,10 +333,20 @@ impl<'a> Builder<'a> {
             })
         };
 
-        let kind = match NodeKind::from(module_def, self.db) {
-            Some(kind) => kind,
-            None => return None,
+        match module_def {
+            hir::ModuleDef::Module(_) => {}
+            hir::ModuleDef::Function(_) => {}
+            hir::ModuleDef::Adt(_) => {}
+            hir::ModuleDef::Variant(_) => return None,
+            hir::ModuleDef::Const(_) => {}
+            hir::ModuleDef::Static(_) => {}
+            hir::ModuleDef::Trait(_) => {}
+            hir::ModuleDef::TypeAlias(_) => {}
+            hir::ModuleDef::BuiltinType(_) => {}
+            hir::ModuleDef::Macro(_) => return None,
         };
+
+        let hir = Some(module_def);
 
         let visibility = Some(NodeVisibility::new(module_def, self.db));
 
@@ -350,7 +360,7 @@ impl<'a> Builder<'a> {
             krate,
             path,
             file_path,
-            kind,
+            hir,
             visibility,
             attrs,
         })

@@ -16,7 +16,7 @@ use ra_ap_ide::RootDatabase;
 use crate::{
     graph::{
         edge::{Edge, EdgeKind},
-        node::{visibility::NodeVisibility, Node, NodeKind},
+        node::{visibility::NodeVisibility, Node},
         util, Graph,
     },
     theme::graph::{edge_styles, node_styles},
@@ -30,17 +30,19 @@ pub struct Options {
     pub full_paths: bool,
 }
 
-pub struct Printer {
+pub struct Printer<'a> {
     options: Options,
     member_krate: String,
+    db: &'a RootDatabase,
 }
 
-impl Printer {
-    pub fn new(options: Options, member_krate: hir::Crate, db: &RootDatabase) -> Self {
+impl<'a> Printer<'a> {
+    pub fn new(options: Options, member_krate: hir::Crate, db: &'a RootDatabase) -> Self {
         let member_krate = util::krate_name(member_krate, db);
         Self {
             options,
             member_krate,
+            db,
         }
     }
 
@@ -128,8 +130,7 @@ impl Printer {
 
             let id = node.path.join("::");
             let kind = node
-                .kind
-                .display_name()
+                .kind_display_name(self.db)
                 .unwrap_or_else(|| "orphan".to_owned());
 
             let label = self.node_label(node)?;
@@ -192,7 +193,7 @@ impl Printer {
             Some(visibility) => {
                 if is_external {
                     Some("external".to_owned())
-                } else if node.kind == NodeKind::Crate {
+                } else if node.is_crate(self.db) {
                     None
                 } else {
                     Some(format!("{}", visibility))
@@ -201,7 +202,9 @@ impl Printer {
             None => Some("orphan".to_owned()),
         };
 
-        let kind = node.kind.display_name().unwrap_or_else(|| "mod".to_owned());
+        let kind = node
+            .kind_display_name(self.db)
+            .unwrap_or_else(|| "mod".to_owned());
 
         if let Some(visibility) = visibility {
             write!(f, "{} ", visibility)?;
@@ -227,19 +230,24 @@ impl Printer {
     fn node_attributes(&self, node: &Node) -> String {
         let styles = node_styles();
 
-        let style = match &node.kind {
-            NodeKind::Crate => styles.krate,
-            NodeKind::Orphan => styles.orphan,
-            _ => match &node.visibility {
-                Some(visibility) => match visibility {
-                    NodeVisibility::Crate => styles.visibility.pub_crate,
-                    NodeVisibility::Module(_) => styles.visibility.pub_module,
-                    NodeVisibility::Private => styles.visibility.pub_private,
-                    NodeVisibility::Public => styles.visibility.pub_global,
-                    NodeVisibility::Super => styles.visibility.pub_super,
-                },
-                None => styles.visibility.pub_global,
-            },
+        let style = match node.hir {
+            Some(_) => {
+                if node.is_crate(self.db) {
+                    styles.krate
+                } else {
+                    match &node.visibility {
+                        Some(visibility) => match visibility {
+                            NodeVisibility::Crate => styles.visibility.pub_crate,
+                            NodeVisibility::Module(_) => styles.visibility.pub_module,
+                            NodeVisibility::Private => styles.visibility.pub_private,
+                            NodeVisibility::Public => styles.visibility.pub_global,
+                            NodeVisibility::Super => styles.visibility.pub_super,
+                        },
+                        None => styles.visibility.pub_global,
+                    }
+                }
+            }
+            None => styles.orphan,
         };
 
         format!(r#", fillcolor="{}""#, style.fill_color)

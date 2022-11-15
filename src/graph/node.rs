@@ -4,150 +4,19 @@
 
 use std::path::PathBuf;
 
+use hir::ModuleDef;
 use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
 
 pub(crate) mod attr;
 pub(crate) mod visibility;
 
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct FunctionNode {
-    is_unsafe: bool,
-    is_async: bool,
-    is_const: bool,
-}
-
-impl FunctionNode {
-    pub fn display_name(&self) -> Option<String> {
-        let mut keywords = vec![];
-        if self.is_const {
-            keywords.push("const");
-        }
-        if self.is_async {
-            keywords.push("async");
-        }
-        if self.is_unsafe {
-            keywords.push("unsafe");
-        }
-        keywords.push("fn");
-        Some(keywords.join(" "))
-    }
-}
-
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct TraitNode {
-    is_unsafe: bool,
-}
-
-impl TraitNode {
-    pub fn display_name(&self) -> Option<String> {
-        let mut keywords = vec![];
-        if self.is_unsafe {
-            keywords.push("unsafe");
-        }
-        keywords.push("trait");
-        Some(keywords.join(" "))
-    }
-}
-
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub enum TypeNode {
-    Struct,
-    Union,
-    Enum,
-    BuiltinType,
-}
-
-impl TypeNode {
-    pub fn display_name(&self) -> Option<String> {
-        match self {
-            Self::Struct => Some("struct".to_owned()),
-            Self::Union => Some("union".to_owned()),
-            Self::Enum => Some("enum".to_owned()),
-            Self::BuiltinType => Some("builtin".to_owned()),
-        }
-    }
-}
-
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub enum ValueNode {
-    Const,
-    Static,
-}
-
-impl ValueNode {
-    pub fn display_name(&self) -> Option<String> {
-        match self {
-            Self::Const => Some("const".to_owned()),
-            Self::Static => Some("static".to_owned()),
-        }
-    }
-}
-
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub enum NodeKind {
-    Crate,
-    Function(FunctionNode),
-    Module,
-    Orphan,
-    Trait(TraitNode),
-    Type(TypeNode),
-    TypeAlias,
-    Value(ValueNode),
-}
-
-impl NodeKind {
-    pub fn from(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<Self> {
-        match module_def {
-            hir::ModuleDef::Module(def) => {
-                if def.is_crate_root(db) {
-                    Some(NodeKind::Crate)
-                } else {
-                    Some(NodeKind::Module)
-                }
-            }
-            hir::ModuleDef::Function(def) => Some(NodeKind::Function(FunctionNode {
-                is_unsafe: def.is_unsafe_to_call(db),
-                is_async: def.is_async(db),
-                is_const: def.is_const(db),
-            })),
-            hir::ModuleDef::Adt(def) => match def {
-                hir::Adt::Struct(_) => Some(NodeKind::Type(TypeNode::Struct)),
-                hir::Adt::Union(_) => Some(NodeKind::Type(TypeNode::Union)),
-                hir::Adt::Enum(_) => Some(NodeKind::Type(TypeNode::Enum)),
-            },
-            hir::ModuleDef::Variant(_) => None,
-            hir::ModuleDef::Const(_) => Some(NodeKind::Value(ValueNode::Const)),
-            hir::ModuleDef::Static(_) => Some(NodeKind::Value(ValueNode::Static)),
-            hir::ModuleDef::Trait(def) => Some(NodeKind::Trait(TraitNode {
-                is_unsafe: def.is_unsafe(db),
-            })),
-            hir::ModuleDef::TypeAlias(_) => Some(NodeKind::TypeAlias),
-            hir::ModuleDef::BuiltinType(_) => Some(NodeKind::Type(TypeNode::BuiltinType)),
-            hir::ModuleDef::Macro(_) => None,
-        }
-    }
-
-    pub fn display_name(&self) -> Option<String> {
-        match self {
-            Self::Crate => Some("crate".to_owned()),
-            Self::Function(node) => node.display_name(),
-            Self::Module => Some("mod".to_owned()),
-            Self::Orphan => None,
-            Self::Trait(node) => node.display_name(),
-            Self::Type(node) => node.display_name(),
-            Self::TypeAlias => Some("type".to_owned()),
-            Self::Value(node) => node.display_name(),
-        }
-    }
-}
-
 #[derive(Clone, PartialEq, Debug)]
 pub struct Node {
     pub krate: Option<String>,
     pub path: Vec<String>,
     pub file_path: Option<PathBuf>,
-    pub kind: NodeKind,
+    pub hir: Option<hir::ModuleDef>,
     pub visibility: Option<visibility::NodeVisibility>,
     pub attrs: attr::NodeAttrs,
 }
@@ -169,5 +38,65 @@ impl Node {
             .first()
             .expect("Expected path with at least one component")
             .clone()
+    }
+
+    pub fn kind_display_name(&self, db: &RootDatabase) -> Option<String> {
+        let Some(module_def) = self.hir else {
+            return None;
+        };
+
+        match module_def {
+            ModuleDef::Module(module_def) => {
+                if module_def.is_crate_root(db) {
+                    Some("crate".to_owned())
+                } else {
+                    Some("mod".to_owned())
+                }
+            }
+            ModuleDef::Function(function_def) => {
+                let mut keywords = vec![];
+
+                if function_def.is_const(db) {
+                    keywords.push("const");
+                }
+                if function_def.is_async(db) {
+                    keywords.push("async");
+                }
+                if function_def.is_unsafe_to_call(db) {
+                    keywords.push("unsafe");
+                }
+
+                keywords.push("fn");
+
+                Some(keywords.join(" "))
+            }
+            ModuleDef::Adt(adt_def) => match adt_def {
+                hir::Adt::Struct(_) => Some("struct".to_owned()),
+                hir::Adt::Union(_) => Some("union".to_owned()),
+                hir::Adt::Enum(_) => Some("enum".to_owned()),
+            },
+            ModuleDef::Variant(_) => Some("variant".to_owned()),
+            ModuleDef::Const(_) => Some("const".to_owned()),
+            ModuleDef::Static(_) => Some("static".to_owned()),
+            ModuleDef::Trait(trait_def) => {
+                let mut keywords = vec![];
+                if trait_def.is_unsafe(db) {
+                    keywords.push("unsafe");
+                }
+                keywords.push("trait");
+                Some(keywords.join(" "))
+            }
+            ModuleDef::TypeAlias(_) => Some("type".to_owned()),
+            ModuleDef::BuiltinType(_) => Some("builtin".to_owned()),
+            ModuleDef::Macro(_) => Some("macro".to_owned()),
+        }
+    }
+
+    pub(crate) fn is_crate(&self, db: &RootDatabase) -> bool {
+        let Some(hir::ModuleDef::Module(module)) = self.hir else {
+            return false;
+        };
+
+        module.is_crate_root(db)
     }
 }
