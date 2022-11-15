@@ -26,11 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `assert_cmd` from `2.0.5` -> `2.0.6`
-  - `env_logger` from `0.9.1` -> `0.9.3`
-  - `rust-analyzer` from `0.0.134` to `0.0.138`
-
+- n/a
 ### Deprecated
 
 - n/a
@@ -54,6 +50,15 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.6.0] - 2022-11-10
+
+### Changed
+
+- Updated dependencies:
+  - `assert_cmd` from `2.0.5` -> `2.0.6`
+  - `env_logger` from `0.9.1` -> `0.9.3`
+  - `rust-analyzer` from `0.0.134` to `0.0.138`
 
 ## [0.5.14] - 2022-10-25
 
