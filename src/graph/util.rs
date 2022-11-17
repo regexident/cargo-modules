@@ -16,21 +16,6 @@ use crate::graph::{
     Graph, NodeIndex,
 };
 
-pub fn idx_of_node_with_path(
-    graph: &Graph,
-    path: &[String],
-    _db: &RootDatabase,
-) -> anyhow::Result<NodeIndex> {
-    let mut node_indices = graph.node_indices();
-
-    let node_idx = node_indices.find(|node_idx| {
-        let node = &graph[*node_idx];
-        node.path == path
-    });
-
-    node_idx.ok_or_else(|| anyhow::anyhow!("No node found with path {:?}", path))
-}
-
 pub fn shrink_graph<'a, I>(graph: &mut Graph, focus_node_idxs: I, max_depth: usize)
 where
     I: 'a + IntoIterator<Item = &'a NodeIndex>,

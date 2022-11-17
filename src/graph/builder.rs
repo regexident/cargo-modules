@@ -3,10 +3,11 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     path::{Path, PathBuf},
 };
 
+use hir::ModuleDef;
 use log::trace;
 use petgraph::graph::{EdgeIndex, NodeIndex};
 use ra_ap_hir::{self as hir, Crate, ModuleSource};
@@ -20,9 +21,10 @@ use crate::graph::{
         visibility::NodeVisibility,
         Node,
     },
-    orphans::add_orphan_nodes_to,
     util, Graph,
 };
+
+use super::orphans::add_orphan_nodes_to;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Options {
@@ -65,202 +67,222 @@ impl<'a> Builder<'a> {
         }
     }
 
-    pub fn build(mut self, krate: Crate) -> anyhow::Result<Graph> {
+    pub fn build(mut self) -> anyhow::Result<(Graph, NodeIndex)> {
         trace!("Scanning project ...");
 
-        self.process_crate(krate)?;
+        let node_idx = self.process_crate(self.krate).unwrap();
 
-        Ok(self.graph)
+        Ok((self.graph, node_idx))
     }
 
-    fn process_crate(&mut self, krate: Crate) -> anyhow::Result<()> {
-        let root_module = krate.root_module(self.db);
-        let root_module_def = hir::ModuleDef::Module(root_module);
-
-        self.process_owned_module_def(None, root_module_def)?;
-
-        Ok(())
+    fn process_crate(&mut self, krate: Crate) -> Option<NodeIndex> {
+        let module = krate.root_module(self.db);
+        self.process_module(module, true)
     }
 
-    fn process_owned_module_def(
+    fn process_moduledef(
         &mut self,
-        owner: Option<(hir::Module, NodeIndex)>,
-        owned_module_def: hir::ModuleDef,
-    ) -> anyhow::Result<Option<NodeIndex>> {
-        if !self.options.with_types {
-            // Check if target is a type:
-            let is_type = matches!(
-                owned_module_def,
-                hir::ModuleDef::Adt(_) | hir::ModuleDef::TypeAlias(_)
-            );
-
-            // If it is a type we bail out:
-            if is_type {
-                return Ok(None);
-            }
-        }
-
-        if !self.options.with_traits {
-            // Check if target is a function:
-            let is_trait = matches!(owned_module_def, hir::ModuleDef::Trait(_));
-
-            // If it is a type we bail out:
-            if is_trait {
-                return Ok(None);
-            }
-        }
-
-        if !self.options.with_fns {
-            // Check if target is a function:
-            let is_fn = matches!(owned_module_def, hir::ModuleDef::Function(_));
-
-            // If it is a type we bail out:
-            if is_fn {
-                return Ok(None);
-            }
-        }
-
-        let (_owner_module, owner_idx) = match owner {
-            Some((module, idx)) => (Some(module), Some(idx)),
-            None => (None, None),
-        };
-
-        if !self.options.with_tests {
-            if let hir::ModuleDef::Function(owned_function) = owned_module_def {
-                if util::is_test_function(owned_function, self.db) {
-                    return Ok(None);
-                }
-            }
-        }
-
-        let owned_idx = match self.add_node(owned_module_def) {
-            Some(owned_idx) => owned_idx,
-            None => return Ok(None),
-        };
-
-        if let Some(owner_idx) = owner_idx {
-            let edge = Edge {
-                kind: EdgeKind::Owns,
-            };
-            self.add_edge(owner_idx, owned_idx, edge);
-        }
-
-        if let hir::ModuleDef::Module(owned_module) = owned_module_def {
-            trace!(
-                "Scanning module {:?}",
-                util::path(owned_module_def, self.db)
-            );
-
-            let mut local_definitions: HashSet<hir::ModuleDef> = HashSet::new();
-
-            for module_sub_def in owned_module.declarations(self.db) {
-                local_definitions.insert(module_sub_def);
-
-                self.process_owned_module_def(Some((owned_module, owned_idx)), module_sub_def)?;
-            }
-
-            if self.options.with_orphans && local_definitions.is_empty() {
-                add_orphan_nodes_to(&mut self.graph, owned_idx);
-            }
-
-            for (_name, scope_def) in owned_module.scope(self.db, None) {
-                if let hir::ScopeDef::ModuleDef(scope_module_def) = scope_def {
-                    // Skip local child declarations:
-                    if local_definitions.contains(&scope_module_def) {
-                        continue;
-                    }
-
-                    self.process_used_module_def((owned_module, owned_idx), scope_module_def);
-                }
-            }
-        }
-
-        if self.options.with_orphans {
-            add_orphan_nodes_to(&mut self.graph, owned_idx);
-        }
-
-        Ok(Some(owned_idx))
-    }
-
-    fn process_used_module_def(
-        &mut self,
-        user: (hir::Module, NodeIndex),
-        used_module_def: hir::ModuleDef,
+        moduledef_hir: hir::ModuleDef,
+        is_recursive: bool,
     ) -> Option<NodeIndex> {
-        if !self.options.with_uses {
-            return None;
-        }
-
-        let (_user_module, user_idx) = user;
-
-        let mut resolved_module_def = Some(used_module_def);
-
-        if !self.options.with_types {
-            // Check if target is a type:
-            let is_type = matches!(
-                used_module_def,
-                hir::ModuleDef::Adt(_) | hir::ModuleDef::TypeAlias(_)
-            );
-
-            // If it is a type we need to resolve to its parent module instead:
-            if is_type {
-                let parent_module = used_module_def.module(self.db);
-                resolved_module_def = parent_module.map(hir::ModuleDef::Module);
+        match moduledef_hir {
+            hir::ModuleDef::Module(module_hir) => self.process_module(module_hir, is_recursive),
+            hir::ModuleDef::Function(function_hir) => {
+                self.process_function(function_hir, is_recursive)
             }
-        }
-
-        if !self.options.with_traits {
-            // Check if target is a type:
-            let is_trait = matches!(used_module_def, hir::ModuleDef::Trait(_));
-
-            // If it is a type we need to resolve to its parent module instead:
-            if is_trait {
-                let parent_module = used_module_def.module(self.db);
-                resolved_module_def = parent_module.map(hir::ModuleDef::Module);
+            hir::ModuleDef::Adt(adt_hir) => self.process_adt(adt_hir, is_recursive),
+            hir::ModuleDef::Variant(variant_hir) => self.process_variant(variant_hir, is_recursive),
+            hir::ModuleDef::Const(const_hir) => self.process_const(const_hir, is_recursive),
+            hir::ModuleDef::Static(static_hir) => self.process_static(static_hir, is_recursive),
+            hir::ModuleDef::Trait(trait_hir) => self.process_trait(trait_hir, is_recursive),
+            hir::ModuleDef::TypeAlias(type_alias_hir) => {
+                self.process_type_alias(type_alias_hir, is_recursive)
             }
-        }
-
-        if !self.options.with_fns {
-            // Check if target is a type:
-            let is_fn = matches!(used_module_def, hir::ModuleDef::Function(_));
-
-            // If it is a type we need to resolve to its parent module instead:
-            if is_fn {
-                let parent_module = used_module_def.module(self.db);
-                resolved_module_def = parent_module.map(hir::ModuleDef::Module);
+            hir::ModuleDef::BuiltinType(builtin_type_hir) => {
+                self.process_builtin_type(builtin_type_hir, is_recursive)
             }
+            hir::ModuleDef::Macro(macro_hir) => self.process_macro(macro_hir, is_recursive),
         }
+    }
 
-        let module_def_krate = util::krate(used_module_def, self.db);
+    fn process_module(&mut self, module: hir::Module, is_recursive: bool) -> Option<NodeIndex> {
+        let module_krate = module.krate();
 
-        // Check if target is from an extern crate.
-        // If it is we need to resolve to its parent module instead:
-        if module_def_krate != Some(self.krate) {
-            resolved_module_def = if self.options.with_externs {
-                module_def_krate.map(|krate| hir::ModuleDef::Module(krate.root_module(self.db)))
-            } else {
-                None
-            };
-        }
-
-        // Depending on the options we might not want to add the target as is,
-        // but resolve it to its module or crate, e.g., so we do that here:
-        let resolved_module_def = match resolved_module_def {
-            Some(resolved_module_def) => resolved_module_def,
+        let module_idx = match self.add_node(module.into()) {
+            Some(owned_idx) => owned_idx,
             None => return None,
         };
 
-        self.add_node(resolved_module_def).map(|used_idx| {
-            let edge = Edge {
-                kind: EdgeKind::Uses,
+        if !is_recursive {
+            return Some(module_idx);
+        }
+
+        for declaration in module.declarations(self.db) {
+            let Some(declaration_idx) = self.process_moduledef(declaration, is_recursive) else {
+                continue
             };
-            self.add_edge(user_idx, used_idx, edge);
-            used_idx
-        })
+
+            let edge = Edge {
+                kind: EdgeKind::Owns,
+            };
+
+            self.add_edge(module_idx, declaration_idx, edge);
+        }
+
+        if self.options.with_orphans {
+            add_orphan_nodes_to(&mut self.graph, module_idx);
+        }
+
+        if self.options.with_uses {
+            let imports = self.imports_of_module(module);
+            for import in imports {
+                if let Some(import_krate) = import.module(self.db).map(|module| module.krate()) {
+                    if !self.options.with_externs && module_krate != import_krate {
+                        continue;
+                    }
+                }
+
+                let Some(import_idx) = self.process_moduledef(import, false) else {
+                    continue;
+                };
+
+                let edge = Edge {
+                    kind: EdgeKind::Uses,
+                };
+
+                self.add_edge(module_idx, import_idx, edge);
+            }
+        }
+
+        Some(module_idx)
     }
 
-    fn add_node(&mut self, module_def: hir::ModuleDef) -> Option<NodeIndex> {
-        let node_id = util::path(module_def, self.db);
+    fn process_function(
+        &mut self,
+        function_hir: hir::Function,
+        _is_recursive: bool,
+    ) -> Option<NodeIndex> {
+        if !self.options.with_fns {
+            return None;
+        }
+        if !self.options.with_tests && util::is_test_function(function_hir, self.db) {
+            return None;
+        }
+        self.add_node(hir::ModuleDef::Function(function_hir))
+    }
+
+    fn process_adt(&mut self, adt_hir: hir::Adt, is_recursive: bool) -> Option<NodeIndex> {
+        match adt_hir {
+            hir::Adt::Struct(struct_hir) => self.process_struct(struct_hir, is_recursive),
+            hir::Adt::Union(union_hir) => self.process_union(union_hir, is_recursive),
+            hir::Adt::Enum(enum_hir) => self.process_enum(enum_hir, is_recursive),
+        }
+    }
+
+    fn process_struct(
+        &mut self,
+        struct_hir: hir::Struct,
+        _is_recursive: bool,
+    ) -> Option<NodeIndex> {
+        if !self.options.with_types {
+            return None;
+        }
+
+        self.add_node(hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)))
+    }
+
+    fn process_union(&mut self, union_hir: hir::Union, _is_recursive: bool) -> Option<NodeIndex> {
+        if !self.options.with_types {
+            return None;
+        }
+
+        self.add_node(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)))
+    }
+
+    fn process_enum(&mut self, enum_hir: hir::Enum, _is_recursive: bool) -> Option<NodeIndex> {
+        if !self.options.with_types {
+            return None;
+        }
+
+        self.add_node(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)))
+    }
+
+    fn process_variant(
+        &mut self,
+        _variant_hir: hir::Variant,
+        _is_recursive: bool,
+    ) -> Option<NodeIndex> {
+        None
+    }
+
+    fn process_const(&mut self, _const_hir: hir::Const, _is_recursive: bool) -> Option<NodeIndex> {
+        None
+    }
+
+    fn process_static(
+        &mut self,
+        static_hir: hir::Static,
+        _is_recursive: bool,
+    ) -> Option<NodeIndex> {
+        self.add_node(hir::ModuleDef::Static(static_hir))
+    }
+
+    fn process_trait(&mut self, trait_hir: hir::Trait, _is_recursive: bool) -> Option<NodeIndex> {
+        if !self.options.with_traits {
+            return None;
+        }
+        self.add_node(hir::ModuleDef::Trait(trait_hir))
+    }
+
+    fn process_type_alias(
+        &mut self,
+        type_alias_hir: hir::TypeAlias,
+        _is_recursive: bool,
+    ) -> Option<NodeIndex> {
+        if !self.options.with_types {
+            return None;
+        }
+        self.add_node(hir::ModuleDef::TypeAlias(type_alias_hir))
+    }
+
+    fn process_builtin_type(
+        &mut self,
+        builtin_type_hir: hir::BuiltinType,
+        _is_recursive: bool,
+    ) -> Option<NodeIndex> {
+        if !self.options.with_types {
+            return None;
+        }
+        self.add_node(hir::ModuleDef::BuiltinType(builtin_type_hir))
+    }
+
+    fn process_macro(&mut self, _macro_hir: hir::Macro, _is_recursive: bool) -> Option<NodeIndex> {
+        None
+    }
+
+    fn imports_of_module(&self, module: hir::Module) -> Vec<ModuleDef> {
+        module
+            .scope(self.db, None)
+            .into_iter()
+            .filter_map(move |(_name, scope_hir)| {
+                let hir::ScopeDef::ModuleDef(scope_module_hir) = scope_hir else {
+                    // Skip everything but module-defs:
+                    return None;
+                };
+                // Check if definition is a child of `module`:
+                if scope_module_hir.module(self.db) == Some(module) {
+                    // Is a child, omit it:
+                    None
+                } else {
+                    // Is not child, include it:
+                    Some(scope_module_hir)
+                }
+            })
+            .collect()
+    }
+
+    fn add_node(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
+        let node_id = util::path(moduledef_hir, self.db);
 
         trace!("Adding module node: {:?}", node_id);
 
@@ -272,7 +294,7 @@ impl<'a> Builder<'a> {
             }
             None => {
                 // Otherwise try to add a node:
-                let node = match self.node_weight(module_def) {
+                let node = match self.node_weight(moduledef_hir) {
                     Some(node) => node,
                     None => return None,
                 };
@@ -311,19 +333,19 @@ impl<'a> Builder<'a> {
         }
     }
 
-    fn node_weight(&self, module_def: hir::ModuleDef) -> Option<Node> {
+    fn node_weight(&self, moduledef_hir: hir::ModuleDef) -> Option<Node> {
         let krate = {
-            let krate = util::krate(module_def, self.db);
+            let krate = util::krate(moduledef_hir, self.db);
             krate.map(|krate| util::krate_name(krate, self.db))
         };
 
-        let path: Vec<_> = util::path(module_def, self.db)
+        let path: Vec<_> = util::path(moduledef_hir, self.db)
             .split("::")
             .map(|s| s.to_owned())
             .collect();
 
         let file_path = {
-            match module_def {
+            match moduledef_hir {
                 hir::ModuleDef::Module(module) => Some(module),
                 _ => None,
             }
@@ -333,7 +355,7 @@ impl<'a> Builder<'a> {
             })
         };
 
-        match module_def {
+        match moduledef_hir {
             hir::ModuleDef::Module(_) => {}
             hir::ModuleDef::Function(_) => {}
             hir::ModuleDef::Adt(_) => {}
@@ -346,13 +368,13 @@ impl<'a> Builder<'a> {
             hir::ModuleDef::Macro(_) => return None,
         };
 
-        let hir = Some(module_def);
+        let hir = Some(moduledef_hir);
 
-        let visibility = Some(NodeVisibility::new(module_def, self.db));
+        let visibility = Some(NodeVisibility::new(moduledef_hir, self.db));
 
         let attrs = {
-            let cfgs: Vec<_> = self.cfg_attrs(module_def);
-            let test = self.test_attr(module_def);
+            let cfgs: Vec<_> = self.cfg_attrs(moduledef_hir);
+            let test = self.test_attr(moduledef_hir);
             NodeAttrs { cfgs, test }
         };
 
@@ -366,15 +388,15 @@ impl<'a> Builder<'a> {
         })
     }
 
-    fn cfg_attrs(&self, module_def: hir::ModuleDef) -> Vec<NodeCfgAttr> {
-        util::cfgs(module_def, self.db)
+    fn cfg_attrs(&self, moduledef_hir: hir::ModuleDef) -> Vec<NodeCfgAttr> {
+        util::cfgs(moduledef_hir, self.db)
             .into_iter()
             .filter_map(NodeCfgAttr::new)
             .collect()
     }
 
-    fn test_attr(&self, module_def: hir::ModuleDef) -> Option<NodeTestAttr> {
-        let function = match module_def {
+    fn test_attr(&self, moduledef_hir: hir::ModuleDef) -> Option<NodeTestAttr> {
+        let function = match moduledef_hir {
             hir::ModuleDef::Function(function) => function,
             _ => return None,
         };
