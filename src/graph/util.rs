@@ -178,6 +178,10 @@ pub(crate) fn module(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<hi
 }
 
 pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> String {
+    if let hir::ModuleDef::BuiltinType(builtin) = module_def {
+        return builtin.name().to_string();
+    }
+
     let mut path = String::new();
 
     let krate = krate(module_def, db);
