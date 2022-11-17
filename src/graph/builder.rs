@@ -7,7 +7,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use hir::ModuleDef;
 use log::trace;
 use petgraph::graph::{EdgeIndex, NodeIndex};
 use ra_ap_hir::{self as hir, Crate, ModuleSource};
@@ -70,7 +69,9 @@ impl<'a> Builder<'a> {
     pub fn build(mut self) -> anyhow::Result<(Graph, NodeIndex)> {
         trace!("Scanning project ...");
 
-        let node_idx = self.process_crate(self.krate).unwrap();
+        let node_idx = self
+            .process_crate(self.krate)
+            .expect("Expected graph node for crate root module");
 
         Ok((self.graph, node_idx))
     }
@@ -105,10 +106,8 @@ impl<'a> Builder<'a> {
         }
     }
 
-    fn process_module(&mut self, module: hir::Module, is_recursive: bool) -> Option<NodeIndex> {
-        let module_krate = module.krate();
-
-        let module_idx = match self.add_node(module.into()) {
+    fn process_module(&mut self, module_hir: hir::Module, is_recursive: bool) -> Option<NodeIndex> {
+        let module_idx = match self.add_node(module_hir.into()) {
             Some(owned_idx) => owned_idx,
             None => return None,
         };
@@ -117,7 +116,7 @@ impl<'a> Builder<'a> {
             return Some(module_idx);
         }
 
-        for declaration in module.declarations(self.db) {
+        for declaration in module_hir.declarations(self.db) {
             let Some(declaration_idx) = self.process_moduledef(declaration, is_recursive) else {
                 continue
             };
@@ -134,24 +133,7 @@ impl<'a> Builder<'a> {
         }
 
         if self.options.with_uses {
-            let imports = self.imports_of_module(module);
-            for import in imports {
-                if let Some(import_krate) = import.module(self.db).map(|module| module.krate()) {
-                    if !self.options.with_externs && module_krate != import_krate {
-                        continue;
-                    }
-                }
-
-                let Some(import_idx) = self.process_moduledef(import, false) else {
-                    continue;
-                };
-
-                let edge = Edge {
-                    kind: EdgeKind::Uses,
-                };
-
-                self.add_edge(module_idx, import_idx, edge);
-            }
+            self.add_dependencies(module_idx, self.dependencies_of_module(module_hir));
         }
 
         Some(module_idx)
@@ -260,8 +242,22 @@ impl<'a> Builder<'a> {
         None
     }
 
-    fn imports_of_module(&self, module: hir::Module) -> Vec<ModuleDef> {
-        module
+    fn add_dependencies(&mut self, depender_idx: NodeIndex, dependencies: Vec<hir::ModuleDef>) {
+        for dependency_hir in dependencies {
+            let Some(dependency_hir) = self.process_moduledef(dependency_hir, false) else {
+                continue;
+            };
+
+            let edge = Edge {
+                kind: EdgeKind::Uses,
+            };
+
+            self.add_edge(depender_idx, dependency_hir, edge);
+        }
+    }
+
+    fn dependencies_of_module(&self, module_hir: hir::Module) -> Vec<hir::ModuleDef> {
+        module_hir
             .scope(self.db, None)
             .into_iter()
             .filter_map(move |(_name, scope_hir)| {
@@ -269,16 +265,29 @@ impl<'a> Builder<'a> {
                     // Skip everything but module-defs:
                     return None;
                 };
+
                 // Check if definition is a child of `module`:
-                if scope_module_hir.module(self.db) == Some(module) {
+                if scope_module_hir.module(self.db) == Some(module_hir) {
                     // Is a child, omit it:
                     None
                 } else {
-                    // Is not child, include it:
-                    Some(scope_module_hir)
+                    // Is not child, include it, maybe:
+                    if self.options.with_externs || !self.is_extern(scope_module_hir) {
+                        Some(scope_module_hir)
+                    } else {
+                        None
+                    }
                 }
             })
             .collect()
+    }
+
+    fn is_extern(&self, moduledef_hir: hir::ModuleDef) -> bool {
+        let Some(import_krate) = moduledef_hir.module(self.db).map(|module| module.krate()) else {
+            return true;
+        };
+
+        self.krate != import_krate
     }
 
     fn add_node(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
@@ -341,7 +350,13 @@ impl<'a> Builder<'a> {
 
         let path: Vec<_> = util::path(moduledef_hir, self.db)
             .split("::")
-            .map(|s| s.to_owned())
+            .filter_map(|s| {
+                if s.is_empty() {
+                    None
+                } else {
+                    Some(s.to_owned())
+                }
+            })
             .collect();
 
         let file_path = {
