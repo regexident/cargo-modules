@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::{collections::HashSet, path::Path};
+use std::path::Path;
 
 use log::{debug, trace};
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
@@ -25,7 +25,7 @@ use crate::{
         builder::{Builder as GraphBuilder, Options as GraphBuilderOptions},
         edge::Edge,
         node::Node,
-        util::{self, idx_of_node_with_path},
+        util,
     },
     options::{
         general::Options as GeneralOptions, graph::Options as GraphOptions,
@@ -97,25 +97,21 @@ impl Command {
 
         let krate = self.find_crate(db, &vfs, &target)?;
 
-        let (graph, start_node_idxs) = self.build_graph(db, &vfs, krate, graph_options)?;
+        let (graph, start_node_idx) = self.build_graph(db, &vfs, krate, graph_options)?;
 
         trace!("Generating ...");
 
         match self {
             #[allow(unused_variables)]
             Self::Tree(options) => {
-                for start_node_idx in start_node_idxs {
-                    let command = tree::Command::new(options.clone());
-                    command.run(&graph, start_node_idx, krate, db)?;
-                }
+                let command = tree::Command::new(options.clone());
+                command.run(&graph, start_node_idx, krate, db)?;
                 Ok(())
             }
             #[allow(unused_variables)]
             Self::Graph(options) => {
-                for start_node_idx in start_node_idxs {
-                    let command = graph::Command::new(options.clone());
-                    command.run(&graph, start_node_idx, krate, db)?;
-                }
+                let command = graph::Command::new(options.clone());
+                command.run(&graph, start_node_idx, krate, db)?;
                 Ok(())
             }
         }
@@ -263,7 +259,7 @@ impl Command {
         vfs: &Vfs,
         krate: Crate,
         options: &GraphOptions,
-    ) -> anyhow::Result<(StableGraph<Node, Edge>, HashSet<NodeIndex>)> {
+    ) -> anyhow::Result<(StableGraph<Node, Edge>, NodeIndex)> {
         let graph_builder = {
             let builder_options = self.builder_options();
             GraphBuilder::new(builder_options, db, vfs, krate)
@@ -273,7 +269,7 @@ impl Command {
 
         let focus_on = match &options.focus_on {
             Some(string) => string.to_owned(),
-            None => crate_name.clone(),
+            None => crate_name,
         };
 
         let syntax = format!("use {};", focus_on);
@@ -281,7 +277,7 @@ impl Command {
 
         trace!("Constructing graph ...");
 
-        let mut graph = graph_builder.build(krate)?;
+        let (mut graph, crate_node_idx) = graph_builder.build()?;
 
         trace!("Searching for focus nodes in graph ...");
 
@@ -301,14 +297,10 @@ impl Command {
             anyhow::bail!("No node found matching use tree '{:?}'", focus_on);
         }
 
-        let crate_path = vec![crate_name];
-        let crate_node_idx = idx_of_node_with_path(&graph, &crate_path[..], db).unwrap();
-        let crate_node_idxs: HashSet<_> = HashSet::from_iter([crate_node_idx]);
-
         let max_depth = options.max_depth.unwrap_or(usize::MAX);
         util::shrink_graph(&mut graph, focus_node_idxs.iter(), max_depth);
 
-        Ok((graph, crate_node_idxs))
+        Ok((graph, crate_node_idx))
     }
 
     // https://github.com/rust-lang/rust-analyzer/blob/36a70b7435c48837018c71576d7bb4e8f763f501/crates/syntax/src/ast/make.rs#L821
