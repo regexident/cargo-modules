@@ -125,30 +125,37 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_nodes(&self, f: &mut dyn fmt::Write, graph: &Graph) -> fmt::Result {
-        for node_ref in graph.node_references() {
-            let node: &Node = node_ref.weight();
+        let mut lines: Vec<_> = graph
+            .node_references()
+            .map(|node_ref| {
+                let node: &Node = node_ref.weight();
 
-            let id = node.path.join("::");
-            let kind = node
-                .kind_display_name(self.db)
-                .unwrap_or_else(|| "orphan".to_owned());
+                let id = node.path.join("::");
+                let kind = node
+                    .kind_display_name(self.db)
+                    .unwrap_or_else(|| "orphan".to_owned());
 
-            let label = self.node_label(node)?;
-            let attributes = self.node_attributes(node);
+                let label = self.node_label(node).unwrap();
+                let attributes = self.node_attributes(node);
 
-            let i = INDENTATION;
+                let i = INDENTATION;
 
-            writeln!(
-                f,
-                r#"{i}{id:?} [label={label:?}{attributes}]; // {kind:?} node"#,
-            )?;
+                format!(r#"{i}{id:?} [label={label:?}{attributes}]; // {kind:?} node"#)
+            })
+            .collect();
+
+        lines.sort();
+
+        for line in lines {
+            f.write_str(&line)?;
+            f.write_char('\n')?;
         }
 
         Ok(())
     }
 
     fn fmt_edges(&self, f: &mut dyn fmt::Write, graph: &Graph) -> fmt::Result {
-        for edge_idx in graph.edge_indices() {
+        let mut lines: Vec<_> = graph.edge_indices().map(|edge_idx| {
             let edge = &graph[edge_idx];
             let (source_idx, target_idx) = graph.edge_endpoints(edge_idx).unwrap();
 
@@ -167,10 +174,14 @@ impl<'a> Printer<'a> {
 
             let i = INDENTATION;
 
-            writeln!(
-                f,
-                r#"{i}{source:?} -> {target:?} [label={label:?}{attributes}] {constraint}; // {kind:?} edge"#,
-            )?;
+            format!(r#"{i}{source:?} -> {target:?} [label={label:?}{attributes}] {constraint}; // {kind:?} edge"#)
+        }).collect();
+
+        lines.sort();
+
+        for line in lines {
+            f.write_str(&line)?;
+            f.write_char('\n')?;
         }
 
         Ok(())
