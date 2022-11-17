@@ -265,12 +265,11 @@ impl Command {
             GraphBuilder::new(builder_options, db, vfs, krate)
         };
 
-        let crate_name = krate.display_name(db).unwrap().to_string();
-
-        let focus_on = match &options.focus_on {
-            Some(string) => string.to_owned(),
-            None => crate_name,
-        };
+        let focus_on = options
+            .focus_on
+            .as_ref()
+            .cloned()
+            .unwrap_or_else(|| krate.display_name(db).unwrap().to_string());
 
         let syntax = format!("use {};", focus_on);
         let use_tree: ast::UseTree = Self::parse_ast(&syntax);
@@ -285,8 +284,13 @@ impl Command {
             .node_indices()
             .filter(|node_idx| {
                 let node = &graph[*node_idx];
+                let node_path_segments = &node.path[..];
+                if node_path_segments.is_empty() {
+                    return false;
+                }
                 let node_path: ast::Path = {
-                    let syntax = node.path.join("::");
+                    let focus_on = node_path_segments.join("::");
+                    let syntax = format!("use {};", focus_on);
                     Self::parse_ast(&syntax)
                 };
                 Self::use_tree_matches_path(&use_tree, &node_path)
