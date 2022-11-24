@@ -29,7 +29,7 @@ Please make sure to add your changes to the appropriate categories:
 - Refactored internal graph builder to be both, simpler and more robust.
 - Updated dependencies:
   - `insta` from `1.21.0` to `1.21.1`
-  - `rust-analyzer` from `0.0.138` to `0.0.139`
+  - `rust-analyzer` from `0.0.138` to `0.0.140`
 
 ### Deprecated
 
