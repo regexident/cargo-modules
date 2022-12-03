@@ -56,7 +56,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Support for conditionally filtering traits via `--with-traits` CLI option.
 - Support for conditionally filtering functions via `--with-fns` CLI option.
-- Support for accepting a full use-tree (e.g. `foo:bar::{self, baz, blee::*}`), instead of just simple paths.
+- Support for accepting a full use-tree (e.g. `foo:bar::{self, baz, blee::*}`) for `--focus-on`, instead of just simple paths.
 
 ### Changed
 
