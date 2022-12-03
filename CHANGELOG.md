@@ -20,18 +20,11 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- Support for conditionally filtering traits via `--with-traits` CLI option.
-- Support for conditionally filtering functions via `--with-fns` CLI option.
-- Support for accepting a full use-tree (e.g. `foo:bar::{self, baz, blee::*}`), instead of just simple paths.
+- n/a
 
 ### Changed
 
-- Refactored internal graph builder to be both, simpler and more robust.
-- Updated dependencies:
-  - `env_logger` from `0.9.3` to `0.10.0`
-  - `assert_cmd` from `2.0.6` to `2.0.7`
-  - `insta` from `1.21.0` to `1.21.2`
-  - `rust-analyzer` from `0.0.138` to `0.0.140`
+- n/a
 
 ### Deprecated
 
