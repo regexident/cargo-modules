@@ -25,6 +25,7 @@ Please make sure to add your changes to the appropriate categories:
 ### Changed
 
 - Updated dependencies:
+  - `insta` from `1.21.2` to `1.23.0`
   - `rust-analyzer` from `0.0.140` to `0.0.142`
 
 ### Deprecated
