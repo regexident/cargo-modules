@@ -4,43 +4,36 @@
 
 use std::collections::HashSet;
 
-use log::trace;
-use petgraph::visit::{EdgeRef, IntoEdgeReferences};
 use ra_ap_cfg::CfgExpr;
 use ra_ap_hir::{self as hir, HasAttrs};
 use ra_ap_ide_db::RootDatabase;
+use ra_ap_syntax::{ast, AstNode, SourceFile};
 
-use crate::graph::{
-    edge::{Edge, EdgeKind},
-    walker::GraphWalker,
-    Graph, NodeIndex,
-};
+use crate::graph::{edge::EdgeKind, walker::GraphWalker, Graph, NodeIndex};
 
-pub fn shrink_graph<'a, I>(graph: &mut Graph, focus_node_idxs: I, max_depth: usize)
-where
-    I: 'a + IntoIterator<Item = &'a NodeIndex>,
-{
-    trace!(
-        "Shrinking graph from focus nodes up to depth {} ...",
-        max_depth
-    );
-
-    // This stuff is essentially asking to be implemented using some kind of datalog.
-    // Alas the datafrog turned out to be a bit too unergonomic for my liking,
-    // requiring to many intermediary rules, etc. So here we are, doing it in pure Rust.
-    // It's not pretty, but it works, I guess?
-
-    let nodes_to_keep = select_nodes_to_keep(graph, focus_node_idxs, max_depth);
-
-    redirect_uses_edges(graph, |node_idx| nodes_to_keep.contains(&node_idx));
-
-    graph.retain_nodes(|_graph, node_idx| nodes_to_keep.contains(&node_idx));
+pub(super) fn owner_only_graph(graph: &Graph) -> Graph {
+    graph.filter_map(
+        |_node_idx, node| Some(node.clone()),
+        |_edge_idx, edge| {
+            if matches!(edge.kind, EdgeKind::Owns) {
+                Some(edge.clone())
+            } else {
+                None
+            }
+        },
+    )
 }
 
-fn select_nodes_to_keep<'a, I>(
+pub(super) fn nodes_reachable_from(graph: &Graph, start_node_idx: NodeIndex) -> HashSet<NodeIndex> {
+    let mut reachability_walker = GraphWalker::new(petgraph::Direction::Outgoing);
+    reachability_walker.walk_graph(graph, start_node_idx, |_edge, _node, _depth| true);
+    reachability_walker.nodes_visited
+}
+
+pub(super) fn nodes_within_max_depth_from<'a, I>(
     graph: &Graph,
-    focus_node_idxs: I,
     max_depth: usize,
+    start_node_idxs: I,
 ) -> HashSet<NodeIndex>
 where
     I: 'a + IntoIterator<Item = &'a NodeIndex>,
@@ -48,114 +41,22 @@ where
     let mut nodes_to_keep: HashSet<NodeIndex> = HashSet::default();
 
     // Walk graph, collecting visited nodes:
-    for focus_node_idx in focus_node_idxs {
+    for start_node_idx in start_node_idxs {
         // Walks from a node to its descendants in the graph (i.e. sub-items & dependencies):
         let mut descendants_walker = GraphWalker::new(petgraph::Direction::Outgoing);
-        descendants_walker.walk_graph(graph, *focus_node_idx, |_edge, _node, depth| {
+        descendants_walker.walk_graph(graph, *start_node_idx, |_edge, _node, depth| {
             depth <= max_depth
         });
         nodes_to_keep.extend(descendants_walker.nodes_visited);
 
         // Walks from a node to its ascendants in the graph (i.e. super-items & dependents):
         let mut ascendants_walker = GraphWalker::new(petgraph::Direction::Incoming);
-        ascendants_walker.walk_graph(graph, *focus_node_idx, |edge, _node, depth| {
+        ascendants_walker.walk_graph(graph, *start_node_idx, |edge, _node, depth| {
             (edge.kind == EdgeKind::Owns) || (depth <= max_depth)
         });
         nodes_to_keep.extend(ascendants_walker.nodes_visited);
     }
     nodes_to_keep
-}
-
-// Re-attach any "uses" edges of unvisited nodes with the node associated
-// with their nearest parent module that will remain alive after shrinking:
-fn redirect_uses_edges<F>(graph: &mut Graph, predicate: F) -> bool
-where
-    F: Fn(NodeIndex) -> bool,
-{
-    let mut pending_edges: Vec<_> = vec![];
-    let mut retired_edges: Vec<_> = vec![];
-
-    let predicate = &predicate;
-
-    for edge_ref in graph.edge_references() {
-        let edge_idx = edge_ref.id();
-
-        if edge_ref.weight().kind != EdgeKind::Uses {
-            // We're only caring about "uses" edges here:
-            continue;
-        }
-
-        let mut source_idx: NodeIndex = edge_ref.source();
-        let mut target_idx: NodeIndex = edge_ref.target();
-
-        let source_is_alive = predicate(source_idx);
-        let target_is_alive = predicate(target_idx);
-
-        if !source_is_alive {
-            // Source node is not alive, so find its nearest parent module that is:
-            let node_idx = nearest_matching_parent(graph, source_idx, predicate);
-            match node_idx {
-                Some(node_idx) => {
-                    source_idx = node_idx;
-                }
-                None => continue,
-            }
-        } else if !target_is_alive {
-            // Target node is not alive, so find its nearest parent module that is:
-            let node_idx = nearest_matching_parent(graph, target_idx, predicate);
-            match node_idx {
-                Some(node_idx) => target_idx = node_idx,
-                None => continue,
-            }
-        } else {
-            // Both nodes are alive, nothing to do!
-            continue;
-        }
-
-        let edge = Edge {
-            kind: EdgeKind::Uses,
-        };
-
-        retired_edges.push(edge_idx);
-        pending_edges.push((source_idx, target_idx, edge));
-    }
-
-    if pending_edges.is_empty() {
-        return false;
-    }
-
-    // Remove edges
-    for edge_idx in retired_edges {
-        graph.remove_edge(edge_idx);
-    }
-
-    for (source_idx, target_idx, edge) in pending_edges {
-        graph.update_edge(source_idx, target_idx, edge);
-    }
-
-    true
-}
-
-fn nearest_matching_parent<F>(graph: &Graph, node_idx: NodeIndex, predicate: F) -> Option<NodeIndex>
-where
-    F: Fn(NodeIndex) -> bool,
-{
-    graph
-        .edges_directed(node_idx, petgraph::Direction::Incoming)
-        .find_map(|edge_ref| {
-            let edge = edge_ref.weight();
-            match edge.kind {
-                EdgeKind::Uses => None,
-                EdgeKind::Owns => {
-                    let source_idx = edge_ref.source();
-                    if predicate(source_idx) {
-                        Some(edge_ref.source())
-                    } else {
-                        None
-                    }
-                }
-            }
-        })
 }
 
 pub(crate) fn krate_name(krate: hir::Crate, db: &RootDatabase) -> String {
@@ -202,8 +103,74 @@ pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> String {
     path
 }
 
-// #[test] fn
-// it_works() { … }
+// https://github.com/rust-lang/rust-analyzer/blob/36a70b7435c48837018c71576d7bb4e8f763f501/crates/syntax/src/ast/make.rs#L821
+pub(super) fn parse_ast<N: AstNode>(text: &str) -> N {
+    let parse = SourceFile::parse(text);
+    let node = match parse.tree().syntax().descendants().find_map(N::cast) {
+        Some(it) => it,
+        None => {
+            let node = std::any::type_name::<N>();
+            panic!("Failed to make ast node `{node}` from text {text}")
+        }
+    };
+    let node = node.clone_subtree();
+    assert_eq!(node.syntax().text_range().start(), 0.into());
+    node
+}
+
+pub(super) fn use_tree_matches_path(use_tree: &ast::UseTree, path: &ast::Path) -> bool {
+    let mut path_segments_iter = path.segments();
+
+    if let Some(use_tree_path) = use_tree.path() {
+        for use_tree_segment in use_tree_path.segments() {
+            match path_segments_iter.next() {
+                Some(path_segment) => {
+                    if use_tree_segment.syntax().text() == path_segment.syntax().text() {
+                        continue;
+                    } else {
+                        return false;
+                    }
+                }
+                None => {
+                    return false;
+                }
+            }
+        }
+    }
+
+    let path_segments: Vec<_> = path_segments_iter.collect();
+
+    if path_segments.is_empty() {
+        return use_tree.is_simple_path() || tree_contains_self(use_tree);
+    }
+
+    if use_tree.star_token().is_some() {
+        return path_segments.len() == 1;
+    }
+
+    let path_suffix = ast::make::path_from_segments(path_segments, false);
+
+    use_tree
+        .use_tree_list()
+        .into_iter()
+        .flat_map(|list| list.use_trees())
+        .any(|use_tree| use_tree_matches_path(&use_tree, &path_suffix))
+}
+
+fn path_is_self(path: &ast::Path) -> bool {
+    path.segment().and_then(|seg| seg.self_token()).is_some() && path.qualifier().is_none()
+}
+
+fn tree_is_self(tree: &ast::UseTree) -> bool {
+    tree.path().as_ref().map(path_is_self).unwrap_or(false)
+}
+
+fn tree_contains_self(tree: &ast::UseTree) -> bool {
+    tree.use_tree_list()
+        .map(|tree_list| tree_list.use_trees().any(|tree| tree_is_self(&tree)))
+        .unwrap_or(false)
+}
+
 pub(crate) fn is_test_function(function: hir::Function, db: &RootDatabase) -> bool {
     let attrs = function.attrs(db);
     attrs.by_key("test").exists()

@@ -6,6 +6,7 @@ use petgraph::stable_graph::{NodeIndex, StableGraph};
 
 pub(crate) mod builder;
 pub(crate) mod edge;
+pub(super) mod filter;
 pub(crate) mod node;
 pub(super) mod orphans;
 pub(crate) mod util;

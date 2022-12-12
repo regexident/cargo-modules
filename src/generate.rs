@@ -5,7 +5,6 @@
 use std::path::Path;
 
 use log::{debug, trace};
-use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
 use ra_ap_hir::{self, Crate};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
 use ra_ap_ide_db::FxHashMap;
@@ -16,16 +15,13 @@ use ra_ap_project_model::{
     ProjectManifest, ProjectWorkspace, RustcSource, TargetData, UnsetTestCrates,
 };
 use ra_ap_rust_analyzer::cli::load_cargo::{load_workspace, LoadCargoConfig};
-use ra_ap_syntax::{ast, AstNode, SourceFile};
 use ra_ap_vfs::Vfs;
 use structopt::StructOpt;
 
 use crate::{
     graph::{
         builder::{Builder as GraphBuilder, Options as GraphBuilderOptions},
-        edge::Edge,
-        node::Node,
-        util,
+        filter::{Filter as GraphFilter, Options as GraphFilterOptions},
     },
     options::{
         general::Options as GeneralOptions, graph::Options as GraphOptions,
@@ -64,7 +60,6 @@ impl Command {
     pub fn run(&self) -> Result<(), anyhow::Error> {
         let general_options = self.general_options();
         let project_options = self.project_options();
-        let graph_options = self.graph_options();
 
         let project_path = project_options.manifest_path.as_path().canonicalize()?;
         let cargo_config = self.cargo_config(project_options);
@@ -97,21 +92,37 @@ impl Command {
 
         let krate = self.find_crate(db, &vfs, &target)?;
 
-        let (graph, start_node_idx) = self.build_graph(db, &vfs, krate, graph_options)?;
+        let graph_builder = {
+            let builder_options = self.builder_options();
+            GraphBuilder::new(builder_options, db, &vfs, krate)
+        };
 
-        trace!("Generating ...");
+        let graph_filter = {
+            let filter_options = self.filter_options();
+            GraphFilter::new(filter_options, db, krate)
+        };
+
+        trace!("Building graph ...");
+
+        let (graph, crate_node_idx) = graph_builder.build()?;
+
+        trace!("Filtering graph ...");
+
+        let graph = graph_filter.filter(&graph, crate_node_idx)?;
+
+        trace!("Generating output ...");
 
         match self {
             #[allow(unused_variables)]
             Self::Tree(options) => {
                 let command = tree::Command::new(options.clone());
-                command.run(&graph, start_node_idx, krate, db)?;
+                command.run(&graph, crate_node_idx, krate, db)?;
                 Ok(())
             }
             #[allow(unused_variables)]
             Self::Graph(options) => {
                 let command = graph::Command::new(options.clone());
-                command.run(&graph, start_node_idx, krate, db)?;
+                command.run(&graph, crate_node_idx, krate, db)?;
                 Ok(())
             }
         }
@@ -253,131 +264,6 @@ impl Command {
         krate.ok_or_else(|| anyhow::anyhow!("Crate not found"))
     }
 
-    fn build_graph(
-        &self,
-        db: &RootDatabase,
-        vfs: &Vfs,
-        krate: Crate,
-        options: &GraphOptions,
-    ) -> anyhow::Result<(StableGraph<Node, Edge>, NodeIndex)> {
-        let graph_builder = {
-            let builder_options = self.builder_options();
-            GraphBuilder::new(builder_options, db, vfs, krate)
-        };
-
-        let focus_on = options
-            .focus_on
-            .as_ref()
-            .cloned()
-            .unwrap_or_else(|| krate.display_name(db).unwrap().to_string());
-
-        let syntax = format!("use {};", focus_on);
-        let use_tree: ast::UseTree = Self::parse_ast(&syntax);
-
-        trace!("Constructing graph ...");
-
-        let (mut graph, crate_node_idx) = graph_builder.build()?;
-
-        trace!("Searching for focus nodes in graph ...");
-
-        let focus_node_idxs: Vec<NodeIndex> = graph
-            .node_indices()
-            .filter(|node_idx| {
-                let node = &graph[*node_idx];
-                let node_path_segments = &node.path[..];
-                if node_path_segments.is_empty() {
-                    return false;
-                }
-                let node_path: ast::Path = {
-                    let focus_on = node_path_segments.join("::");
-                    let syntax = format!("use {};", focus_on);
-                    Self::parse_ast(&syntax)
-                };
-                Self::use_tree_matches_path(&use_tree, &node_path)
-            })
-            .collect();
-
-        if focus_node_idxs.is_empty() {
-            anyhow::bail!("No node found matching use tree '{:?}'", focus_on);
-        }
-
-        let max_depth = options.max_depth.unwrap_or(usize::MAX);
-        util::shrink_graph(&mut graph, focus_node_idxs.iter(), max_depth);
-
-        Ok((graph, crate_node_idx))
-    }
-
-    // https://github.com/rust-lang/rust-analyzer/blob/36a70b7435c48837018c71576d7bb4e8f763f501/crates/syntax/src/ast/make.rs#L821
-    fn parse_ast<N: AstNode>(text: &str) -> N {
-        let parse = SourceFile::parse(text);
-        let node = match parse.tree().syntax().descendants().find_map(N::cast) {
-            Some(it) => it,
-            None => {
-                let node = std::any::type_name::<N>();
-                panic!("Failed to make ast node `{node}` from text {text}")
-            }
-        };
-        let node = node.clone_subtree();
-        assert_eq!(node.syntax().text_range().start(), 0.into());
-        node
-    }
-
-    fn use_tree_matches_path(use_tree: &ast::UseTree, path: &ast::Path) -> bool {
-        let mut path_segments_iter = path.segments();
-
-        if let Some(use_tree_path) = use_tree.path() {
-            for use_tree_segment in use_tree_path.segments() {
-                match path_segments_iter.next() {
-                    Some(path_segment) => {
-                        if use_tree_segment.syntax().text() == path_segment.syntax().text() {
-                            continue;
-                        } else {
-                            return false;
-                        }
-                    }
-                    None => {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        let path_segments: Vec<_> = path_segments_iter.collect();
-
-        if path_segments.is_empty() {
-            return use_tree.is_simple_path() || Self::tree_contains_self(use_tree);
-        }
-
-        if use_tree.star_token().is_some() {
-            return path_segments.len() == 1;
-        }
-
-        let path_suffix = ast::make::path_from_segments(path_segments, false);
-
-        use_tree
-            .use_tree_list()
-            .into_iter()
-            .flat_map(|list| list.use_trees())
-            .any(|use_tree| Self::use_tree_matches_path(&use_tree, &path_suffix))
-    }
-
-    fn path_is_self(path: &ast::Path) -> bool {
-        path.segment().and_then(|seg| seg.self_token()).is_some() && path.qualifier().is_none()
-    }
-
-    fn tree_is_self(tree: &ast::UseTree) -> bool {
-        tree.path()
-            .as_ref()
-            .map(Self::path_is_self)
-            .unwrap_or(false)
-    }
-
-    fn tree_contains_self(tree: &ast::UseTree) -> bool {
-        tree.use_tree_list()
-            .map(|tree_list| tree_list.use_trees().any(|tree| Self::tree_is_self(&tree)))
-            .unwrap_or(false)
-    }
-
     fn with_sysroot(&self) -> bool {
         match self {
             Self::Tree(_) => false,
@@ -437,24 +323,33 @@ impl Command {
     fn builder_options(&self) -> GraphBuilderOptions {
         match self {
             Self::Tree(options) => GraphBuilderOptions {
+                with_orphans: options.graph.with_orphans,
+            },
+            Self::Graph(options) => GraphBuilderOptions {
+                with_orphans: options.graph.with_orphans,
+            },
+        }
+    }
+
+    fn filter_options(&self) -> GraphFilterOptions {
+        match self {
+            Self::Tree(options) => GraphFilterOptions {
                 focus_on: options.graph.focus_on.clone(),
                 max_depth: options.graph.max_depth,
                 with_types: options.graph.with_types,
                 with_traits: options.graph.with_traits,
                 with_fns: options.graph.with_fns,
                 with_tests: options.graph.with_tests,
-                with_orphans: options.graph.with_orphans,
                 with_uses: false,
                 with_externs: false,
             },
-            Self::Graph(options) => GraphBuilderOptions {
+            Self::Graph(options) => GraphFilterOptions {
                 focus_on: options.graph.focus_on.clone(),
                 max_depth: options.graph.max_depth,
                 with_types: options.graph.with_types,
                 with_traits: options.graph.with_traits,
                 with_fns: options.graph.with_fns,
                 with_tests: options.graph.with_tests,
-                with_orphans: options.graph.with_orphans,
                 with_uses: options.with_uses,
                 with_externs: options.with_externs,
             },
