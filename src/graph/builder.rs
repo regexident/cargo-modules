@@ -27,15 +27,7 @@ use super::orphans::add_orphan_nodes_to;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Options {
-    pub focus_on: Option<String>,
-    pub max_depth: Option<usize>,
-    pub with_types: bool,
-    pub with_traits: bool,
-    pub with_fns: bool,
-    pub with_tests: bool,
     pub with_orphans: bool,
-    pub with_uses: bool,
-    pub with_externs: bool,
 }
 
 #[derive(Debug)]
@@ -132,9 +124,7 @@ impl<'a> Builder<'a> {
             add_orphan_nodes_to(&mut self.graph, module_idx);
         }
 
-        if self.options.with_uses {
-            self.add_dependencies(module_idx, self.dependencies_of_module(module_hir));
-        }
+        self.add_dependencies(module_idx, self.dependencies_of_module(module_hir));
 
         Some(module_idx)
     }
@@ -144,12 +134,6 @@ impl<'a> Builder<'a> {
         function_hir: hir::Function,
         _is_recursive: bool,
     ) -> Option<NodeIndex> {
-        if !self.options.with_fns {
-            return None;
-        }
-        if !self.options.with_tests && util::is_test_function(function_hir, self.db) {
-            return None;
-        }
         self.add_node(hir::ModuleDef::Function(function_hir))
     }
 
@@ -166,26 +150,14 @@ impl<'a> Builder<'a> {
         struct_hir: hir::Struct,
         _is_recursive: bool,
     ) -> Option<NodeIndex> {
-        if !self.options.with_types {
-            return None;
-        }
-
         self.add_node(hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)))
     }
 
     fn process_union(&mut self, union_hir: hir::Union, _is_recursive: bool) -> Option<NodeIndex> {
-        if !self.options.with_types {
-            return None;
-        }
-
         self.add_node(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)))
     }
 
     fn process_enum(&mut self, enum_hir: hir::Enum, _is_recursive: bool) -> Option<NodeIndex> {
-        if !self.options.with_types {
-            return None;
-        }
-
         self.add_node(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)))
     }
 
@@ -210,9 +182,6 @@ impl<'a> Builder<'a> {
     }
 
     fn process_trait(&mut self, trait_hir: hir::Trait, _is_recursive: bool) -> Option<NodeIndex> {
-        if !self.options.with_traits {
-            return None;
-        }
         self.add_node(hir::ModuleDef::Trait(trait_hir))
     }
 
@@ -221,9 +190,6 @@ impl<'a> Builder<'a> {
         type_alias_hir: hir::TypeAlias,
         _is_recursive: bool,
     ) -> Option<NodeIndex> {
-        if !self.options.with_types {
-            return None;
-        }
         self.add_node(hir::ModuleDef::TypeAlias(type_alias_hir))
     }
 
@@ -232,9 +198,6 @@ impl<'a> Builder<'a> {
         builtin_type_hir: hir::BuiltinType,
         _is_recursive: bool,
     ) -> Option<NodeIndex> {
-        if !self.options.with_types {
-            return None;
-        }
         self.add_node(hir::ModuleDef::BuiltinType(builtin_type_hir))
     }
 
@@ -269,31 +232,18 @@ impl<'a> Builder<'a> {
                 // Check if definition is a child of `module`:
                 if scope_module_hir.module(self.db) == Some(module_hir) {
                     // Is a child, omit it:
-                    None
-                } else {
-                    // Is not child, include it, maybe:
-                    if self.options.with_externs || !self.is_extern(scope_module_hir) {
-                        Some(scope_module_hir)
-                    } else {
-                        None
-                    }
+                    return None;
                 }
+
+                Some(scope_module_hir)
             })
             .collect()
-    }
-
-    fn is_extern(&self, moduledef_hir: hir::ModuleDef) -> bool {
-        let Some(import_krate) = moduledef_hir.module(self.db).map(|module| module.krate()) else {
-            return true;
-        };
-
-        self.krate != import_krate
     }
 
     fn add_node(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
         let node_id = util::path(moduledef_hir, self.db);
 
-        trace!("Adding module node: {:?}", node_id);
+        // trace!("Adding module node: {:?}", node_id);
 
         // Check if we already added an equivalent node:
         match self.nodes.get(&node_id) {
@@ -319,12 +269,12 @@ impl<'a> Builder<'a> {
     fn add_edge(&mut self, source_idx: NodeIndex, target_idx: NodeIndex, edge: Edge) -> EdgeIndex {
         let edge_id = (source_idx, edge.kind, target_idx);
 
-        trace!(
-            "Adding edge: {:?} --({:?})-> {:?}",
-            edge_id.0,
-            edge_id.1,
-            edge_id.2
-        );
+        // trace!(
+        //     "Adding edge: {:?} --({:?})-> {:?}",
+        //     edge_id.0,
+        //     edge_id.1,
+        //     edge_id.2
+        // );
 
         // Check if we already added an equivalent edge:
         match self.edges.get(&edge_id) {
