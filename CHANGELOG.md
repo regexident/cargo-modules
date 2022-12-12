@@ -24,9 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `insta` from `1.21.2` to `1.23.0`
-  - `rust-analyzer` from `0.0.140` to `0.0.142`
+- Split graph building into two separate phases: building & filtering.
 
 ### Deprecated
 
@@ -51,6 +49,14 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.7.1] - 2022-12-11
+
+### Changed
+
+- Updated dependencies:
+  - `insta` from `1.21.2` to `1.23.0`
+  - `rust-analyzer` from `0.0.140` to `0.0.142`
 
 ## [0.7.0] - 2022-12-02
 
