@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use log::trace;
 use petgraph::graph::{EdgeIndex, NodeIndex};
@@ -22,6 +22,12 @@ use crate::{
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Options {}
 
+#[derive(Debug, Hash, Eq, PartialEq)]
+struct Dependency {
+    source_idx: NodeIndex,
+    target_hir: hir::ModuleDef,
+}
+
 #[derive(Debug)]
 pub struct Builder<'a> {
     #[allow(dead_code)]
@@ -32,6 +38,8 @@ pub struct Builder<'a> {
     graph: Graph,
     nodes: HashMap<String, NodeIndex>,
     edges: HashMap<(NodeIndex, EdgeKind, NodeIndex), EdgeIndex>,
+    stack: Vec<NodeIndex>,
+    pending: HashSet<Dependency>,
 }
 
 impl<'a> Builder<'a> {
@@ -39,6 +47,8 @@ impl<'a> Builder<'a> {
         let graph = Graph::default();
         let nodes = HashMap::default();
         let edges = HashMap::default();
+        let stack = Vec::default();
+        let pending = HashSet::default();
 
         Self {
             options,
@@ -48,6 +58,8 @@ impl<'a> Builder<'a> {
             graph,
             nodes,
             edges,
+            stack,
+            pending,
         }
     }
 
@@ -132,8 +144,8 @@ impl<'a> Builder<'a> {
     fn process_adt(&mut self, adt_hir: hir::Adt, is_recursive: bool) -> Option<NodeIndex> {
         match adt_hir {
             hir::Adt::Struct(struct_hir) => self.process_struct(struct_hir, is_recursive),
-            hir::Adt::Union(union_hir) => self.process_union(union_hir, is_recursive),
             hir::Adt::Enum(enum_hir) => self.process_enum(enum_hir, is_recursive),
+            hir::Adt::Union(union_hir) => self.process_union(union_hir, is_recursive),
         }
     }
 
