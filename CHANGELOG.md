@@ -24,6 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.142` to `0.0.143`
 - Split graph building into two separate phases: building & filtering.
 
 ### Deprecated
