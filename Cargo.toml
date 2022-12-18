@@ -18,11 +18,11 @@ version = "0.7.1"
 # required by lib
 json = "0.12.4"
 petgraph = "0.6.2"
-anyhow = "1.0.66"
+anyhow = "1.0.68"
 yansi = "0.5.1"
 log = "0.4.17"
 env_logger = "0.10.0"
-indoc = "1.0.7"
+indoc = "1.0.8"
 structopt = "~0.3"
 
 ra_ap_base_db = "=0.0.143"
