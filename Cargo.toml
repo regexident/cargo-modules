@@ -38,6 +38,9 @@ ra_ap_rust-analyzer = "=0.0.143"
 ra_ap_text_edit = "=0.0.143"
 ra_ap_vfs = "=0.0.143"
 
+# minimal versions
+serde_repr = "0.1.8"
+
 # required by tests
 [dev-dependencies]
 assert_cmd = "2.0.7"
