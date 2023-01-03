@@ -25,6 +25,8 @@ Please make sure to add your changes to the appropriate categories:
 ### Changed
 
 - Updated dependencies:
+  - `indoc` from `1.0.7` to `1.0.8`
+  - `anyhow` from `1.0.66` to `1.0.68`
   - `rust-analyzer` from `0.0.142` to `0.0.143`
 - Split graph building into two separate phases: building & filtering.
 
