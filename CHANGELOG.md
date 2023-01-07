@@ -20,9 +20,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- Updated dependencies:
-  - `insta` from `1.23.0` to `1.26.0`
-  - `serde_repr` from `0.1.8` to `0.1.10`
+- n/a
 
 ### Changed
 
@@ -38,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- Typo in Cargo.toml: `rust = "1.65"` => `rust-version = "1.65"`.
+- n/a
 
 ### Performance
 
@@ -51,6 +49,18 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.7.3] - 2022-01-07
+
+### Changed
+
+- Updated dependencies:
+  - `insta` from `1.23.0` to `1.26.0`
+  - `serde_repr` from `0.1.8` to `0.1.10`
+
+### Fixed
+
+- Typo in Cargo.toml: `rust = "1.65"` => `rust-version = "1.65"`.
 
 ## [0.7.2] - 2022-01-03
 
