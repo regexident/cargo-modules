@@ -20,7 +20,9 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Updated dependencies:
+  - `insta` from `1.23.0` to `1.26.0`
+  - `serde_repr` from `0.1.8` to `0.1.10`
 
 ### Changed
 
