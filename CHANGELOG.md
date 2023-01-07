@@ -36,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/a
+- Typo in Cargo.toml: `rust = "1.65"` => `rust-version = "1.65"`.
 
 ### Performance
 
