@@ -53,6 +53,7 @@ Please make sure to add your changes to the appropriate categories:
 - n/a
 
 ## [0.7.3] - 2022-01-07
+## [0.7.3] - 2023-01-07
 
 ### Changed
 
@@ -64,7 +65,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Typo in Cargo.toml: `rust = "1.65"` => `rust-version = "1.65"`.
 
-## [0.7.2] - 2022-01-03
+## [0.7.2] - 2023-01-03
 
 ### Changed
 
