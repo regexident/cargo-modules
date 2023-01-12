@@ -24,9 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `assert_cmd` from `2.0.7` to `2.0.8`
-  - `rust-analyzer` from `0.0.143` to `0.0.148`
+- n/a
 
 ### Deprecated
 
@@ -52,7 +50,12 @@ Please make sure to add your changes to the appropriate categories:
 
 - n/a
 
-## [0.7.3] - 2022-01-07
+## [0.7.4] - 2023-01-12
+
+- Updated dependencies:
+  - `assert_cmd` from `2.0.7` to `2.0.8`
+  - `rust-analyzer` from `0.0.143` to `0.0.148`
+
 ## [0.7.3] - 2023-01-07
 
 ### Changed
