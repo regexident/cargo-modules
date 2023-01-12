@@ -52,6 +52,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ## [0.7.4] - 2023-01-12
 
+### Changed
+
 - Updated dependencies:
   - `assert_cmd` from `2.0.7` to `2.0.8`
   - `rust-analyzer` from `0.0.143` to `0.0.148`
