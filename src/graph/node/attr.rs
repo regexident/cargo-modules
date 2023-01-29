@@ -39,17 +39,17 @@ impl fmt::Display for NodeCfgAttr {
                     write!(f, ", ")?;
                 }
                 is_first = false;
-                write!(f, "{}", cfg)?;
+                write!(f, "{cfg}")?;
             }
             Ok(())
         }
 
         match self {
             Self::Flag(content) => {
-                write!(f, "{}", content)?;
+                write!(f, "{content}")?;
             }
             Self::KeyValue(key, value) => {
-                write!(f, "{} = {:?}", key, value)?;
+                write!(f, "{key} = {value:?}")?;
             }
             Self::All(cfgs) => {
                 write!(f, "all(")?;

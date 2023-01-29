@@ -54,7 +54,7 @@ impl fmt::Display for NodeVisibility {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             NodeVisibility::Crate => write!(f, "pub(crate)"),
-            NodeVisibility::Module(path) => write!(f, "pub(in crate::{})", path),
+            NodeVisibility::Module(path) => write!(f, "pub(in crate::{path})"),
             NodeVisibility::Private => write!(f, "pub(self)"),
             NodeVisibility::Public => write!(f, "pub"),
             NodeVisibility::Super => write!(f, "pub(super)"),

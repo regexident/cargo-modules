@@ -139,7 +139,7 @@ impl<'a> Printer<'a> {
             .unwrap_or_else(|| "mod".to_owned());
         let kind = kind_style.paint(display_name);
 
-        write!(f, "{}", kind)?;
+        write!(f, "{kind}")?;
 
         Ok(())
     }
@@ -148,7 +148,7 @@ impl<'a> Printer<'a> {
         let colon_style = self.colon_style();
 
         let colon = colon_style.paint(":");
-        write!(f, "{}", colon)?;
+        write!(f, "{colon}")?;
 
         Ok(())
     }
@@ -157,7 +157,7 @@ impl<'a> Printer<'a> {
         let (visibility, visibility_style) = match &node.visibility {
             Some(visibility) => {
                 let visibility_style = self.visibility_style(visibility);
-                (format!("{}", visibility), visibility_style)
+                (format!("{visibility}"), visibility_style)
             }
             None => {
                 let orphan_style = self.orphan_style();
@@ -166,7 +166,7 @@ impl<'a> Printer<'a> {
         };
 
         let visibility = visibility_style.paint(visibility);
-        write!(f, "{}", visibility)?;
+        write!(f, "{visibility}")?;
 
         Ok(())
     }
@@ -175,7 +175,7 @@ impl<'a> Printer<'a> {
         let name_style = self.name_style();
 
         let name = name_style.paint(node.display_name());
-        write!(f, "{}", name)?;
+        write!(f, "{name}")?;
 
         Ok(())
     }
@@ -191,7 +191,7 @@ impl<'a> Printer<'a> {
             let cfg = attr_style.paint(test_attr);
             let suffix = attr_chrome_style.paint("]");
 
-            write!(f, "{}{}{}", prefix, cfg, suffix)?;
+            write!(f, "{prefix}{cfg}{suffix}")?;
 
             is_first = false;
         }
@@ -208,7 +208,7 @@ impl<'a> Printer<'a> {
             let cfg = attr_style.paint(cfg);
             let suffix = attr_chrome_style.paint(")]");
 
-            write!(f, "{}{}{}", prefix, cfg, suffix)?;
+            write!(f, "{prefix}{cfg}{suffix}")?;
 
             is_first = false;
         }

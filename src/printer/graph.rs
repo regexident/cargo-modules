@@ -207,7 +207,7 @@ impl<'a> Printer<'a> {
                 } else if node.is_crate(self.db) {
                     None
                 } else {
-                    Some(format!("{}", visibility))
+                    Some(format!("{visibility}"))
                 }
             }
             None => Some("orphan".to_owned()),
@@ -218,10 +218,10 @@ impl<'a> Printer<'a> {
             .unwrap_or_else(|| "mod".to_owned());
 
         if let Some(visibility) = visibility {
-            write!(f, "{} ", visibility)?;
+            write!(f, "{visibility} ")?;
         }
 
-        write!(f, "{}", kind)
+        write!(f, "{kind}")
     }
 
     fn fmt_node_body(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
@@ -235,7 +235,7 @@ impl<'a> Printer<'a> {
             node.path.join("::")
         };
 
-        write!(f, "{}", path)
+        write!(f, "{path}")
     }
 
     fn node_attributes(&self, node: &Node) -> String {
