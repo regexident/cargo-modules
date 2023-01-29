@@ -24,8 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.148` to `0.0.149`
+- n/a
 
 ### Deprecated
 
@@ -50,6 +49,13 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.7.5] - 2023-01-29
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.148` to `0.0.149`
 
 ## [0.7.4] - 2023-01-12
 
