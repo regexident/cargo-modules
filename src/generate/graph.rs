@@ -47,7 +47,7 @@ impl Command {
 
         printer.fmt(&mut string, graph, start_node_idx)?;
 
-        print!("{}", string);
+        print!("{string}");
 
         Ok(())
     }

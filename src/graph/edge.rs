@@ -25,7 +25,7 @@ impl fmt::Display for EdgeKind {
             Self::Uses => "Uses",
             Self::Owns => "Owns",
         };
-        write!(f, "{}", name)
+        write!(f, "{name}")
     }
 }
 

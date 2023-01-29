@@ -53,7 +53,7 @@ impl<'a> Filter<'a> {
             .cloned()
             .unwrap_or_else(|| self.krate.display_name(self.db).unwrap().to_string());
 
-        let syntax = format!("use {};", focus_on);
+        let syntax = format!("use {focus_on};");
         let use_tree: ast::UseTree = util::parse_ast(&syntax);
 
         trace!("Searching for focus nodes in graph ...");
@@ -68,7 +68,7 @@ impl<'a> Filter<'a> {
                 }
                 let node_path: ast::Path = {
                     let focus_on = node_path_segments.join("::");
-                    let syntax = format!("use {};", focus_on);
+                    let syntax = format!("use {focus_on};");
                     util::parse_ast(&syntax)
                 };
                 util::use_tree_matches_path(&use_tree, &node_path)

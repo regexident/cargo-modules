@@ -10,7 +10,7 @@ pub(crate) struct Color(pub u8, pub u8, pub u8);
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let Color(r, g, b) = self;
-        write!(f, "#{:02x}{:02x}{:02x}", r, g, b)
+        write!(f, "#{r:02x}{g:02x}{b:02x}")
     }
 }
 
@@ -103,7 +103,7 @@ impl fmt::Display for Stroke {
             Self::Solid => "solid",
             Self::Dashed => "dashed",
         };
-        write!(f, "{}", name)
+        write!(f, "{name}")
     }
 }
 
