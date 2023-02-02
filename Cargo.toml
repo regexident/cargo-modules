@@ -22,7 +22,7 @@ anyhow = "1.0.68"
 yansi = "0.5.1"
 log = "0.4.17"
 env_logger = "0.10.0"
-indoc = "1.0.8"
+indoc = "2.0.0"
 structopt = "~0.3"
 
 ra_ap_base_db = "=0.0.149"
