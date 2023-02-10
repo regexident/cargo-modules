@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `indoc` from `1.0.8` to `2.0.0`
 
 ### Deprecated
 
