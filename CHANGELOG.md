@@ -26,6 +26,8 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `indoc` from `1.0.8` to `2.0.0`
+  - `petgraph` from `0.6.2` to `0.6.3`
+  - `anyhow` from `1.0.68` to `1.0.69`
 
 ### Deprecated
 
