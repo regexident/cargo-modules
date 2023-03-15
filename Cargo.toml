@@ -22,8 +22,8 @@ anyhow = "1.0.69"
 yansi = "0.5.1"
 log = "0.4.17"
 env_logger = "0.10.0"
-indoc = "2.0.0"
-structopt = "~0.3"
+indoc = "2.0.1"
+structopt = "~0.3.26"
 
 ra_ap_base_db = "=0.0.149"
 ra_ap_cfg = "=0.0.149"
@@ -39,11 +39,11 @@ ra_ap_text_edit = "=0.0.149"
 ra_ap_vfs = "=0.0.149"
 
 # minimal versions
-serde_repr = "0.1.10"
+serde_repr = "0.1.11"
 
 # required by tests
 [dev-dependencies]
-assert_cmd = "2.0.8"
+assert_cmd = "2.0.9"
 shellwords = "1.1"
 insta = "1.28.0"
 bitflags = "1.3.2"
