@@ -24,15 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `indoc` from `1.0.8` to `2.0.1`
-  - `petgraph` from `0.6.2` to `0.6.3`
-  - `anyhow` from `1.0.68` to `1.0.69`
-  - `structopt` from `0.3` to `0.3.26`
-  - `serde_repr` from `0.1.10` to `0.1.11`
-  - `assert_cmd` from `2.0.8` to `2.0.9`
-  - `insta` from `1.26.0` to `1.28.0`
-  - `bitflags` from `1.3.2` to `2.0.1`
+- n/a
 
 ### Deprecated
 
@@ -57,6 +49,20 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.7.6] - 2023-03-16
+
+### Changed
+
+- Updated dependencies:
+  - `indoc` from `1.0.8` to `2.0.1`
+  - `petgraph` from `0.6.2` to `0.6.3`
+  - `anyhow` from `1.0.68` to `1.0.69`
+  - `structopt` from `0.3` to `0.3.26`
+  - `serde_repr` from `0.1.10` to `0.1.11`
+  - `assert_cmd` from `2.0.8` to `2.0.9`
+  - `insta` from `1.26.0` to `1.28.0`
+  - `bitflags` from `1.3.2` to `2.0.1`
 
 ## [0.7.5] - 2023-01-29
 
