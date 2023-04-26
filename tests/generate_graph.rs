@@ -498,3 +498,16 @@ mod github_issue_80 {
         );
     }
 }
+
+mod github_issue_172 {
+    test_cmd!(
+        args: "generate graph \
+                --with-types \
+                --with-uses \
+                --with-traits \
+                --layout dot",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: github_issue_172
+    );
+}
