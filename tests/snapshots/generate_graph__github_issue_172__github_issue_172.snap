@@ -1,0 +1,60 @@
+---
+source: tests/generate_graph.rs
+expression: output
+---
+STDERR:
+
+STDOUT:
+digraph {
+
+    graph [
+        label="github_issue_172",
+        labelloc=t,
+
+        pad=0.4,
+
+        // Consider rendering the graph using a different layout algorithm, such as:
+        // [dot, neato, twopi, circo, fdp, sfdp]
+        layout=dot,
+        overlap=false,
+        splines="line",
+        rankdir=LR,
+
+        fontname="Helvetica", 
+        fontsize="36",
+    ];
+
+    node [
+        fontname="monospace",
+        fontsize="10",
+        shape="record",
+        style="filled",
+    ];
+
+    edge [
+        fontname="monospace",
+        fontsize="10",
+    ];
+
+    "github_issue_172" [label="crate|github_issue_172", fillcolor="#5397c8"]; // "crate" node
+    "github_issue_172::AThing" [label="pub(crate) struct|AThing", fillcolor="#f8c04c"]; // "struct" node
+    "github_issue_172::alpha" [label="pub mod|alpha", fillcolor="#81c169"]; // "mod" node
+    "github_issue_172::alpha::beta" [label="pub mod|alpha::beta", fillcolor="#81c169"]; // "mod" node
+    "github_issue_172::alpha::beta::AnotherThing" [label="pub struct|alpha::beta::AnotherThing", fillcolor="#81c169"]; // "struct" node
+    "github_issue_172::alpha::beta::gamma" [label="pub mod|alpha::beta::gamma", fillcolor="#81c169"]; // "mod" node
+    "github_issue_172::alpha::delta" [label="pub mod|alpha::delta", fillcolor="#81c169"]; // "mod" node
+    "github_issue_172::alpha::delta::ATrait" [label="pub trait|alpha::delta::ATrait", fillcolor="#81c169"]; // "trait" node
+
+    "github_issue_172" -> "github_issue_172::AThing" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_172" -> "github_issue_172::alpha" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_172::alpha" -> "github_issue_172::alpha::beta" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_172::alpha" -> "github_issue_172::alpha::delta" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_172::alpha" -> "github_issue_172::alpha::delta::ATrait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "github_issue_172::alpha::beta" -> "github_issue_172::AThing" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "github_issue_172::alpha::beta" -> "github_issue_172::alpha::beta::AnotherThing" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_172::alpha::beta" -> "github_issue_172::alpha::beta::gamma" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_172::alpha::delta" -> "github_issue_172::alpha::beta::AnotherThing" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "github_issue_172::alpha::delta" -> "github_issue_172::alpha::delta::ATrait" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+
+}
+
