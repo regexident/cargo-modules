@@ -289,97 +289,97 @@ mod package_bin {
     }
 }
 
-mod with_orphans {
+mod orphans {
     test_cmd!(
         args: "generate graph \
-                --with-orphans",
+                --orphans",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_tests {
+mod tests {
     test_cmd!(
         args: "generate graph \
-                --with-tests",
+                --tests",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_types {
+mod types {
     test_cmd!(
         args: "generate graph \
-                --with-types",
+                --types",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_traits {
+mod traits {
     test_cmd!(
         args: "generate graph \
-                --with-traits",
+                --traits",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_fns {
+mod fns {
     test_cmd!(
         args: "generate graph \
-                --with-fns",
+                --fns",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_uses {
+mod uses {
     test_cmd!(
         args: "generate graph \
-                --with-uses",
+                --uses",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_externs {
+mod externs {
     test_cmd!(
         args: "generate graph \
-                --with-externs",
+                --externs",
         success: false,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_uses_with_externs {
+mod uses_with_externs {
     test_cmd!(
         args: "generate graph \
-                --with-uses \
-                --with-externs",
+                --uses \
+                --externs",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_uses_with_externs_with_sysroot {
+mod uses_with_externs_with_sysroot {
     test_cmd!(
         attrs: [
             // `sysroot` is expensive, so only run on release builds:
             #[ignore]
         ],
         args: "generate graph \
-                --with-uses \
-                --with-externs \
-                --with-sysroot",
+                --uses \
+                --externs \
+                --sysroot",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
@@ -390,7 +390,7 @@ mod focus_on {
     mod simple_path {
         test_cmd!(
             args: "generate graph \
-                    --with-uses \
+                    --uses \
                     --focus-on \"smoke::visibility::dummy\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -400,7 +400,7 @@ mod focus_on {
     mod glob_path {
         test_cmd!(
             args: "generate graph \
-                    --with-uses \
+                    --uses \
                     --focus-on \"smoke::visibility::*\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -410,7 +410,7 @@ mod focus_on {
     mod self_path {
         test_cmd!(
             args: "generate graph \
-                    --with-uses \
+                    --uses \
                     --focus-on \"smoke::visibility::dummy::{self}\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -420,7 +420,7 @@ mod focus_on {
     mod tree {
         test_cmd!(
             args: "generate graph \
-                    --with-uses \
+                    --uses \
                     --focus-on \"smoke::visibility::{dummy, hierarchy}\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -433,7 +433,7 @@ mod max_depth {
     mod depth_0 {
         test_cmd!(
             args: "generate graph \
-                    --with-uses \
+                    --uses \
                     --max-depth 0",
             success: true,
             color_mode: ColorMode::Plain,
@@ -444,7 +444,7 @@ mod max_depth {
     mod depth_1 {
         test_cmd!(
             args: "generate graph \
-                    --with-uses \
+                    --uses \
                     --max-depth 1",
             success: true,
             color_mode: ColorMode::Plain,
@@ -455,7 +455,7 @@ mod max_depth {
     mod depth_2 {
         test_cmd!(
             args: "generate graph \
-                    --with-uses \
+                    --uses \
                     --max-depth 2",
             success: true,
             color_mode: ColorMode::Plain,
@@ -467,7 +467,7 @@ mod max_depth {
 mod github_issue_79 {
     test_cmd!(
         args: "generate graph \
-                --with-uses",
+                --uses",
         success: true,
         color_mode: ColorMode::Plain,
         project: github_issue_79
@@ -475,12 +475,12 @@ mod github_issue_79 {
 }
 
 mod github_issue_80 {
-    mod with_tests {
+    mod tests {
         test_cmd!(
             args: "generate graph \
-                    --with-uses \
-                    --with-types \
-                    --with-tests",
+                    --uses \
+                    --types \
+                    --tests",
             success: true,
             color_mode: ColorMode::Plain,
             project: github_issue_80
@@ -490,8 +490,8 @@ mod github_issue_80 {
     mod without_tests {
         test_cmd!(
             args: "generate graph \
-                    --with-uses \
-                    --with-types",
+                    --uses \
+                    --types",
             success: true,
             color_mode: ColorMode::Plain,
             project: github_issue_80
@@ -502,9 +502,9 @@ mod github_issue_80 {
 mod github_issue_172 {
     test_cmd!(
         args: "generate graph \
-                --with-types \
-                --with-uses \
-                --with-traits \
+                --types \
+                --uses \
+                --traits \
                 --layout dot",
         success: true,
         color_mode: ColorMode::Plain,

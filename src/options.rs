@@ -42,24 +42,24 @@ pub mod graph {
         pub max_depth: Option<usize>,
 
         /// Include types (e.g. structs, unions, enums).
-        #[arg(long = "with-types")]
-        pub with_types: bool,
+        #[arg(long = "types")]
+        pub types: bool,
 
         /// Include traits (e.g. trait, unsafe trait).
-        #[arg(long = "with-traits")]
-        pub with_traits: bool,
+        #[arg(long = "traits")]
+        pub traits: bool,
 
         /// Include functions (e.g. fns, async fns, const fns).
-        #[arg(long = "with-fns")]
-        pub with_fns: bool,
+        #[arg(long = "fns")]
+        pub fns: bool,
 
         /// Include tests (e.g. `#[test] fn …`).
-        #[arg(long = "with-tests")]
-        pub with_tests: bool,
+        #[arg(long = "tests")]
+        pub tests: bool,
 
         /// Include orphaned modules (i.e. unused files in /src).
-        #[arg(long = "with-orphans")]
-        pub with_orphans: bool,
+        #[arg(long = "orphans")]
+        pub orphans: bool,
     }
 }
 
@@ -126,12 +126,12 @@ pub mod generate {
             pub layout: crate::options::generate::graph::LayoutAlgorithm,
 
             /// Include used modules and types
-            #[arg(long = "with-uses")]
-            pub with_uses: bool,
+            #[arg(long = "uses")]
+            pub uses: bool,
 
             /// Include used modules and types from extern crates
-            #[arg(long = "with-externs")]
-            pub with_externs: bool,
+            #[arg(long = "externs")]
+            pub externs: bool,
         }
     }
 
@@ -194,8 +194,8 @@ pub mod project {
         pub cfg_test: bool,
 
         /// Include sysroot crates (`std`, `core` & friends) in analysis.
-        #[arg(long = "with-sysroot")]
-        pub with_sysroot: bool,
+        #[arg(long = "sysroot")]
+        pub sysroot: bool,
 
         /// Path to Cargo.toml.
         #[arg(long = "manifest-path", default_value = ".")]

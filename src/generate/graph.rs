@@ -38,7 +38,7 @@ impl Command {
         let printer = {
             let printer_options: PrinterOptions = PrinterOptions {
                 layout: self.options.layout.to_string(),
-                full_paths: self.options.with_externs,
+                full_paths: self.options.externs,
             };
             Printer::new(printer_options, member_krate, db)
         };
@@ -55,8 +55,8 @@ impl Command {
     fn validate_options(&self) -> anyhow::Result<()> {
         let options = &self.options;
 
-        if options.with_externs && !options.with_uses {
-            anyhow::bail!("Option `--with-externs` requires option `--with-uses`");
+        if options.externs && !options.uses {
+            anyhow::bail!("Option `--externs` requires option `--uses`");
         }
 
         Ok(())

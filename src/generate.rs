@@ -51,8 +51,8 @@ pub enum Command {
 
 impl Command {
     pub(crate) fn sanitize(&mut self) {
-        if self.graph_options().with_tests && !self.project_options().cfg_test {
-            debug!("Enabling `--cfg-test`, which is implied by `--with-tests`");
+        if self.graph_options().tests && !self.project_options().cfg_test {
+            debug!("Enabling `--cfg-test`, which is implied by `--tests`");
             self.project_options_mut().cfg_test = true;
         }
     }
@@ -143,7 +143,7 @@ impl Command {
         let target = project_options.target.clone();
 
         // Whether to load sysroot crates (`std`, `core` & friends).
-        let sysroot = if project_options.with_sysroot && self.with_sysroot() {
+        let sysroot = if project_options.sysroot && self.sysroot() {
             Some(RustcSource::Discover)
         } else {
             None
@@ -264,13 +264,13 @@ impl Command {
         krate.ok_or_else(|| anyhow::anyhow!("Crate not found"))
     }
 
-    fn with_sysroot(&self) -> bool {
+    fn sysroot(&self) -> bool {
         match self {
             Self::Tree(_) => false,
             Self::Graph(options) => {
                 // We only need to include sysroot if we include extern uses
                 // and didn't explicitly request sysroot to be excluded:
-                options.with_uses && options.with_externs
+                options.uses && options.externs
             }
         }
     }
@@ -323,10 +323,10 @@ impl Command {
     fn builder_options(&self) -> GraphBuilderOptions {
         match self {
             Self::Tree(options) => GraphBuilderOptions {
-                with_orphans: options.graph.with_orphans,
+                orphans: options.graph.orphans,
             },
             Self::Graph(options) => GraphBuilderOptions {
-                with_orphans: options.graph.with_orphans,
+                orphans: options.graph.orphans,
             },
         }
     }
@@ -336,22 +336,22 @@ impl Command {
             Self::Tree(options) => GraphFilterOptions {
                 focus_on: options.graph.focus_on.clone(),
                 max_depth: options.graph.max_depth,
-                with_types: options.graph.with_types,
-                with_traits: options.graph.with_traits,
-                with_fns: options.graph.with_fns,
-                with_tests: options.graph.with_tests,
-                with_uses: false,
-                with_externs: false,
+                types: options.graph.types,
+                traits: options.graph.traits,
+                fns: options.graph.fns,
+                tests: options.graph.tests,
+                uses: false,
+                externs: false,
             },
             Self::Graph(options) => GraphFilterOptions {
                 focus_on: options.graph.focus_on.clone(),
                 max_depth: options.graph.max_depth,
-                with_types: options.graph.with_types,
-                with_traits: options.graph.with_traits,
-                with_fns: options.graph.with_fns,
-                with_tests: options.graph.with_tests,
-                with_uses: options.with_uses,
-                with_externs: options.with_externs,
+                types: options.graph.types,
+                traits: options.graph.traits,
+                fns: options.graph.fns,
+                tests: options.graph.tests,
+                uses: options.uses,
+                externs: options.externs,
             },
         }
     }
