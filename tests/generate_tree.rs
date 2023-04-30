@@ -271,50 +271,50 @@ mod package_bin {
     }
 }
 
-mod with_orphans {
+mod orphans {
     test_cmd!(
         args: "generate tree \
-                --with-orphans",
+                --orphans",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_tests {
+mod tests {
     test_cmd!(
         args: "generate tree \
-                --with-tests",
+                --tests",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_types {
+mod types {
     test_cmd!(
         args: "generate tree \
-                --with-types",
+                --types",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_traits {
+mod traits {
     test_cmd!(
         args: "generate tree \
-                --with-traits",
+                --traits",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
 }
 
-mod with_fns {
+mod fns {
     test_cmd!(
         args: "generate tree \
-                --with-fns",
+                --fns",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
@@ -322,11 +322,11 @@ mod with_fns {
 }
 
 mod github_issue_80 {
-    mod with_tests {
+    mod tests {
         test_cmd!(
             args: "generate tree \
-                    --with-types \
-                    --with-tests",
+                    --types \
+                    --tests",
             success: true,
             color_mode: ColorMode::Plain,
             project: github_issue_80
@@ -336,7 +336,7 @@ mod github_issue_80 {
     mod without_tests {
         test_cmd!(
             args: "generate tree \
-                    --with-types",
+                    --types",
             success: true,
             color_mode: ColorMode::Plain,
             project: github_issue_80

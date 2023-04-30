@@ -21,12 +21,12 @@ use crate::graph::{edge::EdgeKind, util, Graph};
 pub struct Options {
     pub focus_on: Option<String>,
     pub max_depth: Option<usize>,
-    pub with_types: bool,
-    pub with_traits: bool,
-    pub with_fns: bool,
-    pub with_tests: bool,
-    pub with_uses: bool,
-    pub with_externs: bool,
+    pub types: bool,
+    pub traits: bool,
+    pub fns: bool,
+    pub tests: bool,
+    pub uses: bool,
+    pub externs: bool,
 }
 
 #[derive(Debug)]
@@ -102,7 +102,7 @@ impl<'a> Filter<'a> {
             stack
         };
 
-        if self.options.with_uses {
+        if self.options.uses {
             trace!("Redirecting \"uses\" edges of filtered nodes in graph ...");
 
             // Popping from the stack results in a reverse level-order,
@@ -216,7 +216,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_moduledef(&self, moduledef_hir: hir::ModuleDef) -> bool {
-        if !self.options.with_externs && self.is_extern(moduledef_hir) {
+        if !self.options.externs && self.is_extern(moduledef_hir) {
             return false;
         }
 
@@ -243,11 +243,11 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_function(&self, function_hir: hir::Function) -> bool {
-        if !self.options.with_fns {
+        if !self.options.fns {
             return false;
         }
 
-        if !self.options.with_tests {
+        if !self.options.tests {
             let attrs = function_hir.attrs(self.db);
             if attrs.by_key("test").exists() {
                 return false;
@@ -258,7 +258,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_adt(&self, _adt_hir: hir::Adt) -> bool {
-        if !self.options.with_types {
+        if !self.options.types {
             return false;
         }
 
@@ -278,7 +278,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_trait(&self, _trait_hir: hir::Trait) -> bool {
-        if !self.options.with_traits {
+        if !self.options.traits {
             return false;
         }
 
@@ -290,7 +290,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_builtin_type(&self, _builtin_type_hir: hir::BuiltinType) -> bool {
-        if !self.options.with_types {
+        if !self.options.types {
             return false;
         }
 

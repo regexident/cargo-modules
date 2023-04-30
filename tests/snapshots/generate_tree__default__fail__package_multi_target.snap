@@ -1,7 +1,6 @@
 ---
 source: tests/generate_tree.rs
 expression: output
-
 ---
 STDERR:
 Error: Multiple targets present in package,

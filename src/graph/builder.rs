@@ -27,7 +27,7 @@ use super::orphans::add_orphan_nodes_to;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Options {
-    pub with_orphans: bool,
+    pub orphans: bool,
 }
 
 #[derive(Debug)]
@@ -120,7 +120,7 @@ impl<'a> Builder<'a> {
             self.add_edge(module_idx, declaration_idx, edge);
         }
 
-        if self.options.with_orphans {
+        if self.options.orphans {
             add_orphan_nodes_to(&mut self.graph, module_idx);
         }
 

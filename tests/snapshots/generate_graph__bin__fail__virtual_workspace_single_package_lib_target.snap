@@ -1,7 +1,6 @@
 ---
 source: tests/generate_graph.rs
 expression: output
-
 ---
 STDERR:
 Error: No binary target found with name "foobar".

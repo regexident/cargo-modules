@@ -45,12 +45,12 @@ FLAGS:
         --no-default-features    Do not activate the `default` feature
     -V, --version                Prints version information
         --verbose                Use verbose output
-        --with-fns               Include functions (e.g. fns, async fns, const fns)
-        --with-orphans           Include orphaned modules (i.e. unused files in /src)
-        --with-sysroot           Include sysroot crates (`std`, `core` & friends) in analysis
-        --with-tests             Include tests (e.g. `#[test] fn …`)
-        --with-traits            Include traits (e.g. trait, unsafe trait)
-        --with-types             Include types (e.g. structs, unions, enums)
+        --fns               Include functions (e.g. fns, async fns, const fns)
+        --orphans           Include orphaned modules (i.e. unused files in /src)
+        --sysroot           Include sysroot crates (`std`, `core` & friends) in analysis
+        --tests             Include tests (e.g. `#[test] fn …`)
+        --traits            Include traits (e.g. trait, unsafe trait)
+        --types             Include types (e.g. structs, unions, enums)
 
 OPTIONS:
         --bin <bin>                        Process only the specified binary
@@ -69,7 +69,7 @@ The following image is the result of using the following command to generate a t
 
 ```bash
 cd ./tests/projects/smoke
-cargo-modules generate tree --with-types --with-tests --with-orphans
+cargo-modules generate tree --types --tests --orphans
 ```
 
 ![Output of `cargo modules generate tree …`](docs/tree_output.png)
@@ -115,14 +115,14 @@ FLAGS:
         --no-default-features    Do not activate the `default` feature
     -V, --version                Prints version information
         --verbose                Use verbose output
-        --with-externs           Include used modules and types from extern crates
-        --with-fns               Include functions (e.g. fns, async fns, const fns)
-        --with-orphans           Include orphaned modules (i.e. unused files in /src)
-        --with-sysroot           Include sysroot crates (`std`, `core` & friends) in analysis
-        --with-tests             Include tests (e.g. `#[test] fn …`)
-        --with-traits            Include traits (e.g. trait, unsafe trait)
-        --with-types             Include types (e.g. structs, unions, enums)
-        --with-uses              Include used modules and types
+        --externs           Include used modules and types from extern crates
+        --fns               Include functions (e.g. fns, async fns, const fns)
+        --orphans           Include orphaned modules (i.e. unused files in /src)
+        --sysroot           Include sysroot crates (`std`, `core` & friends) in analysis
+        --tests             Include tests (e.g. `#[test] fn …`)
+        --traits            Include traits (e.g. trait, unsafe trait)
+        --types             Include types (e.g. structs, unions, enums)
+        --uses              Include used modules and types
 
 OPTIONS:
         --bin <bin>                        Process only the specified binary
@@ -147,7 +147,7 @@ The following image is the result of using the following command to generate a g
 
 ```bash
 cd ./tests/projects/smoke
-cargo-modules generate graph --with-types --with-tests --with-orphans | dot -Tsvg
+cargo-modules generate graph --types --tests --orphans | dot -Tsvg
 ```
 
 ![Output of `cargo modules generate graph …`](docs/graph_output.svg)
