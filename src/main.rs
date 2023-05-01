@@ -8,7 +8,7 @@ use clap::Parser;
 use log::debug;
 use yansi::Paint;
 
-use cargo_modules::options::Options;
+use cargo_modules::options::App;
 
 fn main() -> anyhow::Result<()> {
     env_logger::init_from_env({
@@ -26,7 +26,7 @@ fn main() -> anyhow::Result<()> {
         Paint::disable()
     }
 
-    let options = Options::parse();
-    let command = options.sanitized_command();
+    let app = App::parse();
+    let command = app.sanitized_command();
     command.run()
 }
