@@ -20,6 +20,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
+- Added CLI argument `--modules` (and corresponding `--no-modules`) for filtering out modules from graphs.
 - Added CLI argument `--no-externs` as a negative complement for `--externs`
 - Added CLI argument `--no-fns` as a negative complement for `--fns`
 - Added CLI argument `--no-orphans` as a negative complement for `--orphans`
