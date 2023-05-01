@@ -20,6 +20,15 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
+- Added CLI argument `--no-externs` as a negative complement for `--externs`
+- Added CLI argument `--no-fns` as a negative complement for `--fns`
+- Added CLI argument `--no-orphans` as a negative complement for `--orphans`
+- Added CLI argument `--no-sysroot` as a negative complement for `--sysroot`
+- Added CLI argument `--no-tests` as a negative complement for `--tests`
+- Added CLI argument `--no-traits` as a negative complement for `--traits`
+- Added CLI argument `--no-types` as a negative complement for `--types`
+- Added CLI argument `--no-uses` as a negative complement for `--uses`
+- Added CLI argument `--no-cfg-test` as a negative complement for `--cfg-test`
 - Added dependencies:
   - `clap` at `4.2.5`
 
