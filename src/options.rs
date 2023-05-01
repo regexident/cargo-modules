@@ -4,7 +4,7 @@
 
 use std::{path::PathBuf, str::FromStr};
 
-use clap::{ArgGroup, Parser};
+use clap::{ArgAction, ArgGroup, Parser};
 
 use crate::commands::Command;
 
@@ -45,21 +45,41 @@ pub mod graph {
         #[arg(long = "types")]
         pub types: bool,
 
+        /// Exclude types (e.g. structs, unions, enums).
+        #[arg(long = "no-types", action = ArgAction::SetFalse, overrides_with = "types")]
+        pub no_types: (),
+
         /// Include traits (e.g. trait, unsafe trait).
         #[arg(long = "traits")]
         pub traits: bool,
+
+        /// Exclude traits (e.g. trait, unsafe trait).
+        #[arg(long = "no-traits", action = ArgAction::SetFalse, overrides_with = "traits")]
+        pub no_traits: (),
 
         /// Include functions (e.g. fns, async fns, const fns).
         #[arg(long = "fns")]
         pub fns: bool,
 
+        /// Include functions (e.g. fns, async fns, const fns).
+        #[arg(long = "no-fns", action = ArgAction::SetFalse, overrides_with = "fns")]
+        pub no_fns: (),
+
         /// Include tests (e.g. `#[test] fn …`).
         #[arg(long = "tests")]
         pub tests: bool,
 
+        /// Exclude tests (e.g. `#[test] fn …`).
+        #[arg(long = "no-tests", action = ArgAction::SetFalse, overrides_with = "tests")]
+        pub no_tests: (),
+
         /// Include orphaned modules (i.e. unused files in /src).
         #[arg(long = "orphans")]
         pub orphans: bool,
+
+        /// Exclude orphaned modules (i.e. unused files in /src).
+        #[arg(long = "no-orphans", action = ArgAction::SetFalse, overrides_with = "orphans")]
+        pub no_orphans: (),
     }
 }
 
@@ -129,9 +149,17 @@ pub mod generate {
             #[arg(long = "uses")]
             pub uses: bool,
 
+            /// Exclude used modules and types
+            #[arg(long = "no-uses", action = ArgAction::SetFalse, overrides_with = "uses")]
+            pub no_uses: (),
+
             /// Include used modules and types from extern crates
             #[arg(long = "externs")]
             pub externs: bool,
+
+            /// Exclude used modules and types from extern crates
+            #[arg(long = "no-externs", action = ArgAction::SetFalse, overrides_with = "externs")]
+            pub no_externs: (),
         }
     }
 
@@ -193,9 +221,17 @@ pub mod project {
         #[arg(long = "cfg-test")]
         pub cfg_test: bool,
 
+        /// Analyze with `#[cfg(test)]` disabled.
+        #[arg(long = "no-cfg-test", action = ArgAction::SetFalse, overrides_with = "cfg_test")]
+        pub no_cfg_test: (),
+
         /// Include sysroot crates (`std`, `core` & friends) in analysis.
         #[arg(long = "sysroot")]
         pub sysroot: bool,
+
+        /// Exclude sysroot crates (`std`, `core` & friends) in analysis.
+        #[arg(long = "no-sysroot", action = ArgAction::SetFalse, overrides_with = "sysroot")]
+        pub no_sysroot: (),
 
         /// Path to Cargo.toml.
         #[arg(long = "manifest-path", default_value = ".")]

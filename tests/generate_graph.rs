@@ -61,6 +61,152 @@ mod default {
     }
 }
 
+mod negative_args {
+    use clap::Parser;
+
+    use cargo_modules::{commands::Command::Generate, generate::Command, options::App};
+
+    fn args_for(command: &str, arg: &str) -> Vec<(Vec<String>, bool)> {
+        let args_prefix = vec![
+            "modules".to_owned(),
+            "generate".to_owned(),
+            command.to_owned(),
+        ];
+
+        let pos_arg = format!("--{arg}");
+        let neg_arg = format!("--no-{arg}");
+
+        let arg_suffixes = vec![
+            (vec![], false),
+            (vec![pos_arg.clone()], true),
+            (vec![neg_arg.clone()], false),
+            (vec![pos_arg.clone(), neg_arg.clone()], false),
+            (vec![neg_arg.clone(), pos_arg.clone()], true),
+        ];
+
+        arg_suffixes
+            .into_iter()
+            .map(|(args_suffix, expected)| {
+                let mut args = args_prefix.clone();
+                args.extend(args_suffix);
+                (args, expected)
+            })
+            .collect()
+    }
+
+    mod project {
+        use super::*;
+
+        #[test]
+        fn cfg_test() {
+            for command in ["tree", "graph"] {
+                for (args, expected) in args_for(command, "cfg-test") {
+                    let app = App::parse_from(&args);
+
+                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+
+                    assert_eq!(cmd.project.cfg_test, expected);
+                }
+            }
+        }
+
+        #[test]
+        fn sysroot() {
+            for command in ["tree", "graph"] {
+                for (args, expected) in args_for(command, "sysroot") {
+                    let app = App::parse_from(&args);
+
+                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+
+                    assert_eq!(cmd.project.sysroot, expected);
+                }
+            }
+        }
+    }
+
+    mod graph {
+        use super::*;
+
+        #[test]
+        fn fns() {
+            for command in ["tree", "graph"] {
+                for (args, expected) in args_for(command, "fns") {
+                    let app = App::parse_from(&args);
+
+                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+
+                    assert_eq!(cmd.graph.fns, expected);
+                }
+            }
+        }
+
+        #[test]
+        fn orphans() {
+            for command in ["tree", "graph"] {
+                for (args, expected) in args_for(command, "orphans") {
+                    let app = App::parse_from(&args);
+
+                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+
+                    assert_eq!(cmd.graph.orphans, expected);
+                }
+            }
+        }
+
+        #[test]
+        fn tests() {
+            for command in ["tree", "graph"] {
+                for (args, expected) in args_for(command, "tests") {
+                    let app = App::parse_from(&args);
+
+                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+
+                    assert_eq!(cmd.graph.tests, expected);
+                }
+            }
+        }
+
+        #[test]
+        fn types() {
+            for command in ["tree", "graph"] {
+                for (args, expected) in args_for(command, "types") {
+                    let app = App::parse_from(&args);
+
+                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+
+                    assert_eq!(cmd.graph.types, expected);
+                }
+            }
+        }
+    }
+
+    mod graph_only {
+        use super::*;
+
+        #[test]
+        fn uses() {
+            for (args, expected) in args_for("graph", "uses") {
+                let app = App::parse_from(&args);
+
+                let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+
+                assert_eq!(cmd.uses, expected);
+            }
+        }
+
+        #[test]
+        fn externs() {
+            for (args, expected) in args_for("graph", "externs") {
+                let app = App::parse_from(&args);
+
+                let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+
+                assert_eq!(cmd.externs, expected);
+            }
+        }
+    }
+}
+
 mod lib {
     mod pass {
         test_cmds!(
