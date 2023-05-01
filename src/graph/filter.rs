@@ -2,20 +2,24 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use hir::HasAttrs;
 use log::trace;
 use petgraph::{
     graph::NodeIndex,
-    visit::{Bfs, EdgeRef},
+    stable_graph::EdgeIndex,
+    visit::{Bfs, EdgeRef, IntoEdgeReferences},
     Direction,
 };
 use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_syntax::ast;
 
-use crate::graph::{edge::EdgeKind, util, Graph};
+use crate::graph::{
+    edge::{Edge, EdgeKind},
+    util, Graph,
+};
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Options {
@@ -103,99 +107,91 @@ impl<'a> Filter<'a> {
             stack
         };
 
-        if self.options.uses {
-            trace!("Redirecting \"uses\" edges of filtered nodes in graph ...");
+        trace!("Redirecting outgoing edges of filtered nodes in graph ...");
 
-            // Popping from the stack results in a reverse level-order,
-            // which ensures that sub-items are processed before their parent items:
-            while let Some(node_idx) = stack.pop() {
-                let node = &graph[node_idx];
+        // Popping from the stack results in a reverse level-order,
+        // which ensures that sub-items are processed before their parent items:
+        while let Some(node_idx) = stack.pop() {
+            let node = &graph[node_idx];
 
-                let Some(moduledef_hir) = node.hir else {
-                    continue;
-                };
+            let Some(moduledef_hir) = node.hir else {
+                continue;
+            };
 
-                let is_within_max_depth = nodes_within_max_depth.contains(&node_idx);
-                if is_within_max_depth && self.should_retain_moduledef(moduledef_hir) {
-                    // If we're gonna keep the node then we can just keep it as is:
-                    continue;
-                }
+            let mut should_keep_node: bool = true;
 
-                // Otherwise we need to find the single incoming "owns" edge:
-                let parent_edge_ref =
-                    graph
-                        .edges_directed(node_idx, Direction::Incoming)
-                        .find(|edge_ref| {
-                            let edge = edge_ref.weight();
-                            matches!(edge.kind, EdgeKind::Owns)
-                        });
+            // Make sure the node is within our defined max depth:
+            should_keep_node &= nodes_within_max_depth.contains(&node_idx);
 
-                // And if one exists, then re-attach any outgoing edges to its source (i.e. parent item):
-                if let Some(parent_edge_ref) = parent_edge_ref {
-                    let parent_node_idx = parent_edge_ref.source();
+            // Make sure the node's `moduledef` should be retained:
+            should_keep_node &= self.should_retain_moduledef(moduledef_hir);
 
-                    // Collect edge indices and targets for outgoing "uses" edges:
-                    let pending: Vec<_> = graph
-                        .edges_directed(node_idx, Direction::Outgoing)
-                        .map(|outgoing_edge_ref| {
-                            (outgoing_edge_ref.id(), outgoing_edge_ref.target())
-                        })
-                        .collect();
+            // Make sure the root node doesn't get dropped:
+            should_keep_node |= node_idx == root_idx;
 
-                    // Then replace the edge with one where the `source` is the parent:
-                    for (edge_idx, target_node_idx) in pending {
-                        let edge_weight = graph.remove_edge(edge_idx).unwrap();
-                        graph.add_edge(parent_node_idx, target_node_idx, edge_weight);
-                    }
-                }
-
-                graph.remove_node(node_idx);
+            if should_keep_node {
+                // If we're gonna keep the node then we can just keep it as is:
+                continue;
             }
-        } else {
-            trace!("Pruning nodes beyond max depth from graph ...");
 
-            let nodes_to_retain: HashSet<_> = graph
-                .node_indices()
-                .filter(|node_idx| {
-                    if !nodes_within_max_depth.contains(node_idx) {
-                        debug_assert!(*node_idx != root_idx, "{}", ROOT_DROP_ERR_MSG);
+            // Try to find the single incoming "owns" edge:
+            let parent_edge_ref =
+                graph
+                    .edges_directed(node_idx, Direction::Incoming)
+                    .find(|edge_ref| {
+                        let edge = edge_ref.weight();
+                        matches!(edge.kind, EdgeKind::Owns)
+                    });
 
-                        return false;
-                    }
+            // And if one exists, then re-attach any outgoing edges to its source (i.e. parent item):
+            if let Some(parent_edge_ref) = parent_edge_ref {
+                let parent_node_idx = parent_edge_ref.source();
 
-                    let node = &graph[*node_idx];
+                // Collect edge indices and targets for outgoing "uses" edges:
+                let pending: Vec<_> = graph
+                    .edges_directed(node_idx, Direction::Outgoing)
+                    .map(|outgoing_edge_ref| (outgoing_edge_ref.id(), outgoing_edge_ref.target()))
+                    .collect();
 
-                    let Some(moduledef_hir) = node.hir else {
-                        debug_assert!(*node_idx != root_idx, "{}", ROOT_DROP_ERR_MSG);
+                // Then replace the edge with one where the `source` is the parent, if necessary:
+                for (edge_idx, target_node_idx) in pending {
+                    let edge_weight = graph.remove_edge(edge_idx).unwrap();
 
-                        // Keep orphan nodes:
-                        return true;
-                    };
+                    graph.add_edge(parent_node_idx, target_node_idx, edge_weight);
+                }
+            }
 
-                    let should_retain = self.should_retain_moduledef(moduledef_hir);
+            graph.remove_node(node_idx);
+        }
 
-                    if !should_retain {
-                        debug_assert!(*node_idx != root_idx, "{}", ROOT_DROP_ERR_MSG);
-                    }
-
-                    should_retain
-                })
-                .collect();
-
-            debug_assert!(nodes_to_retain.contains(&root_idx), "{}", ROOT_DROP_ERR_MSG);
-
-            graph.retain_nodes(|_graph, node_idx| nodes_to_retain.contains(&node_idx));
-
-            trace!("Pruning undesired \"uses\" edges from graph ...");
-
+        // Drop any "uses" edges, if necessary:
+        if !self.options.uses {
             graph.retain_edges(|graph, edge_idx| {
                 let edge = &graph[edge_idx];
-                match edge.kind {
-                    EdgeKind::Uses => false,
-                    EdgeKind::Owns => true,
-                }
+                edge.kind == EdgeKind::Owns
             });
         }
+
+        // The edge-reconciliation above may have resulted in redundant edges, so we need to remove those:
+
+        let mut unique_edges: HashMap<(NodeIndex, NodeIndex, Edge), EdgeIndex> = HashMap::new();
+
+        for edge_ref in graph.edge_references() {
+            let source = edge_ref.source();
+            let target = edge_ref.target();
+            let weight = edge_ref.weight().clone();
+            let idx = edge_ref.id();
+            unique_edges.entry((source, target, weight)).or_insert(idx);
+        }
+
+        // Drop any redundant edges:
+
+        graph.retain_edges(|graph, edge_idx| {
+            let (source, target) = graph.edge_endpoints(edge_idx).unwrap();
+            let weight = graph[edge_idx].clone();
+            let idx = unique_edges[&(source, target, weight)];
+            edge_idx == idx
+        });
 
         // The above filters may have created disconnected sub-graphs.
         // We're only interested in the sub-graph containing the `root_idx` though,
@@ -208,7 +204,7 @@ impl<'a> Filter<'a> {
             ROOT_DROP_ERR_MSG
         );
 
-        // And drop any node that isn't unreachable:
+        // And drop any node that wasn't reachable from `root`:
         graph.retain_nodes(|_graph, node_idx| nodes_reachable_from_root.contains(&node_idx));
 
         debug_assert!(graph.contains_node(root_idx), "{}", ROOT_DROP_ERR_MSG);
