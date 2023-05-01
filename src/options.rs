@@ -29,6 +29,7 @@ pub mod graph {
     use super::*;
 
     #[derive(Parser, Clone, PartialEq, Eq, Debug)]
+    #[group(id = "GraphOptions")]
     pub struct Options {
         /// Focus the graph on a particular path or use-tree's environment,
         /// e.g. "foo:bar::{self, baz, blee::*}".
@@ -108,6 +109,7 @@ pub mod generate {
         }
 
         #[derive(Parser, Clone, PartialEq, Eq, Debug)]
+        #[group(id = "GenerateGraphOptions")]
         pub struct Options {
             #[command(flatten)]
             pub general: crate::options::general::Options,
@@ -137,6 +139,7 @@ pub mod generate {
         use super::*;
 
         #[derive(Parser, Clone, PartialEq, Eq, Debug)]
+        #[group(id = "GenerateTreeOptions")]
         pub struct Options {
             #[command(flatten)]
             pub general: crate::options::general::Options,
@@ -154,6 +157,7 @@ pub mod project {
     use super::*;
 
     #[derive(Parser, Clone, PartialEq, Eq, Debug)]
+    #[group(id = "ProjectOptions")]
     #[command(group = ArgGroup::new("target-group"))]
     pub struct Options {
         /// Process only this package's library.
@@ -203,6 +207,7 @@ pub mod general {
     use super::*;
 
     #[derive(Parser, Clone, PartialEq, Eq, Debug)]
+    #[group(id = "GeneralOptions")]
     pub struct Options {
         /// Use verbose output.
         #[arg(long = "verbose")]
