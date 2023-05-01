@@ -9,7 +9,7 @@ use clap::{ArgGroup, Parser};
 use crate::commands::Command;
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
-pub struct Options {
+pub struct App {
     #[arg(hide = true, value_parser = clap::builder::PossibleValuesParser::new(["modules"]))]
     pub dummy: Option<String>,
 
@@ -17,7 +17,7 @@ pub struct Options {
     pub command: Command,
 }
 
-impl Options {
+impl App {
     pub fn sanitized_command(self) -> Command {
         let mut command = self.command;
         command.sanitize();
