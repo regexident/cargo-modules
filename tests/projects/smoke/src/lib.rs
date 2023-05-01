@@ -23,15 +23,31 @@ mod uses {
 
 mod hierarchy {
     mod lorem {
-        mod ipsum {}
+        struct Lorem;
+
+        mod ipsum {
+            struct Ipsum;
+        }
         mod dolor {
+            struct Dolor;
+
             mod sit {
-                mod amet {}
+                struct Sit;
+
+                mod amet {
+                    struct Amet;
+                }
             }
         }
         mod consectetur {
+            struct Consectetur;
+
             mod adipiscing {
-                mod elit {}
+                struct Adipiscing;
+
+                mod elit {
+                    struct Elit;
+                }
             }
         }
     }
