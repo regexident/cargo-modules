@@ -66,7 +66,7 @@ mod negative_args {
 
     use cargo_modules::{commands::Command::Generate, generate::Command, options::App};
 
-    fn args_for(command: &str, arg: &str) -> Vec<(Vec<String>, bool)> {
+    fn args_for(command: &str, arg: &str, default: bool) -> Vec<(Vec<String>, bool)> {
         let args_prefix = vec![
             "modules".to_owned(),
             "generate".to_owned(),
@@ -77,7 +77,7 @@ mod negative_args {
         let neg_arg = format!("--no-{arg}");
 
         let arg_suffixes = vec![
-            (vec![], false),
+            (vec![], default),
             (vec![pos_arg.clone()], true),
             (vec![neg_arg.clone()], false),
             (vec![pos_arg.clone(), neg_arg.clone()], false),
@@ -100,12 +100,12 @@ mod negative_args {
         #[test]
         fn cfg_test() {
             for command in ["tree", "graph"] {
-                for (args, expected) in args_for(command, "cfg-test") {
+                for (args, expected) in args_for(command, "cfg-test", false) {
                     let app = App::parse_from(&args);
 
                     let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
 
-                    assert_eq!(cmd.project.cfg_test, expected);
+                    assert_eq!(cmd.project.cfg_test, expected, "{:?}", args);
                 }
             }
         }
@@ -113,12 +113,12 @@ mod negative_args {
         #[test]
         fn sysroot() {
             for command in ["tree", "graph"] {
-                for (args, expected) in args_for(command, "sysroot") {
+                for (args, expected) in args_for(command, "sysroot", false) {
                     let app = App::parse_from(&args);
 
                     let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
 
-                    assert_eq!(cmd.project.sysroot, expected);
+                    assert_eq!(cmd.project.sysroot, expected, "{:?}", args);
                 }
             }
         }
@@ -130,12 +130,12 @@ mod negative_args {
         #[test]
         fn fns() {
             for command in ["tree", "graph"] {
-                for (args, expected) in args_for(command, "fns") {
+                for (args, expected) in args_for(command, "fns", false) {
                     let app = App::parse_from(&args);
 
                     let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
 
-                    assert_eq!(cmd.graph.fns, expected);
+                    assert_eq!(cmd.graph.fns, expected, "{:?}", args);
                 }
             }
         }
@@ -143,12 +143,12 @@ mod negative_args {
         #[test]
         fn orphans() {
             for command in ["tree", "graph"] {
-                for (args, expected) in args_for(command, "orphans") {
+                for (args, expected) in args_for(command, "orphans", false) {
                     let app = App::parse_from(&args);
 
                     let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
 
-                    assert_eq!(cmd.graph.orphans, expected);
+                    assert_eq!(cmd.graph.orphans, expected, "{:?}", args);
                 }
             }
         }
@@ -156,12 +156,12 @@ mod negative_args {
         #[test]
         fn tests() {
             for command in ["tree", "graph"] {
-                for (args, expected) in args_for(command, "tests") {
+                for (args, expected) in args_for(command, "tests", false) {
                     let app = App::parse_from(&args);
 
                     let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
 
-                    assert_eq!(cmd.graph.tests, expected);
+                    assert_eq!(cmd.graph.tests, expected, "{:?}", args);
                 }
             }
         }
@@ -169,12 +169,12 @@ mod negative_args {
         #[test]
         fn types() {
             for command in ["tree", "graph"] {
-                for (args, expected) in args_for(command, "types") {
+                for (args, expected) in args_for(command, "types", false) {
                     let app = App::parse_from(&args);
 
                     let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
 
-                    assert_eq!(cmd.graph.types, expected);
+                    assert_eq!(cmd.graph.types, expected, "{:?}", args);
                 }
             }
         }
@@ -184,24 +184,35 @@ mod negative_args {
         use super::*;
 
         #[test]
-        fn uses() {
-            for (args, expected) in args_for("graph", "uses") {
+        fn modules() {
+            for (args, expected) in args_for("graph", "modules", true) {
                 let app = App::parse_from(&args);
 
                 let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
 
-                assert_eq!(cmd.uses, expected);
+                assert_eq!(cmd.modules, expected, "{:?}", args);
+            }
+        }
+
+        #[test]
+        fn uses() {
+            for (args, expected) in args_for("graph", "uses", false) {
+                let app = App::parse_from(&args);
+
+                let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+
+                assert_eq!(cmd.uses, expected, "{:?}", args);
             }
         }
 
         #[test]
         fn externs() {
-            for (args, expected) in args_for("graph", "externs") {
+            for (args, expected) in args_for("graph", "externs", false) {
                 let app = App::parse_from(&args);
 
                 let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
 
-                assert_eq!(cmd.externs, expected);
+                assert_eq!(cmd.externs, expected, "{:?}", args);
             }
         }
     }
@@ -479,6 +490,16 @@ mod fns {
     test_cmd!(
         args: "generate graph \
                 --fns",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: smoke
+    );
+}
+
+mod no_modules {
+    test_cmd!(
+        args: "generate graph \
+                --no-modules",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke

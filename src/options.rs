@@ -145,6 +145,24 @@ pub mod generate {
             #[arg(long = "layout", default_value = "neato")]
             pub layout: crate::options::generate::graph::LayoutAlgorithm,
 
+            // The `modules` and `no_modules` args might look like they have their
+            // documentation comments and clap-args mixed up, but they have to be
+            // that way in order to work-around a limitation of clap:
+            // https://jwodder.github.io/kbits/posts/clap-bool-negate/
+            // https://github.com/clap-rs/clap/issues/815
+            /// Exclude modules (e.g. `mod foo`, `mod foo {}`).
+            #[clap(long = "no-modules", action = ArgAction::SetFalse)]
+            pub modules: bool,
+
+            // The `modules` and `no_modules` args might look like they have their
+            // documentation comments and clap-args mixed up, but they have to be
+            // that way in order to work-around a limitation of clap:
+            // https://jwodder.github.io/kbits/posts/clap-bool-negate/
+            // https://github.com/clap-rs/clap/issues/815
+            /// Include modules (e.g. `mod foo`, `mod foo {}`). [default]
+            #[clap(long = "modules", action = ArgAction::SetTrue, overrides_with = "modules")]
+            pub no_modules: (),
+
             /// Include used modules and types
             #[arg(long = "uses")]
             pub uses: bool,
