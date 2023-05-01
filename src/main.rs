@@ -4,8 +4,8 @@
 
 use std::env;
 
+use clap::Parser;
 use log::debug;
-use structopt::StructOpt;
 use yansi::Paint;
 
 use cargo_modules::options::Options;
@@ -26,7 +26,7 @@ fn main() -> anyhow::Result<()> {
         Paint::disable()
     }
 
-    let options = Options::from_args();
+    let options = Options::parse();
     let command = options.sanitized_command();
     command.run()
 }

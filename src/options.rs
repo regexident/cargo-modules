@@ -4,16 +4,16 @@
 
 use std::{path::PathBuf, str::FromStr};
 
-use structopt::{clap::ArgGroup, StructOpt};
+use clap::{ArgGroup, Parser};
 
 use crate::commands::Command;
 
-#[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
+#[derive(Parser, Clone, PartialEq, Eq, Debug)]
 pub struct Options {
-    #[structopt(hidden = true, possible_value("modules"))]
+    #[arg(hide = true, value_parser = clap::builder::PossibleValuesParser::new(["modules"]))]
     pub dummy: Option<String>,
 
-    #[structopt(subcommand)]
+    #[command(subcommand)]
     pub command: Command,
 }
 
@@ -28,36 +28,36 @@ impl Options {
 pub mod graph {
     use super::*;
 
-    #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
+    #[derive(Parser, Clone, PartialEq, Eq, Debug)]
     pub struct Options {
         /// Focus the graph on a particular path or use-tree's environment,
         /// e.g. "foo:bar::{self, baz, blee::*}".
-        #[structopt(long = "focus-on")]
+        #[arg(long = "focus-on")]
         pub focus_on: Option<String>,
 
         /// The maximum depth of the generated graph
         /// relative to the crate's root node, or nodes selected by '--focus-on'.
-        #[structopt(long = "max-depth")]
+        #[arg(long = "max-depth")]
         pub max_depth: Option<usize>,
 
         /// Include types (e.g. structs, unions, enums).
-        #[structopt(long = "with-types")]
+        #[arg(long = "with-types")]
         pub with_types: bool,
 
         /// Include traits (e.g. trait, unsafe trait).
-        #[structopt(long = "with-traits")]
+        #[arg(long = "with-traits")]
         pub with_traits: bool,
 
         /// Include functions (e.g. fns, async fns, const fns).
-        #[structopt(long = "with-fns")]
+        #[arg(long = "with-fns")]
         pub with_fns: bool,
 
         /// Include tests (e.g. `#[test] fn …`).
-        #[structopt(long = "with-tests")]
+        #[arg(long = "with-tests")]
         pub with_tests: bool,
 
         /// Include orphaned modules (i.e. unused files in /src).
-        #[structopt(long = "with-orphans")]
+        #[arg(long = "with-orphans")]
         pub with_orphans: bool,
     }
 }
@@ -107,28 +107,28 @@ pub mod generate {
             }
         }
 
-        #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
+        #[derive(Parser, Clone, PartialEq, Eq, Debug)]
         pub struct Options {
-            #[structopt(flatten)]
+            #[command(flatten)]
             pub general: crate::options::general::Options,
 
-            #[structopt(flatten)]
+            #[command(flatten)]
             pub project: crate::options::project::Options,
 
-            #[structopt(flatten)]
+            #[command(flatten)]
             pub graph: crate::options::graph::Options,
 
             /// The graph layout algorithm to use
             /// (e.g. dot, neato, twopi, circo, fdp, sfdp).
-            #[structopt(long = "layout", default_value = "neato")]
+            #[arg(long = "layout", default_value = "neato")]
             pub layout: crate::options::generate::graph::LayoutAlgorithm,
 
             /// Include used modules and types
-            #[structopt(long = "with-uses")]
+            #[arg(long = "with-uses")]
             pub with_uses: bool,
 
             /// Include used modules and types from extern crates
-            #[structopt(long = "with-externs")]
+            #[arg(long = "with-externs")]
             pub with_externs: bool,
         }
     }
@@ -136,15 +136,15 @@ pub mod generate {
     pub mod tree {
         use super::*;
 
-        #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
+        #[derive(Parser, Clone, PartialEq, Eq, Debug)]
         pub struct Options {
-            #[structopt(flatten)]
+            #[command(flatten)]
             pub general: crate::options::general::Options,
 
-            #[structopt(flatten)]
+            #[command(flatten)]
             pub project: crate::options::project::Options,
 
-            #[structopt(flatten)]
+            #[command(flatten)]
             pub graph: crate::options::graph::Options,
         }
     }
@@ -153,48 +153,48 @@ pub mod generate {
 pub mod project {
     use super::*;
 
-    #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
-    #[structopt(group = ArgGroup::with_name("target-group"))]
+    #[derive(Parser, Clone, PartialEq, Eq, Debug)]
+    #[command(group = ArgGroup::new("target-group"))]
     pub struct Options {
         /// Process only this package's library.
-        #[structopt(long = "lib", group = "target-group")]
+        #[arg(long = "lib", group = "target-group")]
         pub lib: bool,
 
         /// Process only the specified binary.
-        #[structopt(long = "bin", group = "target-group")]
+        #[arg(long = "bin", group = "target-group")]
         pub bin: Option<String>,
 
         /// Package to process (see `cargo help pkgid`).
-        #[structopt(short = "p", long = "package")]
+        #[arg(short = 'p', long = "package")]
         pub package: Option<String>,
 
         /// Do not activate the `default` feature.
-        #[structopt(long = "no-default-features")]
+        #[arg(long = "no-default-features")]
         pub no_default_features: bool,
 
         /// Activate all available features.
-        #[structopt(long = "all-features")]
+        #[arg(long = "all-features")]
         pub all_features: bool,
 
         /// List of features to activate.
         /// This will be ignored if `--cargo-all-features` is provided.
-        #[structopt(long = "features")]
+        #[arg(long = "features")]
         pub features: Vec<String>,
 
         /// Analyze for target triple.
-        #[structopt(long = "target")]
+        #[arg(long = "target")]
         pub target: Option<String>,
 
         /// Analyze with `#[cfg(test)]` enabled.
-        #[structopt(long = "cfg-test")]
+        #[arg(long = "cfg-test")]
         pub cfg_test: bool,
 
         /// Include sysroot crates (`std`, `core` & friends) in analysis.
-        #[structopt(long = "with-sysroot")]
+        #[arg(long = "with-sysroot")]
         pub with_sysroot: bool,
 
         /// Path to Cargo.toml.
-        #[structopt(long = "manifest-path", parse(from_os_str), default_value = ".")]
+        #[arg(long = "manifest-path", default_value = ".")]
         pub manifest_path: PathBuf,
     }
 }
@@ -202,11 +202,10 @@ pub mod project {
 pub mod general {
     use super::*;
 
-    #[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
-    #[structopt(group = ArgGroup::with_name("target-group"))]
+    #[derive(Parser, Clone, PartialEq, Eq, Debug)]
     pub struct Options {
         /// Use verbose output.
-        #[structopt(long = "verbose")]
+        #[arg(long = "verbose")]
         pub verbose: bool,
     }
 }

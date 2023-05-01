@@ -4,6 +4,7 @@
 
 use std::path::Path;
 
+use clap::Parser;
 use log::{debug, trace};
 use ra_ap_hir::{self, Crate};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
@@ -16,7 +17,6 @@ use ra_ap_project_model::{
 };
 use ra_ap_rust_analyzer::cli::load_cargo::{load_workspace, LoadCargoConfig};
 use ra_ap_vfs::Vfs;
-use structopt::StructOpt;
 
 use crate::{
     graph::{
@@ -33,12 +33,12 @@ use crate::{
 pub mod graph;
 pub mod tree;
 
-#[derive(StructOpt, Clone, PartialEq, Eq, Debug)]
+#[derive(Parser, Clone, PartialEq, Eq, Debug)]
 pub enum Command {
-    #[structopt(name = "tree", about = "Print crate as a tree.")]
+    #[command(name = "tree", about = "Print crate as a tree.")]
     Tree(tree::Options),
 
-    #[structopt(
+    #[command(
         name = "graph",
         about = "Print crate as a graph.",
         after_help = r#"
