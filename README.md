@@ -34,35 +34,35 @@ cargo modules generate tree <OPTIONS>
 ```
 
 ```terminal
-USAGE:
-    cargo-modules generate tree [FLAGS] [OPTIONS]
+Usage: cargo-modules generate tree [OPTIONS]
 
-FLAGS:
-        --all-features           Activate all available features
-        --cfg-test               Analyze with `#[cfg(test)]` enabled
-    -h, --help                   Prints help information
-        --lib                    Process only this package's library
-        --no-default-features    Do not activate the `default` feature
-    -V, --version                Prints version information
-        --verbose                Use verbose output
-        --fns               Include functions (e.g. fns, async fns, const fns)
-        --orphans           Include orphaned modules (i.e. unused files in /src)
-        --sysroot           Include sysroot crates (`std`, `core` & friends) in analysis
-        --tests             Include tests (e.g. `#[test] fn …`)
-        --traits            Include traits (e.g. trait, unsafe trait)
-        --types             Include types (e.g. structs, unions, enums)
-
-OPTIONS:
-        --bin <bin>                        Process only the specified binary
-        --features <features>...           List of features to activate. This will be ignored if `--cargo-all-features`
-                                           is provided
-        --focus-on <focus-on>              Focus the graph on a particular path or use-tree's environment, e.g.
-                                           "foo:bar::{self, baz, blee::*}"
-        --manifest-path <manifest-path>    Path to Cargo.toml [default: .]
-        --max-depth <max-depth>            The maximum depth of the generated graph relative to the crate's root node,
-                                           or nodes selected by '--focus-on'
-    -p, --package <package>                Package to process (see `cargo help pkgid`)
-        --target <target>                  Analyze for target triple
+Options:
+      --verbose                        Use verbose output
+      --lib                            Process only this package's library
+      --bin <BIN>                      Process only the specified binary
+  -p, --package <PACKAGE>              Package to process (see `cargo help pkgid`)
+      --no-default-features            Do not activate the `default` feature
+      --all-features                   Activate all available features
+      --features <FEATURES>            List of features to activate. This will be ignored if `--cargo-all-features` is provided
+      --target <TARGET>                Analyze for target triple
+      --cfg-test                       Analyze with `#[cfg(test)]` enabled
+      --no-cfg-test                    Analyze with `#[cfg(test)]` disabled [default]
+      --sysroot                        Include sysroot crates (`std`, `core` & friends) in analysis
+      --no-sysroot                     Exclude sysroot crates (`std`, `core` & friends) in analysis [default]
+      --manifest-path <MANIFEST_PATH>  Path to Cargo.toml [default: .]
+      --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo:bar::{self, baz, blee::*}"
+      --max-depth <MAX_DEPTH>          The maximum depth of the generated graph relative to the crate's root node, or nodes selected by '--focus-on'
+      --types                          Include types (e.g. structs, unions, enums)
+      --no-types                       Exclude types (e.g. structs, unions, enums) [default]
+      --traits                         Include traits (e.g. trait, unsafe trait)
+      --no-traits                      Exclude traits (e.g. trait, unsafe trait) [default]
+      --fns                            Include functions (e.g. fns, async fns, const fns)
+      --no-fns                         Include functions (e.g. fns, async fns, const fns) [default]
+      --tests                          Include tests (e.g. `#[test] fn …`)
+      --no-tests                       Exclude tests (e.g. `#[test] fn …`) [default]
+      --orphans                        Include orphaned modules (i.e. unused files in /src)
+      --no-orphans                     Exclude orphaned modules (i.e. unused files in /src) [default]
+  -h, --help                           Print help
 ```
 
 The following image is the result of using the following command to generate a tree of the `smoke` test project within its own repo:
@@ -104,39 +104,42 @@ cargo modules generate graph <OPTIONS>
 ```
 
 ```terminal
-USAGE:
-    cargo-modules generate graph [FLAGS] [OPTIONS]
+Usage: cargo-modules generate graph [OPTIONS]
 
-FLAGS:
-        --all-features           Activate all available features
-        --cfg-test               Analyze with `#[cfg(test)]` enabled
-    -h, --help                   Prints help information
-        --lib                    Process only this package's library
-        --no-default-features    Do not activate the `default` feature
-    -V, --version                Prints version information
-        --verbose                Use verbose output
-        --externs           Include used modules and types from extern crates
-        --fns               Include functions (e.g. fns, async fns, const fns)
-        --orphans           Include orphaned modules (i.e. unused files in /src)
-        --sysroot           Include sysroot crates (`std`, `core` & friends) in analysis
-        --tests             Include tests (e.g. `#[test] fn …`)
-        --traits            Include traits (e.g. trait, unsafe trait)
-        --types             Include types (e.g. structs, unions, enums)
-        --uses              Include used modules and types
-
-OPTIONS:
-        --bin <bin>                        Process only the specified binary
-        --features <features>...           List of features to activate. This will be ignored if `--cargo-all-features`
-                                           is provided
-        --focus-on <focus-on>              Focus the graph on a particular path or use-tree's environment, e.g.
-                                           "foo:bar::{self, baz, blee::*}"
-        --layout <layout>                  The graph layout algorithm to use (e.g. dot, neato, twopi, circo, fdp, sfdp)
-                                           [default: neato]
-        --manifest-path <manifest-path>    Path to Cargo.toml [default: .]
-        --max-depth <max-depth>            The maximum depth of the generated graph relative to the crate's root node,
-                                           or nodes selected by '--focus-on'
-    -p, --package <package>                Package to process (see `cargo help pkgid`)
-        --target <target>                  Analyze for target triple
+Options:
+      --verbose                        Use verbose output
+      --lib                            Process only this package's library
+      --bin <BIN>                      Process only the specified binary
+  -p, --package <PACKAGE>              Package to process (see `cargo help pkgid`)
+      --no-default-features            Do not activate the `default` feature
+      --all-features                   Activate all available features
+      --features <FEATURES>            List of features to activate. This will be ignored if `--cargo-all-features` is provided
+      --target <TARGET>                Analyze for target triple
+      --cfg-test                       Analyze with `#[cfg(test)]` enabled
+      --no-cfg-test                    Analyze with `#[cfg(test)]` disabled [default]
+      --sysroot                        Include sysroot crates (`std`, `core` & friends) in analysis
+      --no-sysroot                     Exclude sysroot crates (`std`, `core` & friends) in analysis [default]
+      --manifest-path <MANIFEST_PATH>  Path to Cargo.toml [default: .]
+      --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo:bar::{self, baz, blee::*}"
+      --max-depth <MAX_DEPTH>          The maximum depth of the generated graph relative to the crate's root node, or nodes selected by '--focus-on'
+      --types                          Include types (e.g. structs, unions, enums)
+      --no-types                       Exclude types (e.g. structs, unions, enums) [default]
+      --traits                         Include traits (e.g. trait, unsafe trait)
+      --no-traits                      Exclude traits (e.g. trait, unsafe trait) [default]
+      --fns                            Include functions (e.g. fns, async fns, const fns)
+      --no-fns                         Include functions (e.g. fns, async fns, const fns) [default]
+      --tests                          Include tests (e.g. `#[test] fn …`)
+      --no-tests                       Exclude tests (e.g. `#[test] fn …`) [default]
+      --orphans                        Include orphaned modules (i.e. unused files in /src)
+      --no-orphans                     Exclude orphaned modules (i.e. unused files in /src) [default]
+      --layout <LAYOUT>                The graph layout algorithm to use (e.g. dot, neato, twopi, circo, fdp, sfdp) [default: neato]
+      --modules                        Include modules (e.g. `mod foo`, `mod foo {}`) [default]
+      --no-modules                     Exclude modules (e.g. `mod foo`, `mod foo {}`)
+      --uses                           Include used modules and types
+      --no-uses                        Exclude used modules and types [default]
+      --externs                        Include used modules and types from extern crates
+      --no-externs                     Exclude used modules and types from extern crates [default]
+  -h, --help                           Print help
 
 
         If you have xdot installed on your system, you can run this using:
