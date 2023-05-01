@@ -25,7 +25,14 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Renamed CLI argument `--with-externs` to `--externs`
+- Renamed CLI argument `--with-fns` to `--fns`
+- Renamed CLI argument `--with-orphans` to `--orphans`
+- Renamed CLI argument `--with-sysroot` to `--sysroot`
+- Renamed CLI argument `--with-tests` to `--tests`
+- Renamed CLI argument `--with-traits` to `--traits`
+- Renamed CLI argument `--with-types` to `--types`
+- Renamed CLI argument `--with-uses` to `--uses`
 
 ### Deprecated
 
