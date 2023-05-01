@@ -476,6 +476,17 @@ mod types {
     );
 }
 
+mod types_with_no_modules {
+    test_cmd!(
+        args: "generate graph \
+                --types \
+                --no-modules",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: smoke
+    );
+}
+
 mod traits {
     test_cmd!(
         args: "generate graph \
