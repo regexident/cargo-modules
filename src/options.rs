@@ -45,7 +45,7 @@ pub mod graph {
         #[arg(long = "types")]
         pub types: bool,
 
-        /// Exclude types (e.g. structs, unions, enums).
+        /// Exclude types (e.g. structs, unions, enums). [default]
         #[arg(long = "no-types", action = ArgAction::SetFalse, overrides_with = "types")]
         pub no_types: (),
 
@@ -53,7 +53,7 @@ pub mod graph {
         #[arg(long = "traits")]
         pub traits: bool,
 
-        /// Exclude traits (e.g. trait, unsafe trait).
+        /// Exclude traits (e.g. trait, unsafe trait). [default]
         #[arg(long = "no-traits", action = ArgAction::SetFalse, overrides_with = "traits")]
         pub no_traits: (),
 
@@ -61,7 +61,7 @@ pub mod graph {
         #[arg(long = "fns")]
         pub fns: bool,
 
-        /// Include functions (e.g. fns, async fns, const fns).
+        /// Include functions (e.g. fns, async fns, const fns). [default]
         #[arg(long = "no-fns", action = ArgAction::SetFalse, overrides_with = "fns")]
         pub no_fns: (),
 
@@ -69,7 +69,7 @@ pub mod graph {
         #[arg(long = "tests")]
         pub tests: bool,
 
-        /// Exclude tests (e.g. `#[test] fn …`).
+        /// Exclude tests (e.g. `#[test] fn …`). [default]
         #[arg(long = "no-tests", action = ArgAction::SetFalse, overrides_with = "tests")]
         pub no_tests: (),
 
@@ -77,7 +77,7 @@ pub mod graph {
         #[arg(long = "orphans")]
         pub orphans: bool,
 
-        /// Exclude orphaned modules (i.e. unused files in /src).
+        /// Exclude orphaned modules (i.e. unused files in /src). [default]
         #[arg(long = "no-orphans", action = ArgAction::SetFalse, overrides_with = "orphans")]
         pub no_orphans: (),
     }
@@ -167,7 +167,7 @@ pub mod generate {
             #[arg(long = "uses")]
             pub uses: bool,
 
-            /// Exclude used modules and types
+            /// Exclude used modules and types [default]
             #[arg(long = "no-uses", action = ArgAction::SetFalse, overrides_with = "uses")]
             pub no_uses: (),
 
@@ -175,7 +175,7 @@ pub mod generate {
             #[arg(long = "externs")]
             pub externs: bool,
 
-            /// Exclude used modules and types from extern crates
+            /// Exclude used modules and types from extern crates [default]
             #[arg(long = "no-externs", action = ArgAction::SetFalse, overrides_with = "externs")]
             pub no_externs: (),
         }
@@ -239,7 +239,7 @@ pub mod project {
         #[arg(long = "cfg-test")]
         pub cfg_test: bool,
 
-        /// Analyze with `#[cfg(test)]` disabled.
+        /// Analyze with `#[cfg(test)]` disabled. [default]
         #[arg(long = "no-cfg-test", action = ArgAction::SetFalse, overrides_with = "cfg_test")]
         pub no_cfg_test: (),
 
@@ -247,7 +247,7 @@ pub mod project {
         #[arg(long = "sysroot")]
         pub sysroot: bool,
 
-        /// Exclude sysroot crates (`std`, `core` & friends) in analysis.
+        /// Exclude sysroot crates (`std`, `core` & friends) in analysis. [default]
         #[arg(long = "no-sysroot", action = ArgAction::SetFalse, overrides_with = "sysroot")]
         pub no_sysroot: (),
 
