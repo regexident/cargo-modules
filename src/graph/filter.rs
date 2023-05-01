@@ -25,6 +25,7 @@ pub struct Options {
     pub traits: bool,
     pub fns: bool,
     pub tests: bool,
+    pub modules: bool,
     pub uses: bool,
     pub externs: bool,
 }
@@ -238,7 +239,11 @@ impl<'a> Filter<'a> {
         }
     }
 
-    fn should_retain_module(&self, _module_hir: hir::Module) -> bool {
+    fn should_retain_module(&self, module_hir: hir::Module) -> bool {
+        if !self.options.modules {
+            // Always keep a crate's root module:
+            return module_hir.is_crate_root(self.db);
+        }
         true
     }
 

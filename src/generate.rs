@@ -336,6 +336,7 @@ impl Command {
             Self::Tree(options) => GraphFilterOptions {
                 focus_on: options.graph.focus_on.clone(),
                 max_depth: options.graph.max_depth,
+                modules: true,
                 types: options.graph.types,
                 traits: options.graph.traits,
                 fns: options.graph.fns,
@@ -350,6 +351,7 @@ impl Command {
                 traits: options.graph.traits,
                 fns: options.graph.fns,
                 tests: options.graph.tests,
+                modules: options.modules,
                 uses: options.uses,
                 externs: options.externs,
             },
