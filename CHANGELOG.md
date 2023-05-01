@@ -20,7 +20,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Added dependencies:
+  - `clap` at `4.2.5`
 
 ### Changed
 
@@ -32,7 +33,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Removed
 
-- n/a
+- Removed dependencies:
+  - `structopt`
 
 ### Fixed
 
