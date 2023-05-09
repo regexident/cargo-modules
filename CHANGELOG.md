@@ -20,6 +20,40 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
+- n/a
+
+### Changed
+
+- n/a
+
+### Deprecated
+
+- n/a
+
+### Removed
+
+- n/a
+
+### Fixed
+
+- n/a
+
+### Performance
+
+- n/a
+
+### Security
+
+- n/a
+
+### Other
+
+- n/a
+
+## [0.8.0] - 2023-05-01
+
+### Added
+
 - Added CLI argument `--modules` (and corresponding `--no-modules`) for filtering out modules from graphs.
 - Added CLI argument `--no-externs` as a negative complement for `--externs`
 - Added CLI argument `--no-fns` as a negative complement for `--fns`
@@ -44,30 +78,10 @@ Please make sure to add your changes to the appropriate categories:
 - Renamed CLI argument `--with-types` to `--types`
 - Renamed CLI argument `--with-uses` to `--uses`
 
-### Deprecated
-
-- n/a
-
 ### Removed
 
 - Removed dependencies:
   - `structopt`
-
-### Fixed
-
-- n/a
-
-### Performance
-
-- n/a
-
-### Security
-
-- n/a
-
-### Other
-
-- n/a
 
 ## [0.7.6] - 2023-03-16
 
