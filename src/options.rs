@@ -61,7 +61,7 @@ pub mod graph {
         #[arg(long = "fns")]
         pub fns: bool,
 
-        /// Include functions (e.g. fns, async fns, const fns). [default]
+        /// Exclude functions (e.g. fns, async fns, const fns). [default]
         #[arg(long = "no-fns", action = ArgAction::SetFalse, overrides_with = "fns")]
         pub no_fns: (),
 
