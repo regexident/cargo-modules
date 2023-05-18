@@ -11,6 +11,7 @@ pub use crate::options::generate::graph::Options;
 
 use crate::{
     graph::Graph,
+    options::generate::graph::LayoutAlgorithm,
     printer::graph::{Options as PrinterOptions, Printer},
 };
 
@@ -32,6 +33,10 @@ impl Command {
         db: &RootDatabase,
     ) -> anyhow::Result<()> {
         self.validate_options()?;
+
+        if self.options.layout == LayoutAlgorithm::None {
+            return Ok(());
+        }
 
         trace!("Printing ...");
 

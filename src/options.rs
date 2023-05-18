@@ -91,6 +91,7 @@ pub mod generate {
 
         #[derive(Clone, PartialEq, Eq, Debug)]
         pub enum LayoutAlgorithm {
+            None,
             Dot,
             Neato,
             Twopi,
@@ -104,6 +105,7 @@ pub mod generate {
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 match s {
+                    "none" => Ok(Self::None),
                     "dot" => Ok(Self::Dot),
                     "neato" => Ok(Self::Neato),
                     "twopi" => Ok(Self::Twopi),
@@ -118,6 +120,7 @@ pub mod generate {
         impl ToString for LayoutAlgorithm {
             fn to_string(&self) -> String {
                 match self {
+                    Self::None => "none".to_owned(),
                     Self::Dot => "dot".to_owned(),
                     Self::Neato => "neato".to_owned(),
                     Self::Twopi => "twopi".to_owned(),
@@ -140,8 +143,12 @@ pub mod generate {
             #[command(flatten)]
             pub graph: crate::options::graph::Options,
 
+            /// Require graph to be acyclic
+            #[arg(long = "acyclic", action = ArgAction::SetTrue, conflicts_with = "focus_on")]
+            pub acyclic: bool,
+
             /// The graph layout algorithm to use
-            /// (e.g. dot, neato, twopi, circo, fdp, sfdp).
+            /// (e.g. none, dot, neato, twopi, circo, fdp, sfdp).
             #[arg(long = "layout", default_value = "neato")]
             pub layout: crate::options::generate::graph::LayoutAlgorithm,
 

@@ -16,6 +16,7 @@ version = "0.8.0"
 [dependencies]
 
 # required by lib
+bitvec = "1.0"
 json = "0.12.4"
 petgraph = "0.6.3"
 anyhow = "1.0.71"
