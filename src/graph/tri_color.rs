@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! This is a port of the cycle detection implementation in the Rust compiler:
 //! [rustc-cycle-detection]
 //!
