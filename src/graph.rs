@@ -9,6 +9,7 @@ pub(crate) mod edge;
 pub(super) mod filter;
 pub(crate) mod node;
 pub(super) mod orphans;
+pub(super) mod tri_color;
 pub(crate) mod util;
 pub(super) mod walker;
 

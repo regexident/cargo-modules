@@ -6,6 +6,7 @@ use std::path::Path;
 
 use clap::Parser;
 use log::{debug, trace};
+use petgraph::stable_graph::NodeIndex;
 use ra_ap_hir::{self, Crate};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
 use ra_ap_ide_db::FxHashMap;
@@ -22,6 +23,8 @@ use crate::{
     graph::{
         builder::{Builder as GraphBuilder, Options as GraphBuilderOptions},
         filter::{Filter as GraphFilter, Options as GraphFilterOptions},
+        tri_color::{CycleDetector, TriColorDepthFirstSearch},
+        Graph,
     },
     options::{
         general::Options as GeneralOptions, graph::Options as GraphOptions,
@@ -105,6 +108,18 @@ impl Command {
         trace!("Building graph ...");
 
         let (graph, crate_node_idx) = graph_builder.build()?;
+
+        if self.filter_options().acyclic {
+            if let Some(cycle) =
+                TriColorDepthFirstSearch::new(&graph).run_from(crate_node_idx, &mut CycleDetector)
+            {
+                assert!(cycle.len() >= 2);
+                let first = graph[cycle[0]].display_path();
+                let last = graph[*cycle.last().unwrap()].display_path();
+                let drawing = draw_cycle(&graph, cycle);
+                anyhow::bail!("Circular dependency between `{first}` and `{last}`.\n\n{drawing}");
+            }
+        }
 
         trace!("Filtering graph ...");
 
@@ -336,6 +351,7 @@ impl Command {
             Self::Tree(options) => GraphFilterOptions {
                 focus_on: options.graph.focus_on.clone(),
                 max_depth: options.graph.max_depth,
+                acyclic: false,
                 modules: true,
                 types: options.graph.types,
                 traits: options.graph.traits,
@@ -347,6 +363,7 @@ impl Command {
             Self::Graph(options) => GraphFilterOptions {
                 focus_on: options.graph.focus_on.clone(),
                 max_depth: options.graph.max_depth,
+                acyclic: options.acyclic,
                 types: options.graph.types,
                 traits: options.graph.traits,
                 fns: options.graph.fns,
@@ -357,4 +374,20 @@ impl Command {
             },
         }
     }
+}
+
+fn draw_cycle(graph: &Graph, cycle: Vec<NodeIndex>) -> String {
+    assert!(!cycle.is_empty());
+
+    let first = graph[cycle[0]].display_path();
+    let mut drawing = format!("┌> {first}\n");
+
+    for (i, node) in cycle[1..].iter().enumerate() {
+        let path = graph[*node].display_path();
+        drawing += &format!("│  {:>width$}└─> {path}\n", "", width = i * 4);
+    }
+
+    drawing += &format!("└──{:─>width$}┘", "", width = (cycle.len() - 1) * 4);
+
+    drawing
 }

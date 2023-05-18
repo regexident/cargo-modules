@@ -25,6 +25,7 @@ use crate::graph::{
 pub struct Options {
     pub focus_on: Option<String>,
     pub max_depth: Option<usize>,
+    pub acyclic: bool,
     pub types: bool,
     pub traits: bool,
     pub fns: bool,
