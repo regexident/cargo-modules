@@ -22,8 +22,8 @@ use ra_ap_vfs::Vfs;
 use crate::{
     graph::{
         builder::{Builder as GraphBuilder, Options as GraphBuilderOptions},
+        cycles::tri_color::{CycleDetector, TriColorDepthFirstSearch},
         filter::{Filter as GraphFilter, Options as GraphFilterOptions},
-        tri_color::{CycleDetector, TriColorDepthFirstSearch},
         Graph,
     },
     options::{

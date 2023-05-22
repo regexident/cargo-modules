@@ -7,3 +7,5 @@ header:
       file, You can obtain one at https://mozilla.org/MPL/2.0/.
   paths:
     - "src/**/*.rs"
+  paths-ignore:
+    - "src/graph/cycles/tri_color.rs"
