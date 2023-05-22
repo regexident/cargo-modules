@@ -41,6 +41,8 @@ ra_ap_vfs = "=0.0.149"
 
 # minimal versions
 serde_repr = "0.1.12"
+tap = "1.0.1"
+wyz = "0.5.1"
 
 # avoid yanked "0.5.6"
 crossbeam-channel = "0.5.8"

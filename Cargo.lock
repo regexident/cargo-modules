@@ -209,6 +209,8 @@ dependencies = [
  "ra_ap_vfs",
  "serde_repr",
  "shellwords",
+ "tap",
+ "wyz",
  "yansi",
 ]
 
