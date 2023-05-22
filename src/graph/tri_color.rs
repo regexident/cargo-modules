@@ -15,10 +15,12 @@
 //! [can-a-3-color-dfs-be-used-to-identify-cycles-not-just-detect-them]: https://cs.stackexchange.com/questions/86148/can-a-3-color-dfs-be-used-to-identify-cycles-not-just-detect-them
 //! [rustc-cycle-detection]: https://github.com/rust-lang/rust/blob/925dc37313853f15dc21e42dc869b024fe488ef3/compiler/rustc_data_structures/src/graph/iterate/mod.rs
 
-use crate::graph::Graph as G;
+use std::{marker::PhantomData, ops::ControlFlow};
+
 use bitvec::vec::BitVec;
 use petgraph::graph::{IndexType, NodeIndex};
-use std::{marker::PhantomData, ops::ControlFlow};
+
+use crate::graph::Graph as G;
 
 struct BitSet<T> {
     vec: BitVec,
