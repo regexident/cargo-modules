@@ -1,1 +1,9 @@
+# This rustfmt.toml file is here to facilitate diffing with the cycle detection implementation in
+# the Rust compiler ([rustc-cycle-detection]). tri_color.rs is a port of that implementation.
+#
+# Only one line from the rustfmt.toml file on which this is based is relevant: [rustc-rustfmt]
+#
+# [rustc-cycle-detection]: https://github.com/rust-lang/rust/blob/925dc37313853f15dc21e42dc869b024fe488ef3/compiler/rustc_data_structures/src/graph/iterate/mod.rs
+# [rustc-rustfmt]: https://github.com/rust-lang/rust/blob/925dc37313853f15dc21e42dc869b024fe488ef3/rustfmt.toml#L3
+
 use_small_heuristics = "Max"
