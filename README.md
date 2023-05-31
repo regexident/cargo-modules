@@ -181,6 +181,21 @@ The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-a
 | 🔴 red    | Items visible to the current module (i.e. `pub(self)`, implied by lack of `pub …`) |
 | 🟣 purple | Orphaned modules (i.e. a file exists on disk but no corresponding `mod …`)         |
 
+### Acyclic Mode
+
+cargo-modules's `generate graph` command checks for the presence of a `--acyclic` flag. If found it will search for cycles in the directed graph and return an error for any cycles it found.
+
+Running `cargo modules generate graph --lib --acyclic` on the source of the tool itself emits the following cycle error:
+
+```plain
+Error: Circular dependency between `cargo_modules::options::general` and `cargo_modules::options::generate`.
+
+┌> cargo_modules::options::general
+│  └─> cargo_modules::options::generate::graph
+│      └─> cargo_modules::options::generate
+└──────────┘
+```
+
 ### No-Color Mode
 
 cargo-modules checks for the presence of a `NO_COLOR` environment variable that, when present (regardless of its value), prevents the addition of color to the console output.
