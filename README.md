@@ -46,22 +46,22 @@ Options:
       --features <FEATURES>            List of features to activate. This will be ignored if `--cargo-all-features` is provided
       --target <TARGET>                Analyze for target triple
       --cfg-test                       Analyze with `#[cfg(test)]` enabled
-      --no-cfg-test                    Analyze with `#[cfg(test)]` disabled [default]
+      --no-cfg-test                    Analyze with `#[cfg(test)]` disabled. [default]
       --sysroot                        Include sysroot crates (`std`, `core` & friends) in analysis
-      --no-sysroot                     Exclude sysroot crates (`std`, `core` & friends) in analysis [default]
+      --no-sysroot                     Exclude sysroot crates (`std`, `core` & friends) in analysis. [default]
       --manifest-path <MANIFEST_PATH>  Path to Cargo.toml [default: .]
       --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo:bar::{self, baz, blee::*}"
       --max-depth <MAX_DEPTH>          The maximum depth of the generated graph relative to the crate's root node, or nodes selected by '--focus-on'
       --types                          Include types (e.g. structs, unions, enums)
-      --no-types                       Exclude types (e.g. structs, unions, enums) [default]
+      --no-types                       Exclude types (e.g. structs, unions, enums). [default]
       --traits                         Include traits (e.g. trait, unsafe trait)
-      --no-traits                      Exclude traits (e.g. trait, unsafe trait) [default]
+      --no-traits                      Exclude traits (e.g. trait, unsafe trait). [default]
       --fns                            Include functions (e.g. fns, async fns, const fns)
-      --no-fns                         Include functions (e.g. fns, async fns, const fns) [default]
+      --no-fns                         Include functions (e.g. fns, async fns, const fns). [default]
       --tests                          Include tests (e.g. `#[test] fn …`)
-      --no-tests                       Exclude tests (e.g. `#[test] fn …`) [default]
+      --no-tests                       Exclude tests (e.g. `#[test] fn …`). [default]
       --orphans                        Include orphaned modules (i.e. unused files in /src)
-      --no-orphans                     Exclude orphaned modules (i.e. unused files in /src) [default]
+      --no-orphans                     Exclude orphaned modules (i.e. unused files in /src). [default]
   -h, --help                           Print help
 ```
 
@@ -116,25 +116,26 @@ Options:
       --features <FEATURES>            List of features to activate. This will be ignored if `--cargo-all-features` is provided
       --target <TARGET>                Analyze for target triple
       --cfg-test                       Analyze with `#[cfg(test)]` enabled
-      --no-cfg-test                    Analyze with `#[cfg(test)]` disabled [default]
+      --no-cfg-test                    Analyze with `#[cfg(test)]` disabled. [default]
       --sysroot                        Include sysroot crates (`std`, `core` & friends) in analysis
-      --no-sysroot                     Exclude sysroot crates (`std`, `core` & friends) in analysis [default]
+      --no-sysroot                     Exclude sysroot crates (`std`, `core` & friends) in analysis. [default]
       --manifest-path <MANIFEST_PATH>  Path to Cargo.toml [default: .]
       --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo:bar::{self, baz, blee::*}"
       --max-depth <MAX_DEPTH>          The maximum depth of the generated graph relative to the crate's root node, or nodes selected by '--focus-on'
       --types                          Include types (e.g. structs, unions, enums)
-      --no-types                       Exclude types (e.g. structs, unions, enums) [default]
+      --no-types                       Exclude types (e.g. structs, unions, enums). [default]
       --traits                         Include traits (e.g. trait, unsafe trait)
-      --no-traits                      Exclude traits (e.g. trait, unsafe trait) [default]
+      --no-traits                      Exclude traits (e.g. trait, unsafe trait). [default]
       --fns                            Include functions (e.g. fns, async fns, const fns)
-      --no-fns                         Include functions (e.g. fns, async fns, const fns) [default]
+      --no-fns                         Include functions (e.g. fns, async fns, const fns). [default]
       --tests                          Include tests (e.g. `#[test] fn …`)
-      --no-tests                       Exclude tests (e.g. `#[test] fn …`) [default]
+      --no-tests                       Exclude tests (e.g. `#[test] fn …`). [default]
       --orphans                        Include orphaned modules (i.e. unused files in /src)
-      --no-orphans                     Exclude orphaned modules (i.e. unused files in /src) [default]
-      --layout <LAYOUT>                The graph layout algorithm to use (e.g. dot, neato, twopi, circo, fdp, sfdp) [default: neato]
-      --modules                        Include modules (e.g. `mod foo`, `mod foo {}`) [default]
+      --no-orphans                     Exclude orphaned modules (i.e. unused files in /src). [default]
+      --acyclic                        Require graph to be acyclic
+      --layout <LAYOUT>                The graph layout algorithm to use (e.g. none, dot, neato, twopi, circo, fdp, sfdp) [default: neato]
       --no-modules                     Exclude modules (e.g. `mod foo`, `mod foo {}`)
+      --modules                        Include modules (e.g. `mod foo`, `mod foo {}`). [default]
       --uses                           Include used modules and types
       --no-uses                        Exclude used modules and types [default]
       --externs                        Include used modules and types from extern crates
