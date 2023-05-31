@@ -21,10 +21,10 @@ json = "0.12.4"
 petgraph = "0.6.3"
 anyhow = "1.0.71"
 yansi = "0.5.1"
-log = "0.4.17"
+log = "0.4.18"
 env_logger = "0.10.0"
 indoc = "2.0.1"
-clap = { version = "4.2.5", features = ["derive"] }
+clap = { version = "4.3.0", features = ["derive"] }
 
 ra_ap_base_db = "=0.0.149"
 ra_ap_cfg = "=0.0.149"
@@ -42,7 +42,7 @@ ra_ap_vfs = "=0.0.149"
 # minimal versions
 serde_repr = "0.1.12"
 tap = "1.0.1"
-wyz = "0.5.1"
+wyz = "0.6.1"
 
 # avoid yanked "0.5.6"
 crossbeam-channel = "0.5.8"
@@ -52,4 +52,4 @@ crossbeam-channel = "0.5.8"
 assert_cmd = "2.0.11"
 shellwords = "1.1"
 insta = "1.29.0"
-bitflags = "2.2.1"
+bitflags = "2.3.1"
