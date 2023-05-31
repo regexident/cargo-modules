@@ -20,11 +20,15 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- CLI flag `--acyclic` for detecting cycles in the generated graph.
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `log` from `0.4.17` to `0.4.18`
+  - `clap` from `4.2.5` to `4.3.0`
+  - `wyz` from `0.5.1` to `0.6.1`
+  - `bitflags` from `2.2.1` to `2.3.1`
 
 ### Deprecated
 
