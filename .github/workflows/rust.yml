@@ -11,6 +11,17 @@ on:
     - cron: "0 3 * * 0-6"
 
 jobs:
+  info:
+    name: Rust Info
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rustup Show
+        shell: bash
+        run: rustup show
+      - name: Rustup Version
+        shell: bash
+        run: rustup --version
+
   check:
     name: Check
     runs-on: ubuntu-latest
