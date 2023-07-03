@@ -32,6 +32,7 @@ Please make sure to add your changes to the appropriate categories:
   - `log` from `0.4.18` to `0.4.19`
   - `proc-macro2` from `1.0.60` to `1.0.63`
   - `serde_repr` from `0.1.12` to `0.1.13`
+  - `rust-analyzer` from `0.0.148` to `0.0.160`
 
 ### Deprecated
 
