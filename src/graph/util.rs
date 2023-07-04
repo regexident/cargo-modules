@@ -80,7 +80,7 @@ pub(crate) fn module(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<hi
 
 pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> String {
     if let hir::ModuleDef::BuiltinType(builtin) = module_def {
-        return builtin.name().to_string();
+        return builtin.name().display(db).to_string();
     }
 
     let mut path = String::new();
@@ -195,13 +195,14 @@ pub fn cfg(hir: hir::ModuleDef, db: &RootDatabase) -> Option<CfgExpr> {
     match hir {
         hir::ModuleDef::Module(r#mod) => r#mod.attrs(db).cfg(),
         hir::ModuleDef::Function(r#fn) => r#fn.attrs(db).cfg(),
-        hir::ModuleDef::Adt(r#adt) => r#adt.attrs(db).cfg(),
+        hir::ModuleDef::Adt(adt) => adt.attrs(db).cfg(),
         hir::ModuleDef::Variant(r#variant) => r#variant.attrs(db).cfg(),
         hir::ModuleDef::Const(r#const) => r#const.attrs(db).cfg(),
         hir::ModuleDef::Static(r#static) => r#static.attrs(db).cfg(),
         hir::ModuleDef::Trait(r#trait) => r#trait.attrs(db).cfg(),
-        hir::ModuleDef::TypeAlias(r#type) => r#type.attrs(db).cfg(),
-        hir::ModuleDef::BuiltinType(_) => None,
+        hir::ModuleDef::TraitAlias(trait_type) => trait_type.attrs(db).cfg(),
+        hir::ModuleDef::TypeAlias(type_alias) => type_alias.attrs(db).cfg(),
+        hir::ModuleDef::BuiltinType(_builtin_type) => None,
         hir::ModuleDef::Macro(_) => None,
     }
 }

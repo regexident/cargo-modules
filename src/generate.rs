@@ -7,16 +7,19 @@ use std::path::Path;
 use clap::Parser;
 use log::{debug, trace};
 use petgraph::stable_graph::NodeIndex;
+use ra_ap_cfg::{CfgAtom, CfgDiff};
 use ra_ap_hir::{self, Crate};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
 use ra_ap_ide_db::FxHashMap;
 use ra_ap_paths::AbsPathBuf;
 use ra_ap_proc_macro_api::ProcMacroServer;
 use ra_ap_project_model::{
-    CargoConfig, CargoFeatures, InvocationLocation, InvocationStrategy, PackageData,
-    ProjectManifest, ProjectWorkspace, RustcSource, TargetData, UnsetTestCrates,
+    CargoConfig, CargoFeatures, CfgOverrides, InvocationLocation, InvocationStrategy, PackageData,
+    ProjectManifest, ProjectWorkspace, RustLibSource, TargetData,
 };
-use ra_ap_rust_analyzer::cli::load_cargo::{load_workspace, LoadCargoConfig};
+use ra_ap_rust_analyzer::cli::load_cargo::{
+    load_workspace, LoadCargoConfig, ProcMacroServerChoice,
+};
 use ra_ap_vfs::Vfs;
 
 use crate::{
@@ -159,7 +162,7 @@ impl Command {
 
         // Whether to load sysroot crates (`std`, `core` & friends).
         let sysroot = if project_options.sysroot && self.sysroot() {
-            Some(RustcSource::Discover)
+            Some(RustLibSource::Discover)
         } else {
             None
         };
@@ -168,9 +171,15 @@ impl Command {
         let rustc_source = None;
 
         // crates to disable `#[cfg(test)]` on
-        let unset_test_crates = match project_options.cfg_test {
-            true => UnsetTestCrates::None,
-            false => UnsetTestCrates::All,
+        let cfg_overrides = match project_options.cfg_test {
+            true => CfgOverrides {
+                global: CfgDiff::new(vec![CfgAtom::Flag("test".into())], Vec::new()).unwrap(),
+                selective: Default::default(),
+            },
+            false => CfgOverrides {
+                global: CfgDiff::new(Vec::new(), vec![CfgAtom::Flag("test".into())]).unwrap(),
+                selective: Default::default(),
+            },
         };
 
         // Setup RUSTC_WRAPPER to point to `rust-analyzer` binary itself.
@@ -186,25 +195,35 @@ impl Command {
         let invocation_strategy = InvocationStrategy::PerWorkspace;
         let invocation_location = InvocationLocation::Workspace;
 
+        let sysroot_src = None;
+
+        let extra_args = vec![];
+
         CargoConfig {
             features,
             target,
             sysroot,
             rustc_source,
-            unset_test_crates,
+            cfg_overrides,
             wrap_rustc_in_build_scripts,
             run_build_script_command,
             extra_env,
             invocation_strategy,
             invocation_location,
+            sysroot_src,
+            extra_args,
         }
     }
 
     fn load_config(&self) -> LoadCargoConfig {
+        let load_out_dirs_from_check = true;
+        let prefill_caches = false;
+        let with_proc_macro_server = ProcMacroServerChoice::Sysroot;
+
         LoadCargoConfig {
-            load_out_dirs_from_check: true,
-            with_proc_macro: false,
-            prefill_caches: false,
+            load_out_dirs_from_check,
+            prefill_caches,
+            with_proc_macro_server,
         }
     }
 
@@ -215,7 +234,7 @@ impl Command {
         progress: &dyn Fn(String),
     ) -> anyhow::Result<ProjectWorkspace> {
         let root = AbsPathBuf::assert(std::env::current_dir()?.join(project_path));
-        let root = ProjectManifest::discover_single(&root)?;
+        let root = ProjectManifest::discover_single(root.as_path())?;
 
         ProjectWorkspace::load(root, cargo_config, &progress)
     }

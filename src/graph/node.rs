@@ -47,7 +47,7 @@ impl Node {
 
         match module_def {
             ModuleDef::Module(module_def) => {
-                if module_def.is_crate_root(db) {
+                if module_def.is_crate_root() {
                     Some("crate".to_owned())
                 } else {
                     Some("mod".to_owned())
@@ -86,17 +86,18 @@ impl Node {
                 keywords.push("trait");
                 Some(keywords.join(" "))
             }
+            ModuleDef::TraitAlias(_) => Some("trait".to_owned()),
             ModuleDef::TypeAlias(_) => Some("type".to_owned()),
             ModuleDef::BuiltinType(_) => Some("builtin".to_owned()),
             ModuleDef::Macro(_) => Some("macro".to_owned()),
         }
     }
 
-    pub(crate) fn is_crate(&self, db: &RootDatabase) -> bool {
+    pub(crate) fn is_crate(&self, _db: &RootDatabase) -> bool {
         let Some(hir::ModuleDef::Module(module)) = self.hir else {
             return false;
         };
 
-        module.is_crate_root(db)
+        module.is_crate_root()
     }
 }

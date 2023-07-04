@@ -44,6 +44,8 @@ serde_repr = "0.1.13"
 tap = "1.0.1"
 wyz = "0.6.1"
 proc-macro2 = "1.0.63"
+pulldown-cmark = "0.9.3"
+getopts = "0.2.19"
 
 # avoid yanked "0.5.6"
 crossbeam-channel = "0.5.8"

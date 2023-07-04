@@ -88,6 +88,9 @@ impl<'a> Builder<'a> {
             hir::ModuleDef::Const(const_hir) => self.process_const(const_hir, is_recursive),
             hir::ModuleDef::Static(static_hir) => self.process_static(static_hir, is_recursive),
             hir::ModuleDef::Trait(trait_hir) => self.process_trait(trait_hir, is_recursive),
+            hir::ModuleDef::TraitAlias(trait_alias_hir) => {
+                self.process_trait_alias(trait_alias_hir, is_recursive)
+            }
             hir::ModuleDef::TypeAlias(type_alias_hir) => {
                 self.process_type_alias(type_alias_hir, is_recursive)
             }
@@ -183,6 +186,14 @@ impl<'a> Builder<'a> {
 
     fn process_trait(&mut self, trait_hir: hir::Trait, _is_recursive: bool) -> Option<NodeIndex> {
         self.add_node(hir::ModuleDef::Trait(trait_hir))
+    }
+
+    fn process_trait_alias(
+        &mut self,
+        trait_alias_hir: hir::TraitAlias,
+        _is_recursive: bool,
+    ) -> Option<NodeIndex> {
+        self.add_node(hir::ModuleDef::TraitAlias(trait_alias_hir))
     }
 
     fn process_type_alias(
@@ -328,6 +339,7 @@ impl<'a> Builder<'a> {
             hir::ModuleDef::Const(_) => {}
             hir::ModuleDef::Static(_) => {}
             hir::ModuleDef::Trait(_) => {}
+            hir::ModuleDef::TraitAlias(_) => {}
             hir::ModuleDef::TypeAlias(_) => {}
             hir::ModuleDef::BuiltinType(_) => {}
             hir::ModuleDef::Macro(_) => return None,
