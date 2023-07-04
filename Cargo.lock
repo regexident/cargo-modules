@@ -190,12 +190,14 @@ dependencies = [
  "clap",
  "crossbeam-channel",
  "env_logger",
+ "getopts",
  "indoc",
  "insta",
  "json",
  "log",
  "petgraph 0.6.3",
  "proc-macro2",
+ "pulldown-cmark",
  "ra_ap_base_db",
  "ra_ap_cfg",
  "ra_ap_hir",
@@ -592,6 +594,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6d5a32815ae3f33302d95fdcb2ce17862f8c65363dcfd29360480ba1001fc9c"
 
 [[package]]
+name = "getopts"
+version = "0.2.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "14dbbfd5c71d70241ecf9e6f13737f7b5ce823821063188d7e46c41d371eebd5"
+dependencies = [
+ "unicode-width",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -837,9 +848,9 @@ checksum = "6a987beff54b60ffa6d51982e1aa1146bc42f19bd26be28b0586f252fccf5317"
 
 [[package]]
 name = "line-index"
-version = "0.1.0-pre.1"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cad96769710c1745e11d4f940a8ff36000ade4bbada4285b001cb8aa2f745ce"
+checksum = "7ee59ea2e50e61bae4f09eee6416820f2ba9796d6e924c86f6e4f699dcb1a7ac"
 dependencies = [
  "nohash-hasher",
  "text-size",
@@ -1177,11 +1188,12 @@ dependencies = [
 
 [[package]]
 name = "pulldown-cmark"
-version = "0.9.1"
+version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34f197a544b0c9ab3ae46c359a7ec9cbbb5c7bf97054266fecb7ead794a181d6"
+checksum = "77a1a2f1f0a7ecff9c31abbe177637be0e97a0aef46cf8738ece09327985d998"
 dependencies = [
  "bitflags 1.3.2",
+ "getopts",
  "memchr",
  "unicase",
 ]
@@ -1293,7 +1305,7 @@ checksum = "dd1f1dd5d889c8422e6cde6a4af29ba31e2182e67e61a852065e0c9fb21a994e"
 dependencies = [
  "anymap",
  "arrayvec",
- "bitflags 2.3.1",
+ "bitflags 2.3.3",
  "cov-mark",
  "dashmap",
  "drop_bomb",
@@ -1355,7 +1367,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8e5fdc0ad131da5aa999a759f2225fc99177408978ff0a21acc92fa0f525c13"
 dependencies = [
  "arrayvec",
- "bitflags 2.3.1",
+ "bitflags 2.3.3",
  "chalk-derive",
  "chalk-ir",
  "chalk-recursive",
@@ -2319,6 +2331,12 @@ name = "unicode-segmentation"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7e8820f5d777f6224dc4be3632222971ac30164d4a258d595640799554ebfd99"
+
+[[package]]
+name = "unicode-width"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
 
 [[package]]
 name = "unicode-xid"

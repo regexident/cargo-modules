@@ -226,6 +226,9 @@ impl<'a> Filter<'a> {
             hir::ModuleDef::Const(const_hir) => self.should_retain_const(const_hir),
             hir::ModuleDef::Static(static_hir) => self.should_retain_static(static_hir),
             hir::ModuleDef::Trait(trait_hir) => self.should_retain_trait(trait_hir),
+            hir::ModuleDef::TraitAlias(trait_alias_hir) => {
+                self.should_retain_trait_alias(trait_alias_hir)
+            }
             hir::ModuleDef::TypeAlias(type_alias_hir) => {
                 self.should_retain_type_alias(type_alias_hir)
             }
@@ -239,7 +242,7 @@ impl<'a> Filter<'a> {
     fn should_retain_module(&self, module_hir: hir::Module) -> bool {
         if !self.options.modules {
             // Always keep a crate's root module:
-            return module_hir.is_crate_root(self.db);
+            return module_hir.is_crate_root();
         }
         true
     }
@@ -285,6 +288,10 @@ impl<'a> Filter<'a> {
         }
 
         true
+    }
+
+    fn should_retain_trait_alias(&self, _trait_alias_hir: hir::TraitAlias) -> bool {
+        false
     }
 
     fn should_retain_type_alias(&self, _type_alias_hir: hir::TypeAlias) -> bool {
