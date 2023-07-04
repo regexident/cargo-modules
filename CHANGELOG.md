@@ -24,6 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
+- Bumped MSRV to `1.68.2`
 - Updated dependencies:
   - `bitflags` from `2.3.1` to `2.3.3`
   - `clap` from `4.3.0` to `4.3.10`
