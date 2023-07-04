@@ -24,7 +24,14 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `bitflags` from `2.3.1` to `2.3.3`
+  - `clap` from `4.3.0` to `4.3.10`
+  - `indoc` from `2.0.1` to `2.0.2`
+  - `insta` from `1.29.0` to `1.30.0`
+  - `log` from `0.4.18` to `0.4.19`
+  - `proc-macro2` from `1.0.60` to `1.0.63`
+  - `serde_repr` from `0.1.12` to `0.1.13`
 
 ### Deprecated
 
