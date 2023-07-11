@@ -26,6 +26,17 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.163` to `0.0.164`
+  - `anyhow` from `1.0.71` to `1.0.75`
+  - `skywalking-eyes` from `0.4.0` to `0.5.0`
+  - `assert_cmd` from `2.0.11` to `2.0.12`
+  - `bitflags` from `2.3.3` to `2.4.0`
+  - `clap` from `4.3.11` to `4.4.5`
+  - `indoc` from `2.0.2` to `2.0.4`
+  - `insta` from `1.30.0` to `1.32.0`
+  - `log` from `0.4.19` to `0.4.20`
+  - `petgraph` from `0.6.3` to `0.6.4`
+  - `proc-macro2` from `1.0.64` to `1.0.67`
+  - `serde_repr` from `0.1.14` to `0.1.16`
 
 ### Deprecated
 
