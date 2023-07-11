@@ -20,8 +20,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-Updated dependencies:
-  - `rust-analyzer` from `0.0.160` to `0.0.163`
+- n/a
 
 ### Changed
 
@@ -50,6 +49,17 @@ Updated dependencies:
 ### Other
 
 - n/a
+
+## [0.9.2] - 2023-07-11
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.160` to `0.0.163`
+  - `clap` from `4.3.10` to `4.3.11`
+  - `getopts` from `0.2.19` to `0.2.21`
+  - `proc-macro2` from `1.0.63` to `1.0.64`
+  - `serde_repr` from `0.1.13` to `0.1.14`
 
 ## [0.9.1] - 2023-07-04
 
