@@ -24,16 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Bumped MSRV to `1.68.2`
-- Updated dependencies:
-  - `bitflags` from `2.3.1` to `2.3.3`
-  - `clap` from `4.3.0` to `4.3.10`
-  - `indoc` from `2.0.1` to `2.0.2`
-  - `insta` from `1.29.0` to `1.30.0`
-  - `log` from `0.4.18` to `0.4.19`
-  - `proc-macro2` from `1.0.60` to `1.0.63`
-  - `serde_repr` from `0.1.12` to `0.1.13`
-  - `rust-analyzer` from `0.0.148` to `0.0.160`
+- n/a
 
 ### Deprecated
 
@@ -59,6 +50,21 @@ Please make sure to add your changes to the appropriate categories:
 
 - n/a
 
+## [0.9.1] - 2023-07-04
+
+### Changed
+
+- Bumped MSRV to `1.68.2`
+- Updated dependencies:
+  - `bitflags` from `2.3.1` to `2.3.3`
+  - `clap` from `4.3.0` to `4.3.10`
+  - `indoc` from `2.0.1` to `2.0.2`
+  - `insta` from `1.29.0` to `1.30.0`
+  - `log` from `0.4.18` to `0.4.19`
+  - `proc-macro2` from `1.0.60` to `1.0.63`
+  - `serde_repr` from `0.1.12` to `0.1.13`
+  - `rust-analyzer` from `0.0.148` to `0.0.160`
+  - 
 ## [0.9.0] - 2023-05-31
 
 ### Added
