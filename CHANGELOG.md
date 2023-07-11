@@ -20,7 +20,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+Updated dependencies:
+  - `rust-analyzer` from `0.0.160` to `0.0.163`
 
 ### Changed
 
