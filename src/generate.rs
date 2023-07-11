@@ -11,14 +11,12 @@ use ra_ap_cfg::{CfgAtom, CfgDiff};
 use ra_ap_hir::{self, Crate};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
 use ra_ap_ide_db::FxHashMap;
+use ra_ap_load_cargo::{load_workspace, LoadCargoConfig, ProcMacroServerChoice};
 use ra_ap_paths::AbsPathBuf;
 use ra_ap_proc_macro_api::ProcMacroServer;
 use ra_ap_project_model::{
     CargoConfig, CargoFeatures, CfgOverrides, InvocationLocation, InvocationStrategy, PackageData,
     ProjectManifest, ProjectWorkspace, RustLibSource, TargetData,
-};
-use ra_ap_rust_analyzer::cli::load_cargo::{
-    load_workspace, LoadCargoConfig, ProcMacroServerChoice,
 };
 use ra_ap_vfs::Vfs;
 
