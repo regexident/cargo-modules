@@ -36,7 +36,6 @@ ra_ap_paths = "=0.0.163"
 ra_ap_proc_macro_api = "=0.0.163"
 ra_ap_project_model = "=0.0.163"
 ra_ap_syntax = "=0.0.163"
-ra_ap_rust-analyzer = "=0.0.163"
 ra_ap_text_edit = "=0.0.163"
 ra_ap_vfs = "=0.0.163"
 
