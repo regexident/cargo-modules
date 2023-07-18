@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.163` to `0.0.164`
 
 ### Deprecated
 
@@ -32,7 +33,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Removed
 
-- n/a
+- Removed `ra_ap_rust-analyzer` dependency.
 
 ### Fixed
 
