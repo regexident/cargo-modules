@@ -113,7 +113,7 @@ impl<'a> Builder<'a> {
 
         for declaration in module_hir.declarations(self.db) {
             let Some(declaration_idx) = self.process_moduledef(declaration, is_recursive) else {
-                continue
+                continue;
             };
 
             let edge = Edge {

@@ -103,7 +103,12 @@ mod negative_args {
                 for (args, expected) in args_for(command, "cfg-test", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+                    let Generate {
+                        cmd: Command::Graph(cmd),
+                    } = app.command
+                    else {
+                        continue;
+                    };
 
                     assert_eq!(cmd.project.cfg_test, expected, "{:?}", args);
                 }
@@ -116,7 +121,12 @@ mod negative_args {
                 for (args, expected) in args_for(command, "sysroot", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+                    let Generate {
+                        cmd: Command::Graph(cmd),
+                    } = app.command
+                    else {
+                        continue;
+                    };
 
                     assert_eq!(cmd.project.sysroot, expected, "{:?}", args);
                 }
@@ -133,7 +143,12 @@ mod negative_args {
                 for (args, expected) in args_for(command, "fns", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+                    let Generate {
+                        cmd: Command::Graph(cmd),
+                    } = app.command
+                    else {
+                        continue;
+                    };
 
                     assert_eq!(cmd.graph.fns, expected, "{:?}", args);
                 }
@@ -146,7 +161,12 @@ mod negative_args {
                 for (args, expected) in args_for(command, "orphans", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+                    let Generate {
+                        cmd: Command::Graph(cmd),
+                    } = app.command
+                    else {
+                        continue;
+                    };
 
                     assert_eq!(cmd.graph.orphans, expected, "{:?}", args);
                 }
@@ -159,7 +179,12 @@ mod negative_args {
                 for (args, expected) in args_for(command, "tests", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+                    let Generate {
+                        cmd: Command::Graph(cmd),
+                    } = app.command
+                    else {
+                        continue;
+                    };
 
                     assert_eq!(cmd.graph.tests, expected, "{:?}", args);
                 }
@@ -172,7 +197,12 @@ mod negative_args {
                 for (args, expected) in args_for(command, "types", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+                    let Generate {
+                        cmd: Command::Graph(cmd),
+                    } = app.command
+                    else {
+                        continue;
+                    };
 
                     assert_eq!(cmd.graph.types, expected, "{:?}", args);
                 }
@@ -188,7 +218,12 @@ mod negative_args {
             for (args, expected) in args_for("graph", "modules", true) {
                 let app = App::parse_from(&args);
 
-                let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+                let Generate {
+                    cmd: Command::Graph(cmd),
+                } = app.command
+                else {
+                    continue;
+                };
 
                 assert_eq!(cmd.modules, expected, "{:?}", args);
             }
@@ -199,7 +234,12 @@ mod negative_args {
             for (args, expected) in args_for("graph", "uses", false) {
                 let app = App::parse_from(&args);
 
-                let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+                let Generate {
+                    cmd: Command::Graph(cmd),
+                } = app.command
+                else {
+                    continue;
+                };
 
                 assert_eq!(cmd.uses, expected, "{:?}", args);
             }
@@ -210,7 +250,12 @@ mod negative_args {
             for (args, expected) in args_for("graph", "externs", false) {
                 let app = App::parse_from(&args);
 
-                let Generate { cmd: Command::Graph(cmd) } = app.command else { continue; };
+                let Generate {
+                    cmd: Command::Graph(cmd),
+                } = app.command
+                else {
+                    continue;
+                };
 
                 assert_eq!(cmd.externs, expected, "{:?}", args);
             }
