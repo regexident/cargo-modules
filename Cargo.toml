@@ -24,7 +24,7 @@ yansi = "0.5.1"
 log = "0.4.20"
 env_logger = "0.10.0"
 indoc = "2.0.4"
-clap = { version = "4.4.5", features = ["derive"] }
+clap = { version = "4.4.6", features = ["derive"] }
 
 ra_ap_base_db = "=0.0.164"
 ra_ap_cfg = "=0.0.164"
@@ -54,5 +54,5 @@ crossbeam-channel = "0.5.8"
 [dev-dependencies]
 assert_cmd = "2.0.12"
 shellwords = "1.1"
-insta = "1.32.0"
+insta = "1.33.0"
 bitflags = "2.4.0"
