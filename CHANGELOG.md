@@ -24,7 +24,9 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `clap` from `4.4.5` to `4.4.6`
+  - `insta` from `1.32.0` to `1.33.0`
 
 ### Deprecated
 
