@@ -291,11 +291,19 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_trait_alias(&self, _trait_alias_hir: hir::TraitAlias) -> bool {
-        false
+        if !self.options.traits {
+            return false;
+        }
+
+        true
     }
 
     fn should_retain_type_alias(&self, _type_alias_hir: hir::TypeAlias) -> bool {
-        false
+        if !self.options.types {
+            return false;
+        }
+
+        true
     }
 
     fn should_retain_builtin_type(&self, _builtin_type_hir: hir::BuiltinType) -> bool {
