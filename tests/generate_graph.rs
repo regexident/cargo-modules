@@ -701,6 +701,20 @@ mod fields {
         color_mode: ColorMode::Plain,
         project: enum_fields
     );
+
+    test_cmd!(
+        args: "generate graph \
+                --externs \
+                --fns \
+                --modules \
+                --sysroot \
+                --traits \
+                --types \
+                --uses",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: union_fields
+    );
 }
 
 mod github_issue_79 {

@@ -1,0 +1,59 @@
+---
+source: tests/generate_graph.rs
+expression: output
+---
+STDERR:
+
+STDOUT:
+digraph {
+
+    graph [
+        label="union_fields",
+        labelloc=t,
+
+        pad=0.4,
+
+        // Consider rendering the graph using a different layout algorithm, such as:
+        // [dot, neato, twopi, circo, fdp, sfdp]
+        layout=neato,
+        overlap=false,
+        splines="line",
+        rankdir=LR,
+
+        fontname="Helvetica", 
+        fontsize="36",
+    ];
+
+    node [
+        fontname="monospace",
+        fontsize="10",
+        shape="record",
+        style="filled",
+    ];
+
+    edge [
+        fontname="monospace",
+        fontsize="10",
+    ];
+
+    "union_fields" [label="crate|union_fields", fillcolor="#5397c8"]; // "crate" node
+    "union_fields::GenericTargetEnum" [label="pub(crate) enum|union_fields::GenericTargetEnum", fillcolor="#f8c04c"]; // "enum" node
+    "union_fields::GenericTargetStruct" [label="pub(crate) struct|union_fields::GenericTargetStruct", fillcolor="#f8c04c"]; // "struct" node
+    "union_fields::GenericTargetUnion" [label="pub(crate) union|union_fields::GenericTargetUnion", fillcolor="#f8c04c"]; // "union" node
+    "union_fields::TargetEnum" [label="pub(crate) enum|union_fields::TargetEnum", fillcolor="#f8c04c"]; // "enum" node
+    "union_fields::TargetStruct" [label="pub(crate) struct|union_fields::TargetStruct", fillcolor="#f8c04c"]; // "struct" node
+    "union_fields::TargetTrait" [label="pub(crate) trait|union_fields::TargetTrait", fillcolor="#f8c04c"]; // "trait" node
+    "union_fields::TargetUnion" [label="pub(crate) union|union_fields::TargetUnion", fillcolor="#f8c04c"]; // "union" node
+    "union_fields::Union" [label="pub union|union_fields::Union", fillcolor="#81c169"]; // "union" node
+
+    "union_fields" -> "union_fields::GenericTargetEnum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "union_fields" -> "union_fields::GenericTargetStruct" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "union_fields" -> "union_fields::GenericTargetUnion" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "union_fields" -> "union_fields::TargetEnum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "union_fields" -> "union_fields::TargetStruct" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "union_fields" -> "union_fields::TargetTrait" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "union_fields" -> "union_fields::TargetUnion" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "union_fields" -> "union_fields::Union" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+
+}
+
