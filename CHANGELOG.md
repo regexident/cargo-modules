@@ -27,6 +27,7 @@ Please make sure to add your changes to the appropriate categories:
 - Updated dependencies:
   - `clap` from `4.4.5` to `4.4.6`
   - `insta` from `1.32.0` to `1.33.0`
+  - `rust-analyzer` from `0.0.164` to `0.0.177`
 
 ### Deprecated
 
