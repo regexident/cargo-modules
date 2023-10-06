@@ -26,7 +26,7 @@ impl NodeVisibility {
         };
 
         let grandparent_module = parent_module.parent(db);
-        let krate_module = parent_module.krate().root_module(db);
+        let krate_module = parent_module.krate().root_module();
 
         match visibility {
             hir::Visibility::Module(visibility_module_id) => {
