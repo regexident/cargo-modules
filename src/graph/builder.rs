@@ -69,7 +69,7 @@ impl<'a> Builder<'a> {
     }
 
     fn process_crate(&mut self, krate: Crate) -> Option<NodeIndex> {
-        let module = krate.root_module(self.db);
+        let module = krate.root_module();
         self.process_module(module, true)
     }
 
