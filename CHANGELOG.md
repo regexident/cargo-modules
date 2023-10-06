@@ -24,10 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `clap` from `4.4.5` to `4.4.6`
-  - `insta` from `1.32.0` to `1.33.0`
-  - `rust-analyzer` from `0.0.164` to `0.0.177`
+- n/a
 
 ### Deprecated
 
@@ -52,6 +49,15 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.9.4] - 2023-10-06
+
+### Changed
+
+- Updated dependencies:
+  - `clap` from `4.4.5` to `4.4.6`
+  - `insta` from `1.32.0` to `1.33.0`
+  - `rust-analyzer` from `0.0.164` to `0.0.177`
 
 ## [0.9.3] - 2023-09-26
 
