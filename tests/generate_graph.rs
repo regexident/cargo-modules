@@ -659,6 +659,22 @@ mod max_depth {
     }
 }
 
+mod fields {
+    test_cmd!(
+        args: "generate graph \
+                --externs \
+                --fns \
+                --modules \
+                --sysroot \
+                --traits \
+                --types \
+                --uses",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: tuple_fields
+    );
+}
+
 mod github_issue_79 {
     test_cmd!(
         args: "generate graph \
