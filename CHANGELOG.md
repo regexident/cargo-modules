@@ -21,6 +21,7 @@ Please make sure to add your changes to the appropriate categories:
 ### Added
 
 - Added support for type and trait aliases.
+- Added support for extracting "uses" edges for a type's field dependencies.
 
 ### Changed
 
