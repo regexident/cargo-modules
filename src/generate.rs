@@ -6,7 +6,7 @@ use std::path::Path;
 
 use clap::Parser;
 use log::{debug, trace};
-use petgraph::stable_graph::NodeIndex;
+
 use ra_ap_cfg::{CfgAtom, CfgDiff};
 use ra_ap_hir::{self, Crate};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
@@ -22,25 +22,26 @@ use ra_ap_vfs::Vfs;
 
 use crate::{
     graph::{
-        builder::{Builder as GraphBuilder, Options as GraphBuilderOptions},
-        cycles::tri_color::{CycleDetector, TriColorDepthFirstSearch},
-        filter::{Filter as GraphFilter, Options as GraphFilterOptions},
-        Graph,
+        builder::Options as GraphBuilderOptions, command::Command as GenerateGraphCommand,
+        filter::Options as GraphFilterOptions, options::Options as GraphOptions,
+        printer::Options as GraphPrinterOptions,
     },
     options::{
         general::Options as GeneralOptions, project::Options as ProjectOptions,
         selection::Options as SelectionOptions,
     },
     target::{select_package, select_target},
+    tree::{
+        builder::Options as TreeBuilderOptions, command::Command as GenerateTreeCommand,
+        filter::Options as TreeFilterOptions, options::Options as TreeOptions,
+        printer::Options as TreePrinterOptions,
+    },
 };
-
-pub mod graph;
-pub mod tree;
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 pub enum Command {
     #[command(name = "tree", about = "Print crate as a tree.")]
-    Tree(tree::Options),
+    Tree(TreeOptions),
 
     #[command(
         name = "graph",
@@ -50,7 +51,7 @@ pub enum Command {
         `cargo modules generate dependencies | xdot -`
         "#
     )]
-    Graph(graph::Options),
+    Graph(GraphOptions),
 }
 
 impl Command {
@@ -96,49 +97,55 @@ impl Command {
 
         let krate = self.find_crate(db, &vfs, &target)?;
 
-        let graph_builder = {
-            let builder_options = self.builder_options();
-            GraphBuilder::new(builder_options, db, &vfs, krate)
-        };
-
-        let graph_filter = {
-            let filter_options = self.filter_options();
-            GraphFilter::new(filter_options, db, krate)
-        };
-
-        trace!("Building graph ...");
-
-        let (graph, crate_node_idx) = graph_builder.build()?;
-
-        if self.filter_options().acyclic {
-            if let Some(cycle) =
-                TriColorDepthFirstSearch::new(&graph).run_from(crate_node_idx, &mut CycleDetector)
-            {
-                assert!(cycle.len() >= 2);
-                let first = graph[cycle[0]].display_path();
-                let last = graph[*cycle.last().unwrap()].display_path();
-                let drawing = draw_cycle(&graph, cycle);
-                anyhow::bail!("Circular dependency between `{first}` and `{last}`.\n\n{drawing}");
-            }
-        }
-
-        trace!("Filtering graph ...");
-
-        let graph = graph_filter.filter(&graph, crate_node_idx)?;
-
-        trace!("Generating output ...");
-
         match self {
             #[allow(unused_variables)]
             Self::Tree(options) => {
-                let command = tree::Command::new(options.clone());
-                command.run(&graph, crate_node_idx, krate, db)?;
+                let builder_options = TreeBuilderOptions {
+                    orphans: options.selection.orphans,
+                };
+                let filter_options = TreeFilterOptions {
+                    focus_on: options.selection.focus_on.clone(),
+                    max_depth: options.selection.max_depth,
+                    acyclic: false,
+                    modules: true,
+                    types: options.selection.types,
+                    traits: options.selection.traits,
+                    fns: options.selection.fns,
+                    tests: options.selection.tests,
+                    uses: false,
+                    externs: false,
+                };
+                let printer_options = TreePrinterOptions {};
+
+                let command =
+                    GenerateTreeCommand::new(builder_options, filter_options, printer_options);
+                command.run(krate, db, &vfs)?;
                 Ok(())
             }
             #[allow(unused_variables)]
             Self::Graph(options) => {
-                let command = graph::Command::new(options.clone());
-                command.run(&graph, crate_node_idx, krate, db)?;
+                let builder_options = GraphBuilderOptions {
+                    orphans: options.selection.orphans,
+                };
+                let filter_options = GraphFilterOptions {
+                    focus_on: options.selection.focus_on.clone(),
+                    max_depth: options.selection.max_depth,
+                    acyclic: options.acyclic,
+                    types: options.selection.types,
+                    traits: options.selection.traits,
+                    fns: options.selection.fns,
+                    tests: options.selection.tests,
+                    modules: options.modules,
+                    uses: options.uses,
+                    externs: options.externs,
+                };
+                let printer_options = GraphPrinterOptions {
+                    layout: options.layout,
+                    full_paths: options.externs,
+                };
+                let command =
+                    GenerateGraphCommand::new(builder_options, filter_options, printer_options);
+                command.run(krate, db, &vfs)?;
                 Ok(())
             }
         }
@@ -351,60 +358,4 @@ impl Command {
             Self::Graph(options) => &mut options.selection,
         }
     }
-
-    fn builder_options(&self) -> GraphBuilderOptions {
-        match self {
-            Self::Tree(options) => GraphBuilderOptions {
-                orphans: options.selection.orphans,
-            },
-            Self::Graph(options) => GraphBuilderOptions {
-                orphans: options.selection.orphans,
-            },
-        }
-    }
-
-    fn filter_options(&self) -> GraphFilterOptions {
-        match self {
-            Self::Tree(options) => GraphFilterOptions {
-                focus_on: options.selection.focus_on.clone(),
-                max_depth: options.selection.max_depth,
-                acyclic: false,
-                modules: true,
-                types: options.selection.types,
-                traits: options.selection.traits,
-                fns: options.selection.fns,
-                tests: options.selection.tests,
-                uses: false,
-                externs: false,
-            },
-            Self::Graph(options) => GraphFilterOptions {
-                focus_on: options.selection.focus_on.clone(),
-                max_depth: options.selection.max_depth,
-                acyclic: options.acyclic,
-                types: options.selection.types,
-                traits: options.selection.traits,
-                fns: options.selection.fns,
-                tests: options.selection.tests,
-                modules: options.modules,
-                uses: options.uses,
-                externs: options.externs,
-            },
-        }
-    }
-}
-
-fn draw_cycle(graph: &Graph, cycle: Vec<NodeIndex>) -> String {
-    assert!(!cycle.is_empty());
-
-    let first = graph[cycle[0]].display_path();
-    let mut drawing = format!("┌> {first}\n");
-
-    for (i, node) in cycle[1..].iter().enumerate() {
-        let path = graph[*node].display_path();
-        drawing += &format!("│  {:>width$}└─> {path}\n", "", width = i * 4);
-    }
-
-    drawing += &format!("└──{:─>width$}┘", "", width = (cycle.len() - 1) * 4);
-
-    drawing
 }

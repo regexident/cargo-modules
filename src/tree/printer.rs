@@ -6,23 +6,13 @@
 
 use std::fmt;
 
-use petgraph::{
-    algo::is_cyclic_directed,
-    graph::{EdgeIndex, NodeIndex},
-    visit::EdgeRef,
-    Direction,
-};
 use ra_ap_ide::RootDatabase;
 use yansi::Style;
 
 use crate::{
-    graph::{
-        edge::{Edge, EdgeKind},
-        node::Node,
-        Graph,
-    },
     item::visibility::ItemVisibility,
     theme::tree::styles,
+    tree::{node::Node, Tree},
 };
 
 #[derive(Debug)]
@@ -44,67 +34,31 @@ impl<'a> Printer<'a> {
         Self { options, db }
     }
 
-    pub fn fmt(
-        &self,
-        f: &mut dyn fmt::Write,
-        graph: &Graph,
-        start_node_idx: NodeIndex,
-    ) -> Result<(), anyhow::Error> {
-        assert!(!is_cyclic_directed(graph));
-
+    pub fn fmt(&self, f: &mut dyn fmt::Write, tree: &Tree) -> Result<(), anyhow::Error> {
         let mut twigs: Vec<Twig> = vec![Twig { is_last: true }];
-        self.fmt_tree(f, graph, None, start_node_idx, &mut twigs)
+        self.fmt_tree(f, &tree.root_node, &mut twigs)
     }
 
     fn fmt_tree(
         &self,
         f: &mut dyn fmt::Write,
-        graph: &Graph,
-        edge_idx: Option<EdgeIndex>,
-        node_idx: NodeIndex,
+        root_node: &Node,
         twigs: &mut Vec<Twig>,
     ) -> Result<(), anyhow::Error> {
-        let edge = edge_idx.map(|idx| &graph[idx]);
-        let node = &graph[node_idx];
-
-        self.fmt_branch(f, edge, &twigs[..])?;
-        self.fmt_node(f, node)?;
+        self.fmt_branch(f, &twigs[..])?;
+        self.fmt_node(f, root_node)?;
         writeln!(f)?;
 
-        let mut children: Vec<_> = graph
-            .edges_directed(node_idx, Direction::Outgoing)
-            .filter_map(|edge_ref| {
-                let edge_idx = edge_ref.id();
-                let edge = &graph[edge_idx];
-
-                // We're only interested in "owns" relationships here:
-                let is_owns_edge = edge.kind == EdgeKind::Owns;
-                debug_assert!(is_owns_edge);
-
-                if !is_owns_edge {
-                    return None;
-                }
-
-                let node_idx = edge_ref.target();
-                let node = &graph[node_idx];
-
-                let key = node.display_name();
-                Some((node_idx, edge_idx, key))
-            })
-            .collect();
+        let mut subnodes = root_node.subnodes.clone();
 
         // Sort the children by name for easier visual scanning of output:
-        children.sort_by(|lhs, rhs| {
-            let (_lhs_node, _lhs_edge, lhs_key) = lhs;
-            let (_rhs_node, _rhs_edge, rhs_key) = rhs;
-            lhs_key.cmp(rhs_key)
-        });
+        subnodes.sort_by_cached_key(|node| node.display_name());
 
-        let count = children.len();
-        for (pos, (node_idx, edge_idx, _)) in children.into_iter().enumerate() {
+        let count = subnodes.len();
+        for (pos, node) in subnodes.into_iter().enumerate() {
             let is_last = pos + 1 == count;
             twigs.push(Twig { is_last });
-            self.fmt_tree(f, graph, Some(edge_idx), node_idx, twigs)?;
+            self.fmt_tree(f, &node, twigs)?;
             twigs.pop();
         }
 
@@ -217,12 +171,7 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
-    fn fmt_branch(
-        &self,
-        f: &mut dyn fmt::Write,
-        _edge: Option<&Edge>,
-        twigs: &[Twig],
-    ) -> fmt::Result {
+    fn fmt_branch(&self, f: &mut dyn fmt::Write, twigs: &[Twig]) -> fmt::Result {
         let prefix = self.branch_prefix(twigs);
         write!(f, "{}", self.branch_style().paint(&prefix))
     }

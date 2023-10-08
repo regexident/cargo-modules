@@ -17,6 +17,7 @@ use crate::{
     graph::{
         edge::{Edge, EdgeKind},
         node::Node,
+        options::LayoutAlgorithm,
         util, Graph,
     },
     item::visibility::ItemVisibility,
@@ -27,7 +28,7 @@ const INDENTATION: &str = "    ";
 
 #[derive(Clone, Debug)]
 pub struct Options {
-    pub layout: String,
+    pub layout: LayoutAlgorithm,
     pub full_paths: bool,
 }
 
@@ -55,7 +56,7 @@ impl<'a> Printer<'a> {
     ) -> Result<(), anyhow::Error> {
         let root_node = &graph[start_node_idx];
         let label = root_node.display_path();
-        let layout = &self.options.layout[..];
+        let layout = self.options.layout.to_string();
         let i = INDENTATION;
 
         writeln!(f, "digraph {{")?;

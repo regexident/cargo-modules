@@ -2,20 +2,22 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+use std::fmt::Write;
+
 use log::trace;
 use petgraph::graph::NodeIndex;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
-pub use crate::options::generate::graph::Options;
+pub use crate::options::generate::tree::Options;
 
 use crate::{
     graph::Graph,
-    options::generate::graph::LayoutAlgorithm,
-    printer::graph::{Options as PrinterOptions, Printer},
+    printer::printer::{Options as PrinterOptions, Printer},
 };
 
 pub struct Command {
+    #[allow(dead_code)]
     options: Options,
 }
 
@@ -29,40 +31,23 @@ impl Command {
         &self,
         graph: &Graph,
         start_node_idx: NodeIndex,
-        member_krate: hir::Crate,
+        _member_krate: hir::Crate,
         db: &RootDatabase,
     ) -> anyhow::Result<()> {
-        self.validate_options()?;
-
-        if self.options.layout == LayoutAlgorithm::None {
-            return Ok(());
-        }
-
         trace!("Printing ...");
 
         let printer = {
-            let printer_options: PrinterOptions = PrinterOptions {
-                layout: self.options.layout.to_string(),
-                full_paths: self.options.externs,
-            };
-            Printer::new(printer_options, member_krate, db)
+            let printer_options = PrinterOptions {};
+            Printer::new(printer_options, db)
         };
 
         let mut string = String::new();
 
+        writeln!(&mut string)?;
+
         printer.fmt(&mut string, graph, start_node_idx)?;
 
         print!("{string}");
-
-        Ok(())
-    }
-
-    fn validate_options(&self) -> anyhow::Result<()> {
-        let options = &self.options;
-
-        if options.externs && !options.uses {
-            anyhow::bail!("Option `--externs` requires option `--uses`");
-        }
 
         Ok(())
     }

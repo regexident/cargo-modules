@@ -16,7 +16,10 @@ use ra_ap_vfs::Vfs;
 
 use crate::{
     graph::{edge::EdgeKind, util, walker::GraphWalker, Graph, NodeIndex},
-    item::attr::{ItemCfgAttr, ItemTestAttr},
+    item::{
+        attr::{ItemCfgAttr, ItemTestAttr},
+        Item,
+    },
 };
 
 pub(super) fn owner_only_graph(graph: &Graph) -> Graph {
@@ -112,7 +115,7 @@ pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> String {
 }
 
 // https://github.com/rust-lang/rust-analyzer/blob/36a70b7435c48837018c71576d7bb4e8f763f501/crates/syntax/src/ast/make.rs#L821
-pub(super) fn parse_ast<N: AstNode>(text: &str) -> N {
+pub(crate) fn parse_ast<N: AstNode>(text: &str) -> N {
     let parse = SourceFile::parse(text);
     let node = match parse.tree().syntax().descendants().find_map(N::cast) {
         Some(it) => it,
@@ -126,7 +129,20 @@ pub(super) fn parse_ast<N: AstNode>(text: &str) -> N {
     node
 }
 
-pub(super) fn use_tree_matches_path(use_tree: &ast::UseTree, path: &ast::Path) -> bool {
+pub(crate) fn use_tree_matches_item(use_tree: &ast::UseTree, item: &Item) -> bool {
+    let node_path_segments = &item.path[..];
+    if node_path_segments.is_empty() {
+        return false;
+    }
+    let node_path: ast::Path = {
+        let focus_on = node_path_segments.join("::");
+        let syntax = format!("use {focus_on};");
+        util::parse_ast(&syntax)
+    };
+    util::use_tree_matches_path(use_tree, &node_path)
+}
+
+pub(crate) fn use_tree_matches_path(use_tree: &ast::UseTree, path: &ast::Path) -> bool {
     let mut path_segments_iter = path.segments();
 
     if let Some(use_tree_path) = use_tree.path() {
