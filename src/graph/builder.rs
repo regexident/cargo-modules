@@ -267,11 +267,7 @@ impl<'a> Builder<'a> {
             }
             None => {
                 // Otherwise try to add a node:
-                let node = match self.node_weight(moduledef_hir) {
-                    Some(node) => node,
-                    None => return None,
-                };
-
+                let node = Node::new(Item::new(moduledef_hir, self.db, self.vfs));
                 let node_idx = self.graph.add_node(node);
                 self.nodes.insert(node_id, node_idx);
 
@@ -304,115 +300,5 @@ impl<'a> Builder<'a> {
                 edge_idx
             }
         }
-    }
-
-    fn node_weight(&self, moduledef_hir: hir::ModuleDef) -> Option<Node> {
-        let krate = {
-            let krate = util::krate(moduledef_hir, self.db);
-            krate.map(|krate| util::krate_name(krate, self.db))
-        };
-
-        let path: Vec<_> = util::path(moduledef_hir, self.db)
-            .split("::")
-            .filter_map(|s| {
-                if s.is_empty() {
-                    None
-                } else {
-                    Some(s.to_owned())
-                }
-            })
-            .collect();
-
-        let file_path = {
-            match moduledef_hir {
-                hir::ModuleDef::Module(module) => Some(module),
-                _ => None,
-            }
-            .and_then(|module| {
-                self.module_file(module.definition_source(self.db))
-                    .map(Into::into)
-            })
-        };
-
-        match moduledef_hir {
-            hir::ModuleDef::Module(_) => {}
-            hir::ModuleDef::Function(_) => {}
-            hir::ModuleDef::Adt(_) => {}
-            hir::ModuleDef::Variant(_) => return None,
-            hir::ModuleDef::Const(_) => {}
-            hir::ModuleDef::Static(_) => {}
-            hir::ModuleDef::Trait(_) => {}
-            hir::ModuleDef::TraitAlias(_) => {}
-            hir::ModuleDef::TypeAlias(_) => {}
-            hir::ModuleDef::BuiltinType(_) => {}
-            hir::ModuleDef::Macro(_) => return None,
-        };
-
-        let hir = Some(moduledef_hir);
-
-        let visibility = Some(ItemVisibility::new(moduledef_hir, self.db));
-
-        let attrs = {
-            let cfgs: Vec<_> = self.cfg_attrs(moduledef_hir);
-            let test = self.test_attr(moduledef_hir);
-            ItemAttrs { cfgs, test }
-        };
-
-        let item = Item {
-            krate,
-            path,
-            file_path,
-            hir,
-            visibility,
-            attrs,
-        };
-
-        Some(Node::new(item))
-    }
-
-    fn cfg_attrs(&self, moduledef_hir: hir::ModuleDef) -> Vec<ItemCfgAttr> {
-        util::cfgs(moduledef_hir, self.db)
-            .into_iter()
-            .filter_map(ItemCfgAttr::new)
-            .collect()
-    }
-
-    fn test_attr(&self, moduledef_hir: hir::ModuleDef) -> Option<ItemTestAttr> {
-        let function = match moduledef_hir {
-            hir::ModuleDef::Function(function) => function,
-            _ => return None,
-        };
-
-        if util::is_test_function(function, self.db) {
-            Some(ItemTestAttr)
-        } else {
-            None
-        }
-    }
-
-    fn module_file(&self, module_source: hir::InFile<hir::ModuleSource>) -> Option<PathBuf> {
-        let is_file_module: bool = match &module_source.value {
-            ModuleSource::SourceFile(_) => true,
-            ModuleSource::Module(_) => false,
-            ModuleSource::BlockExpr(_) => false,
-        };
-
-        if !is_file_module {
-            return None;
-        }
-
-        let file_id = module_source.file_id.original_file(self.db);
-        let vfs_path = self.vfs.file_path(file_id);
-        let abs_path = vfs_path.as_path().expect("Could not convert to path");
-
-        let path: &Path = abs_path.as_ref();
-
-        let file_extension = path.extension().and_then(|ext| ext.to_str());
-
-        if file_extension != Some("rs") {
-            return None;
-        }
-
-        Some(path.to_owned())
     }
 }

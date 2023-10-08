@@ -2,14 +2,22 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::collections::HashSet;
+use std::{
+    collections::HashSet,
+    path::{Path, PathBuf},
+};
 
+use hir::ModuleSource;
 use ra_ap_cfg::CfgExpr;
 use ra_ap_hir::{self as hir, HasAttrs};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_syntax::{ast, AstNode, SourceFile};
+use ra_ap_vfs::Vfs;
 
-use crate::graph::{edge::EdgeKind, walker::GraphWalker, Graph, NodeIndex};
+use crate::{
+    graph::{edge::EdgeKind, util, walker::GraphWalker, Graph, NodeIndex},
+    item::attr::{ItemCfgAttr, ItemTestAttr},
+};
 
 pub(super) fn owner_only_graph(graph: &Graph) -> Graph {
     graph.filter_map(
@@ -205,4 +213,54 @@ pub fn cfg(hir: hir::ModuleDef, db: &RootDatabase) -> Option<CfgExpr> {
         hir::ModuleDef::BuiltinType(_builtin_type) => None,
         hir::ModuleDef::Macro(_) => None,
     }
+}
+
+pub fn cfg_attrs(moduledef_hir: hir::ModuleDef, db: &RootDatabase) -> Vec<ItemCfgAttr> {
+    util::cfgs(moduledef_hir, db)
+        .into_iter()
+        .filter_map(ItemCfgAttr::new)
+        .collect()
+}
+
+pub fn test_attr(moduledef_hir: hir::ModuleDef, db: &RootDatabase) -> Option<ItemTestAttr> {
+    let function = match moduledef_hir {
+        hir::ModuleDef::Function(function) => function,
+        _ => return None,
+    };
+
+    if util::is_test_function(function, db) {
+        Some(ItemTestAttr)
+    } else {
+        None
+    }
+}
+
+pub fn module_file(
+    module_source: hir::InFile<hir::ModuleSource>,
+    db: &RootDatabase,
+    vfs: &Vfs,
+) -> Option<PathBuf> {
+    let is_file_module: bool = match &module_source.value {
+        ModuleSource::SourceFile(_) => true,
+        ModuleSource::Module(_) => false,
+        ModuleSource::BlockExpr(_) => false,
+    };
+
+    if !is_file_module {
+        return None;
+    }
+
+    let file_id = module_source.file_id.original_file(db);
+    let vfs_path = vfs.file_path(file_id);
+    let abs_path = vfs_path.as_path().expect("Could not convert to path");
+
+    let path: &Path = abs_path.as_ref();
+
+    let file_extension = path.extension().and_then(|ext| ext.to_str());
+
+    if file_extension != Some("rs") {
+        return None;
+    }
+
+    Some(path.to_owned())
 }

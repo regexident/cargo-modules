@@ -7,6 +7,11 @@ use std::path::PathBuf;
 use hir::ModuleDef;
 use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
+use ra_ap_vfs::Vfs;
+
+use crate::graph::util;
+
+use self::{attr::ItemAttrs, visibility::ItemVisibility};
 
 pub(crate) mod attr;
 pub(crate) mod visibility;
@@ -22,6 +27,53 @@ pub struct Item {
 }
 
 impl Item {
+    pub fn new(moduledef_hir: hir::ModuleDef, db: &RootDatabase, vfs: &Vfs) -> Self {
+        let krate = {
+            let krate = util::krate(moduledef_hir, db);
+            krate.map(|krate| util::krate_name(krate, db))
+        };
+
+        let path: Vec<_> = util::path(moduledef_hir, db)
+            .split("::")
+            .filter_map(|s| {
+                if s.is_empty() {
+                    None
+                } else {
+                    Some(s.to_owned())
+                }
+            })
+            .collect();
+
+        let file_path = {
+            match moduledef_hir {
+                hir::ModuleDef::Module(module) => Some(module),
+                _ => None,
+            }
+            .and_then(|module| {
+                util::module_file(module.definition_source(db), db, vfs).map(Into::into)
+            })
+        };
+
+        let hir = Some(moduledef_hir);
+
+        let visibility = Some(ItemVisibility::new(moduledef_hir, db));
+
+        let attrs = {
+            let cfgs: Vec<_> = util::cfg_attrs(moduledef_hir, db);
+            let test = util::test_attr(moduledef_hir, db);
+            ItemAttrs { cfgs, test }
+        };
+
+        Self {
+            krate,
+            path,
+            file_path,
+            hir,
+            visibility,
+            attrs,
+        }
+    }
+
     pub fn display_name(&self) -> String {
         self.path
             .last()
