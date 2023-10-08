@@ -4,7 +4,6 @@
 
 use hir::ModuleDef;
 use log::trace;
-
 use ra_ap_hir::{self as hir, Crate};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
@@ -13,6 +12,8 @@ use crate::{
     item::Item,
     tree::{node::Node, Tree},
 };
+
+use super::orphans::orphan_nodes_for;
 
 // use super::orphans::add_orphan_nodes_to;
 
@@ -80,16 +81,23 @@ impl<'a> Builder<'a> {
         let item = Item::new(ModuleDef::Module(module_hir), self.db, self.vfs);
         let mut node = Node::new(item, vec![]);
 
-        for declaration in module_hir.declarations(self.db) {
-            let Some(subnode) = self.process_moduledef(declaration) else {
-                continue;
-            };
+        // eprintln!("node: {:?}", node.item.path);
 
+        let subnodes = module_hir
+            .declarations(self.db)
+            .into_iter()
+            .filter_map(|moduledef_hir| self.process_moduledef(moduledef_hir));
+
+        for subnode in subnodes {
+            // eprintln!("- subnode: {:?}", subnode.item.path);
             node.push_subnode(subnode);
         }
 
-        if self.options.orphans {
-            // add_orphan_nodes_to(&mut self.graph, module_idx);
+        if self.options.orphans && node.item.is_file() {
+            for subnode in orphan_nodes_for(&node) {
+                // eprintln!("- orphan: {:?}", subnode.item.path);
+                node.push_subnode(subnode);
+            }
         }
 
         Some(node)
