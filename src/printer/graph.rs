@@ -39,7 +39,7 @@ pub struct Printer<'a> {
 
 impl<'a> Printer<'a> {
     pub fn new(options: Options, member_krate: hir::Crate, db: &'a RootDatabase) -> Self {
-        let member_krate = util::krate_name(member_krate, db);
+        let member_krate = util::crate_name(member_krate, db);
         Self {
             options,
             member_krate,
@@ -199,7 +199,7 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_header(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let is_external = node.item.krate != Some(self.member_krate.clone());
+        let is_external = node.item.crate_name != Some(self.member_krate.clone());
 
         let visibility = match &node.item.visibility {
             Some(visibility) => {

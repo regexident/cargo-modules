@@ -18,7 +18,7 @@ pub(crate) mod visibility;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Item {
-    pub krate: Option<String>,
+    pub crate_name: Option<String>,
     pub path: Vec<String>,
     pub file_path: Option<PathBuf>,
     pub hir: Option<hir::ModuleDef>,
@@ -28,9 +28,9 @@ pub struct Item {
 
 impl Item {
     pub fn new(moduledef_hir: hir::ModuleDef, db: &RootDatabase, vfs: &Vfs) -> Self {
-        let krate = {
+        let crate_name = {
             let krate = util::krate(moduledef_hir, db);
-            krate.map(|krate| util::krate_name(krate, db))
+            krate.map(|krate| util::crate_name(krate, db))
         };
 
         let path: Vec<_> = util::path(moduledef_hir, db)
@@ -65,7 +65,7 @@ impl Item {
         };
 
         Self {
-            krate,
+            crate_name,
             path,
             file_path,
             hir,

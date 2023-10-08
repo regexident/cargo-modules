@@ -96,7 +96,7 @@ fn add_orphan_node(
     let module_node = &graph[module_idx];
 
     let orphan_node = {
-        let krate = module_node.item.krate.clone();
+        let crate_name = module_node.item.crate_name.clone();
         let path = {
             let mut path = module_node.item.path.clone();
             path.push(orphan_name.to_owned());
@@ -112,7 +112,7 @@ fn add_orphan_node(
         };
 
         let item = Item {
-            krate,
+            crate_name,
             path,
             file_path,
             hir,
