@@ -33,24 +33,3 @@ impl fmt::Display for EdgeKind {
 pub struct Edge {
     pub kind: EdgeKind,
 }
-
-impl Edge {
-    pub fn merge_with(&mut self, other: &Edge) {
-        match (self.kind, other.kind) {
-            (EdgeKind::Uses, EdgeKind::Uses) => {
-                self.kind = EdgeKind::Uses;
-            }
-            (EdgeKind::Uses, EdgeKind::Owns)
-            | (EdgeKind::Owns, EdgeKind::Uses)
-            | (EdgeKind::Owns, EdgeKind::Owns) => {
-                self.kind = EdgeKind::Owns;
-            }
-        }
-    }
-
-    pub fn merged_with(&self, other: &Edge) -> Self {
-        let mut clone = self.clone();
-        clone.merge_with(other);
-        clone
-    }
-}

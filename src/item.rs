@@ -85,13 +85,6 @@ impl Item {
         self.path.join("::")
     }
 
-    pub fn crate_display_name(&self) -> String {
-        self.path
-            .first()
-            .expect("Expected path with at least one component")
-            .clone()
-    }
-
     pub fn kind_display_name(&self, db: &RootDatabase) -> Option<String> {
         let Some(module_def) = self.hir else {
             return None;

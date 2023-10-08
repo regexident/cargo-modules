@@ -16,16 +16,8 @@ impl Node {
         Self { item }
     }
 
-    pub fn display_name(&self) -> String {
-        self.item.display_name()
-    }
-
     pub fn display_path(&self) -> String {
         self.item.display_path()
-    }
-
-    pub fn crate_display_name(&self) -> String {
-        self.item.crate_display_name()
     }
 
     pub fn kind_display_name(&self, db: &RootDatabase) -> Option<String> {
