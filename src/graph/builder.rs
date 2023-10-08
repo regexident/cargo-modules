@@ -24,6 +24,7 @@ pub struct Options {}
 
 #[derive(Debug)]
 pub struct Builder<'a> {
+    #[allow(dead_code)]
     options: Options,
     db: &'a RootDatabase,
     vfs: &'a Vfs,
