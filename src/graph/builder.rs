@@ -38,8 +38,6 @@ pub struct Builder<'a> {
     graph: Graph,
     nodes: HashMap<String, NodeIndex>,
     edges: HashMap<(NodeIndex, EdgeKind, NodeIndex), EdgeIndex>,
-    stack: Vec<NodeIndex>,
-    pending: HashSet<Dependency>,
 }
 
 impl<'a> Builder<'a> {
@@ -47,8 +45,6 @@ impl<'a> Builder<'a> {
         let graph = Graph::default();
         let nodes = HashMap::default();
         let edges = HashMap::default();
-        let stack = Vec::default();
-        let pending = HashSet::default();
 
         Self {
             options,
@@ -58,8 +54,6 @@ impl<'a> Builder<'a> {
             graph,
             nodes,
             edges,
-            stack,
-            pending,
         }
     }
 
@@ -75,151 +69,286 @@ impl<'a> Builder<'a> {
 
     fn process_crate(&mut self, krate: Crate) -> Option<NodeIndex> {
         let module = krate.root_module();
-        self.process_module(module, true)
+
+        self.process_moduledef(module.into())
     }
 
-    fn process_moduledef(
-        &mut self,
-        moduledef_hir: hir::ModuleDef,
-        is_recursive: bool,
-    ) -> Option<NodeIndex> {
-        match moduledef_hir {
-            hir::ModuleDef::Module(module_hir) => self.process_module(module_hir, is_recursive),
-            hir::ModuleDef::Function(function_hir) => {
-                self.process_function(function_hir, is_recursive)
-            }
-            hir::ModuleDef::Adt(adt_hir) => self.process_adt(adt_hir, is_recursive),
-            hir::ModuleDef::Variant(variant_hir) => self.process_variant(variant_hir, is_recursive),
-            hir::ModuleDef::Const(const_hir) => self.process_const(const_hir, is_recursive),
-            hir::ModuleDef::Static(static_hir) => self.process_static(static_hir, is_recursive),
-            hir::ModuleDef::Trait(trait_hir) => self.process_trait(trait_hir, is_recursive),
-            hir::ModuleDef::TraitAlias(trait_alias_hir) => {
-                self.process_trait_alias(trait_alias_hir, is_recursive)
-            }
-            hir::ModuleDef::TypeAlias(type_alias_hir) => {
-                self.process_type_alias(type_alias_hir, is_recursive)
-            }
-            hir::ModuleDef::BuiltinType(builtin_type_hir) => {
-                self.process_builtin_type(builtin_type_hir, is_recursive)
-            }
-            hir::ModuleDef::Macro(macro_hir) => self.process_macro(macro_hir, is_recursive),
-        }
-    }
+    fn process_moduledef(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
+        let mut dependencies: HashSet<_> = HashSet::default();
 
-    fn process_module(&mut self, module_hir: hir::Module, is_recursive: bool) -> Option<NodeIndex> {
-        let module_idx = match self.add_node(module_hir.into()) {
-            Some(owned_idx) => owned_idx,
-            None => return None,
+        let mut push_dependencies = |moduledef_hir| {
+            dependencies.insert(moduledef_hir);
         };
 
-        if !is_recursive {
-            return Some(module_idx);
+        let node_idx = match moduledef_hir {
+            hir::ModuleDef::Module(module_hir) => {
+                self.process_module(module_hir, &mut push_dependencies)
+            }
+            hir::ModuleDef::Function(function_hir) => {
+                self.process_function(function_hir, &mut push_dependencies)
+            }
+            hir::ModuleDef::Adt(adt_hir) => self.process_adt(adt_hir, &mut push_dependencies),
+            hir::ModuleDef::Variant(variant_hir) => {
+                self.process_variant(variant_hir, &mut push_dependencies)
+            }
+            hir::ModuleDef::Const(const_hir) => {
+                self.process_const(const_hir, &mut push_dependencies)
+            }
+            hir::ModuleDef::Static(static_hir) => {
+                self.process_static(static_hir, &mut push_dependencies)
+            }
+            hir::ModuleDef::Trait(trait_hir) => {
+                self.process_trait(trait_hir, &mut push_dependencies)
+            }
+            hir::ModuleDef::TraitAlias(trait_alias_hir) => {
+                self.process_trait_alias(trait_alias_hir, &mut push_dependencies)
+            }
+            hir::ModuleDef::TypeAlias(type_alias_hir) => {
+                self.process_type_alias(type_alias_hir, &mut push_dependencies)
+            }
+            hir::ModuleDef::BuiltinType(builtin_type_hir) => {
+                self.process_builtin_type(builtin_type_hir, &mut push_dependencies)
+            }
+            hir::ModuleDef::Macro(macro_hir) => {
+                self.process_macro(macro_hir, &mut push_dependencies)
+            }
+        };
+
+        if let Some(node_idx) = node_idx {
+            self.add_dependencies(node_idx, dependencies);
         }
 
-        for declaration in module_hir.declarations(self.db) {
-            let Some(declaration_idx) = self.process_moduledef(declaration, is_recursive) else {
+        node_idx
+    }
+
+    fn process_module(
+        &mut self,
+        module_hir: hir::Module,
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
+    ) -> Option<NodeIndex> {
+        let node_idx = self.add_node(module_hir.into());
+
+        if let Some(node_idx) = node_idx {
+            // Process sub-items:
+            for declaration in module_hir.declarations(self.db) {
+                let Some(declaration_idx) = self.process_moduledef(declaration) else {
+                    continue;
+                };
+
+                let edge = Edge {
+                    kind: EdgeKind::Owns,
+                };
+
+                self.add_edge(node_idx, declaration_idx, edge);
+            }
+        }
+
+        for (_name, scope_hir) in module_hir.scope(self.db, None) {
+            let hir::ScopeDef::ModuleDef(scope_module_hir) = scope_hir else {
+                // Skip everything but module-defs:
                 continue;
             };
 
-            let edge = Edge {
-                kind: EdgeKind::Owns,
-            };
+            // Check if definition is a child of `module`:
+            if scope_module_hir.module(self.db) == Some(module_hir) {
+                // Is a child, omit it:
+                continue;
+            }
 
-            self.add_edge(module_idx, declaration_idx, edge);
+            dependencies_callback(scope_module_hir);
         }
 
-        self.add_dependencies(module_idx, self.dependencies_of_module(module_hir));
-
-        Some(module_idx)
+        node_idx
     }
 
     fn process_function(
         &mut self,
         function_hir: hir::Function,
-        _is_recursive: bool,
+        _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        self.add_node(hir::ModuleDef::Function(function_hir))
+        let node_idx = self.add_node(hir::ModuleDef::Function(function_hir));
+
+        // TODO: scan function for dependencies
+
+        #[allow(clippy::let_and_return)]
+        node_idx
     }
 
-    fn process_adt(&mut self, adt_hir: hir::Adt, is_recursive: bool) -> Option<NodeIndex> {
+    fn process_adt(
+        &mut self,
+        adt_hir: hir::Adt,
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
+    ) -> Option<NodeIndex> {
         match adt_hir {
-            hir::Adt::Struct(struct_hir) => self.process_struct(struct_hir, is_recursive),
-            hir::Adt::Enum(enum_hir) => self.process_enum(enum_hir, is_recursive),
-            hir::Adt::Union(union_hir) => self.process_union(union_hir, is_recursive),
+            hir::Adt::Struct(struct_hir) => self.process_struct(struct_hir, dependencies_callback),
+            hir::Adt::Enum(enum_hir) => self.process_enum(enum_hir, dependencies_callback),
+            hir::Adt::Union(union_hir) => self.process_union(union_hir, dependencies_callback),
         }
     }
 
     fn process_struct(
         &mut self,
         struct_hir: hir::Struct,
-        _is_recursive: bool,
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        self.add_node(hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)))
+        let node_idx = self.add_node(hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)));
+
+        for field_hir in struct_hir.fields(self.db) {
+            util::walk_and_push_ty(
+                field_hir.ty(self.db).strip_references(),
+                self.db,
+                dependencies_callback,
+            );
+        }
+
+        node_idx
     }
 
-    fn process_union(&mut self, union_hir: hir::Union, _is_recursive: bool) -> Option<NodeIndex> {
-        self.add_node(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)))
+    fn process_enum(
+        &mut self,
+        enum_hir: hir::Enum,
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
+    ) -> Option<NodeIndex> {
+        let node_idx = self.add_node(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)));
+
+        for variant_hir in enum_hir.variants(self.db) {
+            for field_hir in variant_hir.fields(self.db) {
+                util::walk_and_push_ty(
+                    field_hir.ty(self.db).strip_references(),
+                    self.db,
+                    dependencies_callback,
+                );
+            }
+        }
+
+        node_idx
     }
 
-    fn process_enum(&mut self, enum_hir: hir::Enum, _is_recursive: bool) -> Option<NodeIndex> {
-        self.add_node(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)))
+    fn process_union(
+        &mut self,
+        union_hir: hir::Union,
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
+    ) -> Option<NodeIndex> {
+        let node_idx = self.add_node(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)));
+
+        for field_hir in union_hir.fields(self.db) {
+            util::walk_and_push_ty(
+                field_hir.ty(self.db).strip_references(),
+                self.db,
+                dependencies_callback,
+            );
+        }
+
+        node_idx
     }
 
     fn process_variant(
         &mut self,
-        _variant_hir: hir::Variant,
-        _is_recursive: bool,
+        variant_hir: hir::Variant,
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        None
+        let node_idx = None;
+
+        for field_hir in variant_hir.fields(self.db) {
+            util::walk_and_push_ty(field_hir.ty(self.db), self.db, dependencies_callback);
+        }
+
+        node_idx
     }
 
-    fn process_const(&mut self, _const_hir: hir::Const, _is_recursive: bool) -> Option<NodeIndex> {
-        None
+    fn process_const(
+        &mut self,
+        const_hir: hir::Const,
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
+    ) -> Option<NodeIndex> {
+        let node_idx = None;
+
+        util::walk_and_push_ty(const_hir.ty(self.db), self.db, dependencies_callback);
+
+        node_idx
     }
 
     fn process_static(
         &mut self,
         static_hir: hir::Static,
-        _is_recursive: bool,
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        self.add_node(hir::ModuleDef::Static(static_hir))
+        let node_idx = None;
+
+        util::walk_and_push_ty(static_hir.ty(self.db), self.db, dependencies_callback);
+
+        node_idx
     }
 
-    fn process_trait(&mut self, trait_hir: hir::Trait, _is_recursive: bool) -> Option<NodeIndex> {
-        self.add_node(hir::ModuleDef::Trait(trait_hir))
+    fn process_trait(
+        &mut self,
+        trait_hir: hir::Trait,
+        _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
+    ) -> Option<NodeIndex> {
+        let node_idx = self.add_node(hir::ModuleDef::Trait(trait_hir));
+
+        // TODO: walk types?
+
+        #[allow(clippy::let_and_return)]
+        node_idx
     }
 
     fn process_trait_alias(
         &mut self,
         trait_alias_hir: hir::TraitAlias,
-        _is_recursive: bool,
+        _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        self.add_node(hir::ModuleDef::TraitAlias(trait_alias_hir))
+        let node_idx = self.add_node(hir::ModuleDef::TraitAlias(trait_alias_hir));
+
+        // TODO: walk types?
+
+        #[allow(clippy::let_and_return)]
+        node_idx
     }
 
     fn process_type_alias(
         &mut self,
         type_alias_hir: hir::TypeAlias,
-        _is_recursive: bool,
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        self.add_node(hir::ModuleDef::TypeAlias(type_alias_hir))
+        let node_idx = self.add_node(hir::ModuleDef::TypeAlias(type_alias_hir));
+
+        util::walk_and_push_ty(type_alias_hir.ty(self.db), self.db, dependencies_callback);
+
+        node_idx
     }
 
     fn process_builtin_type(
         &mut self,
         builtin_type_hir: hir::BuiltinType,
-        _is_recursive: bool,
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        self.add_node(hir::ModuleDef::BuiltinType(builtin_type_hir))
+        let node_idx = self.add_node(hir::ModuleDef::BuiltinType(builtin_type_hir));
+
+        util::walk_and_push_ty(builtin_type_hir.ty(self.db), self.db, dependencies_callback);
+
+        node_idx
     }
 
-    fn process_macro(&mut self, _macro_hir: hir::Macro, _is_recursive: bool) -> Option<NodeIndex> {
-        None
+    fn process_macro(
+        &mut self,
+        _macro_hir: hir::Macro,
+        _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
+    ) -> Option<NodeIndex> {
+        let node_idx = None;
+
+        // TODO: walk types?
+
+        #[allow(clippy::let_and_return)]
+        node_idx
     }
 
-    fn add_dependencies(&mut self, depender_idx: NodeIndex, dependencies: Vec<hir::ModuleDef>) {
+    fn add_dependencies<I>(&mut self, depender_idx: NodeIndex, dependencies: I)
+    where
+        I: IntoIterator<Item = hir::ModuleDef>,
+    {
         for dependency_hir in dependencies {
-            let Some(dependency_hir) = self.process_moduledef(dependency_hir, false) else {
+            let Some(dependency_hir) = self.add_node(dependency_hir) else {
                 continue;
             };
 
@@ -229,27 +358,6 @@ impl<'a> Builder<'a> {
 
             self.add_edge(depender_idx, dependency_hir, edge);
         }
-    }
-
-    fn dependencies_of_module(&self, module_hir: hir::Module) -> Vec<hir::ModuleDef> {
-        module_hir
-            .scope(self.db, None)
-            .into_iter()
-            .filter_map(move |(_name, scope_hir)| {
-                let hir::ScopeDef::ModuleDef(scope_module_hir) = scope_hir else {
-                    // Skip everything but module-defs:
-                    return None;
-                };
-
-                // Check if definition is a child of `module`:
-                if scope_module_hir.module(self.db) == Some(module_hir) {
-                    // Is a child, omit it:
-                    return None;
-                }
-
-                Some(scope_module_hir)
-            })
-            .collect()
     }
 
     fn add_node(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
@@ -274,7 +382,16 @@ impl<'a> Builder<'a> {
         }
     }
 
-    fn add_edge(&mut self, source_idx: NodeIndex, target_idx: NodeIndex, edge: Edge) -> EdgeIndex {
+    fn add_edge(
+        &mut self,
+        source_idx: NodeIndex,
+        target_idx: NodeIndex,
+        edge: Edge,
+    ) -> Option<EdgeIndex> {
+        if source_idx == target_idx {
+            return None;
+        }
+
         let edge_id = (source_idx, edge.kind, target_idx);
 
         // trace!(
@@ -285,7 +402,7 @@ impl<'a> Builder<'a> {
         // );
 
         // Check if we already added an equivalent edge:
-        match self.edges.get(&edge_id) {
+        let edge_idx = match self.edges.get(&edge_id) {
             Some(edge_idx) => {
                 // If we did indeed already process it, then retrieve its index:
                 *edge_idx
@@ -297,6 +414,8 @@ impl<'a> Builder<'a> {
 
                 edge_idx
             }
-        }
+        };
+
+        Some(edge_idx)
     }
 }
