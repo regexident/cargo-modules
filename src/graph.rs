@@ -11,7 +11,6 @@ pub(crate) mod edge;
 pub(super) mod filter;
 pub(crate) mod node;
 pub(crate) mod options;
-pub(super) mod orphans;
 pub(super) mod printer;
 pub(crate) mod util;
 pub(super) mod walker;

@@ -3,7 +3,6 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use hir::HasAttrs;
-
 use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_syntax::ast;
@@ -80,7 +79,7 @@ impl<'a> Filter<'a> {
         let subnode_contains_focus_node = node
             .subnodes
             .iter()
-            .map(|node| self.is_or_contains_focus_node(node, focus_tree));
+            .map(|node| Self::is_or_contains_focus_node(node, focus_tree));
 
         let is_or_contains_focus_node =
             is_focus_node || subnode_contains_focus_node.clone().any(|flag| flag);
@@ -117,14 +116,14 @@ impl<'a> Filter<'a> {
         Some(node)
     }
 
-    fn is_or_contains_focus_node(&self, node: &Node, focus_tree: &ast::UseTree) -> bool {
+    fn is_or_contains_focus_node(node: &Node, focus_tree: &ast::UseTree) -> bool {
         if util::use_tree_matches_item(focus_tree, &node.item) {
             return true;
         }
 
         node.subnodes
             .iter()
-            .any(|node| self.is_or_contains_focus_node(node, focus_tree))
+            .any(|node| Self::is_or_contains_focus_node(node, focus_tree))
     }
 
     fn should_retain_moduledef(&self, moduledef_hir: hir::ModuleDef) -> bool {

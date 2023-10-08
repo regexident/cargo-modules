@@ -19,12 +19,8 @@ use crate::{
     item::Item,
 };
 
-use super::orphans::add_orphan_nodes_to;
-
 #[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Options {
-    pub orphans: bool,
-}
+pub struct Options {}
 
 #[derive(Debug)]
 pub struct Builder<'a> {
@@ -117,10 +113,6 @@ impl<'a> Builder<'a> {
             };
 
             self.add_edge(module_idx, declaration_idx, edge);
-        }
-
-        if self.options.orphans {
-            add_orphan_nodes_to(&mut self.graph, module_idx);
         }
 
         self.add_dependencies(module_idx, self.dependencies_of_module(module_hir));

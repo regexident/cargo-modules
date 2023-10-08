@@ -8,7 +8,6 @@ pub mod options;
 
 pub(crate) mod graph;
 pub(crate) mod item;
-pub(crate) mod orphans;
 pub(crate) mod target;
 pub(crate) mod theme;
 pub(crate) mod tree;

@@ -72,14 +72,6 @@ pub mod selection {
         /// Exclude tests (e.g. `#[test] fn …`). [default]
         #[arg(long = "no-tests", action = ArgAction::SetFalse, overrides_with = "tests")]
         pub no_tests: (),
-
-        /// Include orphaned modules (i.e. unused files in /src).
-        #[arg(long = "orphans")]
-        pub orphans: bool,
-
-        /// Exclude orphaned modules (i.e. unused files in /src). [default]
-        #[arg(long = "no-orphans", action = ArgAction::SetFalse, overrides_with = "orphans")]
-        pub no_orphans: (),
     }
 }
 

@@ -7,6 +7,7 @@ pub(super) mod command;
 pub(super) mod filter;
 pub(crate) mod node;
 pub(super) mod options;
+pub(super) mod orphans;
 pub(crate) mod printer;
 
 #[derive(Clone, PartialEq, Debug)]

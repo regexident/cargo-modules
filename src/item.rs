@@ -152,4 +152,8 @@ impl Item {
 
         module.is_crate_root()
     }
+
+    pub(crate) fn is_file(&self) -> bool {
+        self.file_path.is_some()
+    }
 }

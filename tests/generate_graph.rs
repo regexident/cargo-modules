@@ -156,24 +156,6 @@ mod negative_args {
         }
 
         #[test]
-        fn orphans() {
-            for command in ["tree", "graph"] {
-                for (args, expected) in args_for(command, "orphans", false) {
-                    let app = App::parse_from(&args);
-
-                    let Generate {
-                        cmd: Command::Graph(cmd),
-                    } = app.command
-                    else {
-                        continue;
-                    };
-
-                    assert_eq!(cmd.selection.orphans, expected, "{:?}", args);
-                }
-            }
-        }
-
-        #[test]
         fn tests() {
             for command in ["tree", "graph"] {
                 for (args, expected) in args_for(command, "tests", false) {
@@ -489,16 +471,6 @@ mod package_bin {
             ]
         );
     }
-}
-
-mod orphans {
-    test_cmd!(
-        args: "generate graph \
-                --orphans",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
 }
 
 mod tests {

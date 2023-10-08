@@ -101,7 +101,7 @@ impl Command {
             #[allow(unused_variables)]
             Self::Tree(options) => {
                 let builder_options = TreeBuilderOptions {
-                    orphans: options.selection.orphans,
+                    orphans: options.orphans,
                 };
                 let filter_options = TreeFilterOptions {
                     focus_on: options.selection.focus_on.clone(),
@@ -124,9 +124,7 @@ impl Command {
             }
             #[allow(unused_variables)]
             Self::Graph(options) => {
-                let builder_options = GraphBuilderOptions {
-                    orphans: options.selection.orphans,
-                };
+                let builder_options = GraphBuilderOptions {};
                 let filter_options = GraphFilterOptions {
                     focus_on: options.selection.focus_on.clone(),
                     max_depth: options.selection.max_depth,

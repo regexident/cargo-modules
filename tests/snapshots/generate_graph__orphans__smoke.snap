@@ -47,8 +47,6 @@ digraph {
     "smoke::hierarchy::lorem::dolor::sit::amet" [label="pub(self) mod|hierarchy::lorem::dolor::sit::amet", fillcolor="#db5367"]; // "mod" node
     "smoke::hierarchy::lorem::ipsum" [label="pub(self) mod|hierarchy::lorem::ipsum", fillcolor="#db5367"]; // "mod" node
     "smoke::orphans" [label="pub(crate) mod|orphans", fillcolor="#f8c04c"]; // "mod" node
-    "smoke::orphans::bar" [label="orphan mod|orphans::bar", fillcolor="#ba6fa7"]; // "orphan" node
-    "smoke::orphans::foo" [label="orphan mod|orphans::foo", fillcolor="#ba6fa7"]; // "orphan" node
     "smoke::uses" [label="pub(crate) mod|uses", fillcolor="#f8c04c"]; // "mod" node
     "smoke::uses::cycle" [label="pub(self) mod|uses::cycle", fillcolor="#db5367"]; // "mod" node
     "smoke::uses::cycle::node_0" [label="pub(self) mod|uses::cycle::node_0", fillcolor="#db5367"]; // "mod" node
@@ -82,8 +80,6 @@ digraph {
     "smoke::hierarchy::lorem::consectetur::adipiscing" -> "smoke::hierarchy::lorem::consectetur::adipiscing::elit" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::hierarchy::lorem::dolor" -> "smoke::hierarchy::lorem::dolor::sit" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::hierarchy::lorem::dolor::sit" -> "smoke::hierarchy::lorem::dolor::sit::amet" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::orphans" -> "smoke::orphans::bar" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::orphans" -> "smoke::orphans::foo" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::uses" -> "smoke::uses::cycle" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::uses::cycle" -> "smoke::uses::cycle::node_0" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::uses::cycle" -> "smoke::uses::cycle::node_1" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
