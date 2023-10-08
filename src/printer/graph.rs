@@ -16,9 +16,10 @@ use ra_ap_ide::RootDatabase;
 use crate::{
     graph::{
         edge::{Edge, EdgeKind},
-        node::{visibility::NodeVisibility, Node},
+        node::Node,
         util, Graph,
     },
+    item::visibility::ItemVisibility,
     theme::graph::{edge_styles, node_styles},
 };
 
@@ -130,7 +131,7 @@ impl<'a> Printer<'a> {
             .map(|node_ref| {
                 let node: &Node = node_ref.weight();
 
-                let id = node.path.join("::");
+                let id = node.item.path.join("::");
                 let kind = node
                     .kind_display_name(self.db)
                     .unwrap_or_else(|| "orphan".to_owned());
@@ -159,8 +160,8 @@ impl<'a> Printer<'a> {
             let edge = &graph[edge_idx];
             let (source_idx, target_idx) = graph.edge_endpoints(edge_idx).unwrap();
 
-            let source = graph[source_idx].path.join("::");
-            let target = graph[target_idx].path.join("::");
+            let source = graph[source_idx].item.path.join("::");
+            let target = graph[target_idx].item.path.join("::");
 
             let kind = edge.kind.display_name();
 
@@ -198,13 +199,13 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_header(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let is_external = node.krate != Some(self.member_krate.clone());
+        let is_external = node.item.krate != Some(self.member_krate.clone());
 
-        let visibility = match &node.visibility {
+        let visibility = match &node.item.visibility {
             Some(visibility) => {
                 if is_external {
                     Some("external".to_owned())
-                } else if node.is_crate(self.db) {
+                } else if node.item.is_crate(self.db) {
                     None
                 } else {
                     Some(format!("{visibility}"))
@@ -227,12 +228,12 @@ impl<'a> Printer<'a> {
     fn fmt_node_body(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
         let path = if self.options.full_paths {
             // If we explicitly want full paths, return it unaltered:
-            node.path.join("::")
-        } else if node.path.len() > 1 {
+            node.item.path.join("::")
+        } else if node.item.path.len() > 1 {
             // Otherwise try to drop the crate-name from the path:
-            node.path[1..].join("::")
+            node.item.path[1..].join("::")
         } else {
-            node.path.join("::")
+            node.item.path.join("::")
         };
 
         write!(f, "{path}")
@@ -241,18 +242,18 @@ impl<'a> Printer<'a> {
     fn node_attributes(&self, node: &Node) -> String {
         let styles = node_styles();
 
-        let style = match node.hir {
+        let style = match node.item.hir {
             Some(_) => {
-                if node.is_crate(self.db) {
+                if node.item.is_crate(self.db) {
                     styles.krate
                 } else {
-                    match &node.visibility {
+                    match &node.item.visibility {
                         Some(visibility) => match visibility {
-                            NodeVisibility::Crate => styles.visibility.pub_crate,
-                            NodeVisibility::Module(_) => styles.visibility.pub_module,
-                            NodeVisibility::Private => styles.visibility.pub_private,
-                            NodeVisibility::Public => styles.visibility.pub_global,
-                            NodeVisibility::Super => styles.visibility.pub_super,
+                            ItemVisibility::Crate => styles.visibility.pub_crate,
+                            ItemVisibility::Module(_) => styles.visibility.pub_module,
+                            ItemVisibility::Private => styles.visibility.pub_private,
+                            ItemVisibility::Public => styles.visibility.pub_global,
+                            ItemVisibility::Super => styles.visibility.pub_super,
                         },
                         None => styles.visibility.pub_global,
                     }

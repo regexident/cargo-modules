@@ -14,21 +14,22 @@ use petgraph::{graph::NodeIndex, visit::EdgeRef};
 use crate::{
     graph::{
         edge::{Edge, EdgeKind},
-        node::{attr::NodeAttrs, Node},
+        node::Node,
         Graph,
     },
+    item::{attr::ItemAttrs, Item},
     orphans::PossibleOrphansIterator,
 };
 
 pub(crate) fn add_orphan_nodes_to(graph: &mut Graph, module_idx: NodeIndex) {
     let module_node = graph[module_idx].clone();
 
-    trace!("Searching for orphans of {:?}", module_node.path);
+    trace!("Searching for orphans of {:?}", module_node.item.path);
 
-    let file_path_buf = match &module_node.file_path {
+    let file_path_buf = match &module_node.item.file_path {
         Some(file_path) => file_path.clone(),
         None => {
-            debug!("Module {:?} is not at file-level", module_node.path);
+            debug!("Module {:?} is not at file-level", module_node.item.path);
             return;
         }
     };
@@ -39,7 +40,7 @@ pub(crate) fn add_orphan_nodes_to(graph: &mut Graph, module_idx: NodeIndex) {
         None => {
             debug!(
                 "Could not obtain module directory path for {:?}",
-                module_node.path
+                module_node.item.path
             );
             return;
         }
@@ -54,14 +55,17 @@ pub(crate) fn add_orphan_nodes_to(graph: &mut Graph, module_idx: NodeIndex) {
         .collect();
 
     if !dir_path.exists() {
-        debug!("Module directory for {:?} not found", module_node.path);
+        debug!("Module directory for {:?} not found", module_node.item.path);
         return;
     }
 
     let read_dir = match fs::read_dir(dir_path) {
         Ok(read_dir) => read_dir,
         Err(_) => {
-            debug!("Module directory for {:?} not readable", module_node.path);
+            debug!(
+                "Module directory for {:?} not readable",
+                module_node.item.path
+            );
             return;
         }
     };
@@ -92,9 +96,9 @@ fn add_orphan_node(
     let module_node = &graph[module_idx];
 
     let orphan_node = {
-        let krate = module_node.krate.clone();
+        let krate = module_node.item.krate.clone();
         let path = {
-            let mut path = module_node.path.clone();
+            let mut path = module_node.item.path.clone();
             path.push(orphan_name.to_owned());
             path
         };
@@ -104,17 +108,19 @@ fn add_orphan_node(
         let attrs = {
             let cfgs = vec![];
             let test = None;
-            NodeAttrs { cfgs, test }
+            ItemAttrs { cfgs, test }
         };
 
-        Node {
+        let item = Item {
             krate,
             path,
             file_path,
             hir,
             visibility,
             attrs,
-        }
+        };
+
+        Node::new(item)
     };
 
     let orphan_idx = graph.add_node(orphan_node);

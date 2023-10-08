@@ -18,9 +18,10 @@ use yansi::Style;
 use crate::{
     graph::{
         edge::{Edge, EdgeKind},
-        node::{visibility::NodeVisibility, Node},
+        node::Node,
         Graph,
     },
+    item::visibility::ItemVisibility,
     theme::tree::styles,
 };
 
@@ -115,7 +116,7 @@ impl<'a> Printer<'a> {
         write!(f, " ")?;
         self.fmt_node_name(f, node)?;
 
-        if node.is_crate(self.db) {
+        if node.item.is_crate(self.db) {
             return Ok(());
         }
 
@@ -123,7 +124,7 @@ impl<'a> Printer<'a> {
         write!(f, " ")?;
         self.fmt_node_visibility(f, node)?;
 
-        if !node.attrs.is_empty() {
+        if !node.item.attrs.is_empty() {
             write!(f, " ")?;
             self.fmt_node_attrs(f, node)?;
         }
@@ -154,7 +155,7 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_visibility(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let (visibility, visibility_style) = match &node.visibility {
+        let (visibility, visibility_style) = match &node.item.visibility {
             Some(visibility) => {
                 let visibility_style = self.visibility_style(visibility);
                 (format!("{visibility}"), visibility_style)
@@ -186,7 +187,7 @@ impl<'a> Printer<'a> {
 
         let mut is_first = true;
 
-        if let Some(test_attr) = &node.attrs.test {
+        if let Some(test_attr) = &node.item.attrs.test {
             let prefix = attr_chrome_style.paint("#[");
             let cfg = attr_style.paint(test_attr);
             let suffix = attr_chrome_style.paint("]");
@@ -199,7 +200,7 @@ impl<'a> Printer<'a> {
         let attr_chrome_style = self.attr_chrome_style();
         let attr_style = self.attr_style();
 
-        for cfg in &node.attrs.cfgs[..] {
+        for cfg in &node.item.attrs.cfgs[..] {
             if !is_first {
                 write!(f, ", ")?;
             }
@@ -291,15 +292,15 @@ impl<'a> Printer<'a> {
         styles.kind
     }
 
-    fn visibility_style(&self, visibility: &NodeVisibility) -> Style {
+    fn visibility_style(&self, visibility: &ItemVisibility) -> Style {
         let styles = styles().visibility;
 
         match visibility {
-            NodeVisibility::Crate => styles.pub_crate,
-            NodeVisibility::Module(_) => styles.pub_module,
-            NodeVisibility::Private => styles.pub_private,
-            NodeVisibility::Public => styles.pub_global,
-            NodeVisibility::Super => styles.pub_super,
+            ItemVisibility::Crate => styles.pub_crate,
+            ItemVisibility::Module(_) => styles.pub_module,
+            ItemVisibility::Private => styles.pub_private,
+            ItemVisibility::Public => styles.pub_global,
+            ItemVisibility::Super => styles.pub_super,
         }
     }
 

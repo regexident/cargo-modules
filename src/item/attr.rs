@@ -7,7 +7,7 @@ use std::fmt;
 use ra_ap_cfg::{CfgAtom, CfgExpr};
 
 #[derive(Clone, PartialEq, Debug)]
-pub enum NodeCfgAttr {
+pub enum ItemCfgAttr {
     Flag(String),
     KeyValue(String, String),
     All(Vec<Self>),
@@ -15,7 +15,7 @@ pub enum NodeCfgAttr {
     Not(Box<Self>),
 }
 
-impl NodeCfgAttr {
+impl ItemCfgAttr {
     pub fn new(cfg: CfgExpr) -> Option<Self> {
         match cfg {
             CfgExpr::Invalid => None,
@@ -30,9 +30,9 @@ impl NodeCfgAttr {
     }
 }
 
-impl fmt::Display for NodeCfgAttr {
+impl fmt::Display for ItemCfgAttr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fn fmt_cfgs(f: &mut fmt::Formatter<'_>, cfgs: &[NodeCfgAttr]) -> fmt::Result {
+        fn fmt_cfgs(f: &mut fmt::Formatter<'_>, cfgs: &[ItemCfgAttr]) -> fmt::Result {
             let mut is_first = true;
             for cfg in cfgs {
                 if !is_first {
@@ -73,21 +73,21 @@ impl fmt::Display for NodeCfgAttr {
 }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
-pub struct NodeTestAttr;
+pub struct ItemTestAttr;
 
-impl fmt::Display for NodeTestAttr {
+impl fmt::Display for ItemTestAttr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "test")
     }
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct NodeAttrs {
-    pub cfgs: Vec<NodeCfgAttr>,
-    pub test: Option<NodeTestAttr>,
+pub struct ItemAttrs {
+    pub cfgs: Vec<ItemCfgAttr>,
+    pub test: Option<ItemTestAttr>,
 }
 
-impl NodeAttrs {
+impl ItemAttrs {
     pub fn is_empty(&self) -> bool {
         self.test.is_none() && self.cfgs.is_empty()
     }
