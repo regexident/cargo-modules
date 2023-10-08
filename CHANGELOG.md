@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Refactored project, giving each `generate` command its own independent implementation
+- Refactored and simplified orphan detection logic
 
 ### Deprecated
 
@@ -32,7 +33,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Removed
 
-- n/a
+- Support for `--orphans`/`--no-orphans` for `generate graph` command
 
 ### Fixed
 
