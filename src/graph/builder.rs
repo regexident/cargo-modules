@@ -2,14 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::collections::HashMap;
 
 use log::trace;
 use petgraph::graph::{EdgeIndex, NodeIndex};
-use ra_ap_hir::{self as hir, Crate, ModuleSource};
+use ra_ap_hir::{self as hir, Crate};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
 
@@ -19,11 +16,7 @@ use crate::{
         node::Node,
         util, Graph,
     },
-    item::{
-        attr::{ItemAttrs, ItemCfgAttr, ItemTestAttr},
-        visibility::ItemVisibility,
-        Item,
-    },
+    item::Item,
 };
 
 use super::orphans::add_orphan_nodes_to;

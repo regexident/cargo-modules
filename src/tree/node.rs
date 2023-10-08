@@ -13,11 +13,8 @@ pub struct Node {
 }
 
 impl Node {
-    pub fn new(item: Item) -> Self {
-        Self {
-            item,
-            subnodes: vec![],
-        }
+    pub fn new(item: Item, subnodes: Vec<Node>) -> Self {
+        Self { item, subnodes }
     }
 
     pub fn push_subnode(&mut self, subnode: Node) {

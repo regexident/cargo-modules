@@ -47,7 +47,7 @@ impl<'a> Filter<'a> {
         Self { options, db, krate }
     }
 
-    pub fn filter(self, graph: &Graph, root_idx: NodeIndex) -> anyhow::Result<Graph> {
+    pub fn filter(&self, graph: &Graph, root_idx: NodeIndex) -> anyhow::Result<Graph> {
         const ROOT_DROP_ERR_MSG: &str = "Root module should not be dropped";
 
         let mut graph = graph.clone();
@@ -68,16 +68,7 @@ impl<'a> Filter<'a> {
             .node_indices()
             .filter(|node_idx| {
                 let node = &graph[*node_idx];
-                let node_path_segments = &node.item.path[..];
-                if node_path_segments.is_empty() {
-                    return false;
-                }
-                let node_path: ast::Path = {
-                    let focus_on = node_path_segments.join("::");
-                    let syntax = format!("use {focus_on};");
-                    util::parse_ast(&syntax)
-                };
-                util::use_tree_matches_path(&use_tree, &node_path)
+                util::use_tree_matches_item(&use_tree, &node.item)
             })
             .collect();
 
