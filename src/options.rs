@@ -25,11 +25,11 @@ impl App {
     }
 }
 
-pub mod graph {
+pub mod selection {
     use super::*;
 
     #[derive(Parser, Clone, PartialEq, Eq, Debug)]
-    #[group(id = "GraphOptions")]
+    #[group(id = "SelectionOptions")]
     pub struct Options {
         /// Focus the graph on a particular path or use-tree's environment,
         /// e.g. "foo:bar::{self, baz, blee::*}".
@@ -132,7 +132,7 @@ pub mod generate {
         }
 
         #[derive(Parser, Clone, PartialEq, Eq, Debug)]
-        #[group(id = "GenerateGraphOptions")]
+        #[group(id = "GenerateSelectionOptions")]
         pub struct Options {
             #[command(flatten)]
             pub general: crate::options::general::Options,
@@ -141,7 +141,7 @@ pub mod generate {
             pub project: crate::options::project::Options,
 
             #[command(flatten)]
-            pub graph: crate::options::graph::Options,
+            pub selection: crate::options::selection::Options,
 
             /// Require graph to be acyclic
             #[arg(long = "acyclic", action = ArgAction::SetTrue, conflicts_with = "focus_on")]
@@ -201,7 +201,7 @@ pub mod generate {
             pub project: crate::options::project::Options,
 
             #[command(flatten)]
-            pub graph: crate::options::graph::Options,
+            pub selection: crate::options::selection::Options,
         }
     }
 }

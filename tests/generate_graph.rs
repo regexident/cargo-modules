@@ -150,7 +150,7 @@ mod negative_args {
                         continue;
                     };
 
-                    assert_eq!(cmd.graph.fns, expected, "{:?}", args);
+                    assert_eq!(cmd.selection.fns, expected, "{:?}", args);
                 }
             }
         }
@@ -168,7 +168,7 @@ mod negative_args {
                         continue;
                     };
 
-                    assert_eq!(cmd.graph.orphans, expected, "{:?}", args);
+                    assert_eq!(cmd.selection.orphans, expected, "{:?}", args);
                 }
             }
         }
@@ -186,7 +186,7 @@ mod negative_args {
                         continue;
                     };
 
-                    assert_eq!(cmd.graph.tests, expected, "{:?}", args);
+                    assert_eq!(cmd.selection.tests, expected, "{:?}", args);
                 }
             }
         }
@@ -204,7 +204,7 @@ mod negative_args {
                         continue;
                     };
 
-                    assert_eq!(cmd.graph.types, expected, "{:?}", args);
+                    assert_eq!(cmd.selection.types, expected, "{:?}", args);
                 }
             }
         }

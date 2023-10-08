@@ -28,8 +28,8 @@ use crate::{
         Graph,
     },
     options::{
-        general::Options as GeneralOptions, graph::Options as GraphOptions,
-        project::Options as ProjectOptions,
+        general::Options as GeneralOptions, project::Options as ProjectOptions,
+        selection::Options as SelectionOptions,
     },
     target::{select_package, select_target},
 };
@@ -55,7 +55,7 @@ pub enum Command {
 
 impl Command {
     pub(crate) fn sanitize(&mut self) {
-        if self.graph_options().tests && !self.project_options().cfg_test {
+        if self.selection_options().tests && !self.project_options().cfg_test {
             debug!("Enabling `--cfg-test`, which is implied by `--tests`");
             self.project_options_mut().cfg_test = true;
         }
@@ -337,28 +337,28 @@ impl Command {
         }
     }
 
-    fn graph_options(&self) -> &GraphOptions {
+    fn selection_options(&self) -> &SelectionOptions {
         match self {
-            Self::Tree(options) => &options.graph,
-            Self::Graph(options) => &options.graph,
+            Self::Tree(options) => &options.selection,
+            Self::Graph(options) => &options.selection,
         }
     }
 
     #[allow(dead_code)]
-    fn graph_options_mut(&mut self) -> &mut GraphOptions {
+    fn selection_options_mut(&mut self) -> &mut SelectionOptions {
         match self {
-            Self::Tree(options) => &mut options.graph,
-            Self::Graph(options) => &mut options.graph,
+            Self::Tree(options) => &mut options.selection,
+            Self::Graph(options) => &mut options.selection,
         }
     }
 
     fn builder_options(&self) -> GraphBuilderOptions {
         match self {
             Self::Tree(options) => GraphBuilderOptions {
-                orphans: options.graph.orphans,
+                orphans: options.selection.orphans,
             },
             Self::Graph(options) => GraphBuilderOptions {
-                orphans: options.graph.orphans,
+                orphans: options.selection.orphans,
             },
         }
     }
@@ -366,25 +366,25 @@ impl Command {
     fn filter_options(&self) -> GraphFilterOptions {
         match self {
             Self::Tree(options) => GraphFilterOptions {
-                focus_on: options.graph.focus_on.clone(),
-                max_depth: options.graph.max_depth,
+                focus_on: options.selection.focus_on.clone(),
+                max_depth: options.selection.max_depth,
                 acyclic: false,
                 modules: true,
-                types: options.graph.types,
-                traits: options.graph.traits,
-                fns: options.graph.fns,
-                tests: options.graph.tests,
+                types: options.selection.types,
+                traits: options.selection.traits,
+                fns: options.selection.fns,
+                tests: options.selection.tests,
                 uses: false,
                 externs: false,
             },
             Self::Graph(options) => GraphFilterOptions {
-                focus_on: options.graph.focus_on.clone(),
-                max_depth: options.graph.max_depth,
+                focus_on: options.selection.focus_on.clone(),
+                max_depth: options.selection.max_depth,
                 acyclic: options.acyclic,
-                types: options.graph.types,
-                traits: options.graph.traits,
-                fns: options.graph.fns,
-                tests: options.graph.tests,
+                types: options.selection.types,
+                traits: options.selection.traits,
+                fns: options.selection.fns,
+                tests: options.selection.tests,
                 modules: options.modules,
                 uses: options.uses,
                 externs: options.externs,
