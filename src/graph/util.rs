@@ -67,7 +67,7 @@ where
     nodes_to_keep
 }
 
-pub(crate) fn krate_name(krate: hir::Crate, db: &RootDatabase) -> String {
+pub(crate) fn crate_name(krate: hir::Crate, db: &RootDatabase) -> String {
     // Obtain the crate's declaration name:
     let display_name = &krate.display_name(db).unwrap();
 
@@ -96,8 +96,8 @@ pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> String {
     let krate = krate(module_def, db);
 
     // Obtain the module's krate's name (unless it's a builtin type, which have no crate):
-    if let Some(krate_name) = krate.map(|krate| krate_name(krate, db)) {
-        path.push_str(krate_name.as_str());
+    if let Some(crate_name) = krate.map(|krate| crate_name(krate, db)) {
+        path.push_str(crate_name.as_str());
     }
 
     // Obtain the module's canonicalized name:
