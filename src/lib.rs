@@ -12,3 +12,4 @@ pub(crate) mod orphans;
 pub(crate) mod printer;
 pub(crate) mod target;
 pub(crate) mod theme;
+pub(crate) mod tree;
