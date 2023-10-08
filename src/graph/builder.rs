@@ -13,14 +13,17 @@ use ra_ap_hir::{self as hir, Crate, ModuleSource};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
 
-use crate::graph::{
-    edge::{Edge, EdgeKind},
-    node::{
-        attr::{NodeAttrs, NodeCfgAttr, NodeTestAttr},
-        visibility::NodeVisibility,
-        Node,
+use crate::{
+    graph::{
+        edge::{Edge, EdgeKind},
+        node::Node,
+        util, Graph,
     },
-    util, Graph,
+    item::{
+        attr::{ItemAttrs, ItemCfgAttr, ItemTestAttr},
+        visibility::ItemVisibility,
+        Item,
+    },
 };
 
 use super::orphans::add_orphan_nodes_to;
@@ -347,39 +350,41 @@ impl<'a> Builder<'a> {
 
         let hir = Some(moduledef_hir);
 
-        let visibility = Some(NodeVisibility::new(moduledef_hir, self.db));
+        let visibility = Some(ItemVisibility::new(moduledef_hir, self.db));
 
         let attrs = {
             let cfgs: Vec<_> = self.cfg_attrs(moduledef_hir);
             let test = self.test_attr(moduledef_hir);
-            NodeAttrs { cfgs, test }
+            ItemAttrs { cfgs, test }
         };
 
-        Some(Node {
+        let item = Item {
             krate,
             path,
             file_path,
             hir,
             visibility,
             attrs,
-        })
+        };
+
+        Some(Node::new(item))
     }
 
-    fn cfg_attrs(&self, moduledef_hir: hir::ModuleDef) -> Vec<NodeCfgAttr> {
+    fn cfg_attrs(&self, moduledef_hir: hir::ModuleDef) -> Vec<ItemCfgAttr> {
         util::cfgs(moduledef_hir, self.db)
             .into_iter()
-            .filter_map(NodeCfgAttr::new)
+            .filter_map(ItemCfgAttr::new)
             .collect()
     }
 
-    fn test_attr(&self, moduledef_hir: hir::ModuleDef) -> Option<NodeTestAttr> {
+    fn test_attr(&self, moduledef_hir: hir::ModuleDef) -> Option<ItemTestAttr> {
         let function = match moduledef_hir {
             hir::ModuleDef::Function(function) => function,
             _ => return None,
         };
 
         if util::is_test_function(function, self.db) {
-            Some(NodeTestAttr)
+            Some(ItemTestAttr)
         } else {
             None
         }

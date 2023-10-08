@@ -68,7 +68,7 @@ impl<'a> Filter<'a> {
             .node_indices()
             .filter(|node_idx| {
                 let node = &graph[*node_idx];
-                let node_path_segments = &node.path[..];
+                let node_path_segments = &node.item.path[..];
                 if node_path_segments.is_empty() {
                     return false;
                 }
@@ -115,7 +115,7 @@ impl<'a> Filter<'a> {
         while let Some(node_idx) = stack.pop() {
             let node = &graph[node_idx];
 
-            let Some(moduledef_hir) = node.hir else {
+            let Some(moduledef_hir) = node.item.hir else {
                 continue;
             };
 

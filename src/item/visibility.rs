@@ -8,7 +8,7 @@ use ra_ap_hir::{self as hir, HasVisibility};
 use ra_ap_ide_db::RootDatabase;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
-pub enum NodeVisibility {
+pub enum ItemVisibility {
     Crate,
     Module(String),
     Private,
@@ -16,7 +16,7 @@ pub enum NodeVisibility {
     Super,
 }
 
-impl NodeVisibility {
+impl ItemVisibility {
     pub fn new(hir: hir::ModuleDef, db: &RootDatabase) -> Self {
         let visibility = hir.visibility(db);
 
@@ -50,14 +50,14 @@ impl NodeVisibility {
     }
 }
 
-impl fmt::Display for NodeVisibility {
+impl fmt::Display for ItemVisibility {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            NodeVisibility::Crate => write!(f, "pub(crate)"),
-            NodeVisibility::Module(path) => write!(f, "pub(in crate::{path})"),
-            NodeVisibility::Private => write!(f, "pub(self)"),
-            NodeVisibility::Public => write!(f, "pub"),
-            NodeVisibility::Super => write!(f, "pub(super)"),
+            ItemVisibility::Crate => write!(f, "pub(crate)"),
+            ItemVisibility::Module(path) => write!(f, "pub(in crate::{path})"),
+            ItemVisibility::Private => write!(f, "pub(self)"),
+            ItemVisibility::Public => write!(f, "pub"),
+            ItemVisibility::Super => write!(f, "pub(super)"),
         }
     }
 }

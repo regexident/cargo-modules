@@ -46,7 +46,7 @@ pub(crate) fn color_palette() -> ColorPalette {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct NodeVisibilityStyles {
+pub(crate) struct ItemVisibilityStyles {
     pub pub_crate: NodeStyle,
     pub pub_module: NodeStyle,
     pub pub_private: NodeStyle,
@@ -69,7 +69,7 @@ impl NodeStyle {
 pub(crate) struct NodeStyles {
     #[allow(dead_code)]
     pub krate: NodeStyle,
-    pub visibility: NodeVisibilityStyles,
+    pub visibility: ItemVisibilityStyles,
     pub orphan: NodeStyle,
     #[allow(dead_code)]
     pub test: NodeStyle,
@@ -79,7 +79,7 @@ pub(crate) fn node_styles() -> NodeStyles {
     let color_palette = color_palette();
     NodeStyles {
         krate: NodeStyle::new(color_palette.blue),
-        visibility: NodeVisibilityStyles {
+        visibility: ItemVisibilityStyles {
             pub_crate: NodeStyle::new(color_palette.yellow),
             pub_module: NodeStyle::new(color_palette.orange),
             pub_private: NodeStyle::new(color_palette.red),
