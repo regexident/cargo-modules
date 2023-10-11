@@ -30,6 +30,7 @@ Please make sure to add your changes to the appropriate categories:
 - Updated dependencies:
   - `insta` from `1.33.0` to `1.34.0`
   - `proc-macro2` from `1.0.67` to `1.0.69`
+  - `rust-analyzer` from `0.0.177` to `0.0.178`
 
 ### Deprecated
 
