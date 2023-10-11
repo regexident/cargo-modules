@@ -20,17 +20,11 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- Added support for type and trait aliases.
-- Added support for extracting "uses" edges for a type's field dependencies.
+- n/a
 
 ### Changed
 
-- Refactored project, giving each `generate` command its own independent implementation
-- Refactored and simplified orphan detection logic
-- Updated dependencies:
-  - `insta` from `1.33.0` to `1.34.0`
-  - `proc-macro2` from `1.0.67` to `1.0.69`
-  - `rust-analyzer` from `0.0.177` to `0.0.178`
+- n/a
 
 ### Deprecated
 
@@ -38,7 +32,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Removed
 
-- Support for `--orphans`/`--no-orphans` for `generate graph` command
+- n/a
 
 ### Fixed
 
@@ -55,6 +49,26 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.10.0] - 2023-10-12
+
+### Added
+
+- Added support for type and trait aliases.
+- Added support for extracting "uses" edges for a type's field dependencies.
+
+### Changed
+
+- Refactored project, giving each `generate` command its own independent implementation
+- Refactored and simplified orphan detection logic
+- Updated dependencies:
+  - `insta` from `1.33.0` to `1.34.0`
+  - `proc-macro2` from `1.0.67` to `1.0.69`
+  - `rust-analyzer` from `0.0.177` to `0.0.178`
+
+### Removed
+
+- Support for `--orphans`/`--no-orphans` for `generate graph` command
 
 ## [0.9.4] - 2023-10-06
 
