@@ -27,6 +27,9 @@ Please make sure to add your changes to the appropriate categories:
 
 - Refactored project, giving each `generate` command its own independent implementation
 - Refactored and simplified orphan detection logic
+- Updated dependencies:
+  - `insta` from `1.33.0` to `1.34.0`
+  - `proc-macro2` from `1.0.67` to `1.0.69`
 
 ### Deprecated
 
