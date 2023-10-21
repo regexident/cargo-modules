@@ -202,6 +202,8 @@ impl Command {
 
         let extra_args = vec![];
 
+        let target_dir = None;
+
         CargoConfig {
             features,
             target,
@@ -215,6 +217,7 @@ impl Command {
             invocation_location,
             sysroot_src,
             extra_args,
+            target_dir,
         }
     }
 
