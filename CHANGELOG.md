@@ -26,6 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.178` to `0.0.181`
+  - `bitflags` from `2.4.0` to `2.4.1`
 
 ### Deprecated
 
