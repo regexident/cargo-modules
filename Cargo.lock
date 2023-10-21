@@ -115,9 +115,9 @@ checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
 name = "bitflags"
-version = "2.4.0"
+version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4682ae6287fcf752ecaabbfcc7b6f9b72aa33933dc23a554d853aea8eea8635"
+checksum = "327762f6e5a765692301e5bb513e0d9fef63be86bbc14528052b1cd3e6f03e07"
 
 [[package]]
 name = "bitvec"
@@ -158,7 +158,7 @@ version = "0.10.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
- "bitflags 2.4.0",
+ "bitflags 2.4.1",
  "bitvec",
  "clap",
  "crossbeam-channel",
@@ -882,7 +882,7 @@ version = "6.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6205bd8bb1e454ad2e27422015fb5e4f2bcc7e08fa8f27058670d208324a4d2d"
 dependencies = [
- "bitflags 2.4.0",
+ "bitflags 2.4.1",
  "crossbeam-channel",
  "filetime",
  "fsevent-sys",
@@ -1183,7 +1183,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e70f63286cf758c5a3bb2450022ae340cc58c5b66a567977615605ee9d4a95bd"
 dependencies = [
  "arrayvec",
- "bitflags 2.4.0",
+ "bitflags 2.4.1",
  "cov-mark",
  "dashmap",
  "drop_bomb",
@@ -1244,7 +1244,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0263048ca33f5737a48b67a8b471f3e2a85af2d82d33c1f78c7af46a2cfde46f"
 dependencies = [
  "arrayvec",
- "bitflags 2.4.0",
+ "bitflags 2.4.1",
  "chalk-derive",
  "chalk-ir",
  "chalk-recursive",
