@@ -32,7 +32,7 @@ pub mod selection {
     #[group(id = "SelectionOptions")]
     pub struct Options {
         /// Focus the graph on a particular path or use-tree's environment,
-        /// e.g. "foo:bar::{self, baz, blee::*}".
+        /// e.g. "foo::bar::{self, baz, blee::*}".
         #[arg(long = "focus-on")]
         pub focus_on: Option<String>,
 
