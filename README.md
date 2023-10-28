@@ -50,7 +50,7 @@ Options:
       --sysroot                        Include sysroot crates (`std`, `core` & friends) in analysis
       --no-sysroot                     Exclude sysroot crates (`std`, `core` & friends) in analysis. [default]
       --manifest-path <MANIFEST_PATH>  Path to Cargo.toml [default: .]
-      --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo:bar::{self, baz, blee::*}"
+      --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo::bar::{self, baz, blee::*}"
       --max-depth <MAX_DEPTH>          The maximum depth of the generated graph relative to the crate's root node, or nodes selected by '--focus-on'
       --types                          Include types (e.g. structs, unions, enums)
       --no-types                       Exclude types (e.g. structs, unions, enums). [default]
@@ -120,7 +120,7 @@ Options:
       --sysroot                        Include sysroot crates (`std`, `core` & friends) in analysis
       --no-sysroot                     Exclude sysroot crates (`std`, `core` & friends) in analysis. [default]
       --manifest-path <MANIFEST_PATH>  Path to Cargo.toml [default: .]
-      --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo:bar::{self, baz, blee::*}"
+      --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo::bar::{self, baz, blee::*}"
       --max-depth <MAX_DEPTH>          The maximum depth of the generated graph relative to the crate's root node, or nodes selected by '--focus-on'
       --types                          Include types (e.g. structs, unions, enums)
       --no-types                       Exclude types (e.g. structs, unions, enums). [default]
