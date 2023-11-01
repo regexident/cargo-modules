@@ -24,9 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.182` to `0.0.183`
-  - `serde_repr` from `0.1.16` to `0.1.17`
+- n/a
 
 ### Deprecated
 
@@ -51,6 +49,14 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.10.3] - 2023-11-01
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.182` to `0.0.183`
+  - `serde_repr` from `0.1.16` to `0.1.17`
 
 ## [0.10.2] - 2023-10-25
 
