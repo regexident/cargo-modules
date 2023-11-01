@@ -40,7 +40,7 @@ ra_ap_text_edit = "=0.0.183"
 ra_ap_vfs = "=0.0.183"
 
 # minimal versions
-serde_repr = "0.1.16"
+serde_repr = "0.1.17"
 tap = "1.0.1"
 wyz = "0.6.1"
 proc-macro2 = "1.0.69"
