@@ -26,6 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.182` to `0.0.183`
+  - `serde_repr` from `0.1.16` to `0.1.17`
 
 ### Deprecated
 
