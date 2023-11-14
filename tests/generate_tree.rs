@@ -414,3 +414,57 @@ mod max_depth {
         );
     }
 }
+
+mod sort_by {
+    mod name {
+        test_cmd!(
+            args: "generate tree \
+            --types \
+            --traits \
+            --fns \
+            --sort-by \"name\"",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod visibility {
+        test_cmd!(
+            args: "generate tree \
+            --types \
+            --traits \
+            --fns \
+            --sort-by \"visibility\"",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod kind {
+        test_cmd!(
+            args: "generate tree \
+            --types \
+            --traits \
+            --fns \
+            --sort-by \"kind\"",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+}
+
+mod sort_reversed {
+    test_cmd!(
+        args: "generate tree \
+        --types \
+        --traits \
+        --fns \
+        --sort-reversed",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: smoke
+    );
+}

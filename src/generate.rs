@@ -115,7 +115,10 @@ impl Command {
                     uses: false,
                     externs: false,
                 };
-                let printer_options = TreePrinterOptions {};
+                let printer_options = TreePrinterOptions {
+                    sort_by: options.sort_by,
+                    sort_reversed: options.sort_reversed,
+                };
 
                 let command =
                     GenerateTreeCommand::new(builder_options, filter_options, printer_options);

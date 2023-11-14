@@ -12,7 +12,7 @@ use yansi::Style;
 use crate::{
     item::visibility::ItemVisibility,
     theme::tree::styles,
-    tree::{node::Node, Tree},
+    tree::{node::Node, options::SortBy, Tree},
 };
 
 #[derive(Debug)]
@@ -21,7 +21,10 @@ struct Twig {
 }
 
 #[derive(Clone, Debug)]
-pub struct Options {}
+pub struct Options {
+    pub sort_by: SortBy,
+    pub sort_reversed: bool,
+}
 
 pub struct Printer<'a> {
     #[allow(dead_code)]
@@ -52,7 +55,27 @@ impl<'a> Printer<'a> {
         let mut subnodes = root_node.subnodes.clone();
 
         // Sort the children by name for easier visual scanning of output:
-        subnodes.sort_by_cached_key(|node| node.display_name());
+        subnodes.sort_by_cached_key(|node| node.item.display_name());
+
+        // The default sorting functions in Rust are stable, so we can use it to re-sort,
+        // resulting in a list that's sorted prioritizing whatever we re-sort by.
+
+        // Re-sort the children by name, visibility or kind, for easier visual scanning of output:
+        match self.options.sort_by {
+            SortBy::Name => {
+                subnodes.sort_by_cached_key(|node| node.item.display_name());
+            }
+            SortBy::Visibility => {
+                subnodes.sort_by_cached_key(|node| node.item.visibility.clone());
+            }
+            SortBy::Kind => {
+                subnodes.sort_by_cached_key(|node| node.item.kind.clone());
+            }
+        }
+
+        if self.options.sort_reversed {
+            subnodes.reverse();
+        }
 
         let count = subnodes.len();
         for (pos, node) in subnodes.into_iter().enumerate() {
