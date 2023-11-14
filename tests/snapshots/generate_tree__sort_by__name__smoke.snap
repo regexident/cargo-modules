@@ -1,0 +1,91 @@
+---
+source: tests/generate_tree.rs
+expression: output
+---
+STDERR:
+
+STDOUT:
+
+crate smoke
+├── mod hierarchy: pub(crate)
+│   └── mod lorem: pub(self)
+│       ├── struct Lorem: pub(self)
+│       ├── mod consectetur: pub(self)
+│       │   ├── struct Consectetur: pub(self)
+│       │   └── mod adipiscing: pub(self)
+│       │       ├── struct Adipiscing: pub(self)
+│       │       └── mod elit: pub(self)
+│       │           └── struct Elit: pub(self)
+│       ├── mod dolor: pub(self)
+│       │   ├── struct Dolor: pub(self)
+│       │   └── mod sit: pub(self)
+│       │       ├── struct Sit: pub(self)
+│       │       └── mod amet: pub(self)
+│       │           └── struct Amet: pub(self)
+│       └── mod ipsum: pub(self)
+│           └── struct Ipsum: pub(self)
+├── mod orphans: pub(crate)
+├── mod uses: pub(crate)
+│   └── mod cycle: pub(self)
+│       ├── mod node_0: pub(self)
+│       └── mod node_1: pub(self)
+│           └── mod node_2: pub(self)
+└── mod visibility: pub(crate)
+    └── mod dummy: pub(self)
+        ├── mod enums: pub(self)
+        │   ├── enum PubCrate: pub(crate)
+        │   ├── enum PubModule: pub(in crate::visibility)
+        │   ├── enum PubPrivate: pub(self)
+        │   ├── enum PubPublic: pub
+        │   └── enum PubSuper: pub(super)
+        ├── mod fns: pub(self)
+        │   ├── fn pub_crate: pub(crate)
+        │   ├── fn pub_module: pub(in crate::visibility)
+        │   ├── fn pub_private: pub(self)
+        │   ├── fn pub_public: pub
+        │   └── fn pub_super: pub(super)
+        ├── mod kinds: pub(self)
+        │   ├── async fn AsyncFunction: pub(self)
+        │   ├── const fn ConstFunction: pub(self)
+        │   ├── enum Enum: pub(self)
+        │   ├── fn Function: pub(self)
+        │   ├── mod Module: pub(self)
+        │   ├── struct Struct: pub(self)
+        │   ├── trait Trait: pub(self)
+        │   ├── type TraitAlias: pub(self)
+        │   ├── type TypeAlias: pub(self)
+        │   ├── union Union: pub(self)
+        │   ├── unsafe fn UnsafeFunction: pub(self)
+        │   └── unsafe trait UnsafeTrait: pub(self)
+        ├── mod mods: pub(self)
+        │   ├── mod pub_crate: pub(crate)
+        │   ├── mod pub_module: pub(in crate::visibility)
+        │   ├── mod pub_private: pub(self)
+        │   ├── mod pub_public: pub
+        │   └── mod pub_super: pub(super)
+        ├── mod structs: pub(self)
+        │   ├── struct PubCrate: pub(crate)
+        │   ├── struct PubModule: pub(in crate::visibility)
+        │   ├── struct PubPrivate: pub(self)
+        │   ├── struct PubPublic: pub
+        │   └── struct PubSuper: pub(super)
+        ├── mod traits: pub(self)
+        │   ├── mod r#unsafe: pub(self)
+        │   │   ├── unsafe trait PubCrate: pub(crate)
+        │   │   ├── unsafe trait PubModule: pub(in crate::visibility)
+        │   │   ├── unsafe trait PubPrivate: pub(self)
+        │   │   ├── unsafe trait PubPublic: pub
+        │   │   └── unsafe trait PubSuper: pub(super)
+        │   └── mod safe: pub(self)
+        │       ├── trait PubCrate: pub(crate)
+        │       ├── trait PubModule: pub(in crate::visibility)
+        │       ├── trait PubPrivate: pub(self)
+        │       ├── trait PubPublic: pub
+        │       └── trait PubSuper: pub(super)
+        └── mod unions: pub(self)
+            ├── union PubCrate: pub(crate)
+            ├── union PubModule: pub(in crate::visibility)
+            ├── union PubPrivate: pub(self)
+            ├── union PubPublic: pub
+            └── union PubSuper: pub(super)
+

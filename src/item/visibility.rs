@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::fmt;
+use std::{cmp::Ordering, fmt};
 
 use ra_ap_hir::{self as hir, HasVisibility};
 use ra_ap_ide_db::RootDatabase;
@@ -46,6 +46,35 @@ impl ItemVisibility {
                 }
             }
             hir::Visibility::Public => Self::Public,
+        }
+    }
+
+    fn numerical_order(&self) -> isize {
+        match self {
+            ItemVisibility::Public => 0,
+            ItemVisibility::Crate => 1,
+            ItemVisibility::Module(_) => 2,
+            ItemVisibility::Super => 3,
+            ItemVisibility::Private => 4,
+        }
+    }
+}
+
+impl PartialOrd for ItemVisibility {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for ItemVisibility {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.numerical_order().cmp(&other.numerical_order()) {
+            ord @ Ordering::Less => ord,
+            ord @ Ordering::Equal => match (self, other) {
+                (ItemVisibility::Module(lhs), ItemVisibility::Module(rhs)) => lhs.cmp(rhs),
+                _ => ord,
+            },
+            ord @ Ordering::Greater => ord,
         }
     }
 }

@@ -57,9 +57,11 @@ Options:
       --traits                         Include traits (e.g. trait, unsafe trait)
       --no-traits                      Exclude traits (e.g. trait, unsafe trait). [default]
       --fns                            Include functions (e.g. fns, async fns, const fns)
-      --no-fns                         Include functions (e.g. fns, async fns, const fns). [default]
+      --no-fns                         Exclude functions (e.g. fns, async fns, const fns). [default]
       --tests                          Include tests (e.g. `#[test] fn …`)
       --no-tests                       Exclude tests (e.g. `#[test] fn …`). [default]
+      --sort-by <SORT_BY>              The sorting order to use (e.g. name, visibility, kind) [default: name]
+      --sort-reversed                  Reverses the sorting order
       --orphans                        Include orphaned modules (i.e. unused files in /src)
       --no-orphans                     Exclude orphaned modules (i.e. unused files in /src). [default]
   -h, --help                           Print help

@@ -85,6 +85,7 @@ fn orphan_node(crate_name: Option<String>, path: Vec<String>, file_path: PathBuf
         let test = None;
         ItemAttrs { cfgs, test }
     };
+    let kind = None;
 
     let item = Item {
         crate_name,
@@ -93,6 +94,7 @@ fn orphan_node(crate_name: Option<String>, path: Vec<String>, file_path: PathBuf
         hir,
         visibility,
         attrs,
+        kind,
     };
 
     Node::new(item, vec![])
