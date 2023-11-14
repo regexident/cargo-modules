@@ -112,6 +112,32 @@ mod visibility {
             pub(super) fn pub_super() {}
             fn pub_private() {}
         }
+
+        mod kinds {
+            mod Module {}
+
+            struct Struct {}
+            enum Enum {}
+            union Union {}
+
+            trait Trait {}
+            unsafe trait UnsafeTrait {}
+
+            type TraitAlias = Trait;
+            type TypeAlias = Struct;
+
+            fn Function() {}
+            const fn ConstFunction() {}
+            async fn AsyncFunction() {}
+            unsafe fn UnsafeFunction() {}
+
+            const const_binding: bool = false;
+            static static_binding: bool = false;
+
+            macro_rules! Macro {
+                () => {};
+            }
+        }
     }
 }
 

@@ -50,6 +50,11 @@ digraph {
     "smoke::visibility::dummy::enums::PubPrivate" [label="pub(self) enum|visibility::dummy::enums::PubPrivate", fillcolor="#db5367"]; // "enum" node
     "smoke::visibility::dummy::enums::PubPublic" [label="pub enum|visibility::dummy::enums::PubPublic", fillcolor="#81c169"]; // "enum" node
     "smoke::visibility::dummy::enums::PubSuper" [label="pub(super) enum|visibility::dummy::enums::PubSuper", fillcolor="#fe9454"]; // "enum" node
+    "smoke::visibility::dummy::kinds::Enum" [label="pub(self) enum|visibility::dummy::kinds::Enum", fillcolor="#db5367"]; // "enum" node
+    "smoke::visibility::dummy::kinds::Struct" [label="pub(self) struct|visibility::dummy::kinds::Struct", fillcolor="#db5367"]; // "struct" node
+    "smoke::visibility::dummy::kinds::TraitAlias" [label="pub(self) type|visibility::dummy::kinds::TraitAlias", fillcolor="#db5367"]; // "type" node
+    "smoke::visibility::dummy::kinds::TypeAlias" [label="pub(self) type|visibility::dummy::kinds::TypeAlias", fillcolor="#db5367"]; // "type" node
+    "smoke::visibility::dummy::kinds::Union" [label="pub(self) union|visibility::dummy::kinds::Union", fillcolor="#db5367"]; // "union" node
     "smoke::visibility::dummy::structs::PubCrate" [label="pub(crate) struct|visibility::dummy::structs::PubCrate", fillcolor="#f8c04c"]; // "struct" node
     "smoke::visibility::dummy::structs::PubModule" [label="pub(in crate::visibility) struct|visibility::dummy::structs::PubModule", fillcolor="#fe9454"]; // "struct" node
     "smoke::visibility::dummy::structs::PubPrivate" [label="pub(self) struct|visibility::dummy::structs::PubPrivate", fillcolor="#db5367"]; // "struct" node
@@ -74,6 +79,11 @@ digraph {
     "smoke" -> "smoke::visibility::dummy::enums::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::enums::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::enums::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::visibility::dummy::kinds::Enum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::visibility::dummy::kinds::Struct" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::visibility::dummy::kinds::TraitAlias" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::visibility::dummy::kinds::TypeAlias" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::visibility::dummy::kinds::Union" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::structs::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::structs::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::structs::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
