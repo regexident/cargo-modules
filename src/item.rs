@@ -4,7 +4,6 @@
 
 use std::path::PathBuf;
 
-use hir::ModuleDef;
 use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
@@ -14,6 +13,7 @@ use crate::graph::util;
 use self::{attr::ItemAttrs, visibility::ItemVisibility};
 
 pub(crate) mod attr;
+pub(crate) mod kind;
 pub(crate) mod visibility;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -24,6 +24,7 @@ pub struct Item {
     pub hir: Option<hir::ModuleDef>,
     pub visibility: Option<visibility::ItemVisibility>,
     pub attrs: attr::ItemAttrs,
+    pub kind: Option<kind::ItemKind>,
 }
 
 impl Item {
@@ -64,6 +65,8 @@ impl Item {
             ItemAttrs { cfgs, test }
         };
 
+        let kind = hir.map(|hir| kind::ItemKind::new(hir, db));
+
         Self {
             crate_name,
             path,
@@ -71,6 +74,7 @@ impl Item {
             hir,
             visibility,
             attrs,
+            kind,
         }
     }
 
@@ -85,57 +89,8 @@ impl Item {
         self.path.join("::")
     }
 
-    pub fn kind_display_name(&self, db: &RootDatabase) -> Option<String> {
-        let Some(module_def) = self.hir else {
-            return None;
-        };
-
-        match module_def {
-            ModuleDef::Module(module_def) => {
-                if module_def.is_crate_root() {
-                    Some("crate".to_owned())
-                } else {
-                    Some("mod".to_owned())
-                }
-            }
-            ModuleDef::Function(function_def) => {
-                let mut keywords = vec![];
-
-                if function_def.is_const(db) {
-                    keywords.push("const");
-                }
-                if function_def.is_async(db) {
-                    keywords.push("async");
-                }
-                if function_def.is_unsafe_to_call(db) {
-                    keywords.push("unsafe");
-                }
-
-                keywords.push("fn");
-
-                Some(keywords.join(" "))
-            }
-            ModuleDef::Adt(adt_def) => match adt_def {
-                hir::Adt::Struct(_) => Some("struct".to_owned()),
-                hir::Adt::Union(_) => Some("union".to_owned()),
-                hir::Adt::Enum(_) => Some("enum".to_owned()),
-            },
-            ModuleDef::Variant(_) => Some("variant".to_owned()),
-            ModuleDef::Const(_) => Some("const".to_owned()),
-            ModuleDef::Static(_) => Some("static".to_owned()),
-            ModuleDef::Trait(trait_def) => {
-                let mut keywords = vec![];
-                if trait_def.is_unsafe(db) {
-                    keywords.push("unsafe");
-                }
-                keywords.push("trait");
-                Some(keywords.join(" "))
-            }
-            ModuleDef::TraitAlias(_) => Some("trait".to_owned()),
-            ModuleDef::TypeAlias(_) => Some("type".to_owned()),
-            ModuleDef::BuiltinType(_) => Some("builtin".to_owned()),
-            ModuleDef::Macro(_) => Some("macro".to_owned()),
-        }
+    pub fn kind_display_name(&self) -> Option<String> {
+        self.kind.as_ref().map(|kind| kind.to_string())
     }
 
     pub(crate) fn is_crate(&self, _db: &RootDatabase) -> bool {
