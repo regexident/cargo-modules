@@ -39,14 +39,15 @@ impl FromStr for LayoutAlgorithm {
 impl ToString for LayoutAlgorithm {
     fn to_string(&self) -> String {
         match self {
-            Self::None => "none".to_owned(),
-            Self::Dot => "dot".to_owned(),
-            Self::Neato => "neato".to_owned(),
-            Self::Twopi => "twopi".to_owned(),
-            Self::Circo => "circo".to_owned(),
-            Self::Fdp => "fdp".to_owned(),
-            Self::Sfdp => "sfdp".to_owned(),
+            Self::None => "none",
+            Self::Dot => "dot",
+            Self::Neato => "neato",
+            Self::Twopi => "twopi",
+            Self::Circo => "circo",
+            Self::Fdp => "fdp",
+            Self::Sfdp => "sfdp",
         }
+        .to_owned()
     }
 }
 
