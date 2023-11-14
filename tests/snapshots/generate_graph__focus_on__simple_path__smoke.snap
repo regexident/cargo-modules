@@ -41,6 +41,8 @@ digraph {
     "smoke::visibility::dummy" [label="pub(self) mod|visibility::dummy", fillcolor="#db5367"]; // "mod" node
     "smoke::visibility::dummy::enums" [label="pub(self) mod|visibility::dummy::enums", fillcolor="#db5367"]; // "mod" node
     "smoke::visibility::dummy::fns" [label="pub(self) mod|visibility::dummy::fns", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::kinds" [label="pub(self) mod|visibility::dummy::kinds", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::kinds::Module" [label="pub(self) mod|visibility::dummy::kinds::Module", fillcolor="#db5367"]; // "mod" node
     "smoke::visibility::dummy::mods" [label="pub(self) mod|visibility::dummy::mods", fillcolor="#db5367"]; // "mod" node
     "smoke::visibility::dummy::mods::pub_crate" [label="pub(crate) mod|visibility::dummy::mods::pub_crate", fillcolor="#f8c04c"]; // "mod" node
     "smoke::visibility::dummy::mods::pub_module" [label="pub(in crate::visibility) mod|visibility::dummy::mods::pub_module", fillcolor="#fe9454"]; // "mod" node
@@ -57,10 +59,12 @@ digraph {
     "smoke::visibility" -> "smoke::visibility::dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::enums" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::fns" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy" -> "smoke::visibility::dummy::kinds" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::mods" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::structs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::traits" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::unions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::Module" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::mods" -> "smoke::visibility::dummy::mods::pub_crate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::mods" -> "smoke::visibility::dummy::mods::pub_module" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::mods" -> "smoke::visibility::dummy::mods::pub_private" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge

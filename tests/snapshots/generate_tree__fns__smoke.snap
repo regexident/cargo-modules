@@ -31,6 +31,12 @@ crate smoke
         │   ├── fn pub_private: pub(self)
         │   ├── fn pub_public: pub
         │   └── fn pub_super: pub(super)
+        ├── mod kinds: pub(self)
+        │   ├── async fn AsyncFunction: pub(self)
+        │   ├── const fn ConstFunction: pub(self)
+        │   ├── fn Function: pub(self)
+        │   ├── mod Module: pub(self)
+        │   └── unsafe fn UnsafeFunction: pub(self)
         ├── mod mods: pub(self)
         │   ├── mod pub_crate: pub(crate)
         │   ├── mod pub_module: pub(in crate::visibility)

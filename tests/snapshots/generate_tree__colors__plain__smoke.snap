@@ -26,6 +26,8 @@ crate smoke
     └── mod dummy: pub(self)
         ├── mod enums: pub(self)
         ├── mod fns: pub(self)
+        ├── mod kinds: pub(self)
+        │   └── mod Module: pub(self)
         ├── mod mods: pub(self)
         │   ├── mod pub_crate: pub(crate)
         │   ├── mod pub_module: pub(in crate::visibility)

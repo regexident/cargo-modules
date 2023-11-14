@@ -39,6 +39,13 @@ crate smoke
         │   ├── enum PubPublic: pub
         │   └── enum PubSuper: pub(super)
         ├── mod fns: pub(self)
+        ├── mod kinds: pub(self)
+        │   ├── enum Enum: pub(self)
+        │   ├── mod Module: pub(self)
+        │   ├── struct Struct: pub(self)
+        │   ├── type TraitAlias: pub(self)
+        │   ├── type TypeAlias: pub(self)
+        │   └── union Union: pub(self)
         ├── mod mods: pub(self)
         │   ├── mod pub_crate: pub(crate)
         │   ├── mod pub_module: pub(in crate::visibility)
