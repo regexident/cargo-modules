@@ -20,7 +20,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Support for sorting the output of the `generate tree` command via `--sort-by <KEY>` (where `<KEY>` is one of `name`, `visibility`, or `kind`) and `--sort-reversed` CLI options.
 
 ### Changed
 
