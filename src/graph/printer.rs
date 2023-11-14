@@ -134,7 +134,7 @@ impl<'a> Printer<'a> {
 
                 let id = node.item.path.join("::");
                 let kind = node
-                    .kind_display_name(self.db)
+                    .kind_display_name()
                     .unwrap_or_else(|| "orphan".to_owned());
 
                 let label = self.node_label(node).unwrap();
@@ -215,9 +215,7 @@ impl<'a> Printer<'a> {
             None => Some("orphan".to_owned()),
         };
 
-        let kind = node
-            .kind_display_name(self.db)
-            .unwrap_or_else(|| "mod".to_owned());
+        let kind = node.kind_display_name().unwrap_or_else(|| "mod".to_owned());
 
         if let Some(visibility) = visibility {
             write!(f, "{visibility} ")?;

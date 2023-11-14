@@ -2,8 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use ra_ap_ide_db::RootDatabase;
-
 use crate::item::Item;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -27,7 +25,7 @@ impl Node {
         self.item.display_name()
     }
 
-    pub fn kind_display_name(&self, db: &RootDatabase) -> Option<String> {
-        self.item.kind_display_name(db)
+    pub fn kind_display_name(&self) -> Option<String> {
+        self.item.kind_display_name()
     }
 }
