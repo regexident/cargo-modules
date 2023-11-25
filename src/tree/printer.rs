@@ -11,8 +11,7 @@ use yansi::Style;
 
 use crate::{
     item::visibility::ItemVisibility,
-    theme::tree::styles,
-    tree::{node::Node, options::SortBy, Tree},
+    tree::{node::Node, options::SortBy, theme::styles, Tree},
 };
 
 #[derive(Debug)]
