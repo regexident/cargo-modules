@@ -9,6 +9,7 @@ pub(crate) mod node;
 pub(super) mod options;
 pub(super) mod orphans;
 pub(crate) mod printer;
+pub(super) mod theme;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Tree {

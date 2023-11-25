@@ -19,10 +19,10 @@ use crate::{
         edge::{Edge, EdgeKind},
         node::Node,
         options::LayoutAlgorithm,
+        theme::{edge_styles, node_styles},
         Graph,
     },
     item::visibility::ItemVisibility,
-    theme::graph::{edge_styles, node_styles},
 };
 
 const INDENTATION: &str = "    ";
