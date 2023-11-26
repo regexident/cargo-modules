@@ -69,7 +69,7 @@ impl Command {
         }
     }
 
-    pub fn run(&self) -> Result<(), anyhow::Error> {
+    pub fn run(self) -> Result<(), anyhow::Error> {
         let project_options = self.project_options();
         let general_options = self.general_options();
 
