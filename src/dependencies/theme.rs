@@ -71,7 +71,6 @@ pub(crate) struct NodeStyles {
     #[allow(dead_code)]
     pub krate: NodeStyle,
     pub visibility: ItemVisibilityStyles,
-    pub orphan: NodeStyle,
     #[allow(dead_code)]
     pub test: NodeStyle,
 }
@@ -87,7 +86,6 @@ pub(crate) fn node_styles() -> NodeStyles {
             pub_global: NodeStyle::new(color_palette.green),
             pub_super: NodeStyle::new(color_palette.orange),
         },
-        orphan: NodeStyle::new(color_palette.purple),
         test: NodeStyle::new(color_palette.cyan),
     }
 }

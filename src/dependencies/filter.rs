@@ -95,17 +95,13 @@ impl<'a> Filter<'a> {
             .filter(|node_idx| {
                 let node = &graph[*node_idx];
 
-                let Some(moduledef_hir) = node.item.hir else {
-                    return false;
-                };
-
                 let mut should_keep_node: bool = true;
 
                 // Make sure the node is within our defined max depth:
                 should_keep_node &= nodes_within_max_depth.contains(node_idx);
 
                 // Make sure the node's `moduledef` should be retained:
-                should_keep_node &= self.should_retain_moduledef(moduledef_hir);
+                should_keep_node &= self.should_retain_moduledef(node.item.hir);
 
                 // Make sure the root node doesn't get dropped:
                 should_keep_node |= *node_idx == root_idx;

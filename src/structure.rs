@@ -6,7 +6,6 @@ pub(crate) mod builder;
 pub(super) mod command;
 pub(super) mod filter;
 pub(super) mod options;
-pub(super) mod orphans;
 pub(crate) mod printer;
 pub(super) mod theme;
 pub(super) mod tree;

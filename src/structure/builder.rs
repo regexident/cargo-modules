@@ -18,8 +18,6 @@ use crate::{
     },
 };
 
-use super::orphans::orphan_nodes_for;
-
 #[derive(Debug)]
 pub struct Builder<'a> {
     #[allow(dead_code)]
@@ -146,12 +144,6 @@ impl<'a> Builder<'a> {
 
         for subnode in subnodes {
             node.push_subnode(subnode);
-        }
-
-        if self.options.selection.orphans && node.item.is_file() {
-            for subnode in orphan_nodes_for(&node) {
-                node.push_subnode(subnode);
-            }
         }
 
         Some(node)

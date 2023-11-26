@@ -126,9 +126,7 @@ impl<'a> Printer<'a> {
                 let node: &Node = node_ref.weight();
 
                 let id = node.item.path.join("::");
-                let kind = node
-                    .kind_display_name()
-                    .unwrap_or_else(|| "orphan".to_owned());
+                let kind = node.kind_display_name();
 
                 let label = self.node_label(node).unwrap();
                 let attributes = self.node_attributes(node);
@@ -195,20 +193,15 @@ impl<'a> Printer<'a> {
     fn fmt_node_header(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
         let is_external = node.item.crate_name != Some(self.member_krate.clone());
 
-        let visibility = match &node.item.visibility {
-            Some(visibility) => {
-                if is_external {
-                    Some("external".to_owned())
-                } else if node.item.is_crate(self.db) {
-                    None
-                } else {
-                    Some(format!("{visibility}"))
-                }
-            }
-            None => Some("orphan".to_owned()),
+        let visibility = if is_external {
+            Some("external".to_owned())
+        } else if node.item.is_crate(self.db) {
+            None
+        } else {
+            Some(format!("{}", node.item.visibility))
         };
 
-        let kind = node.kind_display_name().unwrap_or_else(|| "mod".to_owned());
+        let kind = node.kind_display_name();
 
         if let Some(visibility) = visibility {
             write!(f, "{visibility} ")?;
@@ -234,24 +227,16 @@ impl<'a> Printer<'a> {
     fn node_attributes(&self, node: &Node) -> String {
         let styles = node_styles();
 
-        let style = match node.item.hir {
-            Some(_) => {
-                if node.item.is_crate(self.db) {
-                    styles.krate
-                } else {
-                    match &node.item.visibility {
-                        Some(visibility) => match visibility {
-                            ItemVisibility::Crate => styles.visibility.pub_crate,
-                            ItemVisibility::Module(_) => styles.visibility.pub_module,
-                            ItemVisibility::Private => styles.visibility.pub_private,
-                            ItemVisibility::Public => styles.visibility.pub_global,
-                            ItemVisibility::Super => styles.visibility.pub_super,
-                        },
-                        None => styles.visibility.pub_global,
-                    }
-                }
+        let style = if node.item.is_crate(self.db) {
+            styles.krate
+        } else {
+            match &node.item.visibility {
+                ItemVisibility::Crate => styles.visibility.pub_crate,
+                ItemVisibility::Module(_) => styles.visibility.pub_module,
+                ItemVisibility::Private => styles.visibility.pub_private,
+                ItemVisibility::Public => styles.visibility.pub_global,
+                ItemVisibility::Super => styles.visibility.pub_super,
             }
-            None => styles.orphan,
         };
 
         format!(r#", fillcolor="{}""#, style.fill_color)
