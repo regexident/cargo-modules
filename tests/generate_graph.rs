@@ -4,7 +4,7 @@ mod util;
 mod colors {
     mod plain {
         test_cmd!(
-            args: "generate graph",
+            args: "graph",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke
@@ -13,7 +13,7 @@ mod colors {
 
     mod ansi {
         test_cmd!(
-            args: "generate graph",
+            args: "graph",
             success: true,
             color_mode: ColorMode::Ansi,
             project: smoke
@@ -22,7 +22,7 @@ mod colors {
 
     mod truecolor {
         test_cmd!(
-            args: "generate graph",
+            args: "graph",
             success: true,
             color_mode: ColorMode::TrueColor,
             project: smoke
@@ -33,7 +33,7 @@ mod colors {
 mod default {
     mod pass {
         test_cmds!(
-            args: "generate graph",
+            args: "graph",
             success: true,
             color_mode: ColorMode::Plain,
             projects: [
@@ -49,7 +49,7 @@ mod default {
 
     mod fail {
         test_cmds!(
-            args: "generate graph",
+            args: "graph",
             success: false,
             color_mode: ColorMode::Plain,
             projects: [
@@ -64,14 +64,10 @@ mod default {
 mod negative_args {
     use clap::Parser;
 
-    use cargo_modules::{commands::Command::Generate, generate::Command, options::App};
+    use cargo_modules::{commands::Command, options::App};
 
     fn args_for(command: &str, arg: &str, default: bool) -> Vec<(Vec<String>, bool)> {
-        let args_prefix = vec![
-            "modules".to_owned(),
-            "generate".to_owned(),
-            command.to_owned(),
-        ];
+        let args_prefix = vec!["modules".to_owned(), command.to_owned()];
 
         let pos_arg = format!("--{arg}");
         let neg_arg = format!("--no-{arg}");
@@ -103,14 +99,11 @@ mod negative_args {
                 for (args, expected) in args_for(command, "cfg-test", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate {
-                        cmd: Command::Graph(cmd),
-                    } = app.command
-                    else {
+                    let Command::Graph(options) = app.command else {
                         continue;
                     };
 
-                    assert_eq!(cmd.project.cfg_test, expected, "{:?}", args);
+                    assert_eq!(options.project.cfg_test, expected, "{:?}", args);
                 }
             }
         }
@@ -121,14 +114,11 @@ mod negative_args {
                 for (args, expected) in args_for(command, "sysroot", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate {
-                        cmd: Command::Graph(cmd),
-                    } = app.command
-                    else {
+                    let Command::Graph(options) = app.command else {
                         continue;
                     };
 
-                    assert_eq!(cmd.project.sysroot, expected, "{:?}", args);
+                    assert_eq!(options.project.sysroot, expected, "{:?}", args);
                 }
             }
         }
@@ -143,14 +133,11 @@ mod negative_args {
                 for (args, expected) in args_for(command, "fns", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate {
-                        cmd: Command::Graph(cmd),
-                    } = app.command
-                    else {
+                    let Command::Graph(options) = app.command else {
                         continue;
                     };
 
-                    assert_eq!(cmd.selection.fns, expected, "{:?}", args);
+                    assert_eq!(options.selection.fns, expected, "{:?}", args);
                 }
             }
         }
@@ -161,14 +148,11 @@ mod negative_args {
                 for (args, expected) in args_for(command, "tests", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate {
-                        cmd: Command::Graph(cmd),
-                    } = app.command
-                    else {
+                    let Command::Graph(options) = app.command else {
                         continue;
                     };
 
-                    assert_eq!(cmd.selection.tests, expected, "{:?}", args);
+                    assert_eq!(options.selection.tests, expected, "{:?}", args);
                 }
             }
         }
@@ -179,14 +163,11 @@ mod negative_args {
                 for (args, expected) in args_for(command, "types", false) {
                     let app = App::parse_from(&args);
 
-                    let Generate {
-                        cmd: Command::Graph(cmd),
-                    } = app.command
-                    else {
+                    let Command::Graph(options) = app.command else {
                         continue;
                     };
 
-                    assert_eq!(cmd.selection.types, expected, "{:?}", args);
+                    assert_eq!(options.selection.types, expected, "{:?}", args);
                 }
             }
         }
@@ -200,14 +181,11 @@ mod negative_args {
             for (args, expected) in args_for("graph", "modules", true) {
                 let app = App::parse_from(&args);
 
-                let Generate {
-                    cmd: Command::Graph(cmd),
-                } = app.command
-                else {
+                let Command::Graph(options) = app.command else {
                     continue;
                 };
 
-                assert_eq!(cmd.modules, expected, "{:?}", args);
+                assert_eq!(options.modules, expected, "{:?}", args);
             }
         }
 
@@ -216,14 +194,11 @@ mod negative_args {
             for (args, expected) in args_for("graph", "uses", false) {
                 let app = App::parse_from(&args);
 
-                let Generate {
-                    cmd: Command::Graph(cmd),
-                } = app.command
-                else {
+                let Command::Graph(options) = app.command else {
                     continue;
                 };
 
-                assert_eq!(cmd.uses, expected, "{:?}", args);
+                assert_eq!(options.uses, expected, "{:?}", args);
             }
         }
 
@@ -232,14 +207,11 @@ mod negative_args {
             for (args, expected) in args_for("graph", "externs", false) {
                 let app = App::parse_from(&args);
 
-                let Generate {
-                    cmd: Command::Graph(cmd),
-                } = app.command
-                else {
+                let Command::Graph(options) = app.command else {
                     continue;
                 };
 
-                assert_eq!(cmd.externs, expected, "{:?}", args);
+                assert_eq!(options.externs, expected, "{:?}", args);
             }
         }
     }
@@ -248,7 +220,7 @@ mod negative_args {
 mod lib {
     mod pass {
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --lib",
             success: true,
             color_mode: ColorMode::Plain,
@@ -265,7 +237,7 @@ mod lib {
 
     mod fail {
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --lib", // does not exist
             success: false,
             color_mode: ColorMode::Plain,
@@ -281,7 +253,7 @@ mod lib {
 mod bin {
     mod pass {
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --bin package_bin_target",
             success: true,
             color_mode: ColorMode::Plain,
@@ -293,7 +265,7 @@ mod bin {
         );
 
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --bin package_multi_target",
             success: true,
             color_mode: ColorMode::Plain,
@@ -307,7 +279,7 @@ mod bin {
 
     mod fail {
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --bin foobar", // does not exist
             success: false,
             color_mode: ColorMode::Plain,
@@ -328,7 +300,7 @@ mod bin {
 mod package {
     mod pass {
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --package package_lib_target",
             success: true,
             color_mode: ColorMode::Plain,
@@ -340,7 +312,7 @@ mod package {
         );
 
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --package package_bin_target",
             success: true,
             color_mode: ColorMode::Plain,
@@ -354,7 +326,7 @@ mod package {
 
     mod fail {
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --package foobar",
             success: false,
             color_mode: ColorMode::Plain,
@@ -378,7 +350,7 @@ mod package {
 mod package_lib {
     mod pass {
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --package package_lib_target \
                     --lib",
             success: true,
@@ -391,7 +363,7 @@ mod package_lib {
         );
 
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --package package_multi_target \
                     --lib",
             success: true,
@@ -406,7 +378,7 @@ mod package_lib {
 
     mod fail {
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --package package_bin_target \
                     --lib", // does not exist
             success: false,
@@ -423,7 +395,7 @@ mod package_lib {
 mod package_bin {
     mod pass {
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --package package_bin_target \
                     --bin package_bin_target",
             success: true,
@@ -436,7 +408,7 @@ mod package_bin {
         );
 
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --package package_multi_target \
                     --bin package_multi_target",
             success: true,
@@ -451,7 +423,7 @@ mod package_bin {
 
     mod fail {
         test_cmds!(
-            args: "generate graph \
+            args: "graph \
                     --package workspace-package \
                     --bin foobar", // does not exist
             success: false,
@@ -475,7 +447,7 @@ mod package_bin {
 
 mod tests {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --tests",
         success: true,
         color_mode: ColorMode::Plain,
@@ -485,7 +457,7 @@ mod tests {
 
 mod types {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --types",
         success: true,
         color_mode: ColorMode::Plain,
@@ -495,7 +467,7 @@ mod types {
 
 mod types_with_no_modules {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --types \
                 --no-modules",
         success: true,
@@ -506,7 +478,7 @@ mod types_with_no_modules {
 
 mod traits {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --traits",
         success: true,
         color_mode: ColorMode::Plain,
@@ -516,7 +488,7 @@ mod traits {
 
 mod fns {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --fns",
         success: true,
         color_mode: ColorMode::Plain,
@@ -526,7 +498,7 @@ mod fns {
 
 mod no_modules {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --no-modules",
         success: true,
         color_mode: ColorMode::Plain,
@@ -536,7 +508,7 @@ mod no_modules {
 
 mod uses {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --uses",
         success: true,
         color_mode: ColorMode::Plain,
@@ -546,7 +518,7 @@ mod uses {
 
 mod externs {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --externs",
         success: false,
         color_mode: ColorMode::Plain,
@@ -556,7 +528,7 @@ mod externs {
 
 mod uses_with_externs {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --uses \
                 --externs",
         success: true,
@@ -571,7 +543,7 @@ mod uses_with_externs_with_sysroot {
             // `sysroot` is expensive, so only run on release builds:
             #[ignore]
         ],
-        args: "generate graph \
+        args: "graph \
                 --uses \
                 --externs \
                 --sysroot",
@@ -584,7 +556,7 @@ mod uses_with_externs_with_sysroot {
 mod focus_on {
     mod simple_path {
         test_cmd!(
-            args: "generate graph \
+            args: "graph \
                     --uses \
                     --focus-on \"smoke::visibility::dummy\"",
             success: true,
@@ -594,7 +566,7 @@ mod focus_on {
     }
     mod glob_path {
         test_cmd!(
-            args: "generate graph \
+            args: "graph \
                     --uses \
                     --focus-on \"smoke::visibility::*\"",
             success: true,
@@ -604,7 +576,7 @@ mod focus_on {
     }
     mod self_path {
         test_cmd!(
-            args: "generate graph \
+            args: "graph \
                     --uses \
                     --focus-on \"smoke::visibility::dummy::{self}\"",
             success: true,
@@ -614,7 +586,7 @@ mod focus_on {
     }
     mod tree {
         test_cmd!(
-            args: "generate graph \
+            args: "graph \
                     --uses \
                     --focus-on \"smoke::visibility::{dummy, hierarchy}\"",
             success: true,
@@ -627,7 +599,7 @@ mod focus_on {
 mod max_depth {
     mod depth_0 {
         test_cmd!(
-            args: "generate graph \
+            args: "graph \
                     --uses \
                     --max-depth 0",
             success: true,
@@ -638,7 +610,7 @@ mod max_depth {
 
     mod depth_1 {
         test_cmd!(
-            args: "generate graph \
+            args: "graph \
                     --uses \
                     --max-depth 1",
             success: true,
@@ -649,7 +621,7 @@ mod max_depth {
 
     mod depth_2 {
         test_cmd!(
-            args: "generate graph \
+            args: "graph \
                     --uses \
                     --max-depth 2",
             success: true,
@@ -661,7 +633,7 @@ mod max_depth {
 
 mod fields {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --externs \
                 --fns \
                 --modules \
@@ -675,7 +647,7 @@ mod fields {
     );
 
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --externs \
                 --fns \
                 --modules \
@@ -689,7 +661,7 @@ mod fields {
     );
 
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --externs \
                 --fns \
                 --modules \
@@ -703,7 +675,7 @@ mod fields {
     );
 
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --externs \
                 --fns \
                 --modules \
@@ -777,7 +749,7 @@ mod functions {
 
 mod github_issue_79 {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --uses",
         success: true,
         color_mode: ColorMode::Plain,
@@ -788,7 +760,7 @@ mod github_issue_79 {
 mod github_issue_80 {
     mod tests {
         test_cmd!(
-            args: "generate graph \
+            args: "graph \
                     --uses \
                     --types \
                     --tests",
@@ -800,7 +772,7 @@ mod github_issue_80 {
 
     mod without_tests {
         test_cmd!(
-            args: "generate graph \
+            args: "graph \
                     --uses \
                     --types",
             success: true,
@@ -822,7 +794,7 @@ mod github_issue_102 {
 
 mod github_issue_172 {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --types \
                 --uses \
                 --traits \
