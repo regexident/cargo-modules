@@ -16,6 +16,7 @@ impl fmt::Display for Color {
 
 #[derive(Clone, Debug)]
 pub(crate) struct ColorPalette {
+    #[allow(dead_code)]
     pub purple: Color,
     pub red: Color,
     pub orange: Color,

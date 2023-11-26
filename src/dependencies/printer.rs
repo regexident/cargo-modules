@@ -15,32 +15,24 @@ use ra_ap_ide::RootDatabase;
 
 use crate::{
     analyzer,
-    graph::{
-        edge::{Edge, EdgeKind},
-        node::Node,
-        options::LayoutAlgorithm,
+    dependencies::{
+        graph::{Edge, EdgeKind, Graph, Node},
+        options::Options,
         theme::{edge_styles, node_styles},
-        Graph,
     },
     item::visibility::ItemVisibility,
 };
 
 const INDENTATION: &str = "    ";
 
-#[derive(Clone, Debug)]
-pub struct Options {
-    pub layout: LayoutAlgorithm,
-    pub full_paths: bool,
-}
-
 pub struct Printer<'a> {
-    options: Options,
+    options: &'a Options,
     member_krate: String,
     db: &'a RootDatabase,
 }
 
 impl<'a> Printer<'a> {
-    pub fn new(options: Options, member_krate: hir::Crate, db: &'a RootDatabase) -> Self {
+    pub fn new(options: &'a Options, member_krate: hir::Crate, db: &'a RootDatabase) -> Self {
         let member_krate = analyzer::crate_name(member_krate, db);
         Self {
             options,
@@ -226,7 +218,7 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_body(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let path = if self.options.full_paths {
+        let path = if self.options.selection.externs {
             // If we explicitly want full paths, return it unaltered:
             node.item.path.join("::")
         } else if node.item.path.len() > 1 {

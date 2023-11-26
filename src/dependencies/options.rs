@@ -61,7 +61,7 @@ pub struct Options {
     pub project: options::project::Options,
 
     #[command(flatten)]
-    pub selection: options::selection::Options,
+    pub selection: SelectionOptions,
 
     /// Require graph to be acyclic
     #[arg(long = "acyclic", action = ArgAction::SetTrue, conflicts_with = "focus_on")]
@@ -72,6 +72,20 @@ pub struct Options {
     #[arg(long = "layout", default_value = "neato")]
     pub layout: LayoutAlgorithm,
 
+    /// Focus the graph on a particular path or use-tree's environment,
+    /// e.g. "foo::bar::{self, baz, blee::*}".
+    #[arg(long = "focus-on")]
+    pub focus_on: Option<String>,
+
+    /// The maximum depth of the generated graph
+    /// relative to the crate's root node, or nodes selected by '--focus-on'.
+    #[arg(long = "max-depth")]
+    pub max_depth: Option<usize>,
+}
+
+#[derive(Parser, Clone, PartialEq, Eq, Debug)]
+#[group(id = "SelectionOptions")]
+pub struct SelectionOptions {
     // The `modules` and `no_modules` args might look like they have their
     // documentation comments and clap-args mixed up, but they have to be
     // that way in order to work-around a limitation of clap:
@@ -105,4 +119,36 @@ pub struct Options {
     /// Exclude used modules and types from extern crates [default]
     #[arg(long = "no-externs", action = ArgAction::SetFalse, overrides_with = "externs")]
     pub no_externs: (),
+
+    /// Include types (e.g. structs, unions, enums).
+    #[arg(long = "types")]
+    pub types: bool,
+
+    /// Exclude types (e.g. structs, unions, enums). [default]
+    #[arg(long = "no-types", action = ArgAction::SetFalse, overrides_with = "types")]
+    pub no_types: (),
+
+    /// Include traits (e.g. trait, unsafe trait).
+    #[arg(long = "traits")]
+    pub traits: bool,
+
+    /// Exclude traits (e.g. trait, unsafe trait). [default]
+    #[arg(long = "no-traits", action = ArgAction::SetFalse, overrides_with = "traits")]
+    pub no_traits: (),
+
+    /// Include functions (e.g. fns, async fns, const fns).
+    #[arg(long = "fns")]
+    pub fns: bool,
+
+    /// Exclude functions (e.g. fns, async fns, const fns). [default]
+    #[arg(long = "no-fns", action = ArgAction::SetFalse, overrides_with = "fns")]
+    pub no_fns: (),
+
+    /// Include tests (e.g. `#[test] fn …`).
+    #[arg(long = "tests")]
+    pub tests: bool,
+
+    /// Exclude tests (e.g. `#[test] fn …`). [default]
+    #[arg(long = "no-tests", action = ArgAction::SetFalse, overrides_with = "tests")]
+    pub no_tests: (),
 }
