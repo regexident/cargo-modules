@@ -4,7 +4,7 @@ mod util;
 mod colors {
     mod plain {
         test_cmd!(
-            args: "generate tree",
+            args: "tree",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke
@@ -15,7 +15,7 @@ mod colors {
 mod default {
     mod pass {
         test_cmds!(
-            args: "generate tree",
+            args: "tree",
             success: true,
             color_mode: ColorMode::Plain,
             projects: [
@@ -31,7 +31,7 @@ mod default {
 
     mod fail {
         test_cmds!(
-            args: "generate tree",
+            args: "tree",
             success: false,
             color_mode: ColorMode::Plain,
             projects: [
@@ -46,7 +46,7 @@ mod default {
 mod lib {
     mod pass {
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --lib",
             success: true,
             color_mode: ColorMode::Plain,
@@ -63,7 +63,7 @@ mod lib {
 
     mod fail {
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --lib", // does not exist
             success: false,
             color_mode: ColorMode::Plain,
@@ -79,7 +79,7 @@ mod lib {
 mod bin {
     mod pass {
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --bin package_bin_target",
             success: true,
             color_mode: ColorMode::Plain,
@@ -91,7 +91,7 @@ mod bin {
         );
 
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --bin package_multi_target",
             success: true,
             color_mode: ColorMode::Plain,
@@ -105,7 +105,7 @@ mod bin {
 
     mod fail {
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --bin foobar", // does not exist
             success: false,
             color_mode: ColorMode::Plain,
@@ -126,7 +126,7 @@ mod bin {
 mod package {
     mod pass {
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --package package_lib_target",
             success: true,
             color_mode: ColorMode::Plain,
@@ -138,7 +138,7 @@ mod package {
         );
 
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --package package_bin_target",
             success: true,
             color_mode: ColorMode::Plain,
@@ -152,7 +152,7 @@ mod package {
 
     mod fail {
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --package foobar",
             success: false,
             color_mode: ColorMode::Plain,
@@ -176,7 +176,7 @@ mod package {
 mod package_lib {
     mod pass {
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --package package_lib_target \
                     --lib",
             success: true,
@@ -189,7 +189,7 @@ mod package_lib {
         );
 
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --package package_multi_target \
                     --lib",
             success: true,
@@ -204,7 +204,7 @@ mod package_lib {
 
     mod fail {
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --package package_bin_target \
                     --lib", // does not exist
             success: false,
@@ -221,7 +221,7 @@ mod package_lib {
 mod package_bin {
     mod pass {
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --package package_bin_target \
                     --bin package_bin_target",
             success: true,
@@ -234,7 +234,7 @@ mod package_bin {
         );
 
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --package package_multi_target \
                     --bin package_multi_target",
             success: true,
@@ -249,7 +249,7 @@ mod package_bin {
 
     mod fail {
         test_cmds!(
-            args: "generate tree \
+            args: "tree \
                     --package workspace-package \
                     --bin foobar", // does not exist
             success: false,
@@ -273,7 +273,7 @@ mod package_bin {
 
 mod orphans {
     test_cmd!(
-        args: "generate tree \
+        args: "tree \
                 --orphans",
         success: true,
         color_mode: ColorMode::Plain,
@@ -283,7 +283,7 @@ mod orphans {
 
 mod tests {
     test_cmd!(
-        args: "generate tree \
+        args: "tree \
                 --tests",
         success: true,
         color_mode: ColorMode::Plain,
@@ -293,7 +293,7 @@ mod tests {
 
 mod types {
     test_cmd!(
-        args: "generate tree \
+        args: "tree \
                 --types",
         success: true,
         color_mode: ColorMode::Plain,
@@ -303,7 +303,7 @@ mod types {
 
 mod traits {
     test_cmd!(
-        args: "generate tree \
+        args: "tree \
                 --traits",
         success: true,
         color_mode: ColorMode::Plain,
@@ -313,7 +313,7 @@ mod traits {
 
 mod fns {
     test_cmd!(
-        args: "generate tree \
+        args: "tree \
                 --fns",
         success: true,
         color_mode: ColorMode::Plain,
@@ -336,7 +336,7 @@ mod functions {
 mod github_issue_80 {
     mod tests {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
                     --types \
                     --tests",
             success: true,
@@ -347,7 +347,7 @@ mod github_issue_80 {
 
     mod without_tests {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
                     --types",
             success: true,
             color_mode: ColorMode::Plain,
@@ -368,7 +368,7 @@ mod github_issue_222 {
 mod focus_on {
     mod simple_path {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
                     --focus-on \"smoke::visibility::dummy\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -377,7 +377,7 @@ mod focus_on {
     }
     mod glob_path {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
                     --focus-on \"smoke::visibility::*\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -386,7 +386,7 @@ mod focus_on {
     }
     mod self_path {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
                     --focus-on \"smoke::visibility::dummy::{self}\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -395,7 +395,7 @@ mod focus_on {
     }
     mod tree {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
                     --focus-on \"smoke::visibility::{dummy, hierarchy}\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -407,7 +407,7 @@ mod focus_on {
 mod max_depth {
     mod depth_0 {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
                     --max-depth 0",
             success: true,
             color_mode: ColorMode::Plain,
@@ -417,7 +417,7 @@ mod max_depth {
 
     mod depth_1 {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
                     --max-depth 1",
             success: true,
             color_mode: ColorMode::Plain,
@@ -427,7 +427,7 @@ mod max_depth {
 
     mod depth_2 {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
                     --max-depth 2",
             success: true,
             color_mode: ColorMode::Plain,
@@ -439,7 +439,7 @@ mod max_depth {
 mod sort_by {
     mod name {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
             --types \
             --traits \
             --fns \
@@ -452,7 +452,7 @@ mod sort_by {
 
     mod visibility {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
             --types \
             --traits \
             --fns \
@@ -465,7 +465,7 @@ mod sort_by {
 
     mod kind {
         test_cmd!(
-            args: "generate tree \
+            args: "tree \
             --types \
             --traits \
             --fns \
@@ -479,7 +479,7 @@ mod sort_by {
 
 mod sort_reversed {
     test_cmd!(
-        args: "generate tree \
+        args: "tree \
         --types \
         --traits \
         --fns \
