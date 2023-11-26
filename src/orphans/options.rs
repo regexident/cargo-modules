@@ -14,4 +14,8 @@ pub struct Options {
 
     #[command(flatten)]
     pub project: options::project::Options,
+
+    /// Returns a failure code if one or more orphans are found.
+    #[arg(long = "deny")]
+    pub deny: bool,
 }

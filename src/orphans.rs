@@ -5,4 +5,6 @@
 pub(super) mod command;
 pub(crate) mod options;
 pub(crate) mod orphan;
+pub(crate) mod printer;
 pub(crate) mod scanner;
+pub(crate) mod theme;

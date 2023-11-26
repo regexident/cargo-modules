@@ -118,9 +118,10 @@ pub(crate) fn orphans_of_module(
             }
 
             Some(Orphan {
+                name: possible_orphan.name,
+                file_path: possible_orphan.file_path,
                 parent_module_path: module_path.to_owned(),
                 parent_file_path: file_path.to_owned(),
-                file_path: possible_orphan.file_path,
             })
         })
         .collect()
