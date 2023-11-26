@@ -109,7 +109,7 @@ impl<'a> Printer<'a> {
         let styles = styles();
         let kind_style = styles.kind;
 
-        let display_name = node.kind_display_name().unwrap_or_else(|| "mod".to_owned());
+        let display_name = node.kind_display_name();
         let kind = kind_style.paint(display_name);
 
         write!(f, "{kind}")?;
@@ -130,27 +130,16 @@ impl<'a> Printer<'a> {
     fn fmt_node_visibility(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
         let styles = styles();
 
-        let (visibility, visibility_style) = match &node.item.visibility {
-            Some(visibility) => {
-                let styles = styles.visibility;
-                let style = match visibility {
-                    ItemVisibility::Crate => styles.pub_crate,
-                    ItemVisibility::Module(_) => styles.pub_module,
-                    ItemVisibility::Private => styles.pub_private,
-                    ItemVisibility::Public => styles.pub_global,
-                    ItemVisibility::Super => styles.pub_super,
-                };
-
-                (format!("{visibility}"), style)
-            }
-            None => {
-                let orphan_style = styles.orphan;
-                ("orphan".to_owned(), orphan_style)
-            }
+        let visibility_styles = styles.visibility;
+        let visibility_style = match &node.item.visibility {
+            ItemVisibility::Crate => visibility_styles.pub_crate,
+            ItemVisibility::Module(_) => visibility_styles.pub_module,
+            ItemVisibility::Private => visibility_styles.pub_private,
+            ItemVisibility::Public => visibility_styles.pub_global,
+            ItemVisibility::Super => visibility_styles.pub_super,
         };
 
-        let visibility = visibility_style.paint(visibility);
-        write!(f, "{visibility}")?;
+        write!(f, "{}", visibility_style.paint(&node.item.visibility))?;
 
         Ok(())
     }
@@ -160,8 +149,7 @@ impl<'a> Printer<'a> {
 
         let name_style = styles.name;
 
-        let name = name_style.paint(node.display_name());
-        write!(f, "{name}")?;
+        write!(f, "{}", name_style.paint(node.display_name()))?;
 
         Ok(())
     }

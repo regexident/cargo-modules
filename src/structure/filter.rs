@@ -60,10 +60,7 @@ impl<'a> Filter<'a> {
 
         let depth = if is_focus_node { Some(0) } else { depth };
 
-        let should_be_retained = match node.item.hir {
-            Some(moduledef_hir) => self.should_retain_moduledef(moduledef_hir),
-            None => true,
-        };
+        let should_be_retained = self.should_retain_moduledef(node.item.hir);
 
         let subnode_contains_focus_node = node
             .subnodes

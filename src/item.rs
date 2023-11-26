@@ -21,10 +21,10 @@ pub struct Item {
     pub crate_name: Option<String>,
     pub path: Vec<String>,
     pub file_path: Option<PathBuf>,
-    pub hir: Option<hir::ModuleDef>,
-    pub visibility: Option<visibility::ItemVisibility>,
+    pub hir: hir::ModuleDef,
+    pub visibility: visibility::ItemVisibility,
     pub attrs: attr::ItemAttrs,
-    pub kind: Option<kind::ItemKind>,
+    pub kind: kind::ItemKind,
 }
 
 impl Item {
@@ -47,9 +47,9 @@ impl Item {
             .and_then(|module| analyzer::module_file(module.definition_source(db), db, vfs))
         };
 
-        let hir = Some(moduledef_hir);
+        let hir = moduledef_hir;
 
-        let visibility = Some(ItemVisibility::new(moduledef_hir, db));
+        let visibility = ItemVisibility::new(moduledef_hir, db);
 
         let attrs = {
             let cfgs: Vec<_> = analyzer::cfg_attrs(moduledef_hir, db);
@@ -57,7 +57,7 @@ impl Item {
             ItemAttrs { cfgs, test }
         };
 
-        let kind = hir.map(|hir| kind::ItemKind::new(hir, db));
+        let kind = kind::ItemKind::new(hir, db);
 
         Self {
             crate_name,
@@ -81,19 +81,15 @@ impl Item {
         self.path.join("::")
     }
 
-    pub fn kind_display_name(&self) -> Option<String> {
-        self.kind.as_ref().map(|kind| kind.to_string())
+    pub fn kind_display_name(&self) -> String {
+        self.kind.to_string()
     }
 
     pub(crate) fn is_crate(&self, _db: &RootDatabase) -> bool {
-        let Some(hir::ModuleDef::Module(module)) = self.hir else {
+        let hir::ModuleDef::Module(module) = self.hir else {
             return false;
         };
 
         module.is_crate_root()
-    }
-
-    pub(crate) fn is_file(&self) -> bool {
-        self.file_path.is_some()
     }
 }

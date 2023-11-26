@@ -271,16 +271,6 @@ mod package_bin {
     }
 }
 
-mod orphans {
-    test_cmd!(
-        args: "structure \
-                --orphans",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
 mod tests {
     test_cmd!(
         args: "structure \

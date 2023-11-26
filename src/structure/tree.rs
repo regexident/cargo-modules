@@ -36,7 +36,7 @@ impl Node {
         self.item.display_name()
     }
 
-    pub fn kind_display_name(&self) -> Option<String> {
+    pub fn kind_display_name(&self) -> String {
         self.item.kind_display_name()
     }
 }
