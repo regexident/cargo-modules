@@ -6,7 +6,6 @@ pub mod command;
 pub mod options;
 
 pub(crate) mod analyzer;
-pub(crate) mod graph;
+pub(crate) mod dependencies;
 pub(crate) mod item;
 pub(crate) mod structure;
-pub(crate) mod target;

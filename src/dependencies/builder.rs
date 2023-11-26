@@ -16,16 +16,12 @@ use scopeguard::defer;
 
 use crate::{
     analyzer,
-    graph::{
-        edge::{Edge, EdgeKind},
-        node::Node,
-        Graph,
+    dependencies::{
+        graph::{Edge, EdgeKind, Graph, Node},
+        options::Options,
     },
     item::Item,
 };
-
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Options {}
 
 #[derive(Debug, Hash, Eq, PartialEq)]
 struct Dependency {

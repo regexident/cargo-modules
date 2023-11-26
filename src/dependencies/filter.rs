@@ -18,35 +18,22 @@ use ra_ap_syntax::ast;
 
 use crate::{
     analyzer,
-    graph::{
-        edge::{Edge, EdgeKind},
-        util, Graph,
+    dependencies::{
+        graph::{Edge, EdgeKind, Graph},
+        options::Options,
+        walker::GraphWalker,
     },
 };
 
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Options {
-    pub focus_on: Option<String>,
-    pub max_depth: Option<usize>,
-    pub acyclic: bool,
-    pub types: bool,
-    pub traits: bool,
-    pub fns: bool,
-    pub tests: bool,
-    pub modules: bool,
-    pub uses: bool,
-    pub externs: bool,
-}
-
 #[derive(Debug)]
 pub struct Filter<'a> {
-    options: Options,
+    options: &'a Options,
     db: &'a RootDatabase,
     krate: hir::Crate,
 }
 
 impl<'a> Filter<'a> {
-    pub fn new(options: Options, db: &'a RootDatabase, krate: hir::Crate) -> Self {
+    pub fn new(options: &'a Options, db: &'a RootDatabase, krate: hir::Crate) -> Self {
         Self { options, db, krate }
     }
 
@@ -81,7 +68,7 @@ impl<'a> Filter<'a> {
 
         let max_depth = self.options.max_depth.unwrap_or(usize::MAX);
         let nodes_within_max_depth =
-            util::nodes_within_max_depth_from(&graph, max_depth, &focus_node_idxs[..]);
+            Self::nodes_within_max_depth_from(&graph, max_depth, &focus_node_idxs[..]);
 
         debug_assert!(
             nodes_within_max_depth.contains(&root_idx),
@@ -93,7 +80,7 @@ impl<'a> Filter<'a> {
         let mut stack: Vec<_> = {
             let mut stack: Vec<_> = Vec::default();
 
-            let owner_only_graph = util::owner_only_graph(&graph);
+            let owner_only_graph = Self::owner_only_graph(&graph);
             let mut traversal = Bfs::new(&owner_only_graph, root_idx);
             while let Some(node_idx) = traversal.next(&owner_only_graph) {
                 stack.push(node_idx);
@@ -199,7 +186,7 @@ impl<'a> Filter<'a> {
         }
 
         // Drop any "uses" edges, if necessary:
-        if !self.options.uses {
+        if !self.options.selection.uses {
             graph.retain_edges(|graph, edge_idx| {
                 let edge = &graph[edge_idx];
                 edge.kind == EdgeKind::Owns
@@ -230,7 +217,7 @@ impl<'a> Filter<'a> {
         // The above filters may have created disconnected sub-graphs.
         // We're only interested in the sub-graph containing the `root_idx` though,
         // so we query the graph for all node reachable from `root_node`:
-        let nodes_reachable_from_root = util::nodes_reachable_from(&graph, root_idx);
+        let nodes_reachable_from_root = Self::nodes_reachable_from(&graph, root_idx);
 
         debug_assert!(
             nodes_reachable_from_root.contains(&root_idx),
@@ -247,7 +234,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_moduledef(&self, moduledef_hir: hir::ModuleDef) -> bool {
-        if !self.options.externs && self.is_extern(moduledef_hir) {
+        if !self.options.selection.externs && self.is_extern(moduledef_hir) {
             return false;
         }
 
@@ -273,7 +260,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_module(&self, module_hir: hir::Module) -> bool {
-        if !self.options.modules {
+        if !self.options.selection.modules {
             // Always keep a crate's root module:
             return module_hir.is_crate_root();
         }
@@ -281,11 +268,11 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_function(&self, function_hir: hir::Function) -> bool {
-        if !self.options.fns {
+        if !self.options.selection.fns {
             return false;
         }
 
-        if !self.options.tests {
+        if !self.options.selection.tests {
             let attrs = function_hir.attrs(self.db);
             if attrs.by_key("test").exists() {
                 return false;
@@ -296,7 +283,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_adt(&self, _adt_hir: hir::Adt) -> bool {
-        if !self.options.types {
+        if !self.options.selection.types {
             return false;
         }
 
@@ -316,7 +303,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_trait(&self, _trait_hir: hir::Trait) -> bool {
-        if !self.options.traits {
+        if !self.options.selection.traits {
             return false;
         }
 
@@ -324,7 +311,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_trait_alias(&self, _trait_alias_hir: hir::TraitAlias) -> bool {
-        if !self.options.traits {
+        if !self.options.selection.traits {
             return false;
         }
 
@@ -332,7 +319,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_type_alias(&self, _type_alias_hir: hir::TypeAlias) -> bool {
-        if !self.options.types {
+        if !self.options.selection.types {
             return false;
         }
 
@@ -340,7 +327,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_builtin_type(&self, _builtin_type_hir: hir::BuiltinType) -> bool {
-        if !self.options.types {
+        if !self.options.selection.types {
             return false;
         }
 
@@ -363,5 +350,53 @@ impl<'a> Filter<'a> {
         };
 
         self.krate != import_krate
+    }
+
+    fn owner_only_graph(graph: &Graph) -> Graph {
+        graph.filter_map(
+            |_node_idx, node| Some(node.clone()),
+            |_edge_idx, edge| {
+                if matches!(edge.kind, EdgeKind::Owns) {
+                    Some(edge.clone())
+                } else {
+                    None
+                }
+            },
+        )
+    }
+
+    fn nodes_reachable_from(graph: &Graph, start_node_idx: NodeIndex) -> HashSet<NodeIndex> {
+        let mut reachability_walker = GraphWalker::new(petgraph::Direction::Outgoing);
+        reachability_walker.walk_graph(graph, start_node_idx, |_edge, _node, _depth| true);
+        reachability_walker.nodes_visited
+    }
+
+    fn nodes_within_max_depth_from<'b, I>(
+        graph: &Graph,
+        max_depth: usize,
+        start_node_idxs: I,
+    ) -> HashSet<NodeIndex>
+    where
+        I: 'b + IntoIterator<Item = &'b NodeIndex>,
+    {
+        let mut nodes_to_keep: HashSet<NodeIndex> = HashSet::default();
+
+        // Walk graph, collecting visited nodes:
+        for start_node_idx in start_node_idxs {
+            // Walks from a node to its descendants in the graph (i.e. sub-items & dependencies):
+            let mut descendants_walker = GraphWalker::new(petgraph::Direction::Outgoing);
+            descendants_walker.walk_graph(graph, *start_node_idx, |_edge, _node, depth| {
+                depth <= max_depth
+            });
+            nodes_to_keep.extend(descendants_walker.nodes_visited);
+
+            // Walks from a node to its ascendants in the graph (i.e. super-items & dependents):
+            let mut ascendants_walker = GraphWalker::new(petgraph::Direction::Incoming);
+            ascendants_walker.walk_graph(graph, *start_node_idx, |edge, _node, depth| {
+                (edge.kind == EdgeKind::Owns) || (depth <= max_depth)
+            });
+            nodes_to_keep.extend(ascendants_walker.nodes_visited);
+        }
+        nodes_to_keep
     }
 }

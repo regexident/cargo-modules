@@ -4,6 +4,31 @@
 
 use std::fmt;
 
+use petgraph::stable_graph::StableGraph;
+
+use crate::item::Item;
+
+pub type Graph = StableGraph<Node, Edge>;
+
+#[derive(Clone, PartialEq, Debug)]
+pub struct Node {
+    pub item: Item,
+}
+
+impl Node {
+    pub fn new(item: Item) -> Self {
+        Self { item }
+    }
+
+    pub fn display_path(&self) -> String {
+        self.item.display_path()
+    }
+
+    pub fn kind_display_name(&self) -> Option<String> {
+        self.item.kind_display_name()
+    }
+}
+
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
 pub enum EdgeKind {
     Uses,

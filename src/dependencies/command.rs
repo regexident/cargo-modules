@@ -2,38 +2,43 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use log::trace;
+use clap::Parser;
+use log::{debug, trace};
 use petgraph::graph::NodeIndex;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 use ra_ap_vfs::Vfs;
 
-use crate::graph::{
-    builder::{Builder, Options as BuilderOptions},
+use crate::dependencies::{
+    builder::Builder,
     cycles::tri_color::{CycleDetector, TriColorDepthFirstSearch},
-    filter::{Filter, Options as FilterOptions},
-    options::LayoutAlgorithm,
-    printer::{Options as PrinterOptions, Printer},
-    Graph,
+    filter::Filter,
+    graph::Graph,
+    options::{LayoutAlgorithm, Options},
+    printer::Printer,
 };
 
+#[derive(Parser, Clone, PartialEq, Eq, Debug)]
 pub struct Command {
-    builder_options: BuilderOptions,
-    filter_options: FilterOptions,
-    printer_options: PrinterOptions,
+    #[command(flatten)]
+    pub options: Options,
 }
 
 impl Command {
-    pub fn new(
-        builder_options: BuilderOptions,
-        filter_options: FilterOptions,
-        printer_options: PrinterOptions,
-    ) -> Self {
-        Self {
-            builder_options,
-            filter_options,
-            printer_options,
+    pub fn new(options: Options) -> Self {
+        Self { options }
+    }
+
+    pub(crate) fn sanitize(&mut self) {
+        if self.options.selection.tests && !self.options.project.cfg_test {
+            debug!("Enabling `--cfg-test`, which is implied by `--tests`");
+            self.options.project.cfg_test = true;
         }
+
+        // We only need to include sysroot if we include extern uses
+        // and didn't explicitly request sysroot to be excluded:
+        self.options.project.sysroot &=
+            self.options.selection.uses && self.options.selection.externs;
     }
 
     #[doc(hidden)]
@@ -42,10 +47,10 @@ impl Command {
 
         trace!("Building graph ...");
 
-        let builder = Builder::new(self.builder_options, db, vfs, krate);
+        let builder = Builder::new(self.options.clone(), db, vfs, krate);
         let (graph, crate_node_idx) = builder.build()?;
 
-        if self.filter_options.acyclic {
+        if self.options.acyclic {
             if let Some(cycle) =
                 TriColorDepthFirstSearch::new(&graph).run_from(crate_node_idx, &mut CycleDetector)
             {
@@ -57,20 +62,20 @@ impl Command {
             }
         }
 
-        if self.printer_options.layout == LayoutAlgorithm::None {
+        if self.options.layout == LayoutAlgorithm::None {
             return Ok(());
         }
 
         trace!("Filtering graph ...");
 
-        let filter = Filter::new(self.filter_options, db, krate);
+        let filter = Filter::new(&self.options, db, krate);
         let graph = filter.filter(&graph, crate_node_idx)?;
 
         trace!("Printing graph ...");
 
         let mut string = String::new();
 
-        let printer = Printer::new(self.printer_options, krate, db);
+        let printer = Printer::new(&self.options, krate, db);
         printer.fmt(&mut string, &graph, crate_node_idx)?;
 
         print!("{string}");
@@ -79,7 +84,7 @@ impl Command {
     }
 
     fn validate_options(&self) -> anyhow::Result<()> {
-        if self.filter_options.externs && !self.filter_options.uses {
+        if self.options.selection.externs && !self.options.selection.uses {
             anyhow::bail!("Option `--externs` requires option `--uses`");
         }
 
