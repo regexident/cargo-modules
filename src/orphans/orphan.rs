@@ -6,7 +6,8 @@ use std::path::PathBuf;
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Orphan {
+    pub name: String,
+    pub file_path: PathBuf,
     pub parent_module_path: String,
     pub parent_file_path: PathBuf,
-    pub file_path: PathBuf,
 }
