@@ -7,7 +7,6 @@
 use std::fmt;
 
 use ra_ap_ide::RootDatabase;
-use yansi::Style;
 
 use crate::{
     item::visibility::ItemVisibility,
@@ -107,7 +106,8 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_kind(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let kind_style = self.kind_style();
+        let styles = styles();
+        let kind_style = styles.kind;
 
         let display_name = node.kind_display_name().unwrap_or_else(|| "mod".to_owned());
         let kind = kind_style.paint(display_name);
@@ -118,7 +118,8 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_colon(&self, f: &mut dyn fmt::Write, _node: &Node) -> fmt::Result {
-        let colon_style = self.colon_style();
+        let styles = styles();
+        let colon_style = styles.colon;
 
         let colon = colon_style.paint(":");
         write!(f, "{colon}")?;
@@ -127,13 +128,23 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_visibility(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
+        let styles = styles();
+
         let (visibility, visibility_style) = match &node.item.visibility {
             Some(visibility) => {
-                let visibility_style = self.visibility_style(visibility);
-                (format!("{visibility}"), visibility_style)
+                let styles = styles.visibility;
+                let style = match visibility {
+                    ItemVisibility::Crate => styles.pub_crate,
+                    ItemVisibility::Module(_) => styles.pub_module,
+                    ItemVisibility::Private => styles.pub_private,
+                    ItemVisibility::Public => styles.pub_global,
+                    ItemVisibility::Super => styles.pub_super,
+                };
+
+                (format!("{visibility}"), style)
             }
             None => {
-                let orphan_style = self.orphan_style();
+                let orphan_style = styles.orphan;
                 ("orphan".to_owned(), orphan_style)
             }
         };
@@ -145,7 +156,9 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_name(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let name_style = self.name_style();
+        let styles = styles();
+
+        let name_style = styles.name;
 
         let name = name_style.paint(node.display_name());
         write!(f, "{name}")?;
@@ -154,8 +167,9 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_attrs(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let attr_chrome_style = self.attr_chrome_style();
-        let attr_style = self.attr_style();
+        let styles = styles();
+        let attr_chrome_style = styles.attr_chrome;
+        let attr_style = styles.attr;
 
         let mut is_first = true;
 
@@ -168,9 +182,6 @@ impl<'a> Printer<'a> {
 
             is_first = false;
         }
-
-        let attr_chrome_style = self.attr_chrome_style();
-        let attr_style = self.attr_style();
 
         for cfg in &node.item.attrs.cfgs[..] {
             if !is_first {
@@ -190,8 +201,11 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_branch(&self, f: &mut dyn fmt::Write, twigs: &[Twig]) -> fmt::Result {
+        let styles = styles();
+        let branch_style = styles.branch;
+
         let prefix = self.branch_prefix(twigs);
-        write!(f, "{}", self.branch_style().paint(&prefix))
+        write!(f, "{}", branch_style.paint(&prefix))
     }
 
     /// Print a branch's prefix:
@@ -235,49 +249,5 @@ impl<'a> Printer<'a> {
         }
 
         string
-    }
-
-    fn colon_style(&self) -> Style {
-        Style::default().dimmed()
-    }
-
-    fn attr_chrome_style(&self) -> Style {
-        Style::default().dimmed()
-    }
-
-    fn branch_style(&self) -> Style {
-        Style::default().dimmed()
-    }
-
-    fn name_style(&self) -> Style {
-        let styles = styles();
-        styles.name
-    }
-
-    fn kind_style(&self) -> Style {
-        let styles = styles();
-        styles.kind
-    }
-
-    fn visibility_style(&self, visibility: &ItemVisibility) -> Style {
-        let styles = styles().visibility;
-
-        match visibility {
-            ItemVisibility::Crate => styles.pub_crate,
-            ItemVisibility::Module(_) => styles.pub_module,
-            ItemVisibility::Private => styles.pub_private,
-            ItemVisibility::Public => styles.pub_global,
-            ItemVisibility::Super => styles.pub_super,
-        }
-    }
-
-    fn orphan_style(&self) -> Style {
-        let styles = styles();
-        styles.orphan
-    }
-
-    fn attr_style(&self) -> Style {
-        let styles = styles();
-        styles.attr
     }
 }
