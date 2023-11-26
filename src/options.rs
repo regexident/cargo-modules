@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 use clap::{ArgAction, ArgGroup, Parser};
 
-use crate::commands::Command;
+use crate::command::Command;
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 pub struct App {
