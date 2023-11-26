@@ -9,32 +9,21 @@ use ra_ap_syntax::ast;
 
 use crate::{
     analyzer,
-    tree::{node::Node, Tree},
+    structure::{
+        options::Options,
+        tree::{Node, Tree},
+    },
 };
-
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Options {
-    pub focus_on: Option<String>,
-    pub max_depth: Option<usize>,
-    pub acyclic: bool,
-    pub types: bool,
-    pub traits: bool,
-    pub fns: bool,
-    pub tests: bool,
-    pub modules: bool,
-    pub uses: bool,
-    pub externs: bool,
-}
 
 #[derive(Debug)]
 pub struct Filter<'a> {
-    options: Options,
+    options: &'a Options,
     db: &'a RootDatabase,
     krate: hir::Crate,
 }
 
 impl<'a> Filter<'a> {
-    pub fn new(options: Options, db: &'a RootDatabase, krate: hir::Crate) -> Self {
+    pub fn new(options: &'a Options, db: &'a RootDatabase, krate: hir::Crate) -> Self {
         Self { options, db, krate }
     }
 
@@ -127,7 +116,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_moduledef(&self, moduledef_hir: hir::ModuleDef) -> bool {
-        if !self.options.externs && self.is_extern(moduledef_hir) {
+        if self.is_extern(moduledef_hir) {
             return false;
         }
 
@@ -152,20 +141,16 @@ impl<'a> Filter<'a> {
         }
     }
 
-    fn should_retain_module(&self, module_hir: hir::Module) -> bool {
-        if !self.options.modules {
-            // Always keep a crate's root module:
-            return module_hir.is_crate_root();
-        }
+    fn should_retain_module(&self, _module_hir: hir::Module) -> bool {
         true
     }
 
     fn should_retain_function(&self, function_hir: hir::Function) -> bool {
-        if !self.options.fns {
+        if !self.options.selection.fns {
             return false;
         }
 
-        if !self.options.tests {
+        if !self.options.selection.tests {
             let attrs = function_hir.attrs(self.db);
             if attrs.by_key("test").exists() {
                 return false;
@@ -176,7 +161,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_adt(&self, _adt_hir: hir::Adt) -> bool {
-        if !self.options.types {
+        if !self.options.selection.types {
             return false;
         }
 
@@ -196,7 +181,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_trait(&self, _trait_hir: hir::Trait) -> bool {
-        if !self.options.traits {
+        if !self.options.selection.traits {
             return false;
         }
 
@@ -204,7 +189,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_trait_alias(&self, _trait_alias_hir: hir::TraitAlias) -> bool {
-        if !self.options.traits {
+        if !self.options.selection.traits {
             return false;
         }
 
@@ -212,7 +197,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_type_alias(&self, _type_alias_hir: hir::TypeAlias) -> bool {
-        if !self.options.types {
+        if !self.options.selection.types {
             return false;
         }
 
@@ -220,7 +205,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_builtin_type(&self, _builtin_type_hir: hir::BuiltinType) -> bool {
-        if !self.options.types {
+        if !self.options.selection.types {
             return false;
         }
 

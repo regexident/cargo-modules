@@ -12,15 +12,8 @@ use crate::{
         filter::Options as GraphFilterOptions, options::Options as GraphOptions,
         printer::Options as GraphPrinterOptions,
     },
-    options::{
-        general::Options as GeneralOptions, project::Options as ProjectOptions,
-        selection::Options as SelectionOptions,
-    },
-    tree::{
-        builder::Options as TreeBuilderOptions, command::Command as GenerateTreeCommand,
-        filter::Options as TreeFilterOptions, options::Options as TreeOptions,
-        printer::Options as TreePrinterOptions,
-    },
+    options::{general::Options as GeneralOptions, project::Options as ProjectOptions},
+    structure::command::Command as StructureCommand,
 };
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
@@ -35,8 +28,11 @@ use crate::{
     // "#
 )]
 pub enum Command {
-    #[command(name = "tree", about = "Print crate as a tree.")]
-    Tree(TreeOptions),
+    #[command(
+        name = "structure",
+        about = "Prints a crate's hierarchical structure as a tree."
+    )]
+    Structure(StructureCommand),
 
     #[command(
         name = "graph",
@@ -51,17 +47,14 @@ pub enum Command {
 
 impl Command {
     pub(crate) fn sanitize(&mut self) {
-        if self.selection_options().tests && !self.project_options().cfg_test {
-            debug!("Enabling `--cfg-test`, which is implied by `--tests`");
-            self.project_options_mut().cfg_test = true;
-        }
-
         match self {
-            Self::Tree(options) => {
-                // We don't need to include sysroot if we only want the crate tree:
-                options.project.sysroot = false;
-            }
+            Self::Structure(command) => command.sanitize(),
             Self::Graph(options) => {
+                if options.selection.tests && !options.project.cfg_test {
+                    debug!("Enabling `--cfg-test`, which is implied by `--tests`");
+                    options.project.cfg_test = true;
+                }
+
                 // We only need to include sysroot if we include extern uses
                 // and didn't explicitly request sysroot to be excluded:
                 options.project.sysroot &= options.uses && options.externs;
@@ -79,32 +72,7 @@ impl Command {
 
         match self {
             #[allow(unused_variables)]
-            Self::Tree(options) => {
-                let builder_options = TreeBuilderOptions {
-                    orphans: options.orphans,
-                };
-                let filter_options = TreeFilterOptions {
-                    focus_on: options.selection.focus_on.clone(),
-                    max_depth: options.selection.max_depth,
-                    acyclic: false,
-                    modules: true,
-                    types: options.selection.types,
-                    traits: options.selection.traits,
-                    fns: options.selection.fns,
-                    tests: options.selection.tests,
-                    uses: false,
-                    externs: false,
-                };
-                let printer_options = TreePrinterOptions {
-                    sort_by: options.sort_by,
-                    sort_reversed: options.sort_reversed,
-                };
-
-                let command =
-                    GenerateTreeCommand::new(builder_options, filter_options, printer_options);
-                command.run(krate, db, &vfs)?;
-                Ok(())
-            }
+            Self::Structure(command) => command.run(krate, db, &vfs),
             #[allow(unused_variables)]
             Self::Graph(options) => {
                 let builder_options = GraphBuilderOptions {};
@@ -134,46 +102,16 @@ impl Command {
 
     fn general_options(&self) -> &GeneralOptions {
         match self {
-            Self::Tree(options) => &options.general,
+            Self::Structure(command) => &command.options.general,
             Self::Graph(options) => &options.general,
         }
     }
 
     #[allow(dead_code)]
-    fn general_options_mut(&mut self) -> &mut GeneralOptions {
-        match self {
-            Self::Tree(options) => &mut options.general,
-            Self::Graph(options) => &mut options.general,
-        }
-    }
-
     fn project_options(&self) -> &ProjectOptions {
         match self {
-            Self::Tree(options) => &options.project,
+            Self::Structure(command) => &command.options.project,
             Self::Graph(options) => &options.project,
-        }
-    }
-
-    #[allow(dead_code)]
-    fn project_options_mut(&mut self) -> &mut ProjectOptions {
-        match self {
-            Self::Tree(options) => &mut options.project,
-            Self::Graph(options) => &mut options.project,
-        }
-    }
-
-    fn selection_options(&self) -> &SelectionOptions {
-        match self {
-            Self::Tree(options) => &options.selection,
-            Self::Graph(options) => &options.selection,
-        }
-    }
-
-    #[allow(dead_code)]
-    fn selection_options_mut(&mut self) -> &mut SelectionOptions {
-        match self {
-            Self::Tree(options) => &mut options.selection,
-            Self::Graph(options) => &mut options.selection,
         }
     }
 }
