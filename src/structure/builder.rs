@@ -12,28 +12,30 @@ use scopeguard::defer;
 use crate::{
     analyzer,
     item::Item,
-    tree::{node::Node, Tree},
+    structure::{
+        options::Options,
+        tree::{Node, Tree},
+    },
 };
 
 use super::orphans::orphan_nodes_for;
 
-// use super::orphans::add_orphan_nodes_to;
-
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Options {
-    pub orphans: bool,
-}
-
 #[derive(Debug)]
 pub struct Builder<'a> {
-    options: Options,
+    #[allow(dead_code)]
+    options: &'a Options,
     db: &'a RootDatabase,
     vfs: &'a Vfs,
     krate: hir::Crate,
 }
 
 impl<'a> Builder<'a> {
-    pub fn new(options: Options, db: &'a RootDatabase, vfs: &'a Vfs, krate: hir::Crate) -> Self {
+    pub fn new(
+        options: &'a Options,
+        db: &'a RootDatabase,
+        vfs: &'a Vfs,
+        krate: hir::Crate,
+    ) -> Self {
         Self {
             options,
             db,
@@ -146,7 +148,7 @@ impl<'a> Builder<'a> {
             node.push_subnode(subnode);
         }
 
-        if self.options.orphans && node.item.is_file() {
+        if self.options.selection.orphans && node.item.is_file() {
             for subnode in orphan_nodes_for(&node) {
                 node.push_subnode(subnode);
             }

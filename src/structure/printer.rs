@@ -11,7 +11,11 @@ use yansi::Style;
 
 use crate::{
     item::visibility::ItemVisibility,
-    tree::{node::Node, options::SortBy, theme::styles, Tree},
+    structure::{
+        options::{Options, SortBy},
+        theme::styles,
+        tree::{Node, Tree},
+    },
 };
 
 #[derive(Debug)]
@@ -19,20 +23,14 @@ struct Twig {
     is_last: bool,
 }
 
-#[derive(Clone, Debug)]
-pub struct Options {
-    pub sort_by: SortBy,
-    pub sort_reversed: bool,
-}
-
 pub struct Printer<'a> {
     #[allow(dead_code)]
-    options: Options,
+    options: &'a Options,
     db: &'a RootDatabase,
 }
 
 impl<'a> Printer<'a> {
-    pub fn new(options: Options, db: &'a RootDatabase) -> Self {
+    pub fn new(options: &'a Options, db: &'a RootDatabase) -> Self {
         Self { options, db }
     }
 

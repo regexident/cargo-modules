@@ -13,7 +13,7 @@ use ra_ap_hir as hir;
 
 use crate::{
     item::{attr::ItemAttrs, Item},
-    tree::node::Node,
+    structure::tree::Node,
 };
 
 pub(crate) fn orphan_nodes_for(node: &Node) -> Vec<Node> {

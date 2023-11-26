@@ -2,6 +2,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+#[derive(Clone, PartialEq, Debug)]
+pub struct Tree {
+    pub root_node: Node,
+}
+
+impl Tree {
+    pub fn new(root_node: Node) -> Self {
+        Self { root_node }
+    }
+}
+
 use crate::item::Item;
 
 #[derive(Clone, PartialEq, Debug)]
