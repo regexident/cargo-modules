@@ -64,7 +64,7 @@ mod default {
 mod negative_args {
     use clap::Parser;
 
-    use cargo_modules::{commands::Command, options::App};
+    use cargo_modules::{command::Command, options::App};
 
     fn args_for(command: &str, arg: &str, default: bool) -> Vec<(Vec<String>, bool)> {
         let args_prefix = vec!["modules".to_owned(), command.to_owned()];
