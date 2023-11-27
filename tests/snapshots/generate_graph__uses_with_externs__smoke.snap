@@ -86,7 +86,9 @@ digraph {
     "smoke::uses" -> "smoke::uses::cycle" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::uses::cycle" -> "smoke::uses::cycle::node_0" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::uses::cycle" -> "smoke::uses::cycle::node_1" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::uses::cycle::node_0" -> "smoke::uses::cycle::node_1" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::uses::cycle::node_1" -> "smoke::uses::cycle::node_1::node_2" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::uses::cycle::node_1::node_2" -> "smoke::uses::cycle::node_0" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::visibility" -> "smoke::visibility::dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::enums" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::fns" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge

@@ -1,21 +1,19 @@
 mod orphans;
 
 mod uses {
-    use core::ops::{self, Add, Eq};
-    use std::fmt::{self, Debug};
-
-    use package_lib_target::dummy;
+    use core::{cmp, ops};
+    use std::fmt;
 
     use crate::hierarchy;
 
     mod cycle {
         mod node_0 {
-            use super::cycle_1;
+            use super::node_1;
         }
 
         mod node_1 {
             mod node_2 {
-                use super::super::cycle_0;
+                use super::super::node_0;
             }
         }
     }
@@ -80,11 +78,21 @@ mod visibility {
         }
 
         mod unions {
-            pub union PubPublic {}
-            pub(crate) union PubCrate {}
-            pub(in crate::visibility) union PubModule {}
-            pub(super) union PubSuper {}
-            union PubPrivate {}
+            pub union PubPublic {
+                dummy: (),
+            }
+            pub(crate) union PubCrate {
+                dummy: (),
+            }
+            pub(in crate::visibility) union PubModule {
+                dummy: (),
+            }
+            pub(super) union PubSuper {
+                dummy: (),
+            }
+            union PubPrivate {
+                dummy: (),
+            }
         }
 
         mod traits {
@@ -118,7 +126,9 @@ mod visibility {
 
             struct Struct {}
             enum Enum {}
-            union Union {}
+            union Union {
+                dummy: (),
+            }
 
             trait Trait {}
             unsafe trait UnsafeTrait {}
