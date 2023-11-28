@@ -20,7 +20,9 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Support for detecting methods/type-aliases in impls.
+- Support for detecting dependencies from functions and methods.
+- Tracing logs for graph/tree building phases (`RUST_LOG=cargo_modules=trace …`).
 
 ### Changed
 
