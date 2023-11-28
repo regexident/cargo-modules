@@ -24,7 +24,9 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `clap` from `4.4.8` to `4.4.10`
+  - `proc-macro2` from `1.0.69` to `1.0.70`
 
 ### Deprecated
 
