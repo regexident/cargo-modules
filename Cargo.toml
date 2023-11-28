@@ -24,7 +24,7 @@ yansi = "0.5.1"
 log = "0.4.20"
 env_logger = "0.10.1"
 indoc = "2.0.4"
-clap = { version = "4.4.8", features = ["derive"] }
+clap = { version = "4.4.10", features = ["derive"] }
 
 ra_ap_base_db = "=0.0.186"
 ra_ap_cfg = "=0.0.186"
@@ -43,7 +43,7 @@ ra_ap_vfs = "=0.0.186"
 serde_repr = "0.1.17"
 tap = "1.0.1"
 wyz = "0.6.1"
-proc-macro2 = "1.0.69"
+proc-macro2 = "1.0.70"
 pulldown-cmark = "0.9.3"
 getopts = "0.2.21"
 
