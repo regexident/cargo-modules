@@ -24,11 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `clap` from `4.4.8` to `4.4.10`
-  - `proc-macro2` from `1.0.69` to `1.0.70`
-  - `rust-analyzer` from `0.0.186` to `0.0.187`
-- Switch Github action for Rust toolchain from `actions-rs/toolchain@v1` to `dtolnay/rust-toolchain@v1`
+- n/a
 
 ### Deprecated
 
@@ -53,6 +49,16 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.11.2] - 2023-11-29
+
+### Changed
+
+- Updated dependencies:
+  - `clap` from `4.4.8` to `4.4.10`
+  - `proc-macro2` from `1.0.69` to `1.0.70`
+  - `rust-analyzer` from `0.0.186` to `0.0.187`
+- Switch Github action for Rust toolchain from `actions-rs/toolchain@v1` to `dtolnay/rust-toolchain@v1`
 
 ## [0.11.1] - 2023-11-25
 
