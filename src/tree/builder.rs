@@ -7,6 +7,7 @@ use log::trace;
 use ra_ap_hir::{self as hir, Crate};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
+use scopeguard::defer;
 
 use crate::{
     item::Item,
@@ -41,7 +42,11 @@ impl<'a> Builder<'a> {
     }
 
     pub fn build(mut self) -> anyhow::Result<Tree> {
-        trace!("Scanning project ...");
+        trace!("Scanning project...");
+
+        defer! {
+            trace!("Finished canning project.");
+        }
 
         let tree = self
             .process_crate(self.krate)
@@ -50,8 +55,14 @@ impl<'a> Builder<'a> {
         Ok(tree)
     }
 
-    fn process_crate(&mut self, krate: Crate) -> Option<Tree> {
-        let root_module = krate.root_module();
+    fn process_crate(&mut self, crate_hir: Crate) -> Option<Tree> {
+        trace!("Processing crate {crate_hir:?}...");
+
+        defer! {
+            trace!("Finished processing impl {crate_hir:?}.");
+        }
+
+        let root_module = crate_hir.root_module();
         let root_node = self.process_module(root_module);
 
         root_node.map(Tree::new)
@@ -72,6 +83,12 @@ impl<'a> Builder<'a> {
     }
 
     fn process_moduledef(&mut self, moduledef_hir: hir::ModuleDef) -> Option<Node> {
+        trace!("Processing moduledef {moduledef_hir:?}...");
+
+        defer! {
+            trace!("Finished processing moduledef {moduledef_hir:?}.");
+        }
+
         match moduledef_hir {
             hir::ModuleDef::Module(module_hir) => self.process_module(module_hir),
             hir::ModuleDef::Function(function_hir) => self.process_function(function_hir),
@@ -92,10 +109,14 @@ impl<'a> Builder<'a> {
     }
 
     fn process_module(&mut self, module_hir: hir::Module) -> Option<Node> {
+        trace!("Processing module {module_hir:?}...");
+
+        defer! {
+            trace!("Finished processing module {module_hir:?}.");
+        }
+
         let item = Item::new(ModuleDef::Module(module_hir), self.db, self.vfs);
         let mut node = Node::new(item, vec![]);
-
-        // eprintln!("node: {:?}", node.item.path);
 
         let subnodes = module_hir
             .declarations(self.db)
@@ -103,13 +124,11 @@ impl<'a> Builder<'a> {
             .filter_map(|moduledef_hir| self.process_moduledef(moduledef_hir));
 
         for subnode in subnodes {
-            // eprintln!("- subnode: {:?}", subnode.item.path);
             node.push_subnode(subnode);
         }
 
         if self.options.orphans && node.item.is_file() {
             for subnode in orphan_nodes_for(&node) {
-                // eprintln!("- orphan: {:?}", subnode.item.path);
                 node.push_subnode(subnode);
             }
         }
@@ -118,10 +137,22 @@ impl<'a> Builder<'a> {
     }
 
     fn process_function(&mut self, function_hir: hir::Function) -> Option<Node> {
+        trace!("Processing function {function_hir:?}...");
+
+        defer! {
+            trace!("Finished processing function {function_hir:?}.");
+        }
+
         self.simple_node(hir::ModuleDef::Function(function_hir))
     }
 
     fn process_adt(&mut self, adt_hir: hir::Adt) -> Option<Node> {
+        trace!("Processing adt {adt_hir:?}...");
+
+        defer! {
+            trace!("Finished processing adt {adt_hir:?}.");
+        }
+
         let mut node = match adt_hir {
             hir::Adt::Struct(struct_hir) => self.process_struct(struct_hir),
             hir::Adt::Union(union_hir) => self.process_union(union_hir),
@@ -140,46 +171,112 @@ impl<'a> Builder<'a> {
     }
 
     fn process_struct(&mut self, struct_hir: hir::Struct) -> Option<Node> {
+        trace!("Processing struct {struct_hir:?}...");
+
+        defer! {
+            trace!("Finished processing struct {struct_hir:?}.");
+        }
+
         self.simple_node(hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)))
     }
 
-    fn process_union(&mut self, union_hir: hir::Union) -> Option<Node> {
-        self.simple_node(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)))
-    }
-
     fn process_enum(&mut self, enum_hir: hir::Enum) -> Option<Node> {
+        trace!("Processing enum {enum_hir:?}...");
+
+        defer! {
+            trace!("Finished processing enum {enum_hir:?}.");
+        }
+
         self.simple_node(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)))
     }
 
-    fn process_variant(&mut self, _variant_hir: hir::Variant) -> Option<Node> {
+    fn process_union(&mut self, union_hir: hir::Union) -> Option<Node> {
+        trace!("Processing union {union_hir:?}...");
+
+        defer! {
+            trace!("Finished processing union {union_hir:?}.");
+        }
+
+        self.simple_node(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)))
+    }
+
+    fn process_variant(&mut self, variant_hir: hir::Variant) -> Option<Node> {
+        trace!("Processing variant {variant_hir:?}...");
+
+        defer! {
+            trace!("Finished processing variant {variant_hir:?}.");
+        }
+
         None
     }
 
-    fn process_const(&mut self, _const_hir: hir::Const) -> Option<Node> {
+    fn process_const(&mut self, const_hir: hir::Const) -> Option<Node> {
+        trace!("Processing const {const_hir:?}...");
+
+        defer! {
+            trace!("Finished processing const {const_hir:?}.");
+        }
+
         None
     }
 
     fn process_static(&mut self, static_hir: hir::Static) -> Option<Node> {
+        trace!("Processing static {static_hir:?}...");
+
+        defer! {
+            trace!("Finished processing static {static_hir:?}.");
+        }
+
         self.simple_node(hir::ModuleDef::Static(static_hir))
     }
 
     fn process_trait(&mut self, trait_hir: hir::Trait) -> Option<Node> {
+        trace!("Processing trait {trait_hir:?}...");
+
+        defer! {
+            trace!("Finished processing trait {trait_hir:?}.");
+        }
+
         self.simple_node(hir::ModuleDef::Trait(trait_hir))
     }
 
     fn process_trait_alias(&mut self, trait_alias_hir: hir::TraitAlias) -> Option<Node> {
+        trace!("Processing trait alias {trait_alias_hir:?}...");
+
+        defer! {
+            trace!("Finished processing trait alias {trait_alias_hir:?}.");
+        }
+
         self.simple_node(hir::ModuleDef::TraitAlias(trait_alias_hir))
     }
 
     fn process_type_alias(&mut self, type_alias_hir: hir::TypeAlias) -> Option<Node> {
+        trace!("Processing type alias {type_alias_hir:?}...");
+
+        defer! {
+            trace!("Finished processing type alias {type_alias_hir:?}.");
+        }
+
         self.simple_node(hir::ModuleDef::TypeAlias(type_alias_hir))
     }
 
     fn process_builtin_type(&mut self, builtin_type_hir: hir::BuiltinType) -> Option<Node> {
+        trace!("Processing builtin type {builtin_type_hir:?}...");
+
+        defer! {
+            trace!("Finished processing builtin type {builtin_type_hir:?}.");
+        }
+
         self.simple_node(hir::ModuleDef::BuiltinType(builtin_type_hir))
     }
 
-    fn process_macro(&mut self, _macro_hir: hir::Macro) -> Option<Node> {
+    fn process_macro(&mut self, macro_hir: hir::Macro) -> Option<Node> {
+        trace!("Processing macro {macro_hir:?}...");
+
+        defer! {
+            trace!("Finished processing macro {macro_hir:?}.");
+        }
+
         None
     }
 
