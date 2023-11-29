@@ -344,6 +344,15 @@ mod github_issue_80 {
     }
 }
 
+mod github_issue_222 {
+    test_cmd!(
+        args: "generate tree",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: github_issue_222
+    );
+}
+
 mod focus_on {
     mod simple_path {
         test_cmd!(
