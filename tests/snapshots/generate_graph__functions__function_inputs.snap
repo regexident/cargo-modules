@@ -1,0 +1,70 @@
+---
+source: tests/generate_graph.rs
+expression: output
+---
+STDERR:
+
+STDOUT:
+digraph {
+
+    graph [
+        label="function_inputs",
+        labelloc=t,
+
+        pad=0.4,
+
+        // Consider rendering the graph using a different layout algorithm, such as:
+        // [dot, neato, twopi, circo, fdp, sfdp]
+        layout=neato,
+        overlap=false,
+        splines="line",
+        rankdir=LR,
+
+        fontname="Helvetica", 
+        fontsize="36",
+    ];
+
+    node [
+        fontname="monospace",
+        fontsize="10",
+        shape="record",
+        style="filled",
+    ];
+
+    edge [
+        fontname="monospace",
+        fontsize="10",
+    ];
+
+    "function_inputs" [label="crate|function_inputs", fillcolor="#5397c8"]; // "crate" node
+    "function_inputs::Dummy" [label="pub(crate) struct|function_inputs::Dummy", fillcolor="#f8c04c"]; // "struct" node
+    "function_inputs::GenericTargetEnum" [label="pub(crate) enum|function_inputs::GenericTargetEnum", fillcolor="#f8c04c"]; // "enum" node
+    "function_inputs::GenericTargetStruct" [label="pub(crate) struct|function_inputs::GenericTargetStruct", fillcolor="#f8c04c"]; // "struct" node
+    "function_inputs::GenericTargetUnion" [label="pub(crate) union|function_inputs::GenericTargetUnion", fillcolor="#f8c04c"]; // "union" node
+    "function_inputs::GenericTypeAlias" [label="pub(crate) type|function_inputs::GenericTypeAlias", fillcolor="#f8c04c"]; // "type" node
+    "function_inputs::TargetEnum" [label="pub(crate) enum|function_inputs::TargetEnum", fillcolor="#f8c04c"]; // "enum" node
+    "function_inputs::TargetStruct" [label="pub(crate) struct|function_inputs::TargetStruct", fillcolor="#f8c04c"]; // "struct" node
+    "function_inputs::TargetTrait" [label="pub(crate) trait|function_inputs::TargetTrait", fillcolor="#f8c04c"]; // "trait" node
+    "function_inputs::TargetUnion" [label="pub(crate) union|function_inputs::TargetUnion", fillcolor="#f8c04c"]; // "union" node
+    "function_inputs::TypeAlias" [label="pub(crate) type|function_inputs::TypeAlias", fillcolor="#f8c04c"]; // "type" node
+    "function_inputs::function" [label="pub(crate) fn|function_inputs::function", fillcolor="#f8c04c"]; // "fn" node
+    "function_inputs::function_inputs" [label="pub(crate) fn|function_inputs::function_inputs", fillcolor="#f8c04c"]; // "fn" node
+    "function_inputs::generic_function" [label="pub(crate) fn|function_inputs::generic_function", fillcolor="#f8c04c"]; // "fn" node
+
+    "function_inputs" -> "function_inputs::Dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::GenericTargetEnum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::GenericTargetStruct" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::GenericTargetUnion" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::GenericTypeAlias" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::TargetEnum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::TargetStruct" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::TargetTrait" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::TargetUnion" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::TypeAlias" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::function" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::function_inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs" -> "function_inputs::generic_function" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_inputs::TypeAlias" -> "function_inputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+
+}
+
