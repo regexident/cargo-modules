@@ -4,11 +4,10 @@
 
 use std::collections::{HashMap, HashSet};
 
-use log::trace;
 use petgraph::graph::{EdgeIndex, NodeIndex};
-use ra_ap_hir::{self as hir, Crate};
-use ra_ap_ide_db::RootDatabase;
-use ra_ap_vfs::Vfs;
+use ra_ap_hir::{self as hir};
+use ra_ap_ide_db::{self as ide_db};
+use ra_ap_vfs::{self as vfs};
 
 use crate::{
     graph::{
@@ -32,8 +31,8 @@ struct Dependency {
 pub struct Builder<'a> {
     #[allow(dead_code)]
     options: Options,
-    db: &'a RootDatabase,
-    vfs: &'a Vfs,
+    db: &'a ide_db::RootDatabase,
+    vfs: &'a vfs::Vfs,
     krate: hir::Crate,
     graph: Graph,
     nodes: HashMap<String, NodeIndex>,
@@ -41,7 +40,12 @@ pub struct Builder<'a> {
 }
 
 impl<'a> Builder<'a> {
-    pub fn new(options: Options, db: &'a RootDatabase, vfs: &'a Vfs, krate: hir::Crate) -> Self {
+    pub fn new(
+        options: Options,
+        db: &'a ide_db::RootDatabase,
+        vfs: &'a vfs::Vfs,
+        krate: hir::Crate,
+    ) -> Self {
         let graph = Graph::default();
         let nodes = HashMap::default();
         let edges = HashMap::default();
@@ -58,8 +62,6 @@ impl<'a> Builder<'a> {
     }
 
     pub fn build(mut self) -> anyhow::Result<(Graph, NodeIndex)> {
-        trace!("Scanning project ...");
-
         let node_idx = self
             .process_crate(self.krate)
             .expect("Expected graph node for crate root module");
@@ -67,10 +69,96 @@ impl<'a> Builder<'a> {
         Ok((self.graph, node_idx))
     }
 
-    fn process_crate(&mut self, krate: Crate) -> Option<NodeIndex> {
-        let module = krate.root_module();
+    fn process_crate(&mut self, crate_hir: hir::Crate) -> Option<NodeIndex> {
+        let module = crate_hir.root_module();
 
-        self.process_moduledef(module.into())
+        let node_idx = self.process_moduledef(module.into());
+
+        for impl_hir in hir::Impl::all_in_crate(self.db, crate_hir) {
+            let impl_ty = impl_hir.self_ty(self.db);
+
+            let impl_ty_hir = if let Some(adt_hir) = impl_ty.as_adt() {
+                Some(hir::ModuleDef::Adt(adt_hir))
+            } else {
+                impl_ty.as_builtin().map(hir::ModuleDef::BuiltinType)
+            };
+
+            let Some(impl_ty_hir) = impl_ty_hir else {
+                continue;
+            };
+
+            let impl_ty_idx = self
+                .add_node_if_necessary(impl_ty_hir)
+                .expect("impl type node");
+
+            for impl_item_idx in self.process_impl(impl_hir, impl_ty_hir) {
+                let edge = Edge {
+                    kind: EdgeKind::Owns,
+                };
+
+                self.add_edge(impl_ty_idx, impl_item_idx, edge);
+            }
+        }
+
+        node_idx
+    }
+
+    fn process_impl(&mut self, impl_hir: hir::Impl, impl_ty_hir: hir::ModuleDef) -> Vec<NodeIndex> {
+        let impl_ty_path: Vec<_> = util::path(impl_ty_hir, self.db)
+            .split("::")
+            .filter_map(|s| {
+                if s.is_empty() {
+                    None
+                } else {
+                    Some(s.to_owned())
+                }
+            })
+            .collect();
+
+        impl_hir
+            .items(self.db)
+            .into_iter()
+            .filter_map(|item| {
+                let mut dependencies: HashSet<_> = HashSet::default();
+
+                let mut push_dependencies = |moduledef_hir| {
+                    dependencies.insert(moduledef_hir);
+                };
+
+                let Some(name) = item.name(self.db) else {
+                    return None;
+                };
+
+                let item_idx = match item {
+                    hir::AssocItem::Function(function_hir) => {
+                        self.process_function(function_hir, &mut push_dependencies)
+                    }
+                    hir::AssocItem::Const(const_hir) => {
+                        self.process_const(const_hir, &mut push_dependencies)
+                    }
+                    hir::AssocItem::TypeAlias(type_alias_hir) => {
+                        self.process_type_alias(type_alias_hir, &mut push_dependencies)
+                    }
+                };
+
+                if let Some(item_idx) = item_idx {
+                    let node = &mut self.graph[item_idx];
+                    // Calling `util::path(hir)` or `hir.canonical_path(db)` on an item from an impl
+                    // returns a path anchored to the implementing type's module, rather than the type itself.
+                    // So we need to fix this by asking the `impl_ty_hir` for its path and appending
+                    // the item's name to that path to get the expected type-anchored path.
+                    let mut fixed_path = impl_ty_path.clone();
+                    fixed_path.push(format!("{}", name.display(self.db)));
+                    node.item.path = fixed_path;
+                }
+
+                if let Some(item_idx) = item_idx {
+                    self.add_dependencies(item_idx, dependencies.clone());
+                }
+
+                item_idx
+            })
+            .collect()
     }
 
     fn process_moduledef(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
@@ -126,7 +214,7 @@ impl<'a> Builder<'a> {
         module_hir: hir::Module,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let node_idx = self.add_node(module_hir.into());
+        let node_idx = self.add_node_if_necessary(module_hir.into());
 
         if let Some(node_idx) = node_idx {
             // Process sub-items:
@@ -166,7 +254,7 @@ impl<'a> Builder<'a> {
         function_hir: hir::Function,
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let node_idx = self.add_node(hir::ModuleDef::Function(function_hir));
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::Function(function_hir));
 
         // TODO: scan function for dependencies
 
@@ -191,10 +279,11 @@ impl<'a> Builder<'a> {
         struct_hir: hir::Struct,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let node_idx = self.add_node(hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)));
+        let node_idx =
+            self.add_node_if_necessary(hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)));
 
         for field_hir in struct_hir.fields(self.db) {
-            util::walk_and_push_ty(
+            Self::walk_and_push_type(
                 field_hir.ty(self.db).strip_references(),
                 self.db,
                 dependencies_callback,
@@ -209,11 +298,11 @@ impl<'a> Builder<'a> {
         enum_hir: hir::Enum,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let node_idx = self.add_node(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)));
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)));
 
         for variant_hir in enum_hir.variants(self.db) {
             for field_hir in variant_hir.fields(self.db) {
-                util::walk_and_push_ty(
+                Self::walk_and_push_type(
                     field_hir.ty(self.db).strip_references(),
                     self.db,
                     dependencies_callback,
@@ -229,10 +318,10 @@ impl<'a> Builder<'a> {
         union_hir: hir::Union,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let node_idx = self.add_node(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)));
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)));
 
         for field_hir in union_hir.fields(self.db) {
-            util::walk_and_push_ty(
+            Self::walk_and_push_type(
                 field_hir.ty(self.db).strip_references(),
                 self.db,
                 dependencies_callback,
@@ -250,7 +339,7 @@ impl<'a> Builder<'a> {
         let node_idx = None;
 
         for field_hir in variant_hir.fields(self.db) {
-            util::walk_and_push_ty(field_hir.ty(self.db), self.db, dependencies_callback);
+            Self::walk_and_push_type(field_hir.ty(self.db), self.db, dependencies_callback);
         }
 
         node_idx
@@ -263,7 +352,7 @@ impl<'a> Builder<'a> {
     ) -> Option<NodeIndex> {
         let node_idx = None;
 
-        util::walk_and_push_ty(const_hir.ty(self.db), self.db, dependencies_callback);
+        Self::walk_and_push_type(const_hir.ty(self.db), self.db, dependencies_callback);
 
         node_idx
     }
@@ -275,7 +364,7 @@ impl<'a> Builder<'a> {
     ) -> Option<NodeIndex> {
         let node_idx = None;
 
-        util::walk_and_push_ty(static_hir.ty(self.db), self.db, dependencies_callback);
+        Self::walk_and_push_type(static_hir.ty(self.db), self.db, dependencies_callback);
 
         node_idx
     }
@@ -285,7 +374,7 @@ impl<'a> Builder<'a> {
         trait_hir: hir::Trait,
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let node_idx = self.add_node(hir::ModuleDef::Trait(trait_hir));
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::Trait(trait_hir));
 
         // TODO: walk types?
 
@@ -298,7 +387,7 @@ impl<'a> Builder<'a> {
         trait_alias_hir: hir::TraitAlias,
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let node_idx = self.add_node(hir::ModuleDef::TraitAlias(trait_alias_hir));
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::TraitAlias(trait_alias_hir));
 
         // TODO: walk types?
 
@@ -311,9 +400,9 @@ impl<'a> Builder<'a> {
         type_alias_hir: hir::TypeAlias,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let node_idx = self.add_node(hir::ModuleDef::TypeAlias(type_alias_hir));
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::TypeAlias(type_alias_hir));
 
-        util::walk_and_push_ty(type_alias_hir.ty(self.db), self.db, dependencies_callback);
+        Self::walk_and_push_type(type_alias_hir.ty(self.db), self.db, dependencies_callback);
 
         node_idx
     }
@@ -323,9 +412,9 @@ impl<'a> Builder<'a> {
         builtin_type_hir: hir::BuiltinType,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let node_idx = self.add_node(hir::ModuleDef::BuiltinType(builtin_type_hir));
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::BuiltinType(builtin_type_hir));
 
-        util::walk_and_push_ty(builtin_type_hir.ty(self.db), self.db, dependencies_callback);
+        Self::walk_and_push_type(builtin_type_hir.ty(self.db), self.db, dependencies_callback);
 
         node_idx
     }
@@ -343,12 +432,30 @@ impl<'a> Builder<'a> {
         node_idx
     }
 
+    pub(super) fn walk_and_push_type(
+        ty: hir::Type,
+        db: &ide_db::RootDatabase,
+        visit: &mut dyn FnMut(hir::ModuleDef),
+    ) {
+        ty.walk(db, |ty| {
+            if let Some(adt) = ty.as_adt() {
+                visit(adt.into());
+            } else if let Some(trait_) = ty.as_dyn_trait() {
+                visit(trait_.into());
+            } else if let Some(traits) = ty.as_impl_traits(db) {
+                traits.for_each(|it| visit(it.into()));
+            } else if let Some(trait_) = ty.as_associated_type_parent_trait(db) {
+                visit(trait_.into());
+            }
+        });
+    }
+
     fn add_dependencies<I>(&mut self, depender_idx: NodeIndex, dependencies: I)
     where
         I: IntoIterator<Item = hir::ModuleDef>,
     {
         for dependency_hir in dependencies {
-            let Some(dependency_hir) = self.add_node(dependency_hir) else {
+            let Some(dependency_hir) = self.add_node_if_necessary(dependency_hir) else {
                 continue;
             };
 
@@ -360,10 +467,8 @@ impl<'a> Builder<'a> {
         }
     }
 
-    fn add_node(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
+    fn add_node_if_necessary(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
         let node_id = util::path(moduledef_hir, self.db);
-
-        // trace!("Adding module node: {:?}", node_id);
 
         // Check if we already added an equivalent node:
         match self.nodes.get(&node_id) {
@@ -393,13 +498,6 @@ impl<'a> Builder<'a> {
         }
 
         let edge_id = (source_idx, edge.kind, target_idx);
-
-        // trace!(
-        //     "Adding edge: {:?} --({:?})-> {:?}",
-        //     edge_id.0,
-        //     edge_id.1,
-        //     edge_id.2
-        // );
 
         // Check if we already added an equivalent edge:
         let edge_idx = match self.edges.get(&edge_id) {

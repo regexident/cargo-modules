@@ -46,6 +46,7 @@ digraph {
     "enum_fields::TargetStruct" [label="pub(crate) struct|enum_fields::TargetStruct", fillcolor="#f8c04c"]; // "struct" node
     "enum_fields::TargetTrait" [label="pub(crate) trait|enum_fields::TargetTrait", fillcolor="#f8c04c"]; // "trait" node
     "enum_fields::TargetUnion" [label="pub(crate) union|enum_fields::TargetUnion", fillcolor="#f8c04c"]; // "union" node
+    "enum_fields::TargetUnion::clone" [label="pub(crate) fn|enum_fields::TargetUnion::clone", fillcolor="#f8c04c"]; // "fn" node
     "enum_fields::TypeAlias" [label="pub(crate) type|enum_fields::TypeAlias", fillcolor="#f8c04c"]; // "type" node
 
     "enum_fields" -> "enum_fields::Enum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -65,7 +66,13 @@ digraph {
     "enum_fields::Enum" -> "enum_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "enum_fields::Enum" -> "enum_fields::TargetTrait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "enum_fields::Enum" -> "enum_fields::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "enum_fields::GenericTargetEnum" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "enum_fields::GenericTargetStruct" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "enum_fields::GenericTargetUnion" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "enum_fields::TargetEnum" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "enum_fields::TargetStruct" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "enum_fields::TargetUnion" -> "enum_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "enum_fields::TargetUnion" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "enum_fields::TypeAlias" -> "enum_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 
 }
