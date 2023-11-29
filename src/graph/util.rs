@@ -70,24 +70,6 @@ where
     nodes_to_keep
 }
 
-pub(super) fn walk_and_push_ty(
-    ty: hir::Type,
-    db: &RootDatabase,
-    visit: &mut dyn FnMut(hir::ModuleDef),
-) {
-    ty.walk(db, |ty| {
-        if let Some(adt) = ty.as_adt() {
-            visit(adt.into());
-        } else if let Some(trait_) = ty.as_dyn_trait() {
-            visit(trait_.into());
-        } else if let Some(traits) = ty.as_impl_traits(db) {
-            traits.for_each(|it| visit(it.into()));
-        } else if let Some(trait_) = ty.as_associated_type_parent_trait(db) {
-            visit(trait_.into());
-        }
-    });
-}
-
 pub(crate) fn crate_name(krate: hir::Crate, db: &RootDatabase) -> String {
     // Obtain the crate's declaration name:
     let display_name = &krate.display_name(db).unwrap();

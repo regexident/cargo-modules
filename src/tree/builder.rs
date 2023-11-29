@@ -57,6 +57,20 @@ impl<'a> Builder<'a> {
         root_node.map(Tree::new)
     }
 
+    fn process_impl(&mut self, impl_hir: hir::Impl) -> Vec<Node> {
+        impl_hir
+            .items(self.db)
+            .into_iter()
+            .filter_map(|item| match item {
+                hir::AssocItem::Function(function_hir) => self.process_function(function_hir),
+                hir::AssocItem::Const(const_hir) => self.process_const(const_hir),
+                hir::AssocItem::TypeAlias(type_alias_hir) => {
+                    self.process_type_alias(type_alias_hir)
+                }
+            })
+            .collect()
+    }
+
     fn process_moduledef(&mut self, moduledef_hir: hir::ModuleDef) -> Option<Node> {
         match moduledef_hir {
             hir::ModuleDef::Module(module_hir) => self.process_module(module_hir),
@@ -108,11 +122,21 @@ impl<'a> Builder<'a> {
     }
 
     fn process_adt(&mut self, adt_hir: hir::Adt) -> Option<Node> {
-        match adt_hir {
+        let mut node = match adt_hir {
             hir::Adt::Struct(struct_hir) => self.process_struct(struct_hir),
             hir::Adt::Union(union_hir) => self.process_union(union_hir),
             hir::Adt::Enum(enum_hir) => self.process_enum(enum_hir),
+        };
+
+        if let Some(node) = node.as_mut() {
+            for impl_hir in hir::Impl::all_for_type(self.db, adt_hir.ty(self.db)) {
+                for subnode in self.process_impl(impl_hir) {
+                    node.push_subnode(subnode);
+                }
+            }
         }
+
+        node
     }
 
     fn process_struct(&mut self, struct_hir: hir::Struct) -> Option<Node> {
