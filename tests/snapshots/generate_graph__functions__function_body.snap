@@ -36,6 +36,9 @@ digraph {
         fontsize="10",
     ];
 
+    "bool" [label="external builtin|bool", fillcolor="#81c169"]; // "builtin" node
+    "char" [label="external builtin|char", fillcolor="#81c169"]; // "builtin" node
+    "f64" [label="external builtin|f64", fillcolor="#81c169"]; // "builtin" node
     "function_body" [label="crate|function_body", fillcolor="#5397c8"]; // "crate" node
     "function_body::Dummy" [label="pub(crate) struct|function_body::Dummy", fillcolor="#f8c04c"]; // "struct" node
     "function_body::Dummy::method_body" [label="pub(crate) fn|function_body::Dummy::method_body", fillcolor="#f8c04c"]; // "fn" node
@@ -52,6 +55,9 @@ digraph {
     "function_body::function" [label="pub(crate) fn|function_body::function", fillcolor="#f8c04c"]; // "fn" node
     "function_body::function_body" [label="pub(crate) fn|function_body::function_body", fillcolor="#f8c04c"]; // "fn" node
     "function_body::generic_function" [label="pub(crate) fn|function_body::generic_function", fillcolor="#f8c04c"]; // "fn" node
+    "isize" [label="external builtin|isize", fillcolor="#81c169"]; // "builtin" node
+    "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
+    "usize" [label="external builtin|usize", fillcolor="#81c169"]; // "builtin" node
 
     "function_body" -> "function_body::Dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_body" -> "function_body::GenericTargetEnum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -67,13 +73,44 @@ digraph {
     "function_body" -> "function_body::function_body" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_body" -> "function_body::generic_function" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_body::Dummy" -> "function_body::Dummy::method_body" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_body::Dummy::method_body" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "char" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "f64" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "function_body::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "function_body::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "function_body::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "function_body::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "function_body::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "isize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::Dummy::method_body" -> "usize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::GenericTargetEnum" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_body::GenericTargetStruct" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_body::GenericTargetUnion" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_body::TargetEnum" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_body::TargetStruct" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_body::TargetUnion" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_body::TargetUnion::clone" -> "function_body::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::TargetUnion::clone" -> "function_body::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::TargetUnion::clone" -> "function_body::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::TargetUnion::clone" -> "function_body::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::TargetUnion::clone" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::TargetUnion::clone" -> "function_body::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::TypeAlias" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "char" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "f64" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "function_body::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "function_body::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "function_body::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "function_body::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "function_body::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "isize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::function_body" -> "usize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 
 }
 

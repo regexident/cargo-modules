@@ -36,6 +36,9 @@ digraph {
         fontsize="10",
     ];
 
+    "bool" [label="external builtin|bool", fillcolor="#81c169"]; // "builtin" node
+    "char" [label="external builtin|char", fillcolor="#81c169"]; // "builtin" node
+    "f64" [label="external builtin|f64", fillcolor="#81c169"]; // "builtin" node
     "function_outputs" [label="crate|function_outputs", fillcolor="#5397c8"]; // "crate" node
     "function_outputs::Dummy" [label="pub(crate) struct|function_outputs::Dummy", fillcolor="#f8c04c"]; // "struct" node
     "function_outputs::Dummy::method_output" [label="pub(crate) fn|function_outputs::Dummy::method_output", fillcolor="#f8c04c"]; // "fn" node
@@ -52,6 +55,9 @@ digraph {
     "function_outputs::function" [label="pub(crate) fn|function_outputs::function", fillcolor="#f8c04c"]; // "fn" node
     "function_outputs::function_output" [label="pub(crate) fn|function_outputs::function_output", fillcolor="#f8c04c"]; // "fn" node
     "function_outputs::generic_function" [label="pub(crate) fn|function_outputs::generic_function", fillcolor="#f8c04c"]; // "fn" node
+    "isize" [label="external builtin|isize", fillcolor="#81c169"]; // "builtin" node
+    "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
+    "usize" [label="external builtin|usize", fillcolor="#81c169"]; // "builtin" node
 
     "function_outputs" -> "function_outputs::Dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_outputs" -> "function_outputs::GenericTargetEnum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -67,13 +73,46 @@ digraph {
     "function_outputs" -> "function_outputs::function_output" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_outputs" -> "function_outputs::generic_function" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_outputs::Dummy" -> "function_outputs::Dummy::method_output" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_outputs::Dummy::method_output" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "char" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "f64" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "function_outputs::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "function_outputs::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "function_outputs::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "function_outputs::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "function_outputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "function_outputs::TargetTrait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "function_outputs::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "isize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::Dummy::method_output" -> "usize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_outputs::GenericTargetEnum" -> "function_outputs::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_outputs::GenericTargetStruct" -> "function_outputs::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_outputs::GenericTargetUnion" -> "function_outputs::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_outputs::TargetEnum" -> "function_outputs::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_outputs::TargetStruct" -> "function_outputs::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_outputs::TargetUnion" -> "function_outputs::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_outputs::TargetUnion::clone" -> "function_outputs::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::TargetUnion::clone" -> "function_outputs::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::TargetUnion::clone" -> "function_outputs::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::TargetUnion::clone" -> "function_outputs::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::TargetUnion::clone" -> "function_outputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::TargetUnion::clone" -> "function_outputs::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_outputs::TypeAlias" -> "function_outputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function" -> "function_outputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "char" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "f64" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "function_outputs::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "function_outputs::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "function_outputs::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "function_outputs::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "function_outputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "function_outputs::TargetTrait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "function_outputs::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "isize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_outputs::function_output" -> "usize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 
 }
 

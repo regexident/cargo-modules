@@ -6,6 +6,8 @@ use std::collections::{HashMap, HashSet};
 
 use petgraph::graph::{EdgeIndex, NodeIndex};
 use ra_ap_hir::{self as hir};
+use ra_ap_hir_def::{self as hir_def};
+use ra_ap_hir_ty::{self as hir_ty, db::HirDatabase as _, TyExt as _};
 use ra_ap_ide_db::{self as ide_db};
 use ra_ap_vfs::{self as vfs};
 
@@ -64,7 +66,7 @@ impl<'a> Builder<'a> {
     pub fn build(mut self) -> anyhow::Result<(Graph, NodeIndex)> {
         let node_idx = self
             .process_crate(self.krate)
-            .expect("Expected graph node for crate root module");
+            .expect("graph node for crate root module");
 
         Ok((self.graph, node_idx))
     }
@@ -202,8 +204,8 @@ impl<'a> Builder<'a> {
             }
         };
 
-        if let Some(node_idx) = node_idx {
-            self.add_dependencies(node_idx, dependencies);
+        if let Some(node_idx) = node_idx.as_ref() {
+            self.add_dependencies(*node_idx, dependencies.clone());
         }
 
         node_idx
@@ -252,14 +254,61 @@ impl<'a> Builder<'a> {
     fn process_function(
         &mut self,
         function_hir: hir::Function,
-        _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
+        dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let node_idx = self.add_node_if_necessary(hir::ModuleDef::Function(function_hir));
+        let Some(node_idx) = self.add_node_if_necessary(hir::ModuleDef::Function(function_hir))
+        else {
+            return None;
+        };
 
-        // TODO: scan function for dependencies
+        for param in function_hir.params_without_self(self.db) {
+            Self::walk_and_push_type(
+                param.ty().strip_references(),
+                self.db,
+                dependencies_callback,
+            );
+        }
 
-        #[allow(clippy::let_and_return)]
-        node_idx
+        for param in function_hir.assoc_fn_params(self.db) {
+            Self::walk_and_push_type(
+                param.ty().strip_references(),
+                self.db,
+                dependencies_callback,
+            );
+        }
+
+        let return_type = function_hir.ret_type(self.db);
+        Self::walk_and_push_type(
+            return_type.strip_references(),
+            self.db,
+            dependencies_callback,
+        );
+
+        let def_with_body = hir::DefWithBody::from(function_hir);
+        let def_with_body_id: hir_def::DefWithBodyId = def_with_body.into();
+        let inference_result = self.db.infer(def_with_body_id);
+
+        for (_id, ty) in inference_result.type_of_binding.iter() {
+            Self::walk_and_push_ty(ty.clone(), self.db, dependencies_callback);
+        }
+
+        for (_id, ty) in inference_result.type_of_expr.iter() {
+            Self::walk_and_push_ty(ty.clone(), self.db, dependencies_callback);
+        }
+
+        for (_id, ty) in inference_result.type_of_for_iterator.iter() {
+            Self::walk_and_push_ty(ty.clone(), self.db, dependencies_callback);
+        }
+
+        for (_id, ty) in inference_result.type_of_pat.iter() {
+            Self::walk_and_push_ty(ty.clone(), self.db, dependencies_callback);
+        }
+
+        for (_id, ty) in inference_result.type_of_rpit.iter() {
+            Self::walk_and_push_ty(ty.clone(), self.db, dependencies_callback);
+        }
+
+        Some(node_idx)
     }
 
     fn process_adt(
@@ -448,6 +497,140 @@ impl<'a> Builder<'a> {
                 visit(trait_.into());
             }
         });
+    }
+
+    fn walk_and_push_ty(
+        ty: hir_ty::Ty,
+        db: &ide_db::RootDatabase,
+        visit: &mut dyn FnMut(hir::ModuleDef),
+    ) {
+        use hir_ty::TyKind;
+
+        match ty.kind(hir_ty::Interner) {
+            TyKind::Adt(adt_id, substitution) => {
+                let adt_hir = hir::Adt::from(adt_id.0);
+                visit(hir::ModuleDef::Adt(adt_hir));
+                Self::walk_and_push_substitution(substitution.clone(), db, visit);
+            }
+            TyKind::AssociatedType(assoc_type_id, substitution) => {
+                let associated_ty = db.associated_ty_data(*assoc_type_id);
+                Self::walk_and_push_binders(
+                    associated_ty.binders.binders.iter(hir_ty::Interner),
+                    db,
+                    visit,
+                );
+                Self::walk_and_push_substitution(substitution.clone(), db, visit);
+            }
+            TyKind::Scalar(_scalar) => {
+                let builtin = ty.as_builtin().expect("builtin type");
+                let builtin_hir = hir::BuiltinType::from(builtin);
+                visit(hir::ModuleDef::BuiltinType(builtin_hir));
+            }
+            TyKind::Tuple(_usize, substitution) => {
+                Self::walk_and_push_substitution(substitution.clone(), db, visit);
+            }
+            TyKind::Array(ty, konst) => {
+                Self::walk_and_push_ty(ty.clone(), db, visit);
+                Self::walk_and_push_ty(konst.data(hir_ty::Interner).ty.clone(), db, visit);
+            }
+            TyKind::Slice(ty) => {
+                Self::walk_and_push_ty(ty.clone(), db, visit);
+            }
+            TyKind::Raw(_mutability, ty) => {
+                Self::walk_and_push_ty(ty.clone(), db, visit);
+            }
+            TyKind::Ref(_mutability, _lifetime, ty) => {
+                Self::walk_and_push_ty(ty.clone(), db, visit);
+            }
+            TyKind::OpaqueType(_opaque_ty_id, substitution) => {
+                Self::walk_and_push_substitution(substitution.clone(), db, visit);
+            }
+            TyKind::FnDef(_fn_def_id, substitution) => {
+                Self::walk_and_push_substitution(substitution.clone(), db, visit);
+            }
+            TyKind::Str => {
+                let builtin_hir = hir::BuiltinType::str();
+                visit(hir::ModuleDef::BuiltinType(builtin_hir));
+            }
+            TyKind::Never => {
+                // nothing to do here
+            }
+            TyKind::Closure(_closure_id, substitution) => {
+                Self::walk_and_push_substitution(substitution.clone(), db, visit);
+            }
+            TyKind::Generator(_generator_id, substitution) => {
+                Self::walk_and_push_substitution(substitution.clone(), db, visit);
+            }
+            TyKind::GeneratorWitness(_generator_id, substitution) => {
+                Self::walk_and_push_substitution(substitution.clone(), db, visit);
+            }
+            TyKind::Foreign(_foreign_def_id) => {
+                // FIXME: Anything to do here?
+            }
+            TyKind::Error => {
+                // nothing to do here
+            }
+            TyKind::Placeholder(_placeholder_index) => {
+                // Do not walk the placeholder or the stack overflows in an infinite loop!
+            }
+            TyKind::Dyn(dyn_ty) => {
+                Self::walk_and_push_binders(
+                    dyn_ty.bounds.binders.iter(hir_ty::Interner),
+                    db,
+                    visit,
+                );
+            }
+            TyKind::Alias(alias_ty) => match alias_ty {
+                hir_ty::AliasTy::Projection(projection) => {
+                    Self::walk_and_push_substitution(projection.substitution.clone(), db, visit);
+                }
+                hir_ty::AliasTy::Opaque(opaque) => {
+                    Self::walk_and_push_substitution(opaque.substitution.clone(), db, visit);
+                }
+            },
+            TyKind::Function(fn_pointer) => {
+                Self::walk_and_push_substitution(fn_pointer.substitution.0.clone(), db, visit);
+            }
+            TyKind::BoundVar(bound_var) => {
+                Self::walk_and_push_ty(bound_var.to_ty(hir_ty::Interner), db, visit);
+            }
+            TyKind::InferenceVar(inference_var, _ty_variable_kind) => {
+                Self::walk_and_push_ty(
+                    inference_var.to_ty(hir_ty::Interner, hir_ty::TyVariableKind::General),
+                    db,
+                    visit,
+                );
+            }
+        }
+    }
+
+    fn walk_and_push_substitution(
+        substitution: hir_ty::Substitution,
+        db: &ide_db::RootDatabase,
+        visit: &mut dyn FnMut(hir::ModuleDef),
+    ) {
+        for ty in substitution
+            .iter(hir_ty::Interner)
+            .filter_map(|a| a.ty(hir_ty::Interner))
+        {
+            Self::walk_and_push_ty(ty.clone(), db, visit);
+        }
+    }
+
+    fn walk_and_push_binders<'b>(
+        binders: impl Iterator<Item = &'b hir_ty::VariableKind>,
+        db: &ide_db::RootDatabase,
+        visit: &mut dyn FnMut(hir::ModuleDef),
+    ) {
+        for binder in binders {
+            match binder {
+                hir_ty::VariableKind::Ty(_ty_variable_kind) => {}
+                hir_ty::VariableKind::Lifetime => {}
+                hir_ty::VariableKind::Const(ty) => {
+                    Self::walk_and_push_ty(ty.clone(), db, visit);
+                }
+            }
+        }
     }
 
     fn add_dependencies<I>(&mut self, depender_idx: NodeIndex, dependencies: I)
