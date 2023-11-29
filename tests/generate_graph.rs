@@ -729,6 +729,20 @@ mod functions {
                 --uses",
         success: true,
         color_mode: ColorMode::Plain,
+        project: smoke
+    );
+
+    test_cmd!(
+        args: "generate graph \
+                --externs \
+                --fns \
+                --modules \
+                --sysroot \
+                --traits \
+                --types \
+                --uses",
+        success: true,
+        color_mode: ColorMode::Plain,
         project: function_inputs
     );
 

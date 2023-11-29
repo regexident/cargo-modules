@@ -151,6 +151,26 @@ mod visibility {
     }
 }
 
+mod functions {
+    struct Local;
+    type Core = i32;
+    type Std = String;
+
+    fn inputs(local: Local, core: Core, std: Std) {
+        unimplemented!()
+    }
+
+    fn outputs() -> (Local, Core, Std) {
+        unimplemented!()
+    }
+
+    fn body() {
+        let local: Local;
+        let core: Core = 42;
+        let std: Std = "hello world".to_owned();
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]

@@ -321,6 +321,18 @@ mod fns {
     );
 }
 
+mod functions {
+    test_cmd!(
+        args: "generate tree \
+                --fns \
+                --traits \
+                --types",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: smoke
+    );
+}
+
 mod github_issue_80 {
     mod tests {
         test_cmd!(

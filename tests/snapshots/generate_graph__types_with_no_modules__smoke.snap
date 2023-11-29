@@ -37,6 +37,9 @@ digraph {
     ];
 
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
+    "smoke::functions::Core" [label="pub(self) type|functions::Core", fillcolor="#db5367"]; // "type" node
+    "smoke::functions::Local" [label="pub(self) struct|functions::Local", fillcolor="#db5367"]; // "struct" node
+    "smoke::functions::Std" [label="pub(self) type|functions::Std", fillcolor="#db5367"]; // "type" node
     "smoke::hierarchy::lorem::Lorem" [label="pub(self) struct|hierarchy::lorem::Lorem", fillcolor="#db5367"]; // "struct" node
     "smoke::hierarchy::lorem::consectetur::Consectetur" [label="pub(self) struct|hierarchy::lorem::consectetur::Consectetur", fillcolor="#db5367"]; // "struct" node
     "smoke::hierarchy::lorem::consectetur::adipiscing::Adipiscing" [label="pub(self) struct|hierarchy::lorem::consectetur::adipiscing::Adipiscing", fillcolor="#db5367"]; // "struct" node
@@ -66,6 +69,9 @@ digraph {
     "smoke::visibility::dummy::unions::PubPublic" [label="pub union|visibility::dummy::unions::PubPublic", fillcolor="#81c169"]; // "union" node
     "smoke::visibility::dummy::unions::PubSuper" [label="pub(super) union|visibility::dummy::unions::PubSuper", fillcolor="#fe9454"]; // "union" node
 
+    "smoke" -> "smoke::functions::Core" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::functions::Local" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::functions::Std" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::hierarchy::lorem::Lorem" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::hierarchy::lorem::consectetur::Consectetur" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::hierarchy::lorem::consectetur::adipiscing::Adipiscing" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge

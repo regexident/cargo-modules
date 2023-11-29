@@ -7,6 +7,10 @@ STDERR:
 STDOUT:
 
 crate smoke
+├── mod functions: pub(crate)
+│   ├── fn body: pub(self)
+│   ├── fn inputs: pub(self)
+│   └── fn outputs: pub(self)
 ├── mod hierarchy: pub(crate)
 │   └── mod lorem: pub(self)
 │       ├── mod consectetur: pub(self)

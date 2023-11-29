@@ -37,6 +37,7 @@ digraph {
     ];
 
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
+    "smoke::functions" [label="pub(crate) mod|functions", fillcolor="#f8c04c"]; // "mod" node
     "smoke::hierarchy" [label="pub(crate) mod|hierarchy", fillcolor="#f8c04c"]; // "mod" node
     "smoke::hierarchy::lorem" [label="pub(self) mod|hierarchy::lorem", fillcolor="#db5367"]; // "mod" node
     "smoke::hierarchy::lorem::consectetur" [label="pub(self) mod|hierarchy::lorem::consectetur", fillcolor="#db5367"]; // "mod" node
@@ -82,6 +83,7 @@ digraph {
     "smoke::visibility::dummy::traits::safe::PubSuper" [label="pub(super) trait|visibility::dummy::traits::safe::PubSuper", fillcolor="#fe9454"]; // "trait" node
     "smoke::visibility::dummy::unions" [label="pub(self) mod|visibility::dummy::unions", fillcolor="#db5367"]; // "mod" node
 
+    "smoke" -> "smoke::functions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::hierarchy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::orphans" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::uses" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
