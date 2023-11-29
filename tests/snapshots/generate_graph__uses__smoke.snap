@@ -38,6 +38,7 @@ digraph {
 
     "i32" [label="external builtin|i32", fillcolor="#81c169"]; // "builtin" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
+    "smoke::derives" [label="pub(crate) mod|derives", fillcolor="#f8c04c"]; // "mod" node
     "smoke::functions" [label="pub(crate) mod|functions", fillcolor="#f8c04c"]; // "mod" node
     "smoke::hierarchy" [label="pub(crate) mod|hierarchy", fillcolor="#f8c04c"]; // "mod" node
     "smoke::hierarchy::lorem" [label="pub(self) mod|hierarchy::lorem", fillcolor="#db5367"]; // "mod" node
@@ -74,6 +75,7 @@ digraph {
     "smoke::visibility::dummy::unions" [label="pub(self) mod|visibility::dummy::unions", fillcolor="#db5367"]; // "mod" node
     "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
 
+    "smoke" -> "smoke::derives" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::functions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::hierarchy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::methods" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
