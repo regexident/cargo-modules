@@ -36,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/a
+- Local dependencies are no longer erroneously being detected as packages.
 
 ### Performance
 
