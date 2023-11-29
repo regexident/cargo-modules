@@ -8,7 +8,7 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
 
-use crate::graph::util;
+use crate::analyzer;
 
 use self::{attr::ItemAttrs, visibility::ItemVisibility};
 
@@ -28,22 +28,16 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn new(moduledef_hir: hir::ModuleDef, db: &RootDatabase, vfs: &Vfs) -> Self {
+    pub fn new(
+        moduledef_hir: hir::ModuleDef,
+        path: Vec<String>,
+        db: &RootDatabase,
+        vfs: &Vfs,
+    ) -> Self {
         let crate_name = {
-            let krate = util::krate(moduledef_hir, db);
-            krate.map(|krate| util::crate_name(krate, db))
+            let krate = analyzer::krate(moduledef_hir, db);
+            krate.map(|krate| analyzer::crate_name(krate, db))
         };
-
-        let path: Vec<_> = util::path(moduledef_hir, db)
-            .split("::")
-            .filter_map(|s| {
-                if s.is_empty() {
-                    None
-                } else {
-                    Some(s.to_owned())
-                }
-            })
-            .collect();
 
         let file_path = {
             match moduledef_hir {
@@ -51,7 +45,7 @@ impl Item {
                 _ => None,
             }
             .and_then(|module| {
-                util::module_file(module.definition_source(db), db, vfs).map(Into::into)
+                analyzer::module_file(module.definition_source(db), db, vfs).map(Into::into)
             })
         };
 
@@ -60,8 +54,8 @@ impl Item {
         let visibility = Some(ItemVisibility::new(moduledef_hir, db));
 
         let attrs = {
-            let cfgs: Vec<_> = util::cfg_attrs(moduledef_hir, db);
-            let test = util::test_attr(moduledef_hir, db);
+            let cfgs: Vec<_> = analyzer::cfg_attrs(moduledef_hir, db);
+            let test = analyzer::test_attr(moduledef_hir, db);
             ItemAttrs { cfgs, test }
         };
 

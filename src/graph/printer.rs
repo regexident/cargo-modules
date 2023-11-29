@@ -14,11 +14,12 @@ use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
 use crate::{
+    analyzer,
     graph::{
         edge::{Edge, EdgeKind},
         node::Node,
         options::LayoutAlgorithm,
-        util, Graph,
+        Graph,
     },
     item::visibility::ItemVisibility,
     theme::graph::{edge_styles, node_styles},
@@ -40,7 +41,7 @@ pub struct Printer<'a> {
 
 impl<'a> Printer<'a> {
     pub fn new(options: Options, member_krate: hir::Crate, db: &'a RootDatabase) -> Self {
-        let member_krate = util::crate_name(member_krate, db);
+        let member_krate = analyzer::crate_name(member_krate, db);
         Self {
             options,
             member_krate,
