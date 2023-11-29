@@ -8,7 +8,7 @@ use ra_ap_ide_db::RootDatabase;
 use ra_ap_syntax::ast;
 
 use crate::{
-    graph::util,
+    analyzer,
     tree::{node::Node, Tree},
 };
 
@@ -47,7 +47,7 @@ impl<'a> Filter<'a> {
             .unwrap_or_else(|| self.krate.display_name(self.db).unwrap().to_string());
 
         let syntax = format!("use {focus_on};");
-        let use_tree: ast::UseTree = util::parse_ast(&syntax);
+        let use_tree: ast::UseTree = analyzer::parse_ast(&syntax);
 
         let max_depth = self.options.max_depth.unwrap_or(usize::MAX);
 
@@ -67,7 +67,7 @@ impl<'a> Filter<'a> {
         max_depth: usize,
         focus_tree: &ast::UseTree,
     ) -> Option<Node> {
-        let is_focus_node = util::use_tree_matches_item(focus_tree, &node.item);
+        let is_focus_node = analyzer::use_tree_matches_item(focus_tree, &node.item);
 
         let depth = if is_focus_node { Some(0) } else { depth };
 
@@ -117,7 +117,7 @@ impl<'a> Filter<'a> {
     }
 
     fn is_or_contains_focus_node(node: &Node, focus_tree: &ast::UseTree) -> bool {
-        if util::use_tree_matches_item(focus_tree, &node.item) {
+        if analyzer::use_tree_matches_item(focus_tree, &node.item) {
             return true;
         }
 

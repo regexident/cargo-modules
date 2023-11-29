@@ -39,11 +39,16 @@ digraph {
     "enum_fields" [label="crate|enum_fields", fillcolor="#5397c8"]; // "crate" node
     "enum_fields::Enum" [label="pub enum|enum_fields::Enum", fillcolor="#81c169"]; // "enum" node
     "enum_fields::GenericTargetEnum" [label="pub(crate) enum|enum_fields::GenericTargetEnum", fillcolor="#f8c04c"]; // "enum" node
+    "enum_fields::GenericTargetEnum::clone" [label="pub(crate) fn|enum_fields::GenericTargetEnum::clone", fillcolor="#f8c04c"]; // "fn" node
     "enum_fields::GenericTargetStruct" [label="pub(crate) struct|enum_fields::GenericTargetStruct", fillcolor="#f8c04c"]; // "struct" node
+    "enum_fields::GenericTargetStruct::clone" [label="pub(crate) fn|enum_fields::GenericTargetStruct::clone", fillcolor="#f8c04c"]; // "fn" node
     "enum_fields::GenericTargetUnion" [label="pub(crate) union|enum_fields::GenericTargetUnion", fillcolor="#f8c04c"]; // "union" node
+    "enum_fields::GenericTargetUnion::clone" [label="pub(crate) fn|enum_fields::GenericTargetUnion::clone", fillcolor="#f8c04c"]; // "fn" node
     "enum_fields::GenericTypeAlias" [label="pub(crate) type|enum_fields::GenericTypeAlias", fillcolor="#f8c04c"]; // "type" node
     "enum_fields::TargetEnum" [label="pub(crate) enum|enum_fields::TargetEnum", fillcolor="#f8c04c"]; // "enum" node
+    "enum_fields::TargetEnum::clone" [label="pub(crate) fn|enum_fields::TargetEnum::clone", fillcolor="#f8c04c"]; // "fn" node
     "enum_fields::TargetStruct" [label="pub(crate) struct|enum_fields::TargetStruct", fillcolor="#f8c04c"]; // "struct" node
+    "enum_fields::TargetStruct::clone" [label="pub(crate) fn|enum_fields::TargetStruct::clone", fillcolor="#f8c04c"]; // "fn" node
     "enum_fields::TargetTrait" [label="pub(crate) trait|enum_fields::TargetTrait", fillcolor="#f8c04c"]; // "trait" node
     "enum_fields::TargetUnion" [label="pub(crate) union|enum_fields::TargetUnion", fillcolor="#f8c04c"]; // "union" node
     "enum_fields::TargetUnion::clone" [label="pub(crate) fn|enum_fields::TargetUnion::clone", fillcolor="#f8c04c"]; // "fn" node
@@ -66,18 +71,18 @@ digraph {
     "enum_fields::Enum" -> "enum_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "enum_fields::Enum" -> "enum_fields::TargetTrait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "enum_fields::Enum" -> "enum_fields::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "enum_fields::GenericTargetEnum" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "enum_fields::GenericTargetStruct" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "enum_fields::GenericTargetUnion" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "enum_fields::TargetEnum" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "enum_fields::TargetStruct" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "enum_fields::GenericTargetEnum" -> "enum_fields::GenericTargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "enum_fields::GenericTargetEnum::clone" -> "enum_fields::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "enum_fields::GenericTargetStruct" -> "enum_fields::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "enum_fields::GenericTargetStruct::clone" -> "enum_fields::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "enum_fields::GenericTargetUnion" -> "enum_fields::GenericTargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "enum_fields::GenericTargetUnion::clone" -> "enum_fields::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "enum_fields::TargetEnum" -> "enum_fields::TargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "enum_fields::TargetEnum::clone" -> "enum_fields::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "enum_fields::TargetStruct" -> "enum_fields::TargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "enum_fields::TargetStruct::clone" -> "enum_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "enum_fields::TargetUnion" -> "enum_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "enum_fields::TargetUnion" -> "enum_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "enum_fields::TargetUnion::clone" -> "enum_fields::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "enum_fields::TargetUnion::clone" -> "enum_fields::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "enum_fields::TargetUnion::clone" -> "enum_fields::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "enum_fields::TargetUnion::clone" -> "enum_fields::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "enum_fields::TargetUnion::clone" -> "enum_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "enum_fields::TargetUnion::clone" -> "enum_fields::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "enum_fields::TypeAlias" -> "enum_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 

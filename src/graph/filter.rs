@@ -16,9 +16,12 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_syntax::ast;
 
-use crate::graph::{
-    edge::{Edge, EdgeKind},
-    util, Graph,
+use crate::{
+    analyzer,
+    graph::{
+        edge::{Edge, EdgeKind},
+        util, Graph,
+    },
 };
 
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -60,7 +63,7 @@ impl<'a> Filter<'a> {
             .unwrap_or_else(|| self.krate.display_name(self.db).unwrap().to_string());
 
         let syntax = format!("use {focus_on};");
-        let use_tree: ast::UseTree = util::parse_ast(&syntax);
+        let use_tree: ast::UseTree = analyzer::parse_ast(&syntax);
 
         trace!("Searching for focus nodes in graph ...");
 
@@ -68,7 +71,7 @@ impl<'a> Filter<'a> {
             .node_indices()
             .filter(|node_idx| {
                 let node = &graph[*node_idx];
-                util::use_tree_matches_item(&use_tree, &node.item)
+                analyzer::use_tree_matches_item(&use_tree, &node.item)
             })
             .collect();
 

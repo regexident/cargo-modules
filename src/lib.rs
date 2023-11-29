@@ -6,6 +6,7 @@ pub mod commands;
 pub mod generate;
 pub mod options;
 
+pub(crate) mod analyzer;
 pub(crate) mod graph;
 pub(crate) mod item;
 pub(crate) mod target;

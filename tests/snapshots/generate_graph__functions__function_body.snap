@@ -43,11 +43,16 @@ digraph {
     "function_body::Dummy" [label="pub(crate) struct|function_body::Dummy", fillcolor="#f8c04c"]; // "struct" node
     "function_body::Dummy::method_body" [label="pub(crate) fn|function_body::Dummy::method_body", fillcolor="#f8c04c"]; // "fn" node
     "function_body::GenericTargetEnum" [label="pub(crate) enum|function_body::GenericTargetEnum", fillcolor="#f8c04c"]; // "enum" node
+    "function_body::GenericTargetEnum::clone" [label="pub(crate) fn|function_body::GenericTargetEnum::clone", fillcolor="#f8c04c"]; // "fn" node
     "function_body::GenericTargetStruct" [label="pub(crate) struct|function_body::GenericTargetStruct", fillcolor="#f8c04c"]; // "struct" node
+    "function_body::GenericTargetStruct::clone" [label="pub(crate) fn|function_body::GenericTargetStruct::clone", fillcolor="#f8c04c"]; // "fn" node
     "function_body::GenericTargetUnion" [label="pub(crate) union|function_body::GenericTargetUnion", fillcolor="#f8c04c"]; // "union" node
+    "function_body::GenericTargetUnion::clone" [label="pub(crate) fn|function_body::GenericTargetUnion::clone", fillcolor="#f8c04c"]; // "fn" node
     "function_body::GenericTypeAlias" [label="pub(crate) type|function_body::GenericTypeAlias", fillcolor="#f8c04c"]; // "type" node
     "function_body::TargetEnum" [label="pub(crate) enum|function_body::TargetEnum", fillcolor="#f8c04c"]; // "enum" node
+    "function_body::TargetEnum::clone" [label="pub(crate) fn|function_body::TargetEnum::clone", fillcolor="#f8c04c"]; // "fn" node
     "function_body::TargetStruct" [label="pub(crate) struct|function_body::TargetStruct", fillcolor="#f8c04c"]; // "struct" node
+    "function_body::TargetStruct::clone" [label="pub(crate) fn|function_body::TargetStruct::clone", fillcolor="#f8c04c"]; // "fn" node
     "function_body::TargetTrait" [label="pub(crate) trait|function_body::TargetTrait", fillcolor="#f8c04c"]; // "trait" node
     "function_body::TargetUnion" [label="pub(crate) union|function_body::TargetUnion", fillcolor="#f8c04c"]; // "union" node
     "function_body::TargetUnion::clone" [label="pub(crate) fn|function_body::TargetUnion::clone", fillcolor="#f8c04c"]; // "fn" node
@@ -85,17 +90,17 @@ digraph {
     "function_body::Dummy::method_body" -> "isize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::Dummy::method_body" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::Dummy::method_body" -> "usize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_body::GenericTargetEnum" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::GenericTargetStruct" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::GenericTargetUnion" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::TargetEnum" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::TargetStruct" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_body::GenericTargetEnum" -> "function_body::GenericTargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_body::GenericTargetEnum::clone" -> "function_body::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::GenericTargetStruct" -> "function_body::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_body::GenericTargetStruct::clone" -> "function_body::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::GenericTargetUnion" -> "function_body::GenericTargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_body::GenericTargetUnion::clone" -> "function_body::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::TargetEnum" -> "function_body::TargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_body::TargetEnum::clone" -> "function_body::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "function_body::TargetStruct" -> "function_body::TargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "function_body::TargetStruct::clone" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::TargetUnion" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::TargetUnion::clone" -> "function_body::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_body::TargetUnion::clone" -> "function_body::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_body::TargetUnion::clone" -> "function_body::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_body::TargetUnion::clone" -> "function_body::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_body::TargetUnion::clone" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::TargetUnion::clone" -> "function_body::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::TypeAlias" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::function" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
