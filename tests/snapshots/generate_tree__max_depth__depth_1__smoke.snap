@@ -7,6 +7,7 @@ STDERR:
 STDOUT:
 
 crate smoke
+├── mod derives: pub(crate)
 ├── mod functions: pub(crate)
 ├── mod hierarchy: pub(crate)
 ├── mod methods: pub(crate)

@@ -195,6 +195,11 @@ mod methods {
     }
 }
 
+mod derives {
+    #[derive(Copy, Clone)]
+    struct Dummy(bool);
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
