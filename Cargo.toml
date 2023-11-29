@@ -29,6 +29,8 @@ clap = { version = "4.4.10", features = ["derive"] }
 ra_ap_base_db = "=0.0.187"
 ra_ap_cfg = "=0.0.187"
 ra_ap_hir = "=0.0.187"
+ra_ap_hir_def = "=0.0.187"
+ra_ap_hir_ty = "=0.0.187"
 ra_ap_ide = "=0.0.187"
 ra_ap_ide_db = "=0.0.187"
 ra_ap_load-cargo = "=0.0.187"

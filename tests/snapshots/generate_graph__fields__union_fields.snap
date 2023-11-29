@@ -61,6 +61,12 @@ digraph {
     "union_fields" -> "union_fields::Union" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "union_fields::GenericTargetEnum" -> "union_fields::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "union_fields::GenericTargetStruct" -> "union_fields::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "union_fields::GenericTargetStruct::clone" -> "union_fields::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "union_fields::GenericTargetStruct::clone" -> "union_fields::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "union_fields::GenericTargetStruct::clone" -> "union_fields::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "union_fields::GenericTargetStruct::clone" -> "union_fields::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "union_fields::GenericTargetStruct::clone" -> "union_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "union_fields::GenericTargetStruct::clone" -> "union_fields::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "union_fields::GenericTargetUnion" -> "union_fields::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "union_fields::TargetEnum" -> "union_fields::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "union_fields::TargetStruct" -> "union_fields::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge

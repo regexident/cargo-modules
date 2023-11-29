@@ -36,8 +36,12 @@ digraph {
         fontsize="10",
     ];
 
+    "i32" [label="external builtin|i32", fillcolor="#81c169"]; // "builtin" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
+    "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
 
+    "smoke" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 
 }
 

@@ -36,6 +36,7 @@ digraph {
         fontsize="10",
     ];
 
+    "i32" [label="external builtin|i32", fillcolor="#81c169"]; // "builtin" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
     "smoke::functions" [label="pub(crate) mod|functions", fillcolor="#f8c04c"]; // "mod" node
     "smoke::hierarchy" [label="pub(crate) mod|hierarchy", fillcolor="#f8c04c"]; // "mod" node
@@ -46,6 +47,7 @@ digraph {
     "smoke::uses::cycle" [label="pub(self) mod|uses::cycle", fillcolor="#db5367"]; // "mod" node
     "smoke::visibility" [label="pub(crate) mod|visibility", fillcolor="#f8c04c"]; // "mod" node
     "smoke::visibility::dummy" [label="pub(self) mod|visibility::dummy", fillcolor="#db5367"]; // "mod" node
+    "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
 
     "smoke" -> "smoke::functions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::hierarchy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -53,7 +55,11 @@ digraph {
     "smoke" -> "smoke::orphans" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::uses" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::functions" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke::functions" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::hierarchy" -> "smoke::hierarchy::lorem" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::methods" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke::methods" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::uses" -> "smoke::hierarchy" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::uses" -> "smoke::uses::cycle" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility" -> "smoke::visibility::dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge

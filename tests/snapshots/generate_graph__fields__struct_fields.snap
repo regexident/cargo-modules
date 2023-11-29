@@ -73,6 +73,12 @@ digraph {
     "struct_fields::TargetStruct" -> "struct_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "struct_fields::TargetUnion" -> "struct_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "struct_fields::TargetUnion" -> "struct_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "struct_fields::TargetUnion::clone" -> "struct_fields::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "struct_fields::TargetUnion::clone" -> "struct_fields::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "struct_fields::TargetUnion::clone" -> "struct_fields::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "struct_fields::TargetUnion::clone" -> "struct_fields::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "struct_fields::TargetUnion::clone" -> "struct_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "struct_fields::TargetUnion::clone" -> "struct_fields::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "struct_fields::TypeAlias" -> "struct_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 
 }
