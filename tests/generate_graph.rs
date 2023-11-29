@@ -745,6 +745,20 @@ mod functions {
         color_mode: ColorMode::Plain,
         project: function_outputs
     );
+
+    test_cmd!(
+        args: "generate graph \
+                --externs \
+                --fns \
+                --modules \
+                --sysroot \
+                --traits \
+                --types \
+                --uses",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: function_body
+    );
 }
 
 mod github_issue_79 {
