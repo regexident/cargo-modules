@@ -48,6 +48,10 @@ digraph {
     "smoke::hierarchy::lorem::dolor::sit::Sit" [label="pub(self) struct|hierarchy::lorem::dolor::sit::Sit", fillcolor="#db5367"]; // "struct" node
     "smoke::hierarchy::lorem::dolor::sit::amet::Amet" [label="pub(self) struct|hierarchy::lorem::dolor::sit::amet::Amet", fillcolor="#db5367"]; // "struct" node
     "smoke::hierarchy::lorem::ipsum::Ipsum" [label="pub(self) struct|hierarchy::lorem::ipsum::Ipsum", fillcolor="#db5367"]; // "struct" node
+    "smoke::methods::Core" [label="pub(self) type|methods::Core", fillcolor="#db5367"]; // "type" node
+    "smoke::methods::Dummy" [label="pub(self) struct|methods::Dummy", fillcolor="#db5367"]; // "struct" node
+    "smoke::methods::Local" [label="pub(self) struct|methods::Local", fillcolor="#db5367"]; // "struct" node
+    "smoke::methods::Std" [label="pub(self) type|methods::Std", fillcolor="#db5367"]; // "type" node
     "smoke::visibility::dummy::enums::PubCrate" [label="pub(crate) enum|visibility::dummy::enums::PubCrate", fillcolor="#f8c04c"]; // "enum" node
     "smoke::visibility::dummy::enums::PubModule" [label="pub(in crate::visibility) enum|visibility::dummy::enums::PubModule", fillcolor="#fe9454"]; // "enum" node
     "smoke::visibility::dummy::enums::PubPrivate" [label="pub(self) enum|visibility::dummy::enums::PubPrivate", fillcolor="#db5367"]; // "enum" node
@@ -80,6 +84,10 @@ digraph {
     "smoke" -> "smoke::hierarchy::lorem::dolor::sit::Sit" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::hierarchy::lorem::dolor::sit::amet::Amet" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::hierarchy::lorem::ipsum::Ipsum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::methods::Core" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::methods::Dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::methods::Local" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke" -> "smoke::methods::Std" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::enums::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::enums::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::enums::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
