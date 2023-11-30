@@ -810,6 +810,16 @@ mod github_issue_80 {
     }
 }
 
+mod github_issue_102 {
+    test_cmd!(
+        args: "generate graph \
+                --uses",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: github_issue_102
+    );
+}
+
 mod github_issue_172 {
     test_cmd!(
         args: "generate graph \
