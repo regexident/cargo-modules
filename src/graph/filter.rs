@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use hir::HasAttrs;
 use log::trace;
@@ -102,46 +102,68 @@ impl<'a> Filter<'a> {
             stack
         };
 
+        let owned_nodes_to_keep: HashSet<_> = stack
+            .iter()
+            .cloned()
+            .filter(|node_idx| {
+                let node = &graph[*node_idx];
+
+                let Some(moduledef_hir) = node.item.hir else {
+                    return false;
+                };
+
+                let mut should_keep_node: bool = true;
+
+                // Make sure the node is within our defined max depth:
+                should_keep_node &= nodes_within_max_depth.contains(node_idx);
+
+                // Make sure the node's `moduledef` should be retained:
+                should_keep_node &= self.should_retain_moduledef(moduledef_hir);
+
+                // Make sure the root node doesn't get dropped:
+                should_keep_node |= *node_idx == root_idx;
+
+                should_keep_node
+            })
+            .collect();
+
         trace!("Redirecting outgoing edges of filtered nodes in graph ...");
 
         // Popping from the stack results in a reverse level-order,
         // which ensures that sub-items are processed before their parent items:
         while let Some(node_idx) = stack.pop() {
-            let node = &graph[node_idx];
-
-            let Some(moduledef_hir) = node.item.hir else {
-                continue;
-            };
-
-            let mut should_keep_node: bool = true;
-
-            // Make sure the node is within our defined max depth:
-            should_keep_node &= nodes_within_max_depth.contains(&node_idx);
-
-            // Make sure the node's `moduledef` should be retained:
-            should_keep_node &= self.should_retain_moduledef(moduledef_hir);
-
-            // Make sure the root node doesn't get dropped:
-            should_keep_node |= node_idx == root_idx;
-
-            if should_keep_node {
+            if owned_nodes_to_keep.contains(&node_idx) {
                 // If we're gonna keep the node then we can just keep it as is:
                 continue;
             }
 
-            // Try to find the single incoming "owns" edge:
-            let parent_edge_ref =
+            let parent_owned_node = |node_idx| {
                 graph
                     .edges_directed(node_idx, Direction::Incoming)
-                    .find(|edge_ref| {
-                        let edge = edge_ref.weight();
-                        matches!(edge.kind, EdgeKind::Owns)
-                    });
+                    .find(|edge_ref| matches!(edge_ref.weight().kind, EdgeKind::Owns))
+                    .map(|edge_ref| edge_ref.source())
+            };
 
-            // And if one exists, then re-attach any outgoing edges to its source (i.e. parent item):
-            if let Some(parent_edge_ref) = parent_edge_ref {
-                let parent_node_idx = parent_edge_ref.source();
+            // Try to find the single incoming "owns" edge:
+            let mut parent_node_idx = parent_owned_node(node_idx);
+            let mut filter_iteration = 1;
+            const MAX_FILTER_ITERATIONS: usize = 32;
 
+            while let Some(node_idx) = parent_node_idx {
+                if owned_nodes_to_keep.contains(&node_idx) {
+                    break;
+                }
+
+                if filter_iteration > MAX_FILTER_ITERATIONS {
+                    panic!("Runaway detected while filtering graph!");
+                }
+
+                parent_node_idx = parent_owned_node(node_idx);
+                filter_iteration += 1;
+            }
+
+            // And if one exists, then re-attach any incoming and outgoing edges to its source (i.e. parent item):
+            if let Some(parent_node_idx) = parent_node_idx {
                 // Collect edge indices and targets for outgoing "uses" edges:
                 let pending: Vec<_> = graph
                     .edges_directed(node_idx, Direction::Outgoing)
@@ -152,7 +174,24 @@ impl<'a> Filter<'a> {
                 for (edge_idx, target_node_idx) in pending {
                     let edge_weight = graph.remove_edge(edge_idx).unwrap();
 
-                    graph.add_edge(parent_node_idx, target_node_idx, edge_weight);
+                    if parent_node_idx != target_node_idx {
+                        graph.add_edge(parent_node_idx, target_node_idx, edge_weight);
+                    }
+                }
+
+                // Collect edge indices and targets for outgoing "uses" edges:
+                let pending: Vec<_> = graph
+                    .edges_directed(node_idx, Direction::Incoming)
+                    .map(|incoming_edge_ref| (incoming_edge_ref.id(), incoming_edge_ref.source()))
+                    .collect();
+
+                // Then replace the edge with one where the `target` is the parent, if necessary:
+                for (edge_idx, source_node_idx) in pending {
+                    let edge_weight = graph.remove_edge(edge_idx).unwrap();
+
+                    if source_node_idx != parent_node_idx {
+                        graph.add_edge(source_node_idx, parent_node_idx, edge_weight);
+                    }
                 }
             }
 
