@@ -40,18 +40,9 @@ ra_ap_text_edit = "=0.0.187"
 ra_ap_vfs = "=0.0.187"
 
 # minimal versions
-serde_repr = "0.1.17"
-tap = "1.0.1"
 wyz = "0.6.1"
-proc-macro2 = "1.0.70"
 pulldown-cmark = "0.9.3"
 getopts = "0.2.21"
-
-# avoid yanked "0.5.6"
-crossbeam-channel = "0.5.8"
-
-# avoid yanked "0.3.1"
-hermit-abi = "0.3.3"
 
 # required by tests
 [dev-dependencies]
