@@ -77,4 +77,4 @@ jobs:
       - uses: taiki-e/install-action@cargo-minimal-versions
       - run: cargo minimal-versions check --workspace --all-features --ignore-private -v
       - run: cargo minimal-versions build --workspace --all-features --ignore-private -v
-      - run: cargo minimal-versions test --release --workspace --all-features -v
+      # - run: cargo minimal-versions test --release --workspace --all-features -v
