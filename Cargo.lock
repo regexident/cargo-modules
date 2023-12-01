@@ -189,6 +189,7 @@ dependencies = [
  "ra_ap_text_edit",
  "ra_ap_vfs",
  "shellwords",
+ "thread_local",
  "wyz 0.6.1",
  "yansi",
 ]
