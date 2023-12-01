@@ -151,21 +151,27 @@ mod visibility {
     }
 }
 
+mod target {
+    pub struct Target;
+}
+
 mod functions {
     struct Local;
+    type Crate = crate::target::Target;
     type Core = i32;
     type Std = String;
 
-    fn inputs(local: Local, core: Core, std: Std) {
+    fn inputs(local: Local, krate: Crate, core: Core, std: Std) {
         unimplemented!()
     }
 
-    fn outputs() -> (Local, Core, Std) {
+    fn outputs() -> (Local, Crate, Core, Std) {
         unimplemented!()
     }
 
     fn body() {
         let local: Local;
+        let krate: Crate;
         let core: Core = 42;
         let std: Std = "hello world".to_owned();
     }
@@ -173,22 +179,24 @@ mod functions {
 
 mod methods {
     struct Local;
+    type Crate = crate::target::Target;
     type Core = i32;
     type Std = String;
 
     struct Dummy;
 
     impl Dummy {
-        fn inputs(local: Local, core: Core, std: Std) {
+        fn inputs(local: Local, krate: Crate, core: Core, std: Std) {
             unimplemented!()
         }
 
-        fn outputs() -> (Local, Core, Std) {
+        fn outputs() -> (Local, Crate, Core, Std) {
             unimplemented!()
         }
 
         fn body() {
             let local: Local;
+            let krate: Crate;
             let core: Core = 42;
             let std: Std = "hello world".to_owned();
         }
