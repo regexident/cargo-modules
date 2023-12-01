@@ -12,6 +12,7 @@ crate smoke
 ├── mod hierarchy: pub(crate)
 ├── mod methods: pub(crate)
 ├── mod orphans: pub(crate)
+├── mod target: pub(crate)
 ├── mod uses: pub(crate)
 └── mod visibility: pub(crate)
 

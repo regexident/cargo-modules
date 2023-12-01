@@ -22,6 +22,7 @@ crate smoke
 ├── mod orphans: pub(crate)
 │   ├── mod bar: orphan
 │   └── mod foo: orphan
+├── mod target: pub(crate)
 ├── mod uses: pub(crate)
 │   └── mod cycle: pub(self)
 │       ├── mod node_0: pub(self)
