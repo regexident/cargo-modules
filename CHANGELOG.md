@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `memoffset` from `0.6.1` to `0.6.5`
 
 ### Deprecated
 
