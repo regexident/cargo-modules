@@ -173,6 +173,7 @@ dependencies = [
  "insta",
  "json",
  "log",
+ "memoffset 0.6.5",
  "petgraph",
  "pulldown-cmark",
  "ra_ap_base_db",
@@ -384,7 +385,7 @@ dependencies = [
  "cfg-if 1.0.0",
  "crossbeam-utils",
  "lazy_static",
- "memoffset 0.6.1",
+ "memoffset 0.6.5",
  "scopeguard",
 ]
 
@@ -823,9 +824,9 @@ dependencies = [
 
 [[package]]
 name = "memoffset"
-version = "0.6.1"
+version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "157b4208e3059a8f9e78d559edc658e13df41410cb3ae03979c83130067fdd87"
+checksum = "5aa361d4faea93603064a027415f07bd8e1d5c88c9fbf68bf56a285428fd79ce"
 dependencies = [
  "autocfg",
 ]
