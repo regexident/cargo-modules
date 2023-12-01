@@ -26,6 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `memoffset` from `0.6.1` to `0.6.5`
+  - `thread_local` from `1.0.0` to `1.1.7`
 
 ### Deprecated
 
