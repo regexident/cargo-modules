@@ -95,7 +95,7 @@ mod negative_args {
 
         #[test]
         fn cfg_test() {
-            for command in ["tree", "graph"] {
+            for command in ["structure", "graph"] {
                 for (args, expected) in args_for(command, "cfg-test", false) {
                     let app = App::parse_from(&args);
 
@@ -110,7 +110,7 @@ mod negative_args {
 
         #[test]
         fn sysroot() {
-            for command in ["tree", "graph"] {
+            for command in ["structure", "graph"] {
                 for (args, expected) in args_for(command, "sysroot", false) {
                     let app = App::parse_from(&args);
 
@@ -129,7 +129,7 @@ mod negative_args {
 
         #[test]
         fn fns() {
-            for command in ["tree", "graph"] {
+            for command in ["structure", "graph"] {
                 for (args, expected) in args_for(command, "fns", false) {
                     let app = App::parse_from(&args);
 
@@ -144,7 +144,7 @@ mod negative_args {
 
         #[test]
         fn tests() {
-            for command in ["tree", "graph"] {
+            for command in ["structure", "graph"] {
                 for (args, expected) in args_for(command, "tests", false) {
                     let app = App::parse_from(&args);
 
@@ -159,7 +159,7 @@ mod negative_args {
 
         #[test]
         fn types() {
-            for command in ["tree", "graph"] {
+            for command in ["structure", "graph"] {
                 for (args, expected) in args_for(command, "types", false) {
                     let app = App::parse_from(&args);
 
@@ -584,7 +584,7 @@ mod focus_on {
             project: smoke
         );
     }
-    mod tree {
+    mod structure {
         test_cmd!(
             args: "graph \
                     --uses \
@@ -691,7 +691,7 @@ mod fields {
 
 mod functions {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --externs \
                 --fns \
                 --modules \
@@ -705,7 +705,7 @@ mod functions {
     );
 
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --externs \
                 --fns \
                 --modules \
@@ -719,7 +719,7 @@ mod functions {
     );
 
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --externs \
                 --fns \
                 --modules \
@@ -733,7 +733,7 @@ mod functions {
     );
 
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --externs \
                 --fns \
                 --modules \
@@ -784,7 +784,7 @@ mod github_issue_80 {
 
 mod github_issue_102 {
     test_cmd!(
-        args: "generate graph \
+        args: "graph \
                 --uses",
         success: true,
         color_mode: ColorMode::Plain,
