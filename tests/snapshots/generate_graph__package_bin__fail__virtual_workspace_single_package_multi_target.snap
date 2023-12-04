@@ -1,5 +1,5 @@
 ---
-source: tests/generate_graph.rs
+source: tests/dependencies.rs
 expression: output
 ---
 STDERR:
