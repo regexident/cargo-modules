@@ -1,5 +1,3 @@
-mod orphans;
-
 mod uses {
     use core::{cmp, ops};
     use std::fmt;
