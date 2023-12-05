@@ -20,17 +20,11 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- Support for detecting methods/type-aliases in impls.
-- Support for detecting dependencies from functions and methods.
-- Tracing logs for graph/tree building phases (`RUST_LOG=cargo_modules=trace …`).
+- n/a
 
 ### Changed
 
-- Updated dependencies:
-  - `thread_local` from `1.0.0` to `1.1.7`
-  - `clap` from `4.4.10` to `4.4.11`
-  - `memoffset` from `0.6.1` to `0.9.0`
-  - `rust-analyzer` from `0.0.187` to `0.0.188`
+- n/a
 
 ### Deprecated
 
@@ -42,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- Local dependencies are no longer erroneously being detected as packages.
+- n/a
 
 ### Performance
 
@@ -55,6 +49,26 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.12.0] - 2023-12-05
+
+### Added
+
+- Support for detecting methods/type-aliases in impls.
+- Support for detecting dependencies from functions and methods.
+- Tracing logs for graph/tree building phases (`RUST_LOG=cargo_modules=trace …`).
+
+### Changed
+
+- Updated dependencies:
+  - `thread_local` from `1.0.0` to `1.1.7`
+  - `clap` from `4.4.10` to `4.4.11`
+  - `memoffset` from `0.6.1` to `0.9.0`
+  - `rust-analyzer` from `0.0.187` to `0.0.188`
+
+### Fixed
+
+- Local dependencies are no longer erroneously being detected as packages.
 
 ## [0.11.2] - 2023-11-29
 
