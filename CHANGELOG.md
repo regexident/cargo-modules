@@ -30,6 +30,7 @@ Please make sure to add your changes to the appropriate categories:
   - `thread_local` from `1.0.0` to `1.1.7`
   - `clap` from `4.4.10` to `4.4.11`
   - `memoffset` from `0.6.1` to `0.9.0`
+  - `rust-analyzer` from `0.0.187` to `0.0.188`
 
 ### Deprecated
 
