@@ -37,7 +37,6 @@ crate smoke
 │   ├── struct Dummy: pub(self)
 │   ├── struct Local: pub(self)
 │   └── type Std: pub(self)
-├── mod orphans: pub(crate)
 ├── mod target: pub(crate)
 │   └── struct Target: pub
 ├── mod uses: pub(crate)

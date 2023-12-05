@@ -67,7 +67,6 @@ digraph {
     "smoke::methods::Dummy" [label="pub(self) struct|methods::Dummy", fillcolor="#db5367"]; // "struct" node
     "smoke::methods::Local" [label="pub(self) struct|methods::Local", fillcolor="#db5367"]; // "struct" node
     "smoke::methods::Std" [label="pub(self) type|methods::Std", fillcolor="#db5367"]; // "type" node
-    "smoke::orphans" [label="pub(crate) mod|orphans", fillcolor="#f8c04c"]; // "mod" node
     "smoke::target" [label="pub(crate) mod|target", fillcolor="#f8c04c"]; // "mod" node
     "smoke::target::Target" [label="pub struct|target::Target", fillcolor="#81c169"]; // "struct" node
     "smoke::uses" [label="pub(crate) mod|uses", fillcolor="#f8c04c"]; // "mod" node
@@ -117,7 +116,6 @@ digraph {
     "smoke" -> "smoke::functions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::hierarchy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::methods" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke" -> "smoke::orphans" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::target" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::uses" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge

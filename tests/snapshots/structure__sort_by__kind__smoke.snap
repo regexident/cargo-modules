@@ -43,7 +43,6 @@ crate smoke
 │   │   ├── fn inputs: pub(self)
 │   │   └── fn outputs: pub(self)
 │   └── struct Local: pub(self)
-├── mod orphans: pub(crate)
 ├── mod target: pub(crate)
 │   └── struct Target: pub
 ├── mod uses: pub(crate)

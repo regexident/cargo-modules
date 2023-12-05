@@ -19,7 +19,6 @@ crate smoke
 │       │       └── mod amet: pub(self)
 │       └── mod ipsum: pub(self)
 ├── mod methods: pub(crate)
-├── mod orphans: pub(crate)
 ├── mod target: pub(crate)
 ├── mod uses: pub(crate)
 │   └── mod cycle: pub(self)

@@ -12,7 +12,6 @@ crate smoke
 ├── mod hierarchy: pub(crate)
 │   └── mod lorem: pub(self)
 ├── mod methods: pub(crate)
-├── mod orphans: pub(crate)
 ├── mod target: pub(crate)
 ├── mod uses: pub(crate)
 │   └── mod cycle: pub(self)

@@ -72,7 +72,6 @@ crate smoke
 │       └── mod node_0: pub(self)
 ├── mod target: pub(crate)
 │   └── struct Target: pub
-├── mod orphans: pub(crate)
 ├── mod methods: pub(crate)
 │   ├── type Std: pub(self)
 │   ├── struct Local: pub(self)

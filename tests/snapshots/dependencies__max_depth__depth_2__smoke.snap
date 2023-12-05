@@ -43,7 +43,6 @@ digraph {
     "smoke::hierarchy" [label="pub(crate) mod|hierarchy", fillcolor="#f8c04c"]; // "mod" node
     "smoke::hierarchy::lorem" [label="pub(self) mod|hierarchy::lorem", fillcolor="#db5367"]; // "mod" node
     "smoke::methods" [label="pub(crate) mod|methods", fillcolor="#f8c04c"]; // "mod" node
-    "smoke::orphans" [label="pub(crate) mod|orphans", fillcolor="#f8c04c"]; // "mod" node
     "smoke::target" [label="pub(crate) mod|target", fillcolor="#f8c04c"]; // "mod" node
     "smoke::uses" [label="pub(crate) mod|uses", fillcolor="#f8c04c"]; // "mod" node
     "smoke::uses::cycle" [label="pub(self) mod|uses::cycle", fillcolor="#db5367"]; // "mod" node
@@ -55,7 +54,6 @@ digraph {
     "smoke" -> "smoke::functions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::hierarchy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::methods" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke" -> "smoke::orphans" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::target" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::uses" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
