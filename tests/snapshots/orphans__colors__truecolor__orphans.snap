@@ -1,0 +1,32 @@
+---
+source: tests/orphans.rs
+expression: output
+---
+STDERR:
+Error: Found 2 orphans in crate 'orphans'
+
+STDOUT:
+
+2 orphans found:
+
+[1;38;2;255;178;102mwarning[0m: orphaned module `bar` at src/orphans/bar.rs
+  [1;38;2;84;142;200m-->[0m src/orphans.rs
+   [1;38;2;84;142;200m|[0m  [1;38;2;219;77;89m^^^^^^^^^^^^^^[0m [1;38;2;219;77;89morphan module not loaded from file[0m
+   [1;38;2;84;142;200m|[0m
+ [1;38;2;105;190;210mhelp[0m: consider loading `bar` from module `orphans::orphans`
+   [1;38;2;84;142;200m|[0m
+   [1;38;2;84;142;200m|[0m  [1;38;2;129;193;105mmod bar;[0m
+   [1;38;2;84;142;200m|[0m  [1;38;2;129;193;105m++++++++[0m
+   [1;38;2;84;142;200m|[0m
+
+[1;38;2;255;178;102mwarning[0m: orphaned module `foo` at src/orphans/foo/mod.rs
+  [1;38;2;84;142;200m-->[0m src/orphans.rs
+   [1;38;2;84;142;200m|[0m  [1;38;2;219;77;89m^^^^^^^^^^^^^^[0m [1;38;2;219;77;89morphan module not loaded from file[0m
+   [1;38;2;84;142;200m|[0m
+ [1;38;2;105;190;210mhelp[0m: consider loading `foo` from module `orphans::orphans`
+   [1;38;2;84;142;200m|[0m
+   [1;38;2;84;142;200m|[0m  [1;38;2;129;193;105mmod foo;[0m
+   [1;38;2;84;142;200m|[0m  [1;38;2;129;193;105m++++++++[0m
+   [1;38;2;84;142;200m|[0m
+
+

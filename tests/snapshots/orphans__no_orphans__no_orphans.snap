@@ -1,0 +1,10 @@
+---
+source: tests/orphans.rs
+expression: output
+---
+STDERR:
+
+STDOUT:
+
+No orphans found.
+
