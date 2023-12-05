@@ -1,0 +1,32 @@
+---
+source: tests/orphans.rs
+expression: output
+---
+STDERR:
+Error: Found 2 orphans in crate 'orphans'
+
+STDOUT:
+
+2 orphans found:
+
+warning: orphaned module `bar` at src/orphans/bar.rs
+  --> src/orphans.rs
+   |  ^^^^^^^^^^^^^^ orphan module not loaded from file
+   |
+ help: consider loading `bar` from module `orphans::orphans`
+   |
+   |  mod bar;
+   |  ++++++++
+   |
+
+warning: orphaned module `foo` at src/orphans/foo/mod.rs
+  --> src/orphans.rs
+   |  ^^^^^^^^^^^^^^ orphan module not loaded from file
+   |
+ help: consider loading `foo` from module `orphans::orphans`
+   |
+   |  mod foo;
+   |  ++++++++
+   |
+
+
