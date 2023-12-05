@@ -71,7 +71,7 @@ impl<'a> Filter<'a> {
             .node_indices()
             .filter(|node_idx| {
                 let node = &graph[*node_idx];
-                analyzer::use_tree_matches_item(&use_tree, &node.item)
+                analyzer::use_tree_matches_item_path(&use_tree, &node.item.path[..])
             })
             .collect();
 

@@ -4,17 +4,385 @@
 
 use std::path::{Path, PathBuf};
 
+use log::{debug, trace};
+
 use hir::ModuleSource;
-use ra_ap_cfg::CfgExpr;
-use ra_ap_hir::{self as hir, HasAttrs};
-use ra_ap_ide_db::RootDatabase;
+use ra_ap_cfg::{CfgAtom, CfgDiff, CfgExpr};
+use ra_ap_hir::{self as hir, Crate, HasAttrs};
+use ra_ap_ide::{AnalysisHost, RootDatabase};
+use ra_ap_ide_db::FxHashMap;
+use ra_ap_load_cargo::{LoadCargoConfig, ProcMacroServerChoice};
+use ra_ap_paths::AbsPathBuf;
+use ra_ap_project_model::{
+    CargoConfig, CargoFeatures, CfgOverrides, InvocationLocation, InvocationStrategy, PackageData,
+    ProjectManifest, ProjectWorkspace, RustLibSource, TargetData,
+};
+use ra_ap_project_model::{CargoWorkspace, Package, Target, TargetKind};
 use ra_ap_syntax::{ast, AstNode, SourceFile};
 use ra_ap_vfs::Vfs;
 
-use crate::item::{
-    attr::{ItemCfgAttr, ItemTestAttr},
-    Item,
+use crate::{
+    item::attr::{ItemCfgAttr, ItemTestAttr},
+    options::{general::Options as GeneralOptions, project::Options as ProjectOptions},
 };
+
+pub fn load_workspace(
+    general_options: &GeneralOptions,
+    project_options: &ProjectOptions,
+) -> anyhow::Result<(Crate, AnalysisHost, Vfs)> {
+    let project_path = project_options.manifest_path.as_path().canonicalize()?;
+    let cargo_config = cargo_config(project_options);
+    let load_config = load_config();
+
+    let progress = |string| {
+        trace!("Progress: {}", string);
+    };
+
+    let mut project_workspace = load_project_workspace(&project_path, &cargo_config, &progress)?;
+
+    let (package, target) = select_package_and_target(&project_workspace, project_options)?;
+
+    if general_options.verbose {
+        eprintln!();
+        eprintln!("crate");
+        eprintln!("└── package: {}", package.name);
+        eprintln!("    └── target: {}", target.name);
+        eprintln!();
+    }
+
+    if load_config.load_out_dirs_from_check {
+        let build_scripts = project_workspace.run_build_scripts(&cargo_config, &progress)?;
+        project_workspace.set_build_scripts(build_scripts)
+    }
+
+    let (host, vfs, _proc_macro_client) =
+        ra_ap_load_cargo::load_workspace(project_workspace, &cargo_config.extra_env, &load_config)?;
+
+    let db = host.raw_database();
+
+    let krate = find_crate(db, &vfs, &target)?;
+
+    Ok((krate, host, vfs))
+}
+
+pub fn cargo_config(project_options: &ProjectOptions) -> CargoConfig {
+    // List of features to activate (or deactivate).
+    let features = if project_options.all_features {
+        CargoFeatures::All
+    } else {
+        CargoFeatures::Selected {
+            features: project_options.features.clone(),
+            no_default_features: project_options.no_default_features,
+        }
+    };
+
+    // Target triple
+    let target = project_options.target.clone();
+
+    // Whether to load sysroot crates (`std`, `core` & friends).
+    let sysroot = if project_options.sysroot {
+        Some(RustLibSource::Discover)
+    } else {
+        None
+    };
+
+    // rustc private crate source
+    let rustc_source = None;
+
+    // crates to disable `#[cfg(test)]` on
+    let cfg_overrides = match project_options.cfg_test {
+        true => CfgOverrides {
+            global: CfgDiff::new(vec![CfgAtom::Flag("test".into())], Vec::new()).unwrap(),
+            selective: Default::default(),
+        },
+        false => CfgOverrides {
+            global: CfgDiff::new(Vec::new(), vec![CfgAtom::Flag("test".into())]).unwrap(),
+            selective: Default::default(),
+        },
+    };
+
+    // Setup RUSTC_WRAPPER to point to `rust-analyzer` binary itself.
+    // (We use that to compile only proc macros and build scripts
+    // during the initial `cargo check`.)
+    let wrap_rustc_in_build_scripts = true;
+
+    let run_build_script_command = None;
+
+    // FIXME: support extra environment variables via CLI:
+    let extra_env = FxHashMap::default();
+
+    let invocation_strategy = InvocationStrategy::PerWorkspace;
+    let invocation_location = InvocationLocation::Workspace;
+
+    let sysroot_src = None;
+
+    let extra_args = vec![];
+
+    let target_dir = None;
+
+    CargoConfig {
+        features,
+        target,
+        sysroot,
+        rustc_source,
+        cfg_overrides,
+        wrap_rustc_in_build_scripts,
+        run_build_script_command,
+        extra_env,
+        invocation_strategy,
+        invocation_location,
+        sysroot_src,
+        extra_args,
+        target_dir,
+    }
+}
+
+pub fn load_config() -> LoadCargoConfig {
+    let load_out_dirs_from_check = true;
+    let prefill_caches = false;
+    let with_proc_macro_server = ProcMacroServerChoice::Sysroot;
+
+    LoadCargoConfig {
+        load_out_dirs_from_check,
+        prefill_caches,
+        with_proc_macro_server,
+    }
+}
+
+pub fn load_project_workspace(
+    project_path: &Path,
+    cargo_config: &CargoConfig,
+    progress: &dyn Fn(String),
+) -> anyhow::Result<ProjectWorkspace> {
+    let root = AbsPathBuf::assert(std::env::current_dir()?.join(project_path));
+    let root = ProjectManifest::discover_single(root.as_path())?;
+
+    ProjectWorkspace::load(root, cargo_config, &progress)
+}
+
+pub fn select_package_and_target(
+    project_workspace: &ProjectWorkspace,
+    options: &ProjectOptions,
+) -> anyhow::Result<(PackageData, TargetData)> {
+    let cargo_workspace = match project_workspace {
+        ProjectWorkspace::Cargo { cargo, .. } => Ok(cargo),
+        ProjectWorkspace::Json { .. } => Err(anyhow::anyhow!("Unexpected JSON workspace")),
+        ProjectWorkspace::DetachedFiles { .. } => Err(anyhow::anyhow!("Unexpected detached files")),
+    }?;
+
+    let package_idx = select_package(cargo_workspace, options)?;
+    let package = cargo_workspace[package_idx].clone();
+    debug!("Selected package: {:#?}", package.name);
+
+    let target_idx = select_target(cargo_workspace, package_idx, options)?;
+    let target = cargo_workspace[target_idx].clone();
+    debug!("Selected target: {:#?}", target.name);
+
+    Ok((package, target))
+}
+
+pub fn select_package(
+    workspace: &CargoWorkspace,
+    options: &ProjectOptions,
+) -> anyhow::Result<Package> {
+    let packages: Vec<_> = workspace
+        .packages()
+        .filter(|idx| workspace[*idx].is_member)
+        .collect();
+
+    let package_count = packages.len();
+
+    // If project contains no packages, bail out:
+
+    if package_count < 1 {
+        anyhow::bail!("No packages found");
+    }
+
+    // If no (or a non-existent) package was provided via options bail out:
+
+    let package_list_items: Vec<_> = packages
+        .iter()
+        .map(|package_idx| {
+            let package = &workspace[*package_idx];
+            format!("- {}", package.name)
+        })
+        .collect();
+
+    let package_list = package_list_items.join("\n");
+
+    // If project contains multiple packages, select the one provided via options:
+
+    if let Some(package_name) = &options.package {
+        let package_idx = packages.into_iter().find(|package_idx| {
+            let package = &workspace[*package_idx];
+            package.name == *package_name
+        });
+
+        return package_idx.ok_or_else(|| {
+            anyhow::anyhow!(
+                indoc::indoc! {
+                    "No package found with name {:?}.
+
+                        Packages present in workspace:
+                        {}
+                        "
+                },
+                package_name,
+                package_list,
+            )
+        });
+    }
+
+    // If project contains a single packages, just pick it:
+
+    if package_count == 1 {
+        return Ok(packages[0]);
+    }
+
+    Err(anyhow::anyhow!(
+        indoc::indoc! {
+            "Multiple packages present in workspace,
+                please explicitly select one via --package flag.
+
+                Packages present in workspace:
+                {}
+                "
+        },
+        package_list
+    ))
+}
+
+pub fn select_target(
+    workspace: &CargoWorkspace,
+    package_idx: Package,
+    options: &ProjectOptions,
+) -> anyhow::Result<Target> {
+    let package = &workspace[package_idx];
+
+    // Retrieve list of indices for bin/lib targets:
+
+    let targets: Vec<_> = package
+        .targets
+        .iter()
+        .cloned()
+        .filter(|target_idx| {
+            let target = &workspace[*target_idx];
+            match target.kind {
+                TargetKind::Bin => true,
+                TargetKind::Lib => true,
+                TargetKind::Example => false,
+                TargetKind::Test => false,
+                TargetKind::Bench => false,
+                TargetKind::Other => false,
+                TargetKind::BuildScript => false,
+            }
+        })
+        .collect();
+
+    let target_count = targets.len();
+
+    // If package contains no targets, bail out:
+
+    if target_count < 1 {
+        anyhow::bail!("No targets found");
+    }
+
+    // If no (or a non-existent) target was provided via options bail out:
+
+    let target_list_items: Vec<_> = targets
+        .iter()
+        .map(|target_idx| {
+            let target = &workspace[*target_idx];
+            match target.kind {
+                TargetKind::Bin => format!("- {} (--bin {})", target.name, target.name),
+                TargetKind::Lib => format!("- {} (--lib)", target.name),
+                TargetKind::Example => unreachable!(),
+                TargetKind::Test => unreachable!(),
+                TargetKind::Bench => unreachable!(),
+                TargetKind::Other => unreachable!(),
+                TargetKind::BuildScript => unreachable!(),
+            }
+        })
+        .collect();
+
+    let target_list = target_list_items.join("\n");
+
+    // If package contains multiple targets, select the one provided via options:
+
+    if options.lib {
+        let target = targets.into_iter().find(|target_idx| {
+            let target = &workspace[*target_idx];
+            target.kind == TargetKind::Lib
+        });
+
+        return target.ok_or_else(|| {
+            anyhow::anyhow!(
+                indoc::indoc! {
+                    "No library target found.
+
+                        Targets present in package:
+                        {}
+                        "
+                },
+                target_list,
+            )
+        });
+    }
+
+    if let Some(bin_name) = &options.bin {
+        let target = targets.into_iter().find(|target_idx| {
+            let target = &workspace[*target_idx];
+            (target.kind == TargetKind::Bin) && (target.name == bin_name[..])
+        });
+
+        return target.ok_or_else(|| {
+            anyhow::anyhow!(
+                indoc::indoc! {
+                    "No binary target found with name {:?}.
+
+                        Targets present in package:
+                        {}
+                        "
+                },
+                bin_name,
+                target_list,
+            )
+        });
+    }
+
+    // If project contains a single target, just pick it:
+
+    if target_count == 1 {
+        return Ok(targets[0]);
+    }
+
+    Err(anyhow::anyhow!(
+        indoc::indoc! {
+            "Multiple targets present in package,
+                please explicitly select one via --lib or --bin flag.
+
+                Targets present in package:
+                {}
+                "
+        },
+        target_list
+    ))
+}
+
+pub fn find_crate(db: &RootDatabase, vfs: &Vfs, target: &TargetData) -> anyhow::Result<Crate> {
+    let crates = Crate::all(db);
+
+    let target_root_path = target.root.as_path();
+
+    let krate = crates.into_iter().find(|krate| {
+        let vfs_path = vfs.file_path(krate.root_file(db));
+        let crate_root_path = vfs_path.as_path().unwrap();
+
+        crate_root_path == target_root_path
+    });
+
+    krate.ok_or_else(|| anyhow::anyhow!("Crate not found"))
+}
 
 pub(crate) fn crate_name(krate: hir::Crate, db: &RootDatabase) -> String {
     // Obtain the crate's declaration name:
@@ -33,6 +401,13 @@ pub(crate) fn module(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<hi
         hir::ModuleDef::Module(module) => Some(module),
         module_def => module_def.module(db),
     }
+}
+
+pub(crate) fn name(module_def: hir::ModuleDef, db: &RootDatabase) -> String {
+    module_def
+        .name(db)
+        .map(|name| name.display(db).to_string())
+        .expect("name")
 }
 
 pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> Vec<String> {
@@ -120,8 +495,8 @@ pub(crate) fn parse_ast<N: AstNode>(text: &str) -> N {
     node
 }
 
-pub(crate) fn use_tree_matches_item(use_tree: &ast::UseTree, item: &Item) -> bool {
-    let node_path_segments = &item.path[..];
+pub(crate) fn use_tree_matches_item_path(use_tree: &ast::UseTree, item_path: &[String]) -> bool {
+    let node_path_segments = item_path;
     if node_path_segments.is_empty() {
         return false;
     }
