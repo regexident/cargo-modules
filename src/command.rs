@@ -8,6 +8,7 @@ use crate::{
     analyzer::load_workspace,
     dependencies::command::Command as DependenciesCommand,
     options::{general::Options as GeneralOptions, project::Options as ProjectOptions},
+    orphans::command::Command as OrphansCommand,
     structure::command::Command as StructureCommand,
 };
 
@@ -38,6 +39,12 @@ pub enum Command {
         "#
     )]
     Dependencies(DependenciesCommand),
+
+    #[command(
+        name = "orphans",
+        about = "Detects unlinked source files within a crate's directory."
+    )]
+    Orphans(OrphansCommand),
 }
 
 impl Command {
@@ -45,6 +52,7 @@ impl Command {
         match self {
             Self::Structure(command) => command.sanitize(),
             Self::Dependencies(command) => command.sanitize(),
+            Self::Orphans(command) => command.sanitize(),
         }
     }
 
@@ -60,6 +68,8 @@ impl Command {
             Self::Structure(command) => command.run(krate, db, &vfs),
             #[allow(unused_variables)]
             Self::Dependencies(command) => command.run(krate, db, &vfs),
+            #[allow(unused_variables)]
+            Self::Orphans(command) => command.run(krate, db, &vfs),
         }
     }
 
@@ -67,6 +77,7 @@ impl Command {
         match self {
             Self::Structure(command) => &command.options.general,
             Self::Dependencies(command) => &command.options.general,
+            Self::Orphans(command) => &command.options.general,
         }
     }
 
@@ -75,6 +86,7 @@ impl Command {
         match self {
             Self::Structure(command) => &command.options.project,
             Self::Dependencies(command) => &command.options.project,
+            Self::Orphans(command) => &command.options.project,
         }
     }
 }

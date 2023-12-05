@@ -2,11 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-pub mod command;
-pub mod options;
+use std::path::PathBuf;
 
-pub(crate) mod analyzer;
-pub(crate) mod dependencies;
-pub(crate) mod item;
-pub(crate) mod orphans;
-pub(crate) mod structure;
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub struct Orphan {
+    pub parent_module_path: String,
+    pub parent_file_path: PathBuf,
+    pub file_path: PathBuf,
+}
