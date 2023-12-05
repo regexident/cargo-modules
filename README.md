@@ -33,6 +33,9 @@ cargo install cargo-modules
 cargo modules generate tree <OPTIONS>
 ```
 
+<details>
+<summary>Command help</summary>
+
 ```terminal
 Usage: cargo-modules generate tree [OPTIONS]
 
@@ -67,27 +70,41 @@ Options:
   -h, --help                           Print help
 ```
 
-The following image is the result of using the following command to generate a tree of the `smoke` test project within its own repo:
+</details>
+
+#### Example
 
 ```bash
-cd ./tests/projects/smoke
-cargo-modules generate tree --types --tests --orphans
+cd ./tests/projects/readme_tree_example
+cargo-modules generate tree --types --traits --fns --tests
 ```
+
+Output:
 
 ![Output of `cargo modules generate tree …`](docs/tree_output.png)
 
-#### Line Structure
-
-The individual lines are structured as follows:
-
-```plain
-└── <keyword> <name>: <visibility> <test-attributes>
+```rust
+crate readme_tree_example
+├── pub trait Lorem
+├── pub(crate) mod amet
+│   └── pub(self) mod consectetur
+│       └── pub(self) mod adipiscing
+│           └── pub(in crate::amet) union Elit
+├── pub(crate) mod dolor
+│   └── pub(crate) enum Sit
+└── pub(crate) mod tests #[cfg(test)]
+    └── pub(self) fn it_works #[test]
 ```
 
-#### Line Colors
+(Project source code: [readme_tree_example/src/lib.rs](./tests/projects/readme_tree_example/src/lib.rs))
 
-The `<keyword>` is highlighted in 🔵 blue to visually separate it from the name.
-Test modules and functions have their corresponding `<test-attributes>` (i.e. `#[cfg(test)]` / `#[test]`) printed next to them in gray and cyan.
+#### Terminal Colors
+
+If you are running the command on a terminal with color support and don't have `NO_COLOR` defined in your environment, then the output will be colored for easier visual parsing:
+
+```plain
+└── <visibility> <keyword> <name> [<test-attributes>]
+```
 
 The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-and-privacy.html)) is further more highlighted by the following colors:
 
@@ -99,13 +116,22 @@ The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-a
 | 🔴 red    | Items visible to the current module (i.e. `pub(self)`, implied by lack of `pub …`) |
 | 🟣 purple | Orphaned modules (i.e. a file exists on disk but no corresponding `mod …`)         |
 
+The `<keyword>` is highlighted in 🔵 blue to visually separate it from the name.
+
+Test-guarded items (i.e. `#[cfg(test)] …`) and test functions (i.e. `#[test] fn …`) have their corresponding `<test-attributes>` printed next to them in gray and cyan.
+
 ### Print crate as a graph
 
 ```bash
 cargo modules generate graph <OPTIONS>
 ```
 
+<details>
+<summary>Command help</summary>
+
 ```terminal
+Print crate as a graph.
+
 Usage: cargo-modules generate graph [OPTIONS]
 
 Options:
@@ -129,11 +155,9 @@ Options:
       --traits                         Include traits (e.g. trait, unsafe trait)
       --no-traits                      Exclude traits (e.g. trait, unsafe trait). [default]
       --fns                            Include functions (e.g. fns, async fns, const fns)
-      --no-fns                         Include functions (e.g. fns, async fns, const fns). [default]
+      --no-fns                         Exclude functions (e.g. fns, async fns, const fns). [default]
       --tests                          Include tests (e.g. `#[test] fn …`)
       --no-tests                       Exclude tests (e.g. `#[test] fn …`). [default]
-      --orphans                        Include orphaned modules (i.e. unused files in /src)
-      --no-orphans                     Exclude orphaned modules (i.e. unused files in /src). [default]
       --acyclic                        Require graph to be acyclic
       --layout <LAYOUT>                The graph layout algorithm to use (e.g. none, dot, neato, twopi, circo, fdp, sfdp) [default: neato]
       --no-modules                     Exclude modules (e.g. `mod foo`, `mod foo {}`)
@@ -149,7 +173,9 @@ Options:
         `cargo modules generate dependencies | xdot -`
 ```
 
-The following image is the result of using the following command to generate a graph of the `smoke` test project within its own repo:
+</details>
+
+#### Example
 
 ```bash
 cd ./tests/projects/smoke
@@ -157,6 +183,8 @@ cargo-modules generate graph --types --tests --orphans | dot -Tsvg
 ```
 
 ![Output of `cargo modules generate graph …`](docs/graph_output.svg)
+
+(Project source code: [readme_graph_example/src/lib.rs](./tests/projects/readme_graph_example/src/lib.rs))
 
 #### Node Structure
 
@@ -183,7 +211,7 @@ The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-a
 | 🔴 red    | Items visible to the current module (i.e. `pub(self)`, implied by lack of `pub …`) |
 | 🟣 purple | Orphaned modules (i.e. a file exists on disk but no corresponding `mod …`)         |
 
-### Acyclic Mode
+#### Acyclic Mode
 
 cargo-modules's `generate graph` command checks for the presence of a `--acyclic` flag. If found it will search for cycles in the directed graph and return an error for any cycles it found.
 
@@ -200,7 +228,7 @@ Error: Circular dependency between `cargo_modules::options::general` and `cargo_
 
 ### No-Color Mode
 
-cargo-modules checks for the presence of a `NO_COLOR` environment variable that, when present (regardless of its value), prevents the addition of color to the console output.
+cargo-modules checks for the presence of a `NO_COLOR` environment variable that, when present (regardless of its value), prevents the addition of color to the console output (and only the console output!).
 
 ## Contributing
 
