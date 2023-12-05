@@ -20,11 +20,16 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Added dedicated top-level `orphans` command (replacing the now removed `--orphans` CLI flag) for detecting orphaned Rust source files within projects.
 
 ### Changed
 
-- n/a
+- Renamed `generate tree` command to `structure`, promoting it to a top-level command.
+- Renamed `generate graph` command to `dependencies`, promoting it to a top-level command.
+- Made `structure` command include types, traits, and fns by default.
+  Use `--no-types`, `--no-traits`, `--no-fns` to opt-out.
+- Made `dependencies` command include uses, externs, types, traits, and fns by default.
+  Use `--no-modules`, `--no-uses`, `--no-externs`, `--no-types`, `--no-traits`, `--no-fns` to opt-out.
 
 ### Deprecated
 
@@ -32,7 +37,25 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Removed
 
-- n/a
+- Removed `generate` top-level CLI command, promoting its sub-commands to top-level commands.
+- Removed the `--orphans` CLI flag from `structure` command (née `generate tree`).
+- Removed global CLI option `--sysroot` & `--no-sysroot`.
+- Removed global CLI option `--no-cfg-test`.
+- Removed CLI selection options for `structure` command:
+  - Removed CLI option `--types`
+  - Removed CLI option `--traits`
+  - Removed CLI option `--fns`
+  - Removed CLI option `--tests`
+  - Removed CLI option `--no-tests`
+- Removed CLI selection options for `dependencies` command:
+  - Removed CLI option `--modules`
+  - Removed CLI option `--uses`
+  - Removed CLI option `--externs`
+  - Removed CLI option `--types`
+  - Removed CLI option `--traits`
+  - Removed CLI option `--fns`
+  - Removed CLI option `--tests`
+  - Removed CLI option `--no-tests`
 
 ### Fixed
 
