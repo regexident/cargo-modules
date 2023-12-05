@@ -67,7 +67,7 @@ impl<'a> Filter<'a> {
         max_depth: usize,
         focus_tree: &ast::UseTree,
     ) -> Option<Node> {
-        let is_focus_node = analyzer::use_tree_matches_item(focus_tree, &node.item);
+        let is_focus_node = analyzer::use_tree_matches_item_path(focus_tree, &node.item.path[..]);
 
         let depth = if is_focus_node { Some(0) } else { depth };
 
@@ -117,7 +117,7 @@ impl<'a> Filter<'a> {
     }
 
     fn is_or_contains_focus_node(node: &Node, focus_tree: &ast::UseTree) -> bool {
-        if analyzer::use_tree_matches_item(focus_tree, &node.item) {
+        if analyzer::use_tree_matches_item_path(focus_tree, &node.item.path[..]) {
             return true;
         }
 
