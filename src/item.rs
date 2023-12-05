@@ -44,9 +44,7 @@ impl Item {
                 hir::ModuleDef::Module(module) => Some(module),
                 _ => None,
             }
-            .and_then(|module| {
-                analyzer::module_file(module.definition_source(db), db, vfs).map(Into::into)
-            })
+            .and_then(|module| analyzer::module_file(module.definition_source(db), db, vfs))
         };
 
         let hir = Some(moduledef_hir);
