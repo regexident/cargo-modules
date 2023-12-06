@@ -1,0 +1,39 @@
+---
+source: tests/dependencies.rs
+expression: output
+---
+STDERR:
+
+STDOUT:
+Prints a crate's internal dependencies as a graph.
+
+Usage: cargo-modules dependencies [OPTIONS]
+
+Options:
+      --verbose                        Use verbose output
+      --lib                            Process only this package's library
+      --bin <BIN>                      Process only the specified binary
+  -p, --package <PACKAGE>              Package to process (see `cargo help pkgid`)
+      --no-default-features            Do not activate the `default` feature
+      --all-features                   Activate all available features
+      --features <FEATURES>            List of features to activate. This will be ignored if `--cargo-all-features` is provided
+      --target <TARGET>                Analyze for target triple
+      --manifest-path <MANIFEST_PATH>  Path to Cargo.toml [default: .]
+      --no-externs                     Filter out extern items from extern crates from graph
+      --no-fns                         Filter out functions (e.g. fns, async fns, const fns) from graph
+      --no-modules                     Filter out modules (e.g. `mod foo`, `mod foo {}`) from graph
+      --no-sysroot                     Filter out sysroot crates (`std`, `core` & friends) from graph
+      --no-traits                      Filter out traits (e.g. trait, unsafe trait) from graph
+      --no-types                       Filter out types (e.g. structs, unions, enums) from graph
+      --no-uses                        Filter out "use" edges from graph
+      --acyclic                        Require graph to be acyclic
+      --layout <LAYOUT>                The graph layout algorithm to use (e.g. none, dot, neato, twopi, circo, fdp, sfdp) [default: neato]
+      --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo::bar::{self, baz, blee::*}"
+      --max-depth <MAX_DEPTH>          The maximum depth of the generated graph relative to the crate's root node, or nodes selected by '--focus-on'
+      --cfg-test                       Analyze with `#[cfg(test)]` enabled (i.e as if built via `cargo test`)
+  -h, --help                           Print help
+
+
+        If you have xdot installed on your system, you can run this using:
+        `cargo modules dependencies | xdot -`
+
