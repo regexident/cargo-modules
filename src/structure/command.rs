@@ -10,7 +10,10 @@ use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 use ra_ap_vfs::Vfs;
 
-use crate::structure::{builder::Builder, filter::Filter, options::Options, printer::Printer};
+use crate::{
+    analyzer::LoadOptions,
+    structure::{builder::Builder, filter::Filter, options::Options, printer::Printer},
+};
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 pub struct Command {
@@ -28,9 +31,6 @@ impl Command {
             warn!("The analysis will not include any tests due to `--no-cfg-test` being provided.");
             self.options.project.no_cfg_test = false;
         }
-
-        // We don't need to include sysroot if we only want the crate tree:
-        self.options.project.no_sysroot = true;
     }
 
     #[doc(hidden)]
@@ -57,5 +57,11 @@ impl Command {
         print!("{string}");
 
         Ok(())
+    }
+
+    pub fn load_options(&self) -> LoadOptions {
+        LoadOptions {
+            sysroot: false,
+        }
     }
 }

@@ -119,4 +119,8 @@ pub struct SelectionOptions {
     /// Filter out tests (e.g. `#[test] fn …`) from graph.
     #[arg(long = "no-tests")]
     pub no_tests: bool,
+
+    /// Filter out sysroot crates (`std`, `core` & friends) from graph.
+    #[arg(long = "no-sysroot")]
+    pub no_sysroot: bool,
 }

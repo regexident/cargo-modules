@@ -26,12 +26,18 @@ use crate::{
     options::{general::Options as GeneralOptions, project::Options as ProjectOptions},
 };
 
+pub struct LoadOptions {
+    /// Include sysroot crates (`std`, `core` & friends) in analysis.
+    pub sysroot: bool,
+}
+
 pub fn load_workspace(
     general_options: &GeneralOptions,
     project_options: &ProjectOptions,
+    load_options: &LoadOptions,
 ) -> anyhow::Result<(Crate, AnalysisHost, Vfs)> {
     let project_path = project_options.manifest_path.as_path().canonicalize()?;
-    let cargo_config = cargo_config(project_options);
+    let cargo_config = cargo_config(project_options, load_options);
     let load_config = load_config();
 
     let progress = |string| {
@@ -65,7 +71,7 @@ pub fn load_workspace(
     Ok((krate, host, vfs))
 }
 
-pub fn cargo_config(project_options: &ProjectOptions) -> CargoConfig {
+pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions) -> CargoConfig {
     // List of features to activate (or deactivate).
     let features = if project_options.all_features {
         CargoFeatures::All
@@ -80,10 +86,10 @@ pub fn cargo_config(project_options: &ProjectOptions) -> CargoConfig {
     let target = project_options.target.clone();
 
     // Whether to load sysroot crates (`std`, `core` & friends).
-    let sysroot = if project_options.no_sysroot {
-        None
-    } else {
+    let sysroot = if load_options.sysroot {
         Some(RustLibSource::Discover)
+    } else {
+        None
     };
 
     // rustc private crate source

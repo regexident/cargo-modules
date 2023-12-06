@@ -9,13 +9,16 @@ use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 use ra_ap_vfs::Vfs;
 
-use crate::dependencies::{
-    builder::Builder,
-    cycles::tri_color::{CycleDetector, TriColorDepthFirstSearch},
-    filter::Filter,
-    graph::Graph,
-    options::{LayoutAlgorithm, Options},
-    printer::Printer,
+use crate::{
+    analyzer::LoadOptions,
+    dependencies::{
+        builder::Builder,
+        cycles::tri_color::{CycleDetector, TriColorDepthFirstSearch},
+        filter::Filter,
+        graph::Graph,
+        options::{LayoutAlgorithm, Options},
+        printer::Printer,
+    },
 };
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
@@ -34,11 +37,6 @@ impl Command {
             warn!("The analysis will not include any tests due to `--no-cfg-test` being provided.");
             self.options.project.no_cfg_test = false;
         }
-
-        // We only need to include sysroot if we include extern uses
-        // and didn't explicitly request sysroot to be excluded:
-        self.options.project.no_sysroot |=
-            self.options.selection.no_uses || self.options.selection.no_externs;
     }
 
     #[doc(hidden)]
@@ -85,6 +83,14 @@ impl Command {
 
     fn validate_options(&self) -> anyhow::Result<()> {
         Ok(())
+    }
+
+    pub fn load_options(&self) -> LoadOptions {
+        LoadOptions {
+            sysroot: !(self.options.selection.no_uses
+                || self.options.selection.no_externs
+                || self.options.selection.no_sysroot),
+        }
     }
 }
 

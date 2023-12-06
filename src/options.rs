@@ -65,10 +65,6 @@ pub mod project {
         #[arg(long = "no-cfg-test")]
         pub no_cfg_test: bool,
 
-        /// Exclude sysroot crates (`std`, `core` & friends) in analysis.
-        #[arg(long = "no-sysroot")]
-        pub no_sysroot: bool,
-
         /// Path to Cargo.toml.
         #[arg(long = "manifest-path", default_value = ".")]
         pub manifest_path: PathBuf,

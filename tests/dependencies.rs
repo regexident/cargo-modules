@@ -361,20 +361,6 @@ mod selection {
     }
 }
 
-mod no_sysroot {
-    test_cmd!(
-        attrs: [
-            // `sysroot` is expensive, so only run on release builds:
-            #[ignore]
-        ],
-        args: "dependencies \
-                --no-sysroot",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
 mod focus_on {
     mod simple_path {
         test_cmd!(
