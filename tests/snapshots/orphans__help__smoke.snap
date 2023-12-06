@@ -1,0 +1,25 @@
+---
+source: tests/orphans.rs
+expression: output
+---
+STDERR:
+
+STDOUT:
+Detects unlinked source files within a crate's directory.
+
+Usage: cargo-modules orphans [OPTIONS]
+
+Options:
+      --verbose                        Use verbose output
+      --lib                            Process only this package's library
+      --bin <BIN>                      Process only the specified binary
+  -p, --package <PACKAGE>              Package to process (see `cargo help pkgid`)
+      --no-default-features            Do not activate the `default` feature
+      --all-features                   Activate all available features
+      --features <FEATURES>            List of features to activate. This will be ignored if `--cargo-all-features` is provided
+      --target <TARGET>                Analyze for target triple
+      --manifest-path <MANIFEST_PATH>  Path to Cargo.toml [default: .]
+      --deny                           Returns a failure code if one or more orphans are found
+      --cfg-test                       Analyze with `#[cfg(test)]` enabled (i.e as if built via `cargo test`)
+  -h, --help                           Print help
+

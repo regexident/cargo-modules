@@ -1,6 +1,16 @@
 #[macro_use]
 mod util;
 
+mod help {
+    test_cmd!(
+        args: "structure \
+                --help",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: smoke
+    );
+}
+
 mod colors {
     mod plain {
         test_cmd!(

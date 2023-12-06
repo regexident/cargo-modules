@@ -15,13 +15,7 @@ use crate::{
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 #[command(
     name = "cargo-modules",
-    about = "Print a crate's module tree or graph.",
-    // after_help = r#"
-    // If neither `--bin` nor `--example` are given,
-    // then if the project only has one bin target it will be run.
-    // Otherwise `--bin` specifies the bin target to run.
-    // At most one `--bin` can be provided.
-    // "#
+    about = "Visualize/analyze a crate's internal structure."
 )]
 pub enum Command {
     #[command(
