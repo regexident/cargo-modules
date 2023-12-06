@@ -12,7 +12,6 @@ crate smoke
 ├── mod hierarchy: pub(crate)
 ├── mod methods: pub(crate)
 ├── mod target: pub(crate)
-├── mod tests: pub(crate) #[cfg(test)]
 ├── mod uses: pub(crate)
 └── mod visibility: pub(crate)
 

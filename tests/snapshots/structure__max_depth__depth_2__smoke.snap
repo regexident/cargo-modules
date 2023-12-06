@@ -13,7 +13,6 @@ crate smoke
 │   └── mod lorem: pub(self)
 ├── mod methods: pub(crate)
 ├── mod target: pub(crate)
-├── mod tests: pub(crate) #[cfg(test)]
 ├── mod uses: pub(crate)
 │   └── mod cycle: pub(self)
 └── mod visibility: pub(crate)

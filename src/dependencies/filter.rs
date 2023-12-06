@@ -4,7 +4,6 @@
 
 use std::collections::{HashMap, HashSet};
 
-use hir::HasAttrs;
 use log::trace;
 use petgraph::{
     graph::NodeIndex,
@@ -263,16 +262,9 @@ impl<'a> Filter<'a> {
         true
     }
 
-    fn should_retain_function(&self, function_hir: hir::Function) -> bool {
+    fn should_retain_function(&self, _function_hir: hir::Function) -> bool {
         if self.options.selection.no_fns {
             return false;
-        }
-
-        if self.options.selection.no_tests {
-            let attrs = function_hir.attrs(self.db);
-            if attrs.by_key("test").exists() {
-                return false;
-            }
         }
 
         true

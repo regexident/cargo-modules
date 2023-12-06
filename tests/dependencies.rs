@@ -289,6 +289,16 @@ mod package_bin {
     }
 }
 
+mod cfg_test {
+    test_cmd!(
+        args: "dependencies \
+                --cfg-test",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: smoke
+    );
+}
+
 mod selection {
     mod no_externs {
         test_cmd!(
@@ -314,16 +324,6 @@ mod selection {
         test_cmd!(
             args: "dependencies \
                     --no-modules",
-            success: true,
-            color_mode: ColorMode::Plain,
-            project: smoke
-        );
-    }
-
-    mod no_tests {
-        test_cmd!(
-            args: "dependencies \
-                    --no-tests",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke
@@ -468,7 +468,6 @@ mod github {
             args: "dependencies \
                     --no-externs \
                     --no-fns \
-                    --no-tests \
                     --no-traits \
                     --no-types",
             success: true,
@@ -481,6 +480,7 @@ mod github {
         mod tests {
             test_cmd!(
                 args: "dependencies \
+                        --cfg-test \
                         --no-externs \
                         --no-fns \
                         --no-traits",
@@ -495,7 +495,6 @@ mod github {
                 args: "dependencies \
                         --no-externs \
                         --no-fns \
-                        --no-tests \
                         --no-traits",
                 success: true,
                 color_mode: ColorMode::Plain,
@@ -509,7 +508,6 @@ mod github {
             args: "dependencies \
                     --no-externs \
                     --no-fns \
-                    --no-tests \
                     --no-traits \
                     --no-types",
             success: true,
@@ -523,7 +521,6 @@ mod github {
             args: "dependencies \
                     --no-externs \
                     --no-fns \
-                    --no-tests \
                     --layout dot",
             success: true,
             color_mode: ColorMode::Plain,

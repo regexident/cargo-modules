@@ -7,6 +7,4 @@ STDERR:
 STDOUT:
 
 crate package_lib_target
-└── mod tests: pub(crate) #[cfg(test)]
-    └── fn it_works: pub(self) #[test]
 

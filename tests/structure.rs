@@ -271,21 +271,21 @@ mod package_bin {
     }
 }
 
+mod cfg_test {
+    test_cmd!(
+        args: "dependencies \
+                --cfg-test",
+        success: true,
+        color_mode: ColorMode::Plain,
+        project: smoke
+    );
+}
+
 mod selection {
     mod no_fns {
         test_cmd!(
             args: "structure \
                     --no-fns",
-            success: true,
-            color_mode: ColorMode::Plain,
-            project: smoke
-        );
-    }
-
-    mod no_tests {
-        test_cmd!(
-            args: "structure \
-                    --no-tests",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke
@@ -362,7 +362,6 @@ mod max_depth {
                     --no-types \
                     --no-traits \
                     --no-fns \
-                    --no-tests \
                     --max-depth 0",
             success: true,
             color_mode: ColorMode::Plain,
@@ -376,7 +375,6 @@ mod max_depth {
                     --no-types \
                     --no-traits \
                     --no-fns \
-                    --no-tests \
                     --max-depth 1",
             success: true,
             color_mode: ColorMode::Plain,
@@ -390,7 +388,6 @@ mod max_depth {
                     --no-types \
                     --no-traits \
                     --no-fns \
-                    --no-tests \
                     --max-depth 2",
             success: true,
             color_mode: ColorMode::Plain,
@@ -403,7 +400,6 @@ mod sort_by {
     mod name {
         test_cmd!(
             args: "structure \
-                    --no-tests \
                     --sort-by \"name\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -414,7 +410,6 @@ mod sort_by {
     mod visibility {
         test_cmd!(
             args: "structure \
-                    --no-tests \
                     --sort-by \"visibility\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -425,7 +420,6 @@ mod sort_by {
     mod kind {
         test_cmd!(
             args: "structure \
-                    --no-tests \
                     --sort-by \"kind\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -437,7 +431,6 @@ mod sort_by {
 mod sort_reversed {
     test_cmd!(
         args: "structure \
-                --no-tests \
                 --sort-reversed",
         success: true,
         color_mode: ColorMode::Plain,
@@ -450,6 +443,7 @@ mod github {
         mod tests {
             test_cmd!(
                 args: "structure \
+                        --cfg-test \
                         --no-traits \
                         --no-fns",
                 success: true,
@@ -462,8 +456,7 @@ mod github {
             test_cmd!(
                 args: "structure \
                         --no-traits \
-                        --no-fns \
-                        --no-tests",
+                        --no-fns",
                 success: true,
                 color_mode: ColorMode::Plain,
                 project: github_issue_80
@@ -476,8 +469,7 @@ mod github {
             args: "structure \
                     --no-types \
                     --no-traits \
-                    --no-fns \
-                    --no-tests",
+                    --no-fns",
             success: true,
             color_mode: ColorMode::Plain,
             project: github_issue_222

@@ -5,7 +5,7 @@
 use std::fmt::Write;
 
 use clap::Parser;
-use log::{trace, warn};
+use log::trace;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 use ra_ap_vfs::Vfs;
@@ -26,12 +26,7 @@ impl Command {
         Self { options }
     }
 
-    pub(crate) fn sanitize(&mut self) {
-        if !self.options.selection.no_tests && self.options.project.no_cfg_test {
-            warn!("The analysis will not include any tests due to `--no-cfg-test` being provided.");
-            self.options.project.no_cfg_test = false;
-        }
-    }
+    pub(crate) fn sanitize(&mut self) {}
 
     #[doc(hidden)]
     pub fn run(self, krate: hir::Crate, db: &RootDatabase, vfs: &Vfs) -> anyhow::Result<()> {
@@ -61,6 +56,7 @@ impl Command {
 
     pub fn load_options(&self) -> LoadOptions {
         LoadOptions {
+            cfg_test: self.options.cfg_test,
             sysroot: false,
         }
     }
