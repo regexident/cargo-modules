@@ -1,0 +1,306 @@
+digraph {
+
+    graph [
+        label="readme_graph_example",
+        labelloc=t,
+
+        pad=0.4,
+
+        // Consider rendering the graph using a different layout algorithm, such as:
+        // [dot, neato, twopi, circo, fdp, sfdp]
+        layout=neato,
+        overlap=false,
+        splines="line",
+        rankdir=LR,
+
+        fontname="Helvetica", 
+        fontsize="36",
+    ];
+
+    node [
+        fontname="monospace",
+        fontsize="10",
+        shape="record",
+        style="filled",
+    ];
+
+    edge [
+        fontname="monospace",
+        fontsize="10",
+    ];
+
+    "alloc::fmt" [label="external mod|alloc::fmt", fillcolor="#81c169"]; // "mod" node
+    "alloc::string::String" [label="external struct|alloc::string::String", fillcolor="#81c169"]; // "struct" node
+    "bool" [label="external builtin|bool", fillcolor="#81c169"]; // "builtin" node
+    "core::cmp" [label="external mod|core::cmp", fillcolor="#81c169"]; // "mod" node
+    "core::fmt::Arguments" [label="external struct|core::fmt::Arguments", fillcolor="#81c169"]; // "struct" node
+    "core::future::future::Future" [label="external trait|core::future::future::Future", fillcolor="#81c169"]; // "trait" node
+    "core::marker::Sized" [label="external trait|core::marker::Sized", fillcolor="#81c169"]; // "trait" node
+    "core::ops" [label="external mod|core::ops", fillcolor="#81c169"]; // "mod" node
+    "core::option::Option" [label="external enum|core::option::Option", fillcolor="#81c169"]; // "enum" node
+    "core::panicking::AssertKind" [label="external enum|core::panicking::AssertKind", fillcolor="#81c169"]; // "enum" node
+    "i32" [label="external builtin|i32", fillcolor="#81c169"]; // "builtin" node
+    "readme_graph_example" [label="crate|readme_graph_example", fillcolor="#5397c8"]; // "crate" node
+    "readme_graph_example::derives" [label="pub(crate) mod|readme_graph_example::derives", fillcolor="#f8c04c"]; // "mod" node
+    "readme_graph_example::derives::Dummy" [label="pub(self) struct|readme_graph_example::derives::Dummy", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::derives::Dummy::clone" [label="pub(self) fn|readme_graph_example::derives::Dummy::clone", fillcolor="#db5367"]; // "fn" node
+    "readme_graph_example::functions" [label="pub(crate) mod|readme_graph_example::functions", fillcolor="#f8c04c"]; // "mod" node
+    "readme_graph_example::functions::Core" [label="pub(self) type|readme_graph_example::functions::Core", fillcolor="#db5367"]; // "type" node
+    "readme_graph_example::functions::Crate" [label="pub(self) type|readme_graph_example::functions::Crate", fillcolor="#db5367"]; // "type" node
+    "readme_graph_example::functions::Local" [label="pub(self) struct|readme_graph_example::functions::Local", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::functions::Std" [label="pub(self) type|readme_graph_example::functions::Std", fillcolor="#db5367"]; // "type" node
+    "readme_graph_example::functions::body" [label="pub(self) fn|readme_graph_example::functions::body", fillcolor="#db5367"]; // "fn" node
+    "readme_graph_example::functions::inputs" [label="pub(self) fn|readme_graph_example::functions::inputs", fillcolor="#db5367"]; // "fn" node
+    "readme_graph_example::functions::outputs" [label="pub(self) fn|readme_graph_example::functions::outputs", fillcolor="#db5367"]; // "fn" node
+    "readme_graph_example::hierarchy" [label="pub(crate) mod|readme_graph_example::hierarchy", fillcolor="#f8c04c"]; // "mod" node
+    "readme_graph_example::hierarchy::lorem" [label="pub(self) mod|readme_graph_example::hierarchy::lorem", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::hierarchy::lorem::Lorem" [label="pub(self) struct|readme_graph_example::hierarchy::lorem::Lorem", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::hierarchy::lorem::consectetur" [label="pub(self) mod|readme_graph_example::hierarchy::lorem::consectetur", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::hierarchy::lorem::consectetur::Consectetur" [label="pub(self) struct|readme_graph_example::hierarchy::lorem::consectetur::Consectetur", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::hierarchy::lorem::consectetur::adipiscing" [label="pub(self) mod|readme_graph_example::hierarchy::lorem::consectetur::adipiscing", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::hierarchy::lorem::consectetur::adipiscing::Adipiscing" [label="pub(self) struct|readme_graph_example::hierarchy::lorem::consectetur::adipiscing::Adipiscing", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::hierarchy::lorem::consectetur::adipiscing::elit" [label="pub(self) mod|readme_graph_example::hierarchy::lorem::consectetur::adipiscing::elit", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::hierarchy::lorem::consectetur::adipiscing::elit::Elit" [label="pub(self) struct|readme_graph_example::hierarchy::lorem::consectetur::adipiscing::elit::Elit", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::hierarchy::lorem::dolor" [label="pub(self) mod|readme_graph_example::hierarchy::lorem::dolor", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::hierarchy::lorem::dolor::Dolor" [label="pub(self) struct|readme_graph_example::hierarchy::lorem::dolor::Dolor", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::hierarchy::lorem::dolor::sit" [label="pub(self) mod|readme_graph_example::hierarchy::lorem::dolor::sit", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::hierarchy::lorem::dolor::sit::Sit" [label="pub(self) struct|readme_graph_example::hierarchy::lorem::dolor::sit::Sit", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::hierarchy::lorem::dolor::sit::amet" [label="pub(self) mod|readme_graph_example::hierarchy::lorem::dolor::sit::amet", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::hierarchy::lorem::dolor::sit::amet::Amet" [label="pub(self) struct|readme_graph_example::hierarchy::lorem::dolor::sit::amet::Amet", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::hierarchy::lorem::ipsum" [label="pub(self) mod|readme_graph_example::hierarchy::lorem::ipsum", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::hierarchy::lorem::ipsum::Ipsum" [label="pub(self) struct|readme_graph_example::hierarchy::lorem::ipsum::Ipsum", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::methods" [label="pub(crate) mod|readme_graph_example::methods", fillcolor="#f8c04c"]; // "mod" node
+    "readme_graph_example::methods::Core" [label="pub(self) type|readme_graph_example::methods::Core", fillcolor="#db5367"]; // "type" node
+    "readme_graph_example::methods::Crate" [label="pub(self) type|readme_graph_example::methods::Crate", fillcolor="#db5367"]; // "type" node
+    "readme_graph_example::methods::Dummy" [label="pub(self) struct|readme_graph_example::methods::Dummy", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::methods::Dummy::body" [label="pub(self) fn|readme_graph_example::methods::Dummy::body", fillcolor="#db5367"]; // "fn" node
+    "readme_graph_example::methods::Dummy::inputs" [label="pub(self) fn|readme_graph_example::methods::Dummy::inputs", fillcolor="#db5367"]; // "fn" node
+    "readme_graph_example::methods::Dummy::outputs" [label="pub(self) fn|readme_graph_example::methods::Dummy::outputs", fillcolor="#db5367"]; // "fn" node
+    "readme_graph_example::methods::Local" [label="pub(self) struct|readme_graph_example::methods::Local", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::methods::Std" [label="pub(self) type|readme_graph_example::methods::Std", fillcolor="#db5367"]; // "type" node
+    "readme_graph_example::target" [label="pub(crate) mod|readme_graph_example::target", fillcolor="#f8c04c"]; // "mod" node
+    "readme_graph_example::target::Target" [label="pub struct|readme_graph_example::target::Target", fillcolor="#81c169"]; // "struct" node
+    "readme_graph_example::tests" [label="pub(crate) mod|readme_graph_example::tests", fillcolor="#f8c04c"]; // "mod" node
+    "readme_graph_example::tests::it_works" [label="pub(self) fn|readme_graph_example::tests::it_works", fillcolor="#db5367"]; // "fn" node
+    "readme_graph_example::uses" [label="pub(crate) mod|readme_graph_example::uses", fillcolor="#f8c04c"]; // "mod" node
+    "readme_graph_example::uses::cycle" [label="pub(self) mod|readme_graph_example::uses::cycle", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::uses::cycle::node_0" [label="pub(self) mod|readme_graph_example::uses::cycle::node_0", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::uses::cycle::node_1" [label="pub(self) mod|readme_graph_example::uses::cycle::node_1", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::uses::cycle::node_1::node_2" [label="pub(self) mod|readme_graph_example::uses::cycle::node_1::node_2", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility" [label="pub(crate) mod|readme_graph_example::visibility", fillcolor="#f8c04c"]; // "mod" node
+    "readme_graph_example::visibility::dummy" [label="pub(self) mod|readme_graph_example::visibility::dummy", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::enums" [label="pub(self) mod|readme_graph_example::visibility::dummy::enums", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::enums::PubCrate" [label="pub(crate) enum|readme_graph_example::visibility::dummy::enums::PubCrate", fillcolor="#f8c04c"]; // "enum" node
+    "readme_graph_example::visibility::dummy::enums::PubModule" [label="pub(in crate::visibility) enum|readme_graph_example::visibility::dummy::enums::PubModule", fillcolor="#fe9454"]; // "enum" node
+    "readme_graph_example::visibility::dummy::enums::PubPrivate" [label="pub(self) enum|readme_graph_example::visibility::dummy::enums::PubPrivate", fillcolor="#db5367"]; // "enum" node
+    "readme_graph_example::visibility::dummy::enums::PubPublic" [label="pub enum|readme_graph_example::visibility::dummy::enums::PubPublic", fillcolor="#81c169"]; // "enum" node
+    "readme_graph_example::visibility::dummy::enums::PubSuper" [label="pub(super) enum|readme_graph_example::visibility::dummy::enums::PubSuper", fillcolor="#fe9454"]; // "enum" node
+    "readme_graph_example::visibility::dummy::fns" [label="pub(self) mod|readme_graph_example::visibility::dummy::fns", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::fns::pub_crate" [label="pub(crate) fn|readme_graph_example::visibility::dummy::fns::pub_crate", fillcolor="#f8c04c"]; // "fn" node
+    "readme_graph_example::visibility::dummy::fns::pub_module" [label="pub(in crate::visibility) fn|readme_graph_example::visibility::dummy::fns::pub_module", fillcolor="#fe9454"]; // "fn" node
+    "readme_graph_example::visibility::dummy::fns::pub_private" [label="pub(self) fn|readme_graph_example::visibility::dummy::fns::pub_private", fillcolor="#db5367"]; // "fn" node
+    "readme_graph_example::visibility::dummy::fns::pub_public" [label="pub fn|readme_graph_example::visibility::dummy::fns::pub_public", fillcolor="#81c169"]; // "fn" node
+    "readme_graph_example::visibility::dummy::fns::pub_super" [label="pub(super) fn|readme_graph_example::visibility::dummy::fns::pub_super", fillcolor="#fe9454"]; // "fn" node
+    "readme_graph_example::visibility::dummy::kinds" [label="pub(self) mod|readme_graph_example::visibility::dummy::kinds", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::kinds::AsyncFunction" [label="pub(self) async fn|readme_graph_example::visibility::dummy::kinds::AsyncFunction", fillcolor="#db5367"]; // "async fn" node
+    "readme_graph_example::visibility::dummy::kinds::ConstFunction" [label="pub(self) const fn|readme_graph_example::visibility::dummy::kinds::ConstFunction", fillcolor="#db5367"]; // "const fn" node
+    "readme_graph_example::visibility::dummy::kinds::Enum" [label="pub(self) enum|readme_graph_example::visibility::dummy::kinds::Enum", fillcolor="#db5367"]; // "enum" node
+    "readme_graph_example::visibility::dummy::kinds::Function" [label="pub(self) fn|readme_graph_example::visibility::dummy::kinds::Function", fillcolor="#db5367"]; // "fn" node
+    "readme_graph_example::visibility::dummy::kinds::Module" [label="pub(self) mod|readme_graph_example::visibility::dummy::kinds::Module", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::kinds::Struct" [label="pub(self) struct|readme_graph_example::visibility::dummy::kinds::Struct", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::visibility::dummy::kinds::Trait" [label="pub(self) trait|readme_graph_example::visibility::dummy::kinds::Trait", fillcolor="#db5367"]; // "trait" node
+    "readme_graph_example::visibility::dummy::kinds::TraitAlias" [label="pub(self) type|readme_graph_example::visibility::dummy::kinds::TraitAlias", fillcolor="#db5367"]; // "type" node
+    "readme_graph_example::visibility::dummy::kinds::TypeAlias" [label="pub(self) type|readme_graph_example::visibility::dummy::kinds::TypeAlias", fillcolor="#db5367"]; // "type" node
+    "readme_graph_example::visibility::dummy::kinds::Union" [label="pub(self) union|readme_graph_example::visibility::dummy::kinds::Union", fillcolor="#db5367"]; // "union" node
+    "readme_graph_example::visibility::dummy::kinds::UnsafeFunction" [label="pub(self) unsafe fn|readme_graph_example::visibility::dummy::kinds::UnsafeFunction", fillcolor="#db5367"]; // "unsafe fn" node
+    "readme_graph_example::visibility::dummy::kinds::UnsafeTrait" [label="pub(self) unsafe trait|readme_graph_example::visibility::dummy::kinds::UnsafeTrait", fillcolor="#db5367"]; // "unsafe trait" node
+    "readme_graph_example::visibility::dummy::mods" [label="pub(self) mod|readme_graph_example::visibility::dummy::mods", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::mods::pub_crate" [label="pub(crate) mod|readme_graph_example::visibility::dummy::mods::pub_crate", fillcolor="#f8c04c"]; // "mod" node
+    "readme_graph_example::visibility::dummy::mods::pub_module" [label="pub(in crate::visibility) mod|readme_graph_example::visibility::dummy::mods::pub_module", fillcolor="#fe9454"]; // "mod" node
+    "readme_graph_example::visibility::dummy::mods::pub_private" [label="pub(self) mod|readme_graph_example::visibility::dummy::mods::pub_private", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::mods::pub_public" [label="pub mod|readme_graph_example::visibility::dummy::mods::pub_public", fillcolor="#81c169"]; // "mod" node
+    "readme_graph_example::visibility::dummy::mods::pub_super" [label="pub(super) mod|readme_graph_example::visibility::dummy::mods::pub_super", fillcolor="#fe9454"]; // "mod" node
+    "readme_graph_example::visibility::dummy::structs" [label="pub(self) mod|readme_graph_example::visibility::dummy::structs", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::structs::PubCrate" [label="pub(crate) struct|readme_graph_example::visibility::dummy::structs::PubCrate", fillcolor="#f8c04c"]; // "struct" node
+    "readme_graph_example::visibility::dummy::structs::PubModule" [label="pub(in crate::visibility) struct|readme_graph_example::visibility::dummy::structs::PubModule", fillcolor="#fe9454"]; // "struct" node
+    "readme_graph_example::visibility::dummy::structs::PubPrivate" [label="pub(self) struct|readme_graph_example::visibility::dummy::structs::PubPrivate", fillcolor="#db5367"]; // "struct" node
+    "readme_graph_example::visibility::dummy::structs::PubPublic" [label="pub struct|readme_graph_example::visibility::dummy::structs::PubPublic", fillcolor="#81c169"]; // "struct" node
+    "readme_graph_example::visibility::dummy::structs::PubSuper" [label="pub(super) struct|readme_graph_example::visibility::dummy::structs::PubSuper", fillcolor="#fe9454"]; // "struct" node
+    "readme_graph_example::visibility::dummy::traits" [label="pub(self) mod|readme_graph_example::visibility::dummy::traits", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::traits::r#unsafe" [label="pub(self) mod|readme_graph_example::visibility::dummy::traits::r#unsafe", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::traits::r#unsafe::PubCrate" [label="pub(crate) unsafe trait|readme_graph_example::visibility::dummy::traits::r#unsafe::PubCrate", fillcolor="#f8c04c"]; // "unsafe trait" node
+    "readme_graph_example::visibility::dummy::traits::r#unsafe::PubModule" [label="pub(in crate::visibility) unsafe trait|readme_graph_example::visibility::dummy::traits::r#unsafe::PubModule", fillcolor="#fe9454"]; // "unsafe trait" node
+    "readme_graph_example::visibility::dummy::traits::r#unsafe::PubPrivate" [label="pub(self) unsafe trait|readme_graph_example::visibility::dummy::traits::r#unsafe::PubPrivate", fillcolor="#db5367"]; // "unsafe trait" node
+    "readme_graph_example::visibility::dummy::traits::r#unsafe::PubPublic" [label="pub unsafe trait|readme_graph_example::visibility::dummy::traits::r#unsafe::PubPublic", fillcolor="#81c169"]; // "unsafe trait" node
+    "readme_graph_example::visibility::dummy::traits::r#unsafe::PubSuper" [label="pub(super) unsafe trait|readme_graph_example::visibility::dummy::traits::r#unsafe::PubSuper", fillcolor="#fe9454"]; // "unsafe trait" node
+    "readme_graph_example::visibility::dummy::traits::safe" [label="pub(self) mod|readme_graph_example::visibility::dummy::traits::safe", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::traits::safe::PubCrate" [label="pub(crate) trait|readme_graph_example::visibility::dummy::traits::safe::PubCrate", fillcolor="#f8c04c"]; // "trait" node
+    "readme_graph_example::visibility::dummy::traits::safe::PubModule" [label="pub(in crate::visibility) trait|readme_graph_example::visibility::dummy::traits::safe::PubModule", fillcolor="#fe9454"]; // "trait" node
+    "readme_graph_example::visibility::dummy::traits::safe::PubPrivate" [label="pub(self) trait|readme_graph_example::visibility::dummy::traits::safe::PubPrivate", fillcolor="#db5367"]; // "trait" node
+    "readme_graph_example::visibility::dummy::traits::safe::PubPublic" [label="pub trait|readme_graph_example::visibility::dummy::traits::safe::PubPublic", fillcolor="#81c169"]; // "trait" node
+    "readme_graph_example::visibility::dummy::traits::safe::PubSuper" [label="pub(super) trait|readme_graph_example::visibility::dummy::traits::safe::PubSuper", fillcolor="#fe9454"]; // "trait" node
+    "readme_graph_example::visibility::dummy::unions" [label="pub(self) mod|readme_graph_example::visibility::dummy::unions", fillcolor="#db5367"]; // "mod" node
+    "readme_graph_example::visibility::dummy::unions::PubCrate" [label="pub(crate) union|readme_graph_example::visibility::dummy::unions::PubCrate", fillcolor="#f8c04c"]; // "union" node
+    "readme_graph_example::visibility::dummy::unions::PubModule" [label="pub(in crate::visibility) union|readme_graph_example::visibility::dummy::unions::PubModule", fillcolor="#fe9454"]; // "union" node
+    "readme_graph_example::visibility::dummy::unions::PubPrivate" [label="pub(self) union|readme_graph_example::visibility::dummy::unions::PubPrivate", fillcolor="#db5367"]; // "union" node
+    "readme_graph_example::visibility::dummy::unions::PubPublic" [label="pub union|readme_graph_example::visibility::dummy::unions::PubPublic", fillcolor="#81c169"]; // "union" node
+    "readme_graph_example::visibility::dummy::unions::PubSuper" [label="pub(super) union|readme_graph_example::visibility::dummy::unions::PubSuper", fillcolor="#fe9454"]; // "union" node
+    "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
+
+    "readme_graph_example" -> "readme_graph_example::derives" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example" -> "readme_graph_example::functions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example" -> "readme_graph_example::hierarchy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example" -> "readme_graph_example::methods" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example" -> "readme_graph_example::target" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example" -> "readme_graph_example::tests" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example" -> "readme_graph_example::uses" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example" -> "readme_graph_example::visibility" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::derives" -> "readme_graph_example::derives::Dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::derives::Dummy" -> "readme_graph_example::derives::Dummy::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::derives::Dummy::clone" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::derives::Dummy::clone" -> "readme_graph_example::derives::Dummy" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions" -> "readme_graph_example::functions::Core" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::functions" -> "readme_graph_example::functions::Crate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::functions" -> "readme_graph_example::functions::Local" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::functions" -> "readme_graph_example::functions::Std" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::functions" -> "readme_graph_example::functions::body" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::functions" -> "readme_graph_example::functions::inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::functions" -> "readme_graph_example::functions::outputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::functions::Crate" -> "readme_graph_example::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::Std" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::body" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::body" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::body" -> "readme_graph_example::functions::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::body" -> "readme_graph_example::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::body" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::inputs" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::inputs" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::inputs" -> "readme_graph_example::functions::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::inputs" -> "readme_graph_example::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::inputs" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::outputs" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::outputs" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::outputs" -> "readme_graph_example::functions::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::outputs" -> "readme_graph_example::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::functions::outputs" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::hierarchy" -> "readme_graph_example::hierarchy::lorem" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem" -> "readme_graph_example::hierarchy::lorem::Lorem" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem" -> "readme_graph_example::hierarchy::lorem::consectetur" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem" -> "readme_graph_example::hierarchy::lorem::dolor" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem" -> "readme_graph_example::hierarchy::lorem::ipsum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::consectetur" -> "readme_graph_example::hierarchy::lorem::consectetur::Consectetur" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::consectetur" -> "readme_graph_example::hierarchy::lorem::consectetur::adipiscing" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::consectetur::adipiscing" -> "readme_graph_example::hierarchy::lorem::consectetur::adipiscing::Adipiscing" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::consectetur::adipiscing" -> "readme_graph_example::hierarchy::lorem::consectetur::adipiscing::elit" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::consectetur::adipiscing::elit" -> "readme_graph_example::hierarchy::lorem::consectetur::adipiscing::elit::Elit" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::dolor" -> "readme_graph_example::hierarchy::lorem::dolor::Dolor" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::dolor" -> "readme_graph_example::hierarchy::lorem::dolor::sit" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::dolor::sit" -> "readme_graph_example::hierarchy::lorem::dolor::sit::Sit" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::dolor::sit" -> "readme_graph_example::hierarchy::lorem::dolor::sit::amet" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::dolor::sit::amet" -> "readme_graph_example::hierarchy::lorem::dolor::sit::amet::Amet" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::hierarchy::lorem::ipsum" -> "readme_graph_example::hierarchy::lorem::ipsum::Ipsum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::methods" -> "readme_graph_example::methods::Core" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::methods" -> "readme_graph_example::methods::Crate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::methods" -> "readme_graph_example::methods::Dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::methods" -> "readme_graph_example::methods::Local" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::methods" -> "readme_graph_example::methods::Std" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::methods::Crate" -> "readme_graph_example::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy" -> "readme_graph_example::methods::Dummy::body" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::methods::Dummy" -> "readme_graph_example::methods::Dummy::inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::methods::Dummy" -> "readme_graph_example::methods::Dummy::outputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::methods::Dummy::body" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::body" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::body" -> "readme_graph_example::methods::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::body" -> "readme_graph_example::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::body" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::inputs" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::inputs" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::inputs" -> "readme_graph_example::methods::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::inputs" -> "readme_graph_example::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::inputs" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::outputs" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::outputs" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::outputs" -> "readme_graph_example::methods::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::outputs" -> "readme_graph_example::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Dummy::outputs" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::methods::Std" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::target" -> "readme_graph_example::target::Target" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::tests" -> "readme_graph_example::tests::it_works" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::tests::it_works" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::tests::it_works" -> "core::fmt::Arguments" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::tests::it_works" -> "core::option::Option" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::tests::it_works" -> "core::panicking::AssertKind" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::tests::it_works" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::uses" -> "alloc::fmt" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::uses" -> "core::cmp" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::uses" -> "core::ops" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::uses" -> "readme_graph_example::hierarchy" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::uses" -> "readme_graph_example::uses::cycle" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::uses::cycle" -> "readme_graph_example::uses::cycle::node_0" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::uses::cycle" -> "readme_graph_example::uses::cycle::node_1" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::uses::cycle::node_0" -> "readme_graph_example::uses::cycle::node_1" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::uses::cycle::node_1" -> "readme_graph_example::uses::cycle::node_1::node_2" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::uses::cycle::node_1::node_2" -> "readme_graph_example::uses::cycle::node_0" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::visibility" -> "readme_graph_example::visibility::dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy" -> "readme_graph_example::visibility::dummy::enums" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy" -> "readme_graph_example::visibility::dummy::fns" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy" -> "readme_graph_example::visibility::dummy::kinds" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy" -> "readme_graph_example::visibility::dummy::mods" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy" -> "readme_graph_example::visibility::dummy::structs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy" -> "readme_graph_example::visibility::dummy::traits" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy" -> "readme_graph_example::visibility::dummy::unions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::enums" -> "readme_graph_example::visibility::dummy::enums::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::enums" -> "readme_graph_example::visibility::dummy::enums::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::enums" -> "readme_graph_example::visibility::dummy::enums::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::enums" -> "readme_graph_example::visibility::dummy::enums::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::enums" -> "readme_graph_example::visibility::dummy::enums::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::fns" -> "readme_graph_example::visibility::dummy::fns::pub_crate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::fns" -> "readme_graph_example::visibility::dummy::fns::pub_module" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::fns" -> "readme_graph_example::visibility::dummy::fns::pub_private" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::fns" -> "readme_graph_example::visibility::dummy::fns::pub_public" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::fns" -> "readme_graph_example::visibility::dummy::fns::pub_super" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::AsyncFunction" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::ConstFunction" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::Enum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::Function" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::Module" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::Struct" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::Trait" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::TraitAlias" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::TypeAlias" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::Union" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::UnsafeFunction" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds" -> "readme_graph_example::visibility::dummy::kinds::UnsafeTrait" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::kinds::AsyncFunction" -> "core::future::future::Future" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::visibility::dummy::kinds::AsyncFunction" -> "core::marker::Sized" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::visibility::dummy::kinds::TraitAlias" -> "readme_graph_example::visibility::dummy::kinds::Trait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::visibility::dummy::kinds::TypeAlias" -> "readme_graph_example::visibility::dummy::kinds::Struct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "readme_graph_example::visibility::dummy::mods" -> "readme_graph_example::visibility::dummy::mods::pub_crate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::mods" -> "readme_graph_example::visibility::dummy::mods::pub_module" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::mods" -> "readme_graph_example::visibility::dummy::mods::pub_private" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::mods" -> "readme_graph_example::visibility::dummy::mods::pub_public" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::mods" -> "readme_graph_example::visibility::dummy::mods::pub_super" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::structs" -> "readme_graph_example::visibility::dummy::structs::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::structs" -> "readme_graph_example::visibility::dummy::structs::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::structs" -> "readme_graph_example::visibility::dummy::structs::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::structs" -> "readme_graph_example::visibility::dummy::structs::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::structs" -> "readme_graph_example::visibility::dummy::structs::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits" -> "readme_graph_example::visibility::dummy::traits::r#unsafe" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits" -> "readme_graph_example::visibility::dummy::traits::safe" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits::r#unsafe" -> "readme_graph_example::visibility::dummy::traits::r#unsafe::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits::r#unsafe" -> "readme_graph_example::visibility::dummy::traits::r#unsafe::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits::r#unsafe" -> "readme_graph_example::visibility::dummy::traits::r#unsafe::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits::r#unsafe" -> "readme_graph_example::visibility::dummy::traits::r#unsafe::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits::r#unsafe" -> "readme_graph_example::visibility::dummy::traits::r#unsafe::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits::safe" -> "readme_graph_example::visibility::dummy::traits::safe::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits::safe" -> "readme_graph_example::visibility::dummy::traits::safe::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits::safe" -> "readme_graph_example::visibility::dummy::traits::safe::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits::safe" -> "readme_graph_example::visibility::dummy::traits::safe::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::traits::safe" -> "readme_graph_example::visibility::dummy::traits::safe::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::unions" -> "readme_graph_example::visibility::dummy::unions::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::unions" -> "readme_graph_example::visibility::dummy::unions::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::unions" -> "readme_graph_example::visibility::dummy::unions::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::unions" -> "readme_graph_example::visibility::dummy::unions::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "readme_graph_example::visibility::dummy::unions" -> "readme_graph_example::visibility::dummy::unions::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+
+}
