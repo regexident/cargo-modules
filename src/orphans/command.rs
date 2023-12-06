@@ -9,7 +9,7 @@ use ra_ap_ide::RootDatabase;
 use ra_ap_vfs::Vfs;
 
 use crate::{
-    analyzer,
+    analyzer::{self, LoadOptions},
     orphans::{options::Options, printer::Printer},
 };
 
@@ -50,6 +50,12 @@ impl Command {
             Err(anyhow::anyhow!(
                 "Found {count} orphans in crate '{crate_name}'"
             ))
+        }
+    }
+
+    pub fn load_options(&self) -> LoadOptions {
+        LoadOptions {
+            sysroot: false,
         }
     }
 }

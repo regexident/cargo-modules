@@ -5,7 +5,7 @@
 use clap::Parser;
 
 use crate::{
-    analyzer::load_workspace,
+    analyzer::{load_workspace, LoadOptions},
     dependencies::command::Command as DependenciesCommand,
     options::{general::Options as GeneralOptions, project::Options as ProjectOptions},
     orphans::command::Command as OrphansCommand,
@@ -59,8 +59,9 @@ impl Command {
     pub fn run(self) -> Result<(), anyhow::Error> {
         let general_options = self.general_options();
         let project_options = self.project_options();
+        let load_options = self.load_options();
 
-        let (krate, host, vfs) = load_workspace(general_options, project_options)?;
+        let (krate, host, vfs) = load_workspace(general_options, project_options, &load_options)?;
         let db = host.raw_database();
 
         match self {
@@ -87,6 +88,15 @@ impl Command {
             Self::Structure(command) => &command.options.project,
             Self::Dependencies(command) => &command.options.project,
             Self::Orphans(command) => &command.options.project,
+        }
+    }
+
+    #[allow(dead_code)]
+    fn load_options(&self) -> LoadOptions {
+        match self {
+            Self::Structure(command) => command.load_options(),
+            Self::Dependencies(command) => command.load_options(),
+            Self::Orphans(command) => command.load_options(),
         }
     }
 }
