@@ -84,15 +84,15 @@ pub struct Options {
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 #[group(id = "SelectionOptions")]
 pub struct SelectionOptions {
-    /// Filter out types (e.g. structs, unions, enums) from tree.
-    #[arg(long = "no-types")]
-    pub no_types: bool,
+    /// Filter out functions (e.g. fns, async fns, const fns) from tree.
+    #[arg(long = "no-fns")]
+    pub no_fns: bool,
 
     /// Filter out traits (e.g. trait, unsafe trait) from tree.
     #[arg(long = "no-traits")]
     pub no_traits: bool,
 
-    /// Filter out functions (e.g. fns, async fns, const fns) from tree.
-    #[arg(long = "no-fns")]
-    pub no_fns: bool,
+    /// Filter out types (e.g. structs, unions, enums) from tree.
+    #[arg(long = "no-types")]
+    pub no_types: bool,
 }

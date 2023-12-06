@@ -96,31 +96,31 @@ pub struct Options {
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 #[group(id = "SelectionOptions")]
 pub struct SelectionOptions {
-    /// Filter out modules (e.g. `mod foo`, `mod foo {}`) from graph.
-    #[clap(long = "no-modules")]
-    pub no_modules: bool,
-
-    /// Filter out "use" edges from graph.
-    #[arg(long = "no-uses")]
-    pub no_uses: bool,
-
-    /// Filter out extern items (e.g. `core`, `std`, third-party crates) from extern crates from graph.
+    /// Filter out extern items from extern crates from graph.
     #[arg(long = "no-externs")]
     pub no_externs: bool,
-
-    /// Filter out types (e.g. structs, unions, enums) from graph.
-    #[arg(long = "no-types")]
-    pub no_types: bool,
-
-    /// Filter out traits (e.g. trait, unsafe trait) from graph.
-    #[arg(long = "no-traits")]
-    pub no_traits: bool,
 
     /// Filter out functions (e.g. fns, async fns, const fns) from graph.
     #[arg(long = "no-fns")]
     pub no_fns: bool,
 
+    /// Filter out modules (e.g. `mod foo`, `mod foo {}`) from graph.
+    #[clap(long = "no-modules")]
+    pub no_modules: bool,
+
     /// Filter out sysroot crates (`std`, `core` & friends) from graph.
     #[arg(long = "no-sysroot")]
     pub no_sysroot: bool,
+
+    /// Filter out traits (e.g. trait, unsafe trait) from graph.
+    #[arg(long = "no-traits")]
+    pub no_traits: bool,
+
+    /// Filter out types (e.g. structs, unions, enums) from graph.
+    #[arg(long = "no-types")]
+    pub no_types: bool,
+
+    /// Filter out "use" edges from graph.
+    #[arg(long = "no-uses")]
+    pub no_uses: bool,
 }
