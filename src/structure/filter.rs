@@ -2,7 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use hir::HasAttrs;
 use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_syntax::ast;
@@ -142,16 +141,9 @@ impl<'a> Filter<'a> {
         true
     }
 
-    fn should_retain_function(&self, function_hir: hir::Function) -> bool {
+    fn should_retain_function(&self, _function_hir: hir::Function) -> bool {
         if self.options.selection.no_fns {
             return false;
-        }
-
-        if self.options.selection.no_tests {
-            let attrs = function_hir.attrs(self.db);
-            if attrs.by_key("test").exists() {
-                return false;
-            }
         }
 
         true

@@ -55,6 +55,7 @@ impl Command {
 
     pub fn load_options(&self) -> LoadOptions {
         LoadOptions {
+            cfg_test: self.options.cfg_test,
             sysroot: false,
         }
     }

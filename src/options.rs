@@ -61,10 +61,6 @@ pub mod project {
         #[arg(long = "target")]
         pub target: Option<String>,
 
-        /// Analyze with `#[cfg(test)]` disabled.
-        #[arg(long = "no-cfg-test")]
-        pub no_cfg_test: bool,
-
         /// Path to Cargo.toml.
         #[arg(long = "manifest-path", default_value = ".")]
         pub manifest_path: PathBuf,

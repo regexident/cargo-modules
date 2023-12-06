@@ -45,8 +45,6 @@ crate smoke
 │   └── type Std: pub(self)
 ├── mod target: pub(crate)
 │   └── struct Target: pub
-├── mod tests: pub(crate) #[cfg(test)]
-│   └── fn it_works: pub(self) #[test]
 ├── mod uses: pub(crate)
 │   └── mod cycle: pub(self)
 │       ├── mod node_0: pub(self)

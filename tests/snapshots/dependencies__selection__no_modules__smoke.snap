@@ -40,12 +40,9 @@ digraph {
     "alloc::string::String" [label="external struct|alloc::string::String", fillcolor="#81c169"]; // "struct" node
     "bool" [label="external builtin|bool", fillcolor="#81c169"]; // "builtin" node
     "core::cmp" [label="external mod|core::cmp", fillcolor="#81c169"]; // "mod" node
-    "core::fmt::Arguments" [label="external struct|core::fmt::Arguments", fillcolor="#81c169"]; // "struct" node
     "core::future::future::Future" [label="external trait|core::future::future::Future", fillcolor="#81c169"]; // "trait" node
     "core::marker::Sized" [label="external trait|core::marker::Sized", fillcolor="#81c169"]; // "trait" node
     "core::ops" [label="external mod|core::ops", fillcolor="#81c169"]; // "mod" node
-    "core::option::Option" [label="external enum|core::option::Option", fillcolor="#81c169"]; // "enum" node
-    "core::panicking::AssertKind" [label="external enum|core::panicking::AssertKind", fillcolor="#81c169"]; // "enum" node
     "i32" [label="external builtin|i32", fillcolor="#81c169"]; // "builtin" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
     "smoke::derives::Dummy" [label="pub(self) struct|smoke::derives::Dummy", fillcolor="#db5367"]; // "struct" node
@@ -74,7 +71,6 @@ digraph {
     "smoke::methods::Local" [label="pub(self) struct|smoke::methods::Local", fillcolor="#db5367"]; // "struct" node
     "smoke::methods::Std" [label="pub(self) type|smoke::methods::Std", fillcolor="#db5367"]; // "type" node
     "smoke::target::Target" [label="pub struct|smoke::target::Target", fillcolor="#81c169"]; // "struct" node
-    "smoke::tests::it_works" [label="pub(self) fn|smoke::tests::it_works", fillcolor="#db5367"]; // "fn" node
     "smoke::visibility::dummy::enums::PubCrate" [label="pub(crate) enum|smoke::visibility::dummy::enums::PubCrate", fillcolor="#f8c04c"]; // "enum" node
     "smoke::visibility::dummy::enums::PubModule" [label="pub(in crate::visibility) enum|smoke::visibility::dummy::enums::PubModule", fillcolor="#fe9454"]; // "enum" node
     "smoke::visibility::dummy::enums::PubPrivate" [label="pub(self) enum|smoke::visibility::dummy::enums::PubPrivate", fillcolor="#db5367"]; // "enum" node
@@ -143,7 +139,6 @@ digraph {
     "smoke" -> "smoke::methods::Local" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::methods::Std" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::target::Target" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke" -> "smoke::tests::it_works" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::enums::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::enums::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::enums::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -225,11 +220,6 @@ digraph {
     "smoke::methods::Dummy::outputs" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::outputs" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Std" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::tests::it_works" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::tests::it_works" -> "core::fmt::Arguments" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::tests::it_works" -> "core::option::Option" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::tests::it_works" -> "core::panicking::AssertKind" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::tests::it_works" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::visibility::dummy::kinds::AsyncFunction" -> "core::future::future::Future" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::visibility::dummy::kinds::AsyncFunction" -> "core::marker::Sized" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::visibility::dummy::kinds::TraitAlias" -> "smoke::visibility::dummy::kinds::Trait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge

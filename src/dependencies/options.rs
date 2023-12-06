@@ -81,6 +81,10 @@ pub struct Options {
     /// relative to the crate's root node, or nodes selected by '--focus-on'.
     #[arg(long = "max-depth")]
     pub max_depth: Option<usize>,
+
+    /// Analyze with `#[cfg(test)]` enabled (i.e as if built via `cargo test`).
+    #[arg(long = "cfg-test")]
+    pub cfg_test: bool,
 }
 
 // Important:
@@ -115,10 +119,6 @@ pub struct SelectionOptions {
     /// Filter out functions (e.g. fns, async fns, const fns) from graph.
     #[arg(long = "no-fns")]
     pub no_fns: bool,
-
-    /// Filter out tests (e.g. `#[test] fn …`) from graph.
-    #[arg(long = "no-tests")]
-    pub no_tests: bool,
 
     /// Filter out sysroot crates (`std`, `core` & friends) from graph.
     #[arg(long = "no-sysroot")]

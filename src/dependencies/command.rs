@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use clap::Parser;
-use log::{trace, warn};
+use log::trace;
 use petgraph::graph::NodeIndex;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
@@ -32,12 +32,7 @@ impl Command {
         Self { options }
     }
 
-    pub(crate) fn sanitize(&mut self) {
-        if !self.options.selection.no_tests && self.options.project.no_cfg_test {
-            warn!("The analysis will not include any tests due to `--no-cfg-test` being provided.");
-            self.options.project.no_cfg_test = false;
-        }
-    }
+    pub(crate) fn sanitize(&mut self) {}
 
     #[doc(hidden)]
     pub fn run(self, krate: hir::Crate, db: &RootDatabase, vfs: &Vfs) -> anyhow::Result<()> {
@@ -87,6 +82,7 @@ impl Command {
 
     pub fn load_options(&self) -> LoadOptions {
         LoadOptions {
+            cfg_test: self.options.cfg_test,
             sysroot: !(self.options.selection.no_uses
                 || self.options.selection.no_externs
                 || self.options.selection.no_sysroot),

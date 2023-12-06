@@ -18,4 +18,8 @@ pub struct Options {
     /// Returns a failure code if one or more orphans are found.
     #[arg(long = "deny")]
     pub deny: bool,
+
+    /// Analyze with `#[cfg(test)]` enabled (i.e as if built via `cargo test`).
+    #[arg(long = "cfg-test")]
+    pub cfg_test: bool,
 }

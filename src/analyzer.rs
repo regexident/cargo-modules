@@ -27,6 +27,9 @@ use crate::{
 };
 
 pub struct LoadOptions {
+    /// Analyze with `#[cfg(test)]` enabled (i.e as if built via `cargo test`).
+    pub cfg_test: bool,
+
     /// Include sysroot crates (`std`, `core` & friends) in analysis.
     pub sysroot: bool,
 }
@@ -92,17 +95,17 @@ pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions
         None
     };
 
-    // rustc private crate source
+    // Rustc private crate source
     let rustc_source = None;
 
-    // crates to disable `#[cfg(test)]` on
-    let cfg_overrides = match project_options.no_cfg_test {
+    // Crates to enable/disable `#[cfg(test)]` on
+    let cfg_overrides = match load_options.cfg_test {
         true => CfgOverrides {
-            global: CfgDiff::new(Vec::new(), vec![CfgAtom::Flag("test".into())]).unwrap(),
+            global: CfgDiff::new(vec![CfgAtom::Flag("test".into())], Vec::new()).unwrap(),
             selective: Default::default(),
         },
         false => CfgOverrides {
-            global: CfgDiff::new(vec![CfgAtom::Flag("test".into())], Vec::new()).unwrap(),
+            global: CfgDiff::new(Vec::new(), vec![CfgAtom::Flag("test".into())]).unwrap(),
             selective: Default::default(),
         },
     };
