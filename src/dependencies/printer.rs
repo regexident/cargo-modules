@@ -211,7 +211,7 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_body(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let path = if self.options.selection.externs {
+        let path = if !self.options.selection.no_externs {
             // If we explicitly want full paths, return it unaltered:
             node.item.path.join("::")
         } else if node.item.path.len() > 1 {

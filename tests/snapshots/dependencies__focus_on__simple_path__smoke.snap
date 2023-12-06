@@ -36,27 +36,86 @@ digraph {
         fontsize="10",
     ];
 
+    "alloc::fmt" [label="external mod|alloc::fmt", fillcolor="#81c169"]; // "mod" node
+    "alloc::string::String" [label="external struct|alloc::string::String", fillcolor="#81c169"]; // "struct" node
+    "bool" [label="external builtin|bool", fillcolor="#81c169"]; // "builtin" node
+    "core::cmp" [label="external mod|core::cmp", fillcolor="#81c169"]; // "mod" node
+    "core::fmt::Arguments" [label="external struct|core::fmt::Arguments", fillcolor="#81c169"]; // "struct" node
+    "core::future::future::Future" [label="external trait|core::future::future::Future", fillcolor="#81c169"]; // "trait" node
+    "core::marker::Sized" [label="external trait|core::marker::Sized", fillcolor="#81c169"]; // "trait" node
+    "core::ops" [label="external mod|core::ops", fillcolor="#81c169"]; // "mod" node
+    "core::option::Option" [label="external enum|core::option::Option", fillcolor="#81c169"]; // "enum" node
+    "core::panicking::AssertKind" [label="external enum|core::panicking::AssertKind", fillcolor="#81c169"]; // "enum" node
     "i32" [label="external builtin|i32", fillcolor="#81c169"]; // "builtin" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
-    "smoke::visibility" [label="pub(crate) mod|visibility", fillcolor="#f8c04c"]; // "mod" node
-    "smoke::visibility::dummy" [label="pub(self) mod|visibility::dummy", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::enums" [label="pub(self) mod|visibility::dummy::enums", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::fns" [label="pub(self) mod|visibility::dummy::fns", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::kinds" [label="pub(self) mod|visibility::dummy::kinds", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::kinds::Module" [label="pub(self) mod|visibility::dummy::kinds::Module", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::mods" [label="pub(self) mod|visibility::dummy::mods", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::mods::pub_crate" [label="pub(crate) mod|visibility::dummy::mods::pub_crate", fillcolor="#f8c04c"]; // "mod" node
-    "smoke::visibility::dummy::mods::pub_module" [label="pub(in crate::visibility) mod|visibility::dummy::mods::pub_module", fillcolor="#fe9454"]; // "mod" node
-    "smoke::visibility::dummy::mods::pub_private" [label="pub(self) mod|visibility::dummy::mods::pub_private", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::mods::pub_public" [label="pub mod|visibility::dummy::mods::pub_public", fillcolor="#81c169"]; // "mod" node
-    "smoke::visibility::dummy::mods::pub_super" [label="pub(super) mod|visibility::dummy::mods::pub_super", fillcolor="#fe9454"]; // "mod" node
-    "smoke::visibility::dummy::structs" [label="pub(self) mod|visibility::dummy::structs", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::traits" [label="pub(self) mod|visibility::dummy::traits", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::traits::r#unsafe" [label="pub(self) mod|visibility::dummy::traits::r#unsafe", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::traits::safe" [label="pub(self) mod|visibility::dummy::traits::safe", fillcolor="#db5367"]; // "mod" node
-    "smoke::visibility::dummy::unions" [label="pub(self) mod|visibility::dummy::unions", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility" [label="pub(crate) mod|smoke::visibility", fillcolor="#f8c04c"]; // "mod" node
+    "smoke::visibility::dummy" [label="pub(self) mod|smoke::visibility::dummy", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::enums" [label="pub(self) mod|smoke::visibility::dummy::enums", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::enums::PubCrate" [label="pub(crate) enum|smoke::visibility::dummy::enums::PubCrate", fillcolor="#f8c04c"]; // "enum" node
+    "smoke::visibility::dummy::enums::PubModule" [label="pub(in crate::visibility) enum|smoke::visibility::dummy::enums::PubModule", fillcolor="#fe9454"]; // "enum" node
+    "smoke::visibility::dummy::enums::PubPrivate" [label="pub(self) enum|smoke::visibility::dummy::enums::PubPrivate", fillcolor="#db5367"]; // "enum" node
+    "smoke::visibility::dummy::enums::PubPublic" [label="pub enum|smoke::visibility::dummy::enums::PubPublic", fillcolor="#81c169"]; // "enum" node
+    "smoke::visibility::dummy::enums::PubSuper" [label="pub(super) enum|smoke::visibility::dummy::enums::PubSuper", fillcolor="#fe9454"]; // "enum" node
+    "smoke::visibility::dummy::fns" [label="pub(self) mod|smoke::visibility::dummy::fns", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::fns::pub_crate" [label="pub(crate) fn|smoke::visibility::dummy::fns::pub_crate", fillcolor="#f8c04c"]; // "fn" node
+    "smoke::visibility::dummy::fns::pub_module" [label="pub(in crate::visibility) fn|smoke::visibility::dummy::fns::pub_module", fillcolor="#fe9454"]; // "fn" node
+    "smoke::visibility::dummy::fns::pub_private" [label="pub(self) fn|smoke::visibility::dummy::fns::pub_private", fillcolor="#db5367"]; // "fn" node
+    "smoke::visibility::dummy::fns::pub_public" [label="pub fn|smoke::visibility::dummy::fns::pub_public", fillcolor="#81c169"]; // "fn" node
+    "smoke::visibility::dummy::fns::pub_super" [label="pub(super) fn|smoke::visibility::dummy::fns::pub_super", fillcolor="#fe9454"]; // "fn" node
+    "smoke::visibility::dummy::kinds" [label="pub(self) mod|smoke::visibility::dummy::kinds", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::kinds::AsyncFunction" [label="pub(self) async fn|smoke::visibility::dummy::kinds::AsyncFunction", fillcolor="#db5367"]; // "async fn" node
+    "smoke::visibility::dummy::kinds::ConstFunction" [label="pub(self) const fn|smoke::visibility::dummy::kinds::ConstFunction", fillcolor="#db5367"]; // "const fn" node
+    "smoke::visibility::dummy::kinds::Enum" [label="pub(self) enum|smoke::visibility::dummy::kinds::Enum", fillcolor="#db5367"]; // "enum" node
+    "smoke::visibility::dummy::kinds::Function" [label="pub(self) fn|smoke::visibility::dummy::kinds::Function", fillcolor="#db5367"]; // "fn" node
+    "smoke::visibility::dummy::kinds::Module" [label="pub(self) mod|smoke::visibility::dummy::kinds::Module", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::kinds::Struct" [label="pub(self) struct|smoke::visibility::dummy::kinds::Struct", fillcolor="#db5367"]; // "struct" node
+    "smoke::visibility::dummy::kinds::Trait" [label="pub(self) trait|smoke::visibility::dummy::kinds::Trait", fillcolor="#db5367"]; // "trait" node
+    "smoke::visibility::dummy::kinds::TraitAlias" [label="pub(self) type|smoke::visibility::dummy::kinds::TraitAlias", fillcolor="#db5367"]; // "type" node
+    "smoke::visibility::dummy::kinds::TypeAlias" [label="pub(self) type|smoke::visibility::dummy::kinds::TypeAlias", fillcolor="#db5367"]; // "type" node
+    "smoke::visibility::dummy::kinds::Union" [label="pub(self) union|smoke::visibility::dummy::kinds::Union", fillcolor="#db5367"]; // "union" node
+    "smoke::visibility::dummy::kinds::UnsafeFunction" [label="pub(self) unsafe fn|smoke::visibility::dummy::kinds::UnsafeFunction", fillcolor="#db5367"]; // "unsafe fn" node
+    "smoke::visibility::dummy::kinds::UnsafeTrait" [label="pub(self) unsafe trait|smoke::visibility::dummy::kinds::UnsafeTrait", fillcolor="#db5367"]; // "unsafe trait" node
+    "smoke::visibility::dummy::mods" [label="pub(self) mod|smoke::visibility::dummy::mods", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::mods::pub_crate" [label="pub(crate) mod|smoke::visibility::dummy::mods::pub_crate", fillcolor="#f8c04c"]; // "mod" node
+    "smoke::visibility::dummy::mods::pub_module" [label="pub(in crate::visibility) mod|smoke::visibility::dummy::mods::pub_module", fillcolor="#fe9454"]; // "mod" node
+    "smoke::visibility::dummy::mods::pub_private" [label="pub(self) mod|smoke::visibility::dummy::mods::pub_private", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::mods::pub_public" [label="pub mod|smoke::visibility::dummy::mods::pub_public", fillcolor="#81c169"]; // "mod" node
+    "smoke::visibility::dummy::mods::pub_super" [label="pub(super) mod|smoke::visibility::dummy::mods::pub_super", fillcolor="#fe9454"]; // "mod" node
+    "smoke::visibility::dummy::structs" [label="pub(self) mod|smoke::visibility::dummy::structs", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::structs::PubCrate" [label="pub(crate) struct|smoke::visibility::dummy::structs::PubCrate", fillcolor="#f8c04c"]; // "struct" node
+    "smoke::visibility::dummy::structs::PubModule" [label="pub(in crate::visibility) struct|smoke::visibility::dummy::structs::PubModule", fillcolor="#fe9454"]; // "struct" node
+    "smoke::visibility::dummy::structs::PubPrivate" [label="pub(self) struct|smoke::visibility::dummy::structs::PubPrivate", fillcolor="#db5367"]; // "struct" node
+    "smoke::visibility::dummy::structs::PubPublic" [label="pub struct|smoke::visibility::dummy::structs::PubPublic", fillcolor="#81c169"]; // "struct" node
+    "smoke::visibility::dummy::structs::PubSuper" [label="pub(super) struct|smoke::visibility::dummy::structs::PubSuper", fillcolor="#fe9454"]; // "struct" node
+    "smoke::visibility::dummy::traits" [label="pub(self) mod|smoke::visibility::dummy::traits", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::traits::r#unsafe" [label="pub(self) mod|smoke::visibility::dummy::traits::r#unsafe", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::traits::r#unsafe::PubCrate" [label="pub(crate) unsafe trait|smoke::visibility::dummy::traits::r#unsafe::PubCrate", fillcolor="#f8c04c"]; // "unsafe trait" node
+    "smoke::visibility::dummy::traits::r#unsafe::PubModule" [label="pub(in crate::visibility) unsafe trait|smoke::visibility::dummy::traits::r#unsafe::PubModule", fillcolor="#fe9454"]; // "unsafe trait" node
+    "smoke::visibility::dummy::traits::r#unsafe::PubPrivate" [label="pub(self) unsafe trait|smoke::visibility::dummy::traits::r#unsafe::PubPrivate", fillcolor="#db5367"]; // "unsafe trait" node
+    "smoke::visibility::dummy::traits::r#unsafe::PubPublic" [label="pub unsafe trait|smoke::visibility::dummy::traits::r#unsafe::PubPublic", fillcolor="#81c169"]; // "unsafe trait" node
+    "smoke::visibility::dummy::traits::r#unsafe::PubSuper" [label="pub(super) unsafe trait|smoke::visibility::dummy::traits::r#unsafe::PubSuper", fillcolor="#fe9454"]; // "unsafe trait" node
+    "smoke::visibility::dummy::traits::safe" [label="pub(self) mod|smoke::visibility::dummy::traits::safe", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::traits::safe::PubCrate" [label="pub(crate) trait|smoke::visibility::dummy::traits::safe::PubCrate", fillcolor="#f8c04c"]; // "trait" node
+    "smoke::visibility::dummy::traits::safe::PubModule" [label="pub(in crate::visibility) trait|smoke::visibility::dummy::traits::safe::PubModule", fillcolor="#fe9454"]; // "trait" node
+    "smoke::visibility::dummy::traits::safe::PubPrivate" [label="pub(self) trait|smoke::visibility::dummy::traits::safe::PubPrivate", fillcolor="#db5367"]; // "trait" node
+    "smoke::visibility::dummy::traits::safe::PubPublic" [label="pub trait|smoke::visibility::dummy::traits::safe::PubPublic", fillcolor="#81c169"]; // "trait" node
+    "smoke::visibility::dummy::traits::safe::PubSuper" [label="pub(super) trait|smoke::visibility::dummy::traits::safe::PubSuper", fillcolor="#fe9454"]; // "trait" node
+    "smoke::visibility::dummy::unions" [label="pub(self) mod|smoke::visibility::dummy::unions", fillcolor="#db5367"]; // "mod" node
+    "smoke::visibility::dummy::unions::PubCrate" [label="pub(crate) union|smoke::visibility::dummy::unions::PubCrate", fillcolor="#f8c04c"]; // "union" node
+    "smoke::visibility::dummy::unions::PubModule" [label="pub(in crate::visibility) union|smoke::visibility::dummy::unions::PubModule", fillcolor="#fe9454"]; // "union" node
+    "smoke::visibility::dummy::unions::PubPrivate" [label="pub(self) union|smoke::visibility::dummy::unions::PubPrivate", fillcolor="#db5367"]; // "union" node
+    "smoke::visibility::dummy::unions::PubPublic" [label="pub union|smoke::visibility::dummy::unions::PubPublic", fillcolor="#81c169"]; // "union" node
+    "smoke::visibility::dummy::unions::PubSuper" [label="pub(super) union|smoke::visibility::dummy::unions::PubSuper", fillcolor="#fe9454"]; // "union" node
     "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
 
+    "smoke" -> "alloc::fmt" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::cmp" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::fmt::Arguments" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::ops" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::option::Option" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::panicking::AssertKind" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke" -> "smoke::visibility" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
@@ -68,14 +127,59 @@ digraph {
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::structs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::traits" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy" -> "smoke::visibility::dummy::unions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::enums" -> "smoke::visibility::dummy::enums::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::enums" -> "smoke::visibility::dummy::enums::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::enums" -> "smoke::visibility::dummy::enums::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::enums" -> "smoke::visibility::dummy::enums::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::enums" -> "smoke::visibility::dummy::enums::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::fns" -> "smoke::visibility::dummy::fns::pub_crate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::fns" -> "smoke::visibility::dummy::fns::pub_module" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::fns" -> "smoke::visibility::dummy::fns::pub_private" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::fns" -> "smoke::visibility::dummy::fns::pub_public" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::fns" -> "smoke::visibility::dummy::fns::pub_super" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::AsyncFunction" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::ConstFunction" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::Enum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::Function" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::Module" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::Struct" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::Trait" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::TraitAlias" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::TypeAlias" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::Union" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::UnsafeFunction" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds" -> "smoke::visibility::dummy::kinds::UnsafeTrait" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::kinds::AsyncFunction" -> "core::future::future::Future" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke::visibility::dummy::kinds::AsyncFunction" -> "core::marker::Sized" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke::visibility::dummy::kinds::TraitAlias" -> "smoke::visibility::dummy::kinds::Trait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke::visibility::dummy::kinds::TypeAlias" -> "smoke::visibility::dummy::kinds::Struct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::visibility::dummy::mods" -> "smoke::visibility::dummy::mods::pub_crate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::mods" -> "smoke::visibility::dummy::mods::pub_module" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::mods" -> "smoke::visibility::dummy::mods::pub_private" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::mods" -> "smoke::visibility::dummy::mods::pub_public" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::mods" -> "smoke::visibility::dummy::mods::pub_super" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::structs" -> "smoke::visibility::dummy::structs::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::structs" -> "smoke::visibility::dummy::structs::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::structs" -> "smoke::visibility::dummy::structs::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::structs" -> "smoke::visibility::dummy::structs::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::structs" -> "smoke::visibility::dummy::structs::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::traits" -> "smoke::visibility::dummy::traits::r#unsafe" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::visibility::dummy::traits" -> "smoke::visibility::dummy::traits::safe" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits::r#unsafe" -> "smoke::visibility::dummy::traits::r#unsafe::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits::r#unsafe" -> "smoke::visibility::dummy::traits::r#unsafe::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits::r#unsafe" -> "smoke::visibility::dummy::traits::r#unsafe::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits::r#unsafe" -> "smoke::visibility::dummy::traits::r#unsafe::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits::r#unsafe" -> "smoke::visibility::dummy::traits::r#unsafe::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits::safe" -> "smoke::visibility::dummy::traits::safe::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits::safe" -> "smoke::visibility::dummy::traits::safe::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits::safe" -> "smoke::visibility::dummy::traits::safe::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits::safe" -> "smoke::visibility::dummy::traits::safe::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::traits::safe" -> "smoke::visibility::dummy::traits::safe::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubCrate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubModule" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubPrivate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
 

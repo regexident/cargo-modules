@@ -61,162 +61,6 @@ mod default {
     }
 }
 
-mod negative_args {
-    use clap::Parser;
-
-    use cargo_modules::{command::Command, options::App};
-
-    fn args_for(command: &str, arg: &str, default: bool) -> Vec<(Vec<String>, bool)> {
-        let args_prefix = vec!["modules".to_owned(), command.to_owned()];
-
-        let pos_arg = format!("--{arg}");
-        let neg_arg = format!("--no-{arg}");
-
-        let arg_suffixes = vec![
-            (vec![], default),
-            (vec![pos_arg.clone()], true),
-            (vec![neg_arg.clone()], false),
-            (vec![pos_arg.clone(), neg_arg.clone()], false),
-            (vec![neg_arg.clone(), pos_arg.clone()], true),
-        ];
-
-        arg_suffixes
-            .into_iter()
-            .map(|(args_suffix, expected)| {
-                let mut args = args_prefix.clone();
-                args.extend(args_suffix);
-                (args, expected)
-            })
-            .collect()
-    }
-
-    mod project {
-        use super::*;
-
-        #[test]
-        fn cfg_test() {
-            for command in ["structure", "dependencies"] {
-                for (args, expected) in args_for(command, "cfg-test", false) {
-                    let app = App::parse_from(&args);
-
-                    let Command::Dependencies(cmd) = app.command else {
-                        continue;
-                    };
-
-                    assert_eq!(cmd.options.project.cfg_test, expected, "{:?}", args);
-                }
-            }
-        }
-
-        #[test]
-        fn sysroot() {
-            for command in ["structure", "dependencies"] {
-                for (args, expected) in args_for(command, "sysroot", false) {
-                    let app = App::parse_from(&args);
-
-                    let Command::Dependencies(cmd) = app.command else {
-                        continue;
-                    };
-
-                    assert_eq!(cmd.options.project.sysroot, expected, "{:?}", args);
-                }
-            }
-        }
-    }
-
-    mod dependencies {
-        use super::*;
-
-        #[test]
-        fn fns() {
-            for command in ["structure", "dependencies"] {
-                for (args, expected) in args_for(command, "fns", false) {
-                    let app = App::parse_from(&args);
-
-                    let Command::Dependencies(cmd) = app.command else {
-                        continue;
-                    };
-
-                    assert_eq!(cmd.options.selection.fns, expected, "{:?}", args);
-                }
-            }
-        }
-
-        #[test]
-        fn tests() {
-            for command in ["structure", "dependencies"] {
-                for (args, expected) in args_for(command, "tests", false) {
-                    let app = App::parse_from(&args);
-
-                    let Command::Dependencies(cmd) = app.command else {
-                        continue;
-                    };
-
-                    assert_eq!(cmd.options.selection.tests, expected, "{:?}", args);
-                }
-            }
-        }
-
-        #[test]
-        fn types() {
-            for command in ["structure", "dependencies"] {
-                for (args, expected) in args_for(command, "types", false) {
-                    let app = App::parse_from(&args);
-
-                    let Command::Dependencies(cmd) = app.command else {
-                        continue;
-                    };
-
-                    assert_eq!(cmd.options.selection.types, expected, "{:?}", args);
-                }
-            }
-        }
-    }
-
-    mod dependencies_only {
-        use super::*;
-
-        #[test]
-        fn modules() {
-            for (args, expected) in args_for("dependencies", "modules", true) {
-                let app = App::parse_from(&args);
-
-                let Command::Dependencies(cmd) = app.command else {
-                    continue;
-                };
-
-                assert_eq!(cmd.options.selection.modules, expected, "{:?}", args);
-            }
-        }
-
-        #[test]
-        fn uses() {
-            for (args, expected) in args_for("dependencies", "uses", false) {
-                let app = App::parse_from(&args);
-
-                let Command::Dependencies(cmd) = app.command else {
-                    continue;
-                };
-
-                assert_eq!(cmd.options.selection.uses, expected, "{:?}", args);
-            }
-        }
-
-        #[test]
-        fn externs() {
-            for (args, expected) in args_for("dependencies", "externs", false) {
-                let app = App::parse_from(&args);
-
-                let Command::Dependencies(cmd) = app.command else {
-                    continue;
-                };
-
-                assert_eq!(cmd.options.selection.externs, expected, "{:?}", args);
-            }
-        }
-    }
-}
-
 mod lib {
     mod pass {
         test_cmds!(
@@ -445,108 +289,86 @@ mod package_bin {
     }
 }
 
-mod tests {
-    test_cmd!(
-        args: "dependencies \
-                --tests",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
+mod selection {
+    mod no_externs {
+        test_cmd!(
+            args: "dependencies \
+                    --no-externs",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod no_fns {
+        test_cmd!(
+            args: "dependencies \
+                    --no-fns",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod no_modules {
+        test_cmd!(
+            args: "dependencies \
+                    --no-modules",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod no_tests {
+        test_cmd!(
+            args: "dependencies \
+                    --no-tests",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod no_traits {
+        test_cmd!(
+            args: "dependencies \
+                    --no-traits",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod no_types {
+        test_cmd!(
+            args: "dependencies \
+                    --no-types",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod uses {
+        test_cmd!(
+            args: "dependencies \
+                    --no-uses",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
 }
 
-mod types {
-    test_cmd!(
-        args: "dependencies \
-                --types",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod types_with_no_modules {
-    test_cmd!(
-        args: "dependencies \
-                --types \
-                --no-modules",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod traits {
-    test_cmd!(
-        args: "dependencies \
-                --traits",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod fns {
-    test_cmd!(
-        args: "dependencies \
-                --fns",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod no_modules {
-    test_cmd!(
-        args: "dependencies \
-                --no-modules",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod uses {
-    test_cmd!(
-        args: "dependencies \
-                --uses",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod externs {
-    test_cmd!(
-        args: "dependencies \
-                --externs",
-        success: false,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod uses_with_externs {
-    test_cmd!(
-        args: "dependencies \
-                --uses \
-                --externs",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod uses_with_externs_with_sysroot {
+mod no_sysroot {
     test_cmd!(
         attrs: [
             // `sysroot` is expensive, so only run on release builds:
             #[ignore]
         ],
         args: "dependencies \
-                --uses \
-                --externs \
-                --sysroot",
+                --no-sysroot",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
@@ -557,7 +379,6 @@ mod focus_on {
     mod simple_path {
         test_cmd!(
             args: "dependencies \
-                    --uses \
                     --focus-on \"smoke::visibility::dummy\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -568,7 +389,6 @@ mod focus_on {
     mod glob_path {
         test_cmd!(
             args: "dependencies \
-                    --uses \
                     --focus-on \"smoke::visibility::*\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -579,7 +399,6 @@ mod focus_on {
     mod self_path {
         test_cmd!(
             args: "dependencies \
-                    --uses \
                     --focus-on \"smoke::visibility::dummy::{self}\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -590,7 +409,6 @@ mod focus_on {
     mod use_tree {
         test_cmd!(
             args: "dependencies \
-                    --uses \
                     --focus-on \"smoke::visibility::{dummy, hierarchy}\"",
             success: true,
             color_mode: ColorMode::Plain,
@@ -603,7 +421,6 @@ mod max_depth {
     mod depth_0 {
         test_cmd!(
             args: "dependencies \
-                    --uses \
                     --max-depth 0",
             success: true,
             color_mode: ColorMode::Plain,
@@ -614,7 +431,6 @@ mod max_depth {
     mod depth_1 {
         test_cmd!(
             args: "dependencies \
-                    --uses \
                     --max-depth 1",
             success: true,
             color_mode: ColorMode::Plain,
@@ -625,7 +441,6 @@ mod max_depth {
     mod depth_2 {
         test_cmd!(
             args: "dependencies \
-                    --uses \
                     --max-depth 2",
             success: true,
             color_mode: ColorMode::Plain,
@@ -635,175 +450,98 @@ mod max_depth {
 }
 
 mod fields {
-    test_cmd!(
-        args: "dependencies \
-                --externs \
-                --fns \
-                --modules \
-                --sysroot \
-                --traits \
-                --types \
-                --uses",
+    test_cmds!(
+        args: "dependencies",
         success: true,
         color_mode: ColorMode::Plain,
-        project: tuple_fields
-    );
-
-    test_cmd!(
-        args: "dependencies \
-                --externs \
-                --fns \
-                --modules \
-                --sysroot \
-                --traits \
-                --types \
-                --uses",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: struct_fields
-    );
-
-    test_cmd!(
-        args: "dependencies \
-                --externs \
-                --fns \
-                --modules \
-                --sysroot \
-                --traits \
-                --types \
-                --uses",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: enum_fields
-    );
-
-    test_cmd!(
-        args: "dependencies \
-                --externs \
-                --fns \
-                --modules \
-                --sysroot \
-                --traits \
-                --types \
-                --uses",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: union_fields
+        projects: [
+            enum_fields,
+            struct_fields,
+            tuple_fields,
+            union_fields,
+        ]
     );
 }
 
 mod functions {
-    test_cmd!(
-        args: "dependencies \
-                --externs \
-                --fns \
-                --modules \
-                --sysroot \
-                --traits \
-                --types \
-                --uses",
+    test_cmds!(
+        args: "dependencies",
         success: true,
         color_mode: ColorMode::Plain,
-        project: smoke
-    );
-
-    test_cmd!(
-        args: "dependencies \
-                --externs \
-                --fns \
-                --modules \
-                --sysroot \
-                --traits \
-                --types \
-                --uses",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: function_inputs
-    );
-
-    test_cmd!(
-        args: "dependencies \
-                --externs \
-                --fns \
-                --modules \
-                --sysroot \
-                --traits \
-                --types \
-                --uses",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: function_outputs
-    );
-
-    test_cmd!(
-        args: "dependencies \
-                --externs \
-                --fns \
-                --modules \
-                --sysroot \
-                --traits \
-                --types \
-                --uses",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: function_body
+        projects: [
+            function_inputs,
+            function_outputs,
+            function_body,
+        ]
     );
 }
 
-mod github_issue_79 {
-    test_cmd!(
-        args: "dependencies \
-                --uses",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: github_issue_79
-    );
-}
-
-mod github_issue_80 {
-    mod tests {
+mod github {
+    mod issue_79 {
         test_cmd!(
             args: "dependencies \
-                    --uses \
-                    --types \
-                    --tests",
+                    --no-externs \
+                    --no-fns \
+                    --no-tests \
+                    --no-traits \
+                    --no-types",
             success: true,
             color_mode: ColorMode::Plain,
-            project: github_issue_80
+            project: github_issue_79
         );
     }
 
-    mod without_tests {
+    mod issue_80 {
+        mod tests {
+            test_cmd!(
+                args: "dependencies \
+                        --no-externs \
+                        --no-fns \
+                        --no-traits",
+                success: true,
+                color_mode: ColorMode::Plain,
+                project: github_issue_80
+            );
+        }
+
+        mod without_tests {
+            test_cmd!(
+                args: "dependencies \
+                        --no-externs \
+                        --no-fns \
+                        --no-tests \
+                        --no-traits",
+                success: true,
+                color_mode: ColorMode::Plain,
+                project: github_issue_80
+            );
+        }
+    }
+
+    mod issue_102 {
         test_cmd!(
             args: "dependencies \
-                    --uses \
-                    --types",
+                    --no-externs \
+                    --no-fns \
+                    --no-tests \
+                    --no-traits \
+                    --no-types",
             success: true,
             color_mode: ColorMode::Plain,
-            project: github_issue_80
+            project: github_issue_102
         );
     }
-}
 
-mod github_issue_102 {
-    test_cmd!(
-        args: "dependencies \
-                --uses",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: github_issue_102
-    );
-}
-
-mod github_issue_172 {
-    test_cmd!(
-        args: "dependencies \
-                --types \
-                --uses \
-                --traits \
-                --layout dot",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: github_issue_172
-    );
+    mod issue_172 {
+        test_cmd!(
+            args: "dependencies \
+                    --no-externs \
+                    --no-fns \
+                    --no-tests \
+                    --layout dot",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: github_issue_172
+        );
+    }
 }

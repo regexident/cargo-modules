@@ -36,10 +36,30 @@ digraph {
         fontsize="10",
     ];
 
+    "alloc::fmt" [label="external mod|alloc::fmt", fillcolor="#81c169"]; // "mod" node
+    "alloc::string::String" [label="external struct|alloc::string::String", fillcolor="#81c169"]; // "struct" node
+    "bool" [label="external builtin|bool", fillcolor="#81c169"]; // "builtin" node
+    "core::cmp" [label="external mod|core::cmp", fillcolor="#81c169"]; // "mod" node
+    "core::fmt::Arguments" [label="external struct|core::fmt::Arguments", fillcolor="#81c169"]; // "struct" node
+    "core::future::future::Future" [label="external trait|core::future::future::Future", fillcolor="#81c169"]; // "trait" node
+    "core::marker::Sized" [label="external trait|core::marker::Sized", fillcolor="#81c169"]; // "trait" node
+    "core::ops" [label="external mod|core::ops", fillcolor="#81c169"]; // "mod" node
+    "core::option::Option" [label="external enum|core::option::Option", fillcolor="#81c169"]; // "enum" node
+    "core::panicking::AssertKind" [label="external enum|core::panicking::AssertKind", fillcolor="#81c169"]; // "enum" node
     "i32" [label="external builtin|i32", fillcolor="#81c169"]; // "builtin" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
     "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
 
+    "smoke" -> "alloc::fmt" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::cmp" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::fmt::Arguments" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::future::future::Future" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::marker::Sized" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::ops" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::option::Option" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "smoke" -> "core::panicking::AssertKind" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 

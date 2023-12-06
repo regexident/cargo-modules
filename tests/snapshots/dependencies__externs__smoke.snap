@@ -1,9 +1,0 @@
----
-source: tests/dependencies.rs
-expression: output
----
-STDERR:
-Error: Option `--externs` requires option `--uses`
-
-STDOUT:
-

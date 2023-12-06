@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use clap::Parser;
-use log::{debug, trace};
+use log::{trace, warn};
 use petgraph::graph::NodeIndex;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
@@ -30,15 +30,15 @@ impl Command {
     }
 
     pub(crate) fn sanitize(&mut self) {
-        if self.options.selection.tests && !self.options.project.cfg_test {
-            debug!("Enabling `--cfg-test`, which is implied by `--tests`");
-            self.options.project.cfg_test = true;
+        if !self.options.selection.no_tests && self.options.project.no_cfg_test {
+            warn!("The analysis will not include any tests due to `--no-cfg-test` being provided.");
+            self.options.project.no_cfg_test = false;
         }
 
         // We only need to include sysroot if we include extern uses
         // and didn't explicitly request sysroot to be excluded:
-        self.options.project.sysroot &=
-            self.options.selection.uses && self.options.selection.externs;
+        self.options.project.no_sysroot |=
+            self.options.selection.no_uses || self.options.selection.no_externs;
     }
 
     #[doc(hidden)]
@@ -84,10 +84,6 @@ impl Command {
     }
 
     fn validate_options(&self) -> anyhow::Result<()> {
-        if self.options.selection.externs && !self.options.selection.uses {
-            anyhow::bail!("Option `--externs` requires option `--uses`");
-        }
-
         Ok(())
     }
 }

@@ -70,6 +70,7 @@ crate smoke
 │       ├── mod node_1: pub(self)
 │       │   └── mod node_2: pub(self)
 │       └── mod node_0: pub(self)
+├── mod tests: pub(crate) #[cfg(test)]
 ├── mod target: pub(crate)
 │   └── struct Target: pub
 ├── mod methods: pub(crate)

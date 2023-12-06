@@ -12,6 +12,7 @@ pub enum ColorMode {
     TrueColor,
 }
 
+#[allow(dead_code)]
 pub fn output(mut cmd: Command, expect_success: bool) -> (String, String) {
     let assert = cmd.assert();
     let assert = if expect_success {
@@ -27,6 +28,7 @@ pub fn output(mut cmd: Command, expect_success: bool) -> (String, String) {
     (stdout, stderr)
 }
 
+#[allow(dead_code)]
 pub fn cmd(dir: &str, args: &str) -> Command {
     let mut dir_path = PathBuf::new();
 

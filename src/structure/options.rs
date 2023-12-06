@@ -4,7 +4,7 @@
 
 use std::str::FromStr;
 
-use clap::{ArgAction, Parser};
+use clap::Parser;
 
 use crate::options;
 
@@ -71,38 +71,28 @@ pub struct Options {
     pub max_depth: Option<usize>,
 }
 
+// Important:
+// Some of the `--flag` and `--no-flag` arg pairs might look like they have
+// their documentation comments and clap-args are mixed up, but they have to
+// be that way in order to work-around a limitation of clap:
+// https://jwodder.github.io/kbits/posts/clap-bool-negate/
+// https://github.com/clap-rs/clap/issues/815bug)]
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 #[group(id = "SelectionOptions")]
 pub struct SelectionOptions {
-    /// Include types (e.g. structs, unions, enums).
-    #[arg(long = "types")]
-    pub types: bool,
+    /// Filter out types (e.g. structs, unions, enums) from tree.
+    #[arg(long = "no-types")]
+    pub no_types: bool,
 
-    /// Exclude types (e.g. structs, unions, enums). [default]
-    #[arg(long = "no-types", action = ArgAction::SetFalse, overrides_with = "types")]
-    pub no_types: (),
+    /// Filter out traits (e.g. trait, unsafe trait) from tree.
+    #[arg(long = "no-traits")]
+    pub no_traits: bool,
 
-    /// Include traits (e.g. trait, unsafe trait).
-    #[arg(long = "traits")]
-    pub traits: bool,
+    /// Filter out functions (e.g. fns, async fns, const fns) from tree.
+    #[arg(long = "no-fns")]
+    pub no_fns: bool,
 
-    /// Exclude traits (e.g. trait, unsafe trait). [default]
-    #[arg(long = "no-traits", action = ArgAction::SetFalse, overrides_with = "traits")]
-    pub no_traits: (),
-
-    /// Include functions (e.g. fns, async fns, const fns).
-    #[arg(long = "fns")]
-    pub fns: bool,
-
-    /// Exclude functions (e.g. fns, async fns, const fns). [default]
-    #[arg(long = "no-fns", action = ArgAction::SetFalse, overrides_with = "fns")]
-    pub no_fns: (),
-
-    /// Include tests (e.g. `#[test] fn …`).
-    #[arg(long = "tests")]
-    pub tests: bool,
-
-    /// Exclude tests (e.g. `#[test] fn …`). [default]
-    #[arg(long = "no-tests", action = ArgAction::SetFalse, overrides_with = "tests")]
-    pub no_tests: (),
+    /// Filter out tests (e.g. `#[test] fn …`, `#[cfg(test)] …`) from tree.
+    #[arg(long = "no-tests")]
+    pub no_tests: bool,
 }

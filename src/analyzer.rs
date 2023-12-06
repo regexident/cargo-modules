@@ -80,23 +80,23 @@ pub fn cargo_config(project_options: &ProjectOptions) -> CargoConfig {
     let target = project_options.target.clone();
 
     // Whether to load sysroot crates (`std`, `core` & friends).
-    let sysroot = if project_options.sysroot {
-        Some(RustLibSource::Discover)
-    } else {
+    let sysroot = if project_options.no_sysroot {
         None
+    } else {
+        Some(RustLibSource::Discover)
     };
 
     // rustc private crate source
     let rustc_source = None;
 
     // crates to disable `#[cfg(test)]` on
-    let cfg_overrides = match project_options.cfg_test {
+    let cfg_overrides = match project_options.no_cfg_test {
         true => CfgOverrides {
-            global: CfgDiff::new(vec![CfgAtom::Flag("test".into())], Vec::new()).unwrap(),
+            global: CfgDiff::new(Vec::new(), vec![CfgAtom::Flag("test".into())]).unwrap(),
             selective: Default::default(),
         },
         false => CfgOverrides {
-            global: CfgDiff::new(Vec::new(), vec![CfgAtom::Flag("test".into())]).unwrap(),
+            global: CfgDiff::new(vec![CfgAtom::Flag("test".into())], Vec::new()).unwrap(),
             selective: Default::default(),
         },
     };

@@ -37,7 +37,9 @@ digraph {
     ];
 
     "package_bin_target" [label="crate|package_bin_target", fillcolor="#5397c8"]; // "crate" node
+    "package_bin_target::main" [label="pub(crate) fn|package_bin_target::main", fillcolor="#f8c04c"]; // "fn" node
 
+    "package_bin_target" -> "package_bin_target::main" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
 

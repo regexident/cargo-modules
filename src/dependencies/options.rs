@@ -4,7 +4,7 @@
 
 use std::str::FromStr;
 
-use clap::{ArgAction, Parser};
+use clap::Parser;
 
 use crate::options;
 
@@ -64,7 +64,7 @@ pub struct Options {
     pub selection: SelectionOptions,
 
     /// Require graph to be acyclic
-    #[arg(long = "acyclic", action = ArgAction::SetTrue, conflicts_with = "focus_on")]
+    #[arg(long = "acyclic", conflicts_with = "focus_on")]
     pub acyclic: bool,
 
     /// The graph layout algorithm to use
@@ -83,72 +83,40 @@ pub struct Options {
     pub max_depth: Option<usize>,
 }
 
+// Important:
+// Some of the `--flag` and `--no-flag` arg pairs might look like they have
+// their documentation comments and clap-args are mixed up, but they have to
+// be that way in order to work-around a limitation of clap:
+// https://jwodder.github.io/kbits/posts/clap-bool-negate/
+// https://github.com/clap-rs/clap/issues/815bug)]
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 #[group(id = "SelectionOptions")]
 pub struct SelectionOptions {
-    // The `modules` and `no_modules` args might look like they have their
-    // documentation comments and clap-args mixed up, but they have to be
-    // that way in order to work-around a limitation of clap:
-    // https://jwodder.github.io/kbits/posts/clap-bool-negate/
-    // https://github.com/clap-rs/clap/issues/815
-    /// Exclude modules (e.g. `mod foo`, `mod foo {}`).
-    #[clap(long = "no-modules", action = ArgAction::SetFalse)]
-    pub modules: bool,
+    /// Filter out modules (e.g. `mod foo`, `mod foo {}`) from graph.
+    #[clap(long = "no-modules")]
+    pub no_modules: bool,
 
-    // The `modules` and `no_modules` args might look like they have their
-    // documentation comments and clap-args mixed up, but they have to be
-    // that way in order to work-around a limitation of clap:
-    // https://jwodder.github.io/kbits/posts/clap-bool-negate/
-    // https://github.com/clap-rs/clap/issues/815
-    /// Include modules (e.g. `mod foo`, `mod foo {}`). [default]
-    #[clap(long = "modules", action = ArgAction::SetTrue, overrides_with = "modules")]
-    pub no_modules: (),
+    /// Filter out "use" edges from graph.
+    #[arg(long = "no-uses")]
+    pub no_uses: bool,
 
-    /// Include used modules and types
-    #[arg(long = "uses")]
-    pub uses: bool,
+    /// Filter out extern items (e.g. `core`, `std`, third-party crates) from extern crates from graph.
+    #[arg(long = "no-externs")]
+    pub no_externs: bool,
 
-    /// Exclude used modules and types [default]
-    #[arg(long = "no-uses", action = ArgAction::SetFalse, overrides_with = "uses")]
-    pub no_uses: (),
+    /// Filter out types (e.g. structs, unions, enums) from graph.
+    #[arg(long = "no-types")]
+    pub no_types: bool,
 
-    /// Include used modules and types from extern crates
-    #[arg(long = "externs")]
-    pub externs: bool,
+    /// Filter out traits (e.g. trait, unsafe trait) from graph.
+    #[arg(long = "no-traits")]
+    pub no_traits: bool,
 
-    /// Exclude used modules and types from extern crates [default]
-    #[arg(long = "no-externs", action = ArgAction::SetFalse, overrides_with = "externs")]
-    pub no_externs: (),
+    /// Filter out functions (e.g. fns, async fns, const fns) from graph.
+    #[arg(long = "no-fns")]
+    pub no_fns: bool,
 
-    /// Include types (e.g. structs, unions, enums).
-    #[arg(long = "types")]
-    pub types: bool,
-
-    /// Exclude types (e.g. structs, unions, enums). [default]
-    #[arg(long = "no-types", action = ArgAction::SetFalse, overrides_with = "types")]
-    pub no_types: (),
-
-    /// Include traits (e.g. trait, unsafe trait).
-    #[arg(long = "traits")]
-    pub traits: bool,
-
-    /// Exclude traits (e.g. trait, unsafe trait). [default]
-    #[arg(long = "no-traits", action = ArgAction::SetFalse, overrides_with = "traits")]
-    pub no_traits: (),
-
-    /// Include functions (e.g. fns, async fns, const fns).
-    #[arg(long = "fns")]
-    pub fns: bool,
-
-    /// Exclude functions (e.g. fns, async fns, const fns). [default]
-    #[arg(long = "no-fns", action = ArgAction::SetFalse, overrides_with = "fns")]
-    pub no_fns: (),
-
-    /// Include tests (e.g. `#[test] fn …`).
-    #[arg(long = "tests")]
-    pub tests: bool,
-
-    /// Exclude tests (e.g. `#[test] fn …`). [default]
-    #[arg(long = "no-tests", action = ArgAction::SetFalse, overrides_with = "tests")]
-    pub no_tests: (),
+    /// Filter out tests (e.g. `#[test] fn …`) from graph.
+    #[arg(long = "no-tests")]
+    pub no_tests: bool,
 }
