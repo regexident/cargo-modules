@@ -36,8 +36,6 @@ impl Command {
 
     #[doc(hidden)]
     pub fn run(self, krate: hir::Crate, db: &RootDatabase, vfs: &Vfs) -> anyhow::Result<()> {
-        self.validate_options()?;
-
         trace!("Building graph ...");
 
         let builder = Builder::new(self.options.clone(), db, vfs, krate);
@@ -73,10 +71,6 @@ impl Command {
 
         print!("{string}");
 
-        Ok(())
-    }
-
-    fn validate_options(&self) -> anyhow::Result<()> {
         Ok(())
     }
 
