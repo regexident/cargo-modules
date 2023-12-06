@@ -5,7 +5,7 @@
 use std::fmt::Write;
 
 use clap::Parser;
-use log::{debug, trace};
+use log::{trace, warn};
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 use ra_ap_vfs::Vfs;
@@ -24,13 +24,13 @@ impl Command {
     }
 
     pub(crate) fn sanitize(&mut self) {
-        if self.options.selection.tests && !self.options.project.cfg_test {
-            debug!("Enabling `--cfg-test`, which is implied by `--tests`");
-            self.options.project.cfg_test = true;
+        if !self.options.selection.no_tests && self.options.project.no_cfg_test {
+            warn!("The analysis will not include any tests due to `--no-cfg-test` being provided.");
+            self.options.project.no_cfg_test = false;
         }
 
         // We don't need to include sysroot if we only want the crate tree:
-        self.options.project.sysroot = false;
+        self.options.project.no_sysroot = true;
     }
 
     #[doc(hidden)]

@@ -4,7 +4,7 @@
 
 use std::path::PathBuf;
 
-use clap::{ArgAction, ArgGroup, Parser};
+use clap::{ArgGroup, Parser};
 
 use crate::command::Command;
 
@@ -61,21 +61,13 @@ pub mod project {
         #[arg(long = "target")]
         pub target: Option<String>,
 
-        /// Analyze with `#[cfg(test)]` enabled.
-        #[arg(long = "cfg-test")]
-        pub cfg_test: bool,
+        /// Analyze with `#[cfg(test)]` disabled.
+        #[arg(long = "no-cfg-test")]
+        pub no_cfg_test: bool,
 
-        /// Analyze with `#[cfg(test)]` disabled. [default]
-        #[arg(long = "no-cfg-test", action = ArgAction::SetFalse, overrides_with = "cfg_test")]
-        pub no_cfg_test: (),
-
-        /// Include sysroot crates (`std`, `core` & friends) in analysis.
-        #[arg(long = "sysroot")]
-        pub sysroot: bool,
-
-        /// Exclude sysroot crates (`std`, `core` & friends) in analysis. [default]
-        #[arg(long = "no-sysroot", action = ArgAction::SetFalse, overrides_with = "sysroot")]
-        pub no_sysroot: (),
+        /// Exclude sysroot crates (`std`, `core` & friends) in analysis.
+        #[arg(long = "no-sysroot")]
+        pub no_sysroot: bool,
 
         /// Path to Cargo.toml.
         #[arg(long = "manifest-path", default_value = ".")]

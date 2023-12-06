@@ -182,7 +182,7 @@ impl<'a> Filter<'a> {
         }
 
         // Drop any "uses" edges, if necessary:
-        if !self.options.selection.uses {
+        if self.options.selection.no_uses {
             graph.retain_edges(|graph, edge_idx| {
                 let edge = &graph[edge_idx];
                 edge.kind == EdgeKind::Owns
@@ -230,7 +230,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_moduledef(&self, moduledef_hir: hir::ModuleDef) -> bool {
-        if !self.options.selection.externs && self.is_extern(moduledef_hir) {
+        if self.options.selection.no_externs && self.is_extern(moduledef_hir) {
             return false;
         }
 
@@ -256,7 +256,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_module(&self, module_hir: hir::Module) -> bool {
-        if !self.options.selection.modules {
+        if self.options.selection.no_modules {
             // Always keep a crate's root module:
             return module_hir.is_crate_root();
         }
@@ -264,11 +264,11 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_function(&self, function_hir: hir::Function) -> bool {
-        if !self.options.selection.fns {
+        if self.options.selection.no_fns {
             return false;
         }
 
-        if !self.options.selection.tests {
+        if self.options.selection.no_tests {
             let attrs = function_hir.attrs(self.db);
             if attrs.by_key("test").exists() {
                 return false;
@@ -279,7 +279,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_adt(&self, _adt_hir: hir::Adt) -> bool {
-        if !self.options.selection.types {
+        if self.options.selection.no_types {
             return false;
         }
 
@@ -299,7 +299,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_trait(&self, _trait_hir: hir::Trait) -> bool {
-        if !self.options.selection.traits {
+        if self.options.selection.no_traits {
             return false;
         }
 
@@ -307,7 +307,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_trait_alias(&self, _trait_alias_hir: hir::TraitAlias) -> bool {
-        if !self.options.selection.traits {
+        if self.options.selection.no_traits {
             return false;
         }
 
@@ -315,7 +315,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_type_alias(&self, _type_alias_hir: hir::TypeAlias) -> bool {
-        if !self.options.selection.types {
+        if self.options.selection.no_types {
             return false;
         }
 
@@ -323,7 +323,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_builtin_type(&self, _builtin_type_hir: hir::BuiltinType) -> bool {
-        if !self.options.selection.types {
+        if self.options.selection.no_types {
             return false;
         }
 

@@ -271,88 +271,46 @@ mod package_bin {
     }
 }
 
-mod tests {
-    test_cmd!(
-        args: "structure \
-                --tests",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod types {
-    test_cmd!(
-        args: "structure \
-                --types",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod traits {
-    test_cmd!(
-        args: "structure \
-                --traits",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod fns {
-    test_cmd!(
-        args: "structure \
-                --fns",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod functions {
-    test_cmd!(
-        args: "structure \
-                --fns \
-                --traits \
-                --types",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
-}
-
-mod github_issue_80 {
-    mod tests {
+mod selection {
+    mod no_fns {
         test_cmd!(
             args: "structure \
-                    --types \
-                    --tests",
+                    --no-fns",
             success: true,
             color_mode: ColorMode::Plain,
-            project: github_issue_80
+            project: smoke
         );
     }
 
-    mod without_tests {
+    mod no_tests {
         test_cmd!(
             args: "structure \
-                    --types",
+                    --no-tests",
             success: true,
             color_mode: ColorMode::Plain,
-            project: github_issue_80
+            project: smoke
         );
     }
-}
 
-mod github_issue_222 {
-    test_cmd!(
-        args: "structure",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: github_issue_222
-    );
+    mod no_traits {
+        test_cmd!(
+            args: "structure \
+                    --no-traits",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod no_types {
+        test_cmd!(
+            args: "structure \
+                    --no-types",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
 }
 
 mod focus_on {
@@ -401,6 +359,10 @@ mod max_depth {
     mod depth_0 {
         test_cmd!(
             args: "structure \
+                    --no-types \
+                    --no-traits \
+                    --no-fns \
+                    --no-tests \
                     --max-depth 0",
             success: true,
             color_mode: ColorMode::Plain,
@@ -411,6 +373,10 @@ mod max_depth {
     mod depth_1 {
         test_cmd!(
             args: "structure \
+                    --no-types \
+                    --no-traits \
+                    --no-fns \
+                    --no-tests \
                     --max-depth 1",
             success: true,
             color_mode: ColorMode::Plain,
@@ -421,6 +387,10 @@ mod max_depth {
     mod depth_2 {
         test_cmd!(
             args: "structure \
+                    --no-types \
+                    --no-traits \
+                    --no-fns \
+                    --no-tests \
                     --max-depth 2",
             success: true,
             color_mode: ColorMode::Plain,
@@ -433,10 +403,8 @@ mod sort_by {
     mod name {
         test_cmd!(
             args: "structure \
-            --types \
-            --traits \
-            --fns \
-            --sort-by \"name\"",
+                    --no-tests \
+                    --sort-by \"name\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke
@@ -446,10 +414,8 @@ mod sort_by {
     mod visibility {
         test_cmd!(
             args: "structure \
-            --types \
-            --traits \
-            --fns \
-            --sort-by \"visibility\"",
+                    --no-tests \
+                    --sort-by \"visibility\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke
@@ -459,10 +425,8 @@ mod sort_by {
     mod kind {
         test_cmd!(
             args: "structure \
-            --types \
-            --traits \
-            --fns \
-            --sort-by \"kind\"",
+                    --no-tests \
+                    --sort-by \"kind\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke
@@ -473,12 +437,50 @@ mod sort_by {
 mod sort_reversed {
     test_cmd!(
         args: "structure \
-        --types \
-        --traits \
-        --fns \
-        --sort-reversed",
+                --no-tests \
+                --sort-reversed",
         success: true,
         color_mode: ColorMode::Plain,
         project: smoke
     );
+}
+
+mod github {
+    mod issue_80 {
+        mod tests {
+            test_cmd!(
+                args: "structure \
+                        --no-traits \
+                        --no-fns",
+                success: true,
+                color_mode: ColorMode::Plain,
+                project: github_issue_80
+            );
+        }
+
+        mod without_tests {
+            test_cmd!(
+                args: "structure \
+                        --no-traits \
+                        --no-fns \
+                        --no-tests",
+                success: true,
+                color_mode: ColorMode::Plain,
+                project: github_issue_80
+            );
+        }
+    }
+
+    mod issue_222 {
+        test_cmd!(
+            args: "structure \
+                    --no-types \
+                    --no-traits \
+                    --no-fns \
+                    --no-tests",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: github_issue_222
+        );
+    }
 }
