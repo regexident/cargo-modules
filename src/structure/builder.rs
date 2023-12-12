@@ -10,10 +10,7 @@ use scopeguard::defer;
 
 use crate::{
     item::Item,
-    structure::{
-        options::Options,
-        tree::{Node, Tree},
-    },
+    structure::{options::Options, tree::Tree},
 };
 
 #[derive(Debug)]
@@ -52,12 +49,10 @@ impl<'a> Builder<'a> {
 
         let module = crate_hir.root_module();
 
-        let root_node = self.process_module(module);
-
-        root_node.map(Tree::new)
+        self.process_module(module)
     }
 
-    fn process_impl(&mut self, impl_hir: hir::Impl) -> Vec<Node> {
+    fn process_impl(&mut self, impl_hir: hir::Impl) -> Vec<Tree> {
         impl_hir
             .items(self.db)
             .into_iter()
@@ -71,7 +66,7 @@ impl<'a> Builder<'a> {
             .collect()
     }
 
-    fn process_moduledef(&mut self, module_def_hir: hir::ModuleDef) -> Option<Node> {
+    fn process_moduledef(&mut self, module_def_hir: hir::ModuleDef) -> Option<Tree> {
         trace!("Processing moduledef {module_def_hir:?}...");
 
         defer! {
@@ -97,7 +92,7 @@ impl<'a> Builder<'a> {
         }
     }
 
-    fn process_module(&mut self, module_hir: hir::Module) -> Option<Node> {
+    fn process_module(&mut self, module_hir: hir::Module) -> Option<Tree> {
         trace!("Processing module {module_hir:?}...");
 
         defer! {
@@ -105,21 +100,21 @@ impl<'a> Builder<'a> {
         }
 
         let item = Item::new(ModuleDef::Module(module_hir));
-        let mut node = Node::new(item, vec![]);
+        let mut node = Tree::new(item, vec![]);
 
-        let subnodes = module_hir
+        let subtrees = module_hir
             .declarations(self.db)
             .into_iter()
             .filter_map(|module_def_hir| self.process_moduledef(module_def_hir));
 
-        for subnode in subnodes {
-            node.push_subnode(subnode);
+        for subtree in subtrees {
+            node.push_subtree(subtree);
         }
 
         Some(node)
     }
 
-    fn process_function(&mut self, function_hir: hir::Function) -> Option<Node> {
+    fn process_function(&mut self, function_hir: hir::Function) -> Option<Tree> {
         trace!("Processing function {function_hir:?}...");
 
         defer! {
@@ -129,7 +124,7 @@ impl<'a> Builder<'a> {
         self.simple_node(hir::ModuleDef::Function(function_hir))
     }
 
-    fn process_adt(&mut self, adt_hir: hir::Adt) -> Option<Node> {
+    fn process_adt(&mut self, adt_hir: hir::Adt) -> Option<Tree> {
         trace!("Processing adt {adt_hir:?}...");
 
         defer! {
@@ -144,8 +139,8 @@ impl<'a> Builder<'a> {
 
         if let Some(node) = node.as_mut() {
             for impl_hir in hir::Impl::all_for_type(self.db, adt_hir.ty(self.db)) {
-                for subnode in self.process_impl(impl_hir) {
-                    node.push_subnode(subnode);
+                for subtree in self.process_impl(impl_hir) {
+                    node.push_subtree(subtree);
                 }
             }
         }
@@ -153,7 +148,7 @@ impl<'a> Builder<'a> {
         node
     }
 
-    fn process_struct(&mut self, struct_hir: hir::Struct) -> Option<Node> {
+    fn process_struct(&mut self, struct_hir: hir::Struct) -> Option<Tree> {
         trace!("Processing struct {struct_hir:?}...");
 
         defer! {
@@ -163,7 +158,7 @@ impl<'a> Builder<'a> {
         self.simple_node(hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)))
     }
 
-    fn process_enum(&mut self, enum_hir: hir::Enum) -> Option<Node> {
+    fn process_enum(&mut self, enum_hir: hir::Enum) -> Option<Tree> {
         trace!("Processing enum {enum_hir:?}...");
 
         defer! {
@@ -173,7 +168,7 @@ impl<'a> Builder<'a> {
         self.simple_node(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)))
     }
 
-    fn process_union(&mut self, union_hir: hir::Union) -> Option<Node> {
+    fn process_union(&mut self, union_hir: hir::Union) -> Option<Tree> {
         trace!("Processing union {union_hir:?}...");
 
         defer! {
@@ -183,7 +178,7 @@ impl<'a> Builder<'a> {
         self.simple_node(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)))
     }
 
-    fn process_variant(&mut self, variant_hir: hir::Variant) -> Option<Node> {
+    fn process_variant(&mut self, variant_hir: hir::Variant) -> Option<Tree> {
         trace!("Processing variant {variant_hir:?}...");
 
         defer! {
@@ -193,7 +188,7 @@ impl<'a> Builder<'a> {
         None
     }
 
-    fn process_const(&mut self, const_hir: hir::Const) -> Option<Node> {
+    fn process_const(&mut self, const_hir: hir::Const) -> Option<Tree> {
         trace!("Processing const {const_hir:?}...");
 
         defer! {
@@ -203,7 +198,7 @@ impl<'a> Builder<'a> {
         None
     }
 
-    fn process_static(&mut self, static_hir: hir::Static) -> Option<Node> {
+    fn process_static(&mut self, static_hir: hir::Static) -> Option<Tree> {
         trace!("Processing static {static_hir:?}...");
 
         defer! {
@@ -213,7 +208,7 @@ impl<'a> Builder<'a> {
         self.simple_node(hir::ModuleDef::Static(static_hir))
     }
 
-    fn process_trait(&mut self, trait_hir: hir::Trait) -> Option<Node> {
+    fn process_trait(&mut self, trait_hir: hir::Trait) -> Option<Tree> {
         trace!("Processing trait {trait_hir:?}...");
 
         defer! {
@@ -223,7 +218,7 @@ impl<'a> Builder<'a> {
         self.simple_node(hir::ModuleDef::Trait(trait_hir))
     }
 
-    fn process_trait_alias(&mut self, trait_alias_hir: hir::TraitAlias) -> Option<Node> {
+    fn process_trait_alias(&mut self, trait_alias_hir: hir::TraitAlias) -> Option<Tree> {
         trace!("Processing trait alias {trait_alias_hir:?}...");
 
         defer! {
@@ -233,7 +228,7 @@ impl<'a> Builder<'a> {
         self.simple_node(hir::ModuleDef::TraitAlias(trait_alias_hir))
     }
 
-    fn process_type_alias(&mut self, type_alias_hir: hir::TypeAlias) -> Option<Node> {
+    fn process_type_alias(&mut self, type_alias_hir: hir::TypeAlias) -> Option<Tree> {
         trace!("Processing type alias {type_alias_hir:?}...");
 
         defer! {
@@ -243,7 +238,7 @@ impl<'a> Builder<'a> {
         self.simple_node(hir::ModuleDef::TypeAlias(type_alias_hir))
     }
 
-    fn process_builtin_type(&mut self, builtin_type_hir: hir::BuiltinType) -> Option<Node> {
+    fn process_builtin_type(&mut self, builtin_type_hir: hir::BuiltinType) -> Option<Tree> {
         trace!("Processing builtin type {builtin_type_hir:?}...");
 
         defer! {
@@ -253,7 +248,7 @@ impl<'a> Builder<'a> {
         self.simple_node(hir::ModuleDef::BuiltinType(builtin_type_hir))
     }
 
-    fn process_macro(&mut self, macro_hir: hir::Macro) -> Option<Node> {
+    fn process_macro(&mut self, macro_hir: hir::Macro) -> Option<Tree> {
         trace!("Processing macro {macro_hir:?}...");
 
         defer! {
@@ -263,8 +258,8 @@ impl<'a> Builder<'a> {
         None
     }
 
-    fn simple_node(&mut self, module_def_hir: hir::ModuleDef) -> Option<Node> {
+    fn simple_node(&mut self, module_def_hir: hir::ModuleDef) -> Option<Tree> {
         let item = Item::new(module_def_hir);
-        Some(Node::new(item, vec![]))
+        Some(Tree::new(item, vec![]))
     }
 }
