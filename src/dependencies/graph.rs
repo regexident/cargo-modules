@@ -19,14 +19,6 @@ impl Node {
     pub fn new(item: Item) -> Self {
         Self { item }
     }
-
-    pub fn display_path(&self) -> String {
-        self.item.display_path()
-    }
-
-    pub fn kind_display_name(&self) -> String {
-        self.item.kind_display_name()
-    }
 }
 
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]

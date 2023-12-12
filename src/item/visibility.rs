@@ -40,8 +40,8 @@ impl ItemVisibility {
                     // For some reason we actually have to match against the parent.
                     Self::Private
                 } else {
-                    let visibility_module_def = hir::ModuleDef::Module(visibility_module);
-                    let path = visibility_module_def.canonical_path(db).unwrap();
+                    let visibility_module_def_hir = hir::ModuleDef::Module(visibility_module);
+                    let path = visibility_module_def_hir.canonical_path(db).unwrap();
                     Self::Module(path)
                 }
             }

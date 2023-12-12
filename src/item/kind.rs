@@ -35,8 +35,8 @@ pub enum ItemKind {
 impl ItemKind {
     pub fn new(hir: hir::ModuleDef, db: &RootDatabase) -> Self {
         match hir {
-            ModuleDef::Module(module_def) => Self::Module {
-                is_crate_root: module_def.is_crate_root(),
+            ModuleDef::Module(module_def_hir) => Self::Module {
+                is_crate_root: module_def_hir.is_crate_root(),
             },
             ModuleDef::Function(function_def) => Self::Function {
                 is_const: function_def.is_const(db),

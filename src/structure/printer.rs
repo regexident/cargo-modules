@@ -9,6 +9,7 @@ use std::fmt;
 use ra_ap_ide::RootDatabase;
 
 use crate::{
+    analyzer,
     item::visibility::ItemVisibility,
     structure::{
         options::{Options, SortBy},
@@ -51,7 +52,7 @@ impl<'a> Printer<'a> {
         let mut subnodes = root_node.subnodes.clone();
 
         // Sort the children by name for easier visual scanning of output:
-        subnodes.sort_by_cached_key(|node| node.item.display_name());
+        subnodes.sort_by_cached_key(|node| node.item.display_name(self.db));
 
         // The default sorting functions in Rust are stable, so we can use it to re-sort,
         // resulting in a list that's sorted prioritizing whatever we re-sort by.
@@ -59,13 +60,13 @@ impl<'a> Printer<'a> {
         // Re-sort the children by name, visibility or kind, for easier visual scanning of output:
         match self.options.sort_by {
             SortBy::Name => {
-                subnodes.sort_by_cached_key(|node| node.item.display_name());
+                subnodes.sort_by_cached_key(|node| node.item.display_name(self.db));
             }
             SortBy::Visibility => {
-                subnodes.sort_by_cached_key(|node| node.item.visibility.clone());
+                subnodes.sort_by_cached_key(|node| node.item.visibility(self.db).clone());
             }
             SortBy::Kind => {
-                subnodes.sort_by_cached_key(|node| node.item.kind.clone());
+                subnodes.sort_by_cached_key(|node| node.item.kind(self.db).clone());
             }
         }
 
@@ -89,7 +90,7 @@ impl<'a> Printer<'a> {
         write!(f, " ")?;
         self.fmt_node_name(f, node)?;
 
-        if node.item.is_crate(self.db) {
+        if analyzer::moduledef_is_crate(node.item.hir, self.db) {
             return Ok(());
         }
 
@@ -97,7 +98,7 @@ impl<'a> Printer<'a> {
         write!(f, " ")?;
         self.fmt_node_visibility(f, node)?;
 
-        if !node.item.attrs.is_empty() {
+        if !node.item.attrs(self.db).is_empty() {
             write!(f, " ")?;
             self.fmt_node_attrs(f, node)?;
         }
@@ -109,7 +110,7 @@ impl<'a> Printer<'a> {
         let styles = styles();
         let kind_style = styles.kind;
 
-        let display_name = node.kind_display_name();
+        let display_name = node.item.kind_display_name(self.db);
         let kind = kind_style.paint(display_name);
 
         write!(f, "{kind}")?;
@@ -131,7 +132,7 @@ impl<'a> Printer<'a> {
         let styles = styles();
 
         let visibility_styles = styles.visibility;
-        let visibility_style = match &node.item.visibility {
+        let visibility_style = match &node.item.visibility(self.db) {
             ItemVisibility::Crate => visibility_styles.pub_crate,
             ItemVisibility::Module(_) => visibility_styles.pub_module,
             ItemVisibility::Private => visibility_styles.pub_private,
@@ -139,7 +140,11 @@ impl<'a> Printer<'a> {
             ItemVisibility::Super => visibility_styles.pub_super,
         };
 
-        write!(f, "{}", visibility_style.paint(&node.item.visibility))?;
+        write!(
+            f,
+            "{}",
+            visibility_style.paint(&node.item.visibility(self.db))
+        )?;
 
         Ok(())
     }
@@ -149,7 +154,7 @@ impl<'a> Printer<'a> {
 
         let name_style = styles.name;
 
-        write!(f, "{}", name_style.paint(node.display_name()))?;
+        write!(f, "{}", name_style.paint(node.item.display_name(self.db)))?;
 
         Ok(())
     }
@@ -161,7 +166,7 @@ impl<'a> Printer<'a> {
 
         let mut is_first = true;
 
-        if let Some(test_attr) = &node.item.attrs.test {
+        if let Some(test_attr) = &node.item.attrs(self.db).test {
             let prefix = attr_chrome_style.paint("#[");
             let cfg = attr_style.paint(test_attr);
             let suffix = attr_chrome_style.paint("]");
@@ -171,7 +176,7 @@ impl<'a> Printer<'a> {
             is_first = false;
         }
 
-        for cfg in &node.item.attrs.cfgs[..] {
+        for cfg in &node.item.attrs(self.db).cfgs[..] {
             if !is_first {
                 write!(f, ", ")?;
             }

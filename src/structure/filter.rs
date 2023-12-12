@@ -55,7 +55,9 @@ impl<'a> Filter<'a> {
         max_depth: usize,
         focus_tree: &ast::UseTree,
     ) -> Option<Node> {
-        let is_focus_node = analyzer::use_tree_matches_item_path(focus_tree, &node.item.path[..]);
+        let path = node.item.display_path(self.db);
+
+        let is_focus_node = analyzer::use_tree_matches_item_path(focus_tree, &path);
 
         let depth = if is_focus_node { Some(0) } else { depth };
 
@@ -64,7 +66,7 @@ impl<'a> Filter<'a> {
         let subnode_contains_focus_node = node
             .subnodes
             .iter()
-            .map(|node| Self::is_or_contains_focus_node(node, focus_tree));
+            .map(|node| self.is_or_contains_focus_node(node, focus_tree));
 
         let is_or_contains_focus_node =
             is_focus_node || subnode_contains_focus_node.clone().any(|flag| flag);
@@ -101,14 +103,16 @@ impl<'a> Filter<'a> {
         Some(node)
     }
 
-    fn is_or_contains_focus_node(node: &Node, focus_tree: &ast::UseTree) -> bool {
-        if analyzer::use_tree_matches_item_path(focus_tree, &node.item.path[..]) {
+    fn is_or_contains_focus_node(&self, node: &Node, focus_tree: &ast::UseTree) -> bool {
+        let path = node.item.display_path(self.db);
+
+        if analyzer::use_tree_matches_item_path(focus_tree, &path) {
             return true;
         }
 
         node.subnodes
             .iter()
-            .any(|node| Self::is_or_contains_focus_node(node, focus_tree))
+            .any(|node| self.is_or_contains_focus_node(node, focus_tree))
     }
 
     fn should_retain_moduledef(&self, moduledef_hir: hir::ModuleDef) -> bool {

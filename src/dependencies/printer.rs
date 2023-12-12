@@ -27,13 +27,12 @@ const INDENTATION: &str = "    ";
 
 pub struct Printer<'a> {
     options: &'a Options,
-    member_krate: String,
+    member_krate: hir::Crate,
     db: &'a RootDatabase,
 }
 
 impl<'a> Printer<'a> {
     pub fn new(options: &'a Options, member_krate: hir::Crate, db: &'a RootDatabase) -> Self {
-        let member_krate = analyzer::crate_name(member_krate, db);
         Self {
             options,
             member_krate,
@@ -48,7 +47,7 @@ impl<'a> Printer<'a> {
         start_node_idx: NodeIndex,
     ) -> Result<(), anyhow::Error> {
         let root_node = &graph[start_node_idx];
-        let label = root_node.display_path();
+        let label = root_node.item.display_path(self.db);
         let layout = self.options.layout.to_string();
         let i = INDENTATION;
 
@@ -125,8 +124,8 @@ impl<'a> Printer<'a> {
             .map(|node_ref| {
                 let node: &Node = node_ref.weight();
 
-                let id = node.item.path.join("::");
-                let kind = node.kind_display_name();
+                let id = node.item.display_path(self.db);
+                let kind = node.item.kind_display_name(self.db);
 
                 let label = self.node_label(node).unwrap();
                 let attributes = self.node_attributes(node);
@@ -152,8 +151,8 @@ impl<'a> Printer<'a> {
             let edge = &graph[edge_idx];
             let (source_idx, target_idx) = graph.edge_endpoints(edge_idx).unwrap();
 
-            let source = graph[source_idx].item.path.join("::");
-            let target = graph[target_idx].item.path.join("::");
+            let source = graph[source_idx].item.display_path(self.db);
+            let target = graph[target_idx].item.display_path(self.db);
 
             let kind = edge.kind.display_name();
 
@@ -191,17 +190,20 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_header(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let is_external = node.item.crate_name != Some(self.member_krate.clone());
+        let krate = analyzer::krate(node.item.hir, self.db);
+
+        let is_external = krate != Some(self.member_krate);
+        let is_crate = analyzer::moduledef_is_crate(node.item.hir, self.db);
 
         let visibility = if is_external {
             Some("external".to_owned())
-        } else if node.item.is_crate(self.db) {
+        } else if is_crate {
             None
         } else {
-            Some(format!("{}", node.item.visibility))
+            Some(format!("{}", node.item.visibility(self.db)))
         };
 
-        let kind = node.kind_display_name();
+        let kind = node.item.kind_display_name(self.db);
 
         if let Some(visibility) = visibility {
             write!(f, "{visibility} ")?;
@@ -211,26 +213,31 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_body(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let path = if !self.options.selection.no_externs {
-            // If we explicitly want full paths, return it unaltered:
-            node.item.path.join("::")
-        } else if node.item.path.len() > 1 {
-            // Otherwise try to drop the crate-name from the path:
-            node.item.path[1..].join("::")
+        let path = node.item.display_path(self.db);
+
+        let refined_path = if self.options.selection.no_externs {
+            // Try to drop the crate-name from the path if externs are being filtered:
+            if let Some((_crate_name, relative_path)) = path.split_once("::") {
+                relative_path.to_owned()
+            } else {
+                path
+            }
         } else {
-            node.item.path.join("::")
+            path
         };
 
-        write!(f, "{path}")
+        write!(f, "{refined_path}")
     }
 
     fn node_attributes(&self, node: &Node) -> String {
         let styles = node_styles();
 
-        let style = if node.item.is_crate(self.db) {
+        let is_crate = analyzer::moduledef_is_crate(node.item.hir, self.db);
+
+        let style = if is_crate {
             styles.krate
         } else {
-            match &node.item.visibility {
+            match &node.item.visibility(self.db) {
                 ItemVisibility::Crate => styles.visibility.pub_crate,
                 ItemVisibility::Module(_) => styles.visibility.pub_module,
                 ItemVisibility::Private => styles.visibility.pub_private,
