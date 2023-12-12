@@ -119,8 +119,8 @@ impl<'a> Builder<'a> {
             .filter_map(|item| {
                 let mut dependencies: HashSet<_> = HashSet::default();
 
-                let mut push_dependencies = |moduledef_hir| {
-                    dependencies.insert(moduledef_hir);
+                let mut push_dependencies = |module_def_hir| {
+                    dependencies.insert(module_def_hir);
                 };
 
                 let item_idx = match item {
@@ -144,7 +144,7 @@ impl<'a> Builder<'a> {
             .collect()
     }
 
-    fn process_moduledef(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
+    fn process_moduledef(&mut self, module_def_hir: hir::ModuleDef) -> Option<NodeIndex> {
         trace!("Processing moduledef...");
 
         defer! {
@@ -153,11 +153,11 @@ impl<'a> Builder<'a> {
 
         let mut dependencies: HashSet<_> = HashSet::default();
 
-        let mut push_dependencies = |moduledef_hir| {
-            dependencies.insert(moduledef_hir);
+        let mut push_dependencies = |module_def_hir| {
+            dependencies.insert(module_def_hir);
         };
 
-        let node_idx = match moduledef_hir {
+        let node_idx = match module_def_hir {
             hir::ModuleDef::Module(module_hir) => {
                 self.process_module(module_hir, &mut push_dependencies)
             }
@@ -736,8 +736,8 @@ impl<'a> Builder<'a> {
         }
     }
 
-    fn add_node_if_necessary(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
-        let name = moduledef_hir
+    fn add_node_if_necessary(&mut self, module_def_hir: hir::ModuleDef) -> Option<NodeIndex> {
+        let name = module_def_hir
             .name(self.db)
             .map(|name| name.display(self.db).to_string());
         trace!(
@@ -750,16 +750,16 @@ impl<'a> Builder<'a> {
         }
 
         // Check if we already added an equivalent node:
-        match self.nodes.get(&moduledef_hir) {
+        match self.nodes.get(&module_def_hir) {
             Some(node_idx) => {
                 // If we did indeed already process it, then retrieve its index:
                 Some(*node_idx)
             }
             None => {
                 // Otherwise try to add a node:
-                let node = Node::new(Item::new(moduledef_hir));
+                let node = Node::new(Item::new(module_def_hir));
                 let node_idx = self.graph.add_node(node);
-                self.nodes.insert(moduledef_hir, node_idx);
+                self.nodes.insert(module_def_hir, node_idx);
 
                 Some(node_idx)
             }

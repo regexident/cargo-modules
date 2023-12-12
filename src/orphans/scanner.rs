@@ -58,7 +58,7 @@ impl<'a> Scanner<'a> {
         let submodules: Vec<hir::Module> = module_hir
             .declarations(self.db)
             .into_iter()
-            .filter_map(|moduledef_hir| match moduledef_hir {
+            .filter_map(|module_def_hir| match module_def_hir {
                 hir::ModuleDef::Module(module_hir) => Some(module_hir),
                 _ => None,
             })
