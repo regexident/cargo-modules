@@ -30,13 +30,3 @@ impl Node {
         self.subnodes.push(subnode);
     }
 }
-
-impl Node {
-    pub fn display_name(&self) -> String {
-        self.item.display_name()
-    }
-
-    pub fn kind_display_name(&self) -> String {
-        self.item.kind_display_name()
-    }
-}

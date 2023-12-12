@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 
 use log::{debug, trace};
 
-use hir::ModuleSource;
+use hir::{AsAssocItem, ModuleSource};
 use ra_ap_cfg::{CfgAtom, CfgDiff, CfgExpr};
 use ra_ap_hir::{self as hir, Crate, HasAttrs};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
@@ -401,92 +401,138 @@ pub(crate) fn crate_name(krate: hir::Crate, db: &RootDatabase) -> String {
     display_name.replace('-', "_")
 }
 
-pub(crate) fn krate(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<hir::Crate> {
-    module(module_def, db).map(|module| module.krate())
+pub(crate) fn krate(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<hir::Crate> {
+    module(module_def_hir, db).map(|module| module.krate())
 }
 
-pub(crate) fn module(module_def: hir::ModuleDef, db: &RootDatabase) -> Option<hir::Module> {
-    match module_def {
+pub(crate) fn module(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<hir::Module> {
+    match module_def_hir {
         hir::ModuleDef::Module(module) => Some(module),
-        module_def => module_def.module(db),
+        module_def_hir => module_def_hir.module(db),
     }
 }
 
-pub(crate) fn name(module_def: hir::ModuleDef, db: &RootDatabase) -> String {
-    module_def
-        .name(db)
-        .map(|name| name.display(db).to_string())
-        .expect("name")
-}
-
-pub(crate) fn path(module_def: hir::ModuleDef, db: &RootDatabase) -> Vec<String> {
-    if let hir::ModuleDef::BuiltinType(builtin) = module_def {
-        return vec![builtin.name().display(db).to_string()];
-    }
-
-    let mut path = vec![];
-
-    let krate = krate(module_def, db);
-
-    // Obtain the module's krate's name (unless it's a builtin type, which have no crate):
-    if let Some(crate_name) = krate.map(|krate| crate_name(krate, db)) {
-        path.push(crate_name);
-    }
-
-    // Obtain the module's canonicalized name:
-    if let Some(relative_canonical_path) = module_def.canonical_path(db) {
-        path.push(relative_canonical_path);
-    }
-
-    assert!(!path.is_empty());
-
-    path
-}
-
-pub(crate) fn path_appending<T>(
-    base_path: &[String],
-    moduledef_hir: T,
-    db: &RootDatabase,
-) -> Vec<String>
-where
-    T: Into<hir::ModuleDef>,
-{
-    let moduledef_hir: hir::ModuleDef = moduledef_hir.into();
-
-    let mut path = base_path.to_owned();
-
-    let name = match moduledef_hir {
+pub(crate) fn display_name(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> String {
+    match module_def_hir {
         hir::ModuleDef::Module(module_hir) => {
             if module_hir.is_crate_root() {
                 crate_name(module_hir.krate(), db)
             } else {
-                module_hir.name(db).expect("name").display(db).to_string()
+                module_hir
+                    .name(db)
+                    .map(|name| name.display(db).to_string())
+                    .expect("name")
             }
         }
-        hir::ModuleDef::Function(function_hir) => function_hir.name(db).display(db).to_string(),
-        hir::ModuleDef::Adt(adt_hir) => adt_hir.name(db).display(db).to_string(),
-        hir::ModuleDef::Variant(variant_hir) => variant_hir.name(db).display(db).to_string(),
-        hir::ModuleDef::Const(const_hir) => const_hir.name(db).map_or_else(
-            || "<anonymous>".to_owned(),
-            |name| name.display(db).to_string(),
-        ),
-        hir::ModuleDef::Static(static_hir) => static_hir.name(db).display(db).to_string(),
-        hir::ModuleDef::Trait(trait_hir) => trait_hir.name(db).display(db).to_string(),
-        hir::ModuleDef::TraitAlias(trait_alias_hir) => {
-            trait_alias_hir.name(db).display(db).to_string()
+        hir::ModuleDef::Const(const_hir) => {
+            if let Some(name) = const_hir.name(db) {
+                name.display(db).to_string()
+            } else {
+                "_".to_owned()
+            }
+        }
+        module_def_hir => module_def_hir
+            .name(db)
+            .map(|name| name.display(db).to_string())
+            .expect("name"),
+    }
+}
+
+pub(crate) fn name(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<String> {
+    module_def_hir
+        .name(db)
+        .map(|name| name.display(db).to_string())
+}
+
+pub(crate) fn display_path(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> String {
+    path(module_def_hir, db).unwrap_or_else(|| "<anonymous>".to_owned())
+}
+
+pub(crate) fn path(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<String> {
+    let mut path = String::new();
+
+    let krate = krate(module_def_hir, db);
+
+    // Obtain the crate's name (unless it's a builtin type, which have no crate):
+    if let Some(crate_name) = krate.map(|krate| crate_name(krate, db)) {
+        path.push_str(&crate_name);
+    }
+
+    // Obtain the item's canonicalized name:
+    let relative_path = match module_def_hir {
+        hir::ModuleDef::Function(function_hir) => {
+            if let Some(assoc_item_hir) = function_hir.as_assoc_item(db) {
+                assoc_item_path(assoc_item_hir, db)
+            } else {
+                hir::ModuleDef::Function(function_hir).canonical_path(db)
+            }
+        }
+        hir::ModuleDef::Const(const_hir) => {
+            if let Some(assoc_item_hir) = const_hir.as_assoc_item(db) {
+                assoc_item_path(assoc_item_hir, db)
+            } else {
+                hir::ModuleDef::Const(const_hir).canonical_path(db)
+            }
         }
         hir::ModuleDef::TypeAlias(type_alias_hir) => {
-            type_alias_hir.name(db).display(db).to_string()
+            if let Some(assoc_item_hir) = type_alias_hir.as_assoc_item(db) {
+                assoc_item_path(assoc_item_hir, db)
+            } else {
+                hir::ModuleDef::TypeAlias(type_alias_hir).canonical_path(db)
+            }
         }
         hir::ModuleDef::BuiltinType(builtin_type_hir) => {
-            builtin_type_hir.name().display(db).to_string()
+            Some(builtin_type_hir.name().display(db).to_string())
         }
-        hir::ModuleDef::Macro(macro_hir) => macro_hir.name(db).display(db).to_string(),
+        module_def_hir => module_def_hir.canonical_path(db),
     };
 
-    path.push(name);
+    if let Some(relative_path) = relative_path {
+        if !path.is_empty() {
+            path.push_str("::");
+        }
+        path.push_str(&relative_path);
+    }
 
-    path
+    if path.is_empty() {
+        None
+    } else {
+        Some(path)
+    }
+}
+
+fn assoc_item_path(assoc_item_hir: hir::AssocItem, db: &RootDatabase) -> Option<String> {
+    let name = match assoc_item_hir {
+        hir::AssocItem::Function(function_hir) => hir::ModuleDef::Function(function_hir)
+            .name(db)
+            .map(|name| name.display(db).to_string()),
+        hir::AssocItem::Const(const_hir) => hir::ModuleDef::Const(const_hir)
+            .name(db)
+            .map(|name| name.display(db).to_string()),
+        hir::AssocItem::TypeAlias(type_alias_hir) => hir::ModuleDef::TypeAlias(type_alias_hir)
+            .name(db)
+            .map(|name| name.display(db).to_string()),
+    };
+
+    let Some(name) = name else {
+        return None;
+    };
+
+    let container_path = match assoc_item_hir.container(db) {
+        hir::AssocItemContainer::Trait(trait_hir) => {
+            hir::ModuleDef::Trait(trait_hir).canonical_path(db)
+        }
+        hir::AssocItemContainer::Impl(impl_hir) => impl_hir
+            .self_ty(db)
+            .as_adt()
+            .and_then(|adt_hir| hir::ModuleDef::Adt(adt_hir).canonical_path(db)),
+    };
+
+    let Some(container_path) = container_path else {
+        return None;
+    };
+
+    Some(format!("{container_path}::{name}"))
 }
 
 // https://github.com/rust-lang/rust-analyzer/blob/36a70b7435c48837018c71576d7bb4e8f763f501/crates/syntax/src/ast/make.rs#L821
@@ -504,14 +550,12 @@ pub(crate) fn parse_ast<N: AstNode>(text: &str) -> N {
     node
 }
 
-pub(crate) fn use_tree_matches_item_path(use_tree: &ast::UseTree, item_path: &[String]) -> bool {
-    let node_path_segments = item_path;
-    if node_path_segments.is_empty() {
+pub(crate) fn use_tree_matches_item_path(use_tree: &ast::UseTree, item_path: &str) -> bool {
+    if item_path.is_empty() {
         return false;
     }
     let node_path: ast::Path = {
-        let focus_on = node_path_segments.join("::");
-        let syntax = format!("use {focus_on};");
+        let syntax = format!("use {item_path};");
         parse_ast(&syntax)
     };
     use_tree_matches_path(use_tree, &node_path)
@@ -626,11 +670,8 @@ pub fn test_attr(moduledef_hir: hir::ModuleDef, db: &RootDatabase) -> Option<Ite
     }
 }
 
-pub fn module_file(
-    module_source: hir::InFile<hir::ModuleSource>,
-    db: &RootDatabase,
-    vfs: &Vfs,
-) -> Option<PathBuf> {
+pub fn module_file(module: hir::Module, db: &RootDatabase, vfs: &Vfs) -> Option<PathBuf> {
+    let module_source = module.definition_source(db);
     let is_file_module: bool = match &module_source.value {
         ModuleSource::SourceFile(_) => true,
         ModuleSource::Module(_) => false,
@@ -654,4 +695,11 @@ pub fn module_file(
     }
 
     Some(path.to_owned())
+}
+
+pub fn moduledef_is_crate(moduledef_hir: hir::ModuleDef, _db: &RootDatabase) -> bool {
+    let hir::ModuleDef::Module(module) = moduledef_hir else {
+        return false;
+    };
+    module.is_crate_root()
 }

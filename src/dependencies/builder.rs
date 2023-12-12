@@ -11,11 +11,9 @@ use ra_ap_hir::{self as hir};
 use ra_ap_hir_def::{self as hir_def};
 use ra_ap_hir_ty::{self as hir_ty, db::HirDatabase as _, TyExt as _};
 use ra_ap_ide_db::{self as ide_db};
-use ra_ap_vfs::{self as vfs};
 use scopeguard::defer;
 
 use crate::{
-    analyzer,
     dependencies::{
         graph::{Edge, EdgeKind, Graph, Node},
         options::Options,
@@ -34,7 +32,6 @@ pub struct Builder<'a> {
     #[allow(dead_code)]
     options: Options,
     db: &'a ide_db::RootDatabase,
-    vfs: &'a vfs::Vfs,
     krate: hir::Crate,
     graph: Graph,
     nodes: HashMap<hir::ModuleDef, NodeIndex>,
@@ -42,12 +39,7 @@ pub struct Builder<'a> {
 }
 
 impl<'a> Builder<'a> {
-    pub fn new(
-        options: Options,
-        db: &'a ide_db::RootDatabase,
-        vfs: &'a vfs::Vfs,
-        krate: hir::Crate,
-    ) -> Self {
+    pub fn new(options: Options, db: &'a ide_db::RootDatabase, krate: hir::Crate) -> Self {
         let graph = Graph::default();
         let nodes = HashMap::default();
         let edges = HashMap::default();
@@ -55,7 +47,6 @@ impl<'a> Builder<'a> {
         Self {
             options,
             db,
-            vfs,
             krate,
             graph,
             nodes,
@@ -78,17 +69,15 @@ impl<'a> Builder<'a> {
     }
 
     fn process_crate(&mut self, crate_hir: hir::Crate) -> Option<NodeIndex> {
-        let path = vec![analyzer::crate_name(crate_hir, self.db)];
-
-        trace!("Processing crate {path}...", path = path.join("::"));
+        trace!("Processing crate...");
 
         defer! {
-            trace!("Finished processing crate {path}", path = path.join("::"));
+            trace!("Finished processing crate.");
         }
 
         let module = crate_hir.root_module();
 
-        let node_idx = self.process_moduledef(module.into(), &[]);
+        let node_idx = self.process_moduledef(module.into());
 
         for impl_hir in hir::Impl::all_in_crate(self.db, crate_hir) {
             let impl_ty = impl_hir.self_ty(self.db);
@@ -104,9 +93,8 @@ impl<'a> Builder<'a> {
             };
 
             let impl_ty_idx = *self.nodes.get(&impl_ty_hir).expect("impl type node");
-            let impl_ty_path = self.graph[impl_ty_idx].item.path.clone();
 
-            for impl_item_idx in self.process_impl(impl_hir, &impl_ty_path) {
+            for impl_item_idx in self.process_impl(impl_hir) {
                 let edge = Edge {
                     kind: EdgeKind::Owns,
                 };
@@ -118,26 +106,11 @@ impl<'a> Builder<'a> {
         node_idx
     }
 
-    fn process_impl(&mut self, impl_hir: hir::Impl, owner_path: &[String]) -> Vec<NodeIndex> {
-        let trait_name = impl_hir
-            .trait_(self.db)
-            .map(|trait_hir| trait_hir.name(self.db).display(self.db).to_string());
-
-        if let Some(trait_name) = trait_name.as_ref() {
-            trace!(
-                "Processing impl {trait_name} for {path}...",
-                path = owner_path.join("::")
-            );
-        } else {
-            trace!("Processing impl {path}...", path = owner_path.join("::"));
-        }
+    fn process_impl(&mut self, impl_hir: hir::Impl) -> Vec<NodeIndex> {
+        trace!("Processing impl...");
 
         defer! {
-            if let Some(trait_name) = trait_name.as_ref() {
-                trace!("Finished processing impl {trait_name} for {path}", path = owner_path.join("::"));
-            } else {
-                trace!("Finished processing impl {path}", path = owner_path.join("::"));
-            }
+            trace!("Finished processing impl.");
         }
 
         impl_hir
@@ -152,13 +125,13 @@ impl<'a> Builder<'a> {
 
                 let item_idx = match item {
                     hir::AssocItem::Function(function_hir) => {
-                        self.process_function(function_hir, owner_path, &mut push_dependencies)
+                        self.process_function(function_hir, &mut push_dependencies)
                     }
                     hir::AssocItem::Const(const_hir) => {
-                        self.process_const(const_hir, owner_path, &mut push_dependencies)
+                        self.process_const(const_hir, &mut push_dependencies)
                     }
                     hir::AssocItem::TypeAlias(type_alias_hir) => {
-                        self.process_type_alias(type_alias_hir, owner_path, &mut push_dependencies)
+                        self.process_type_alias(type_alias_hir, &mut push_dependencies)
                     }
                 };
 
@@ -171,11 +144,7 @@ impl<'a> Builder<'a> {
             .collect()
     }
 
-    fn process_moduledef(
-        &mut self,
-        moduledef_hir: hir::ModuleDef,
-        owner_path: &[String],
-    ) -> Option<NodeIndex> {
+    fn process_moduledef(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
         trace!("Processing moduledef...");
 
         defer! {
@@ -190,37 +159,35 @@ impl<'a> Builder<'a> {
 
         let node_idx = match moduledef_hir {
             hir::ModuleDef::Module(module_hir) => {
-                self.process_module(module_hir, owner_path, &mut push_dependencies)
+                self.process_module(module_hir, &mut push_dependencies)
             }
             hir::ModuleDef::Function(function_hir) => {
-                self.process_function(function_hir, owner_path, &mut push_dependencies)
+                self.process_function(function_hir, &mut push_dependencies)
             }
-            hir::ModuleDef::Adt(adt_hir) => {
-                self.process_adt(adt_hir, owner_path, &mut push_dependencies)
-            }
+            hir::ModuleDef::Adt(adt_hir) => self.process_adt(adt_hir, &mut push_dependencies),
             hir::ModuleDef::Variant(variant_hir) => {
-                self.process_variant(variant_hir, owner_path, &mut push_dependencies)
+                self.process_variant(variant_hir, &mut push_dependencies)
             }
             hir::ModuleDef::Const(const_hir) => {
-                self.process_const(const_hir, owner_path, &mut push_dependencies)
+                self.process_const(const_hir, &mut push_dependencies)
             }
             hir::ModuleDef::Static(static_hir) => {
-                self.process_static(static_hir, owner_path, &mut push_dependencies)
+                self.process_static(static_hir, &mut push_dependencies)
             }
             hir::ModuleDef::Trait(trait_hir) => {
-                self.process_trait(trait_hir, owner_path, &mut push_dependencies)
+                self.process_trait(trait_hir, &mut push_dependencies)
             }
             hir::ModuleDef::TraitAlias(trait_alias_hir) => {
-                self.process_trait_alias(trait_alias_hir, owner_path, &mut push_dependencies)
+                self.process_trait_alias(trait_alias_hir, &mut push_dependencies)
             }
             hir::ModuleDef::TypeAlias(type_alias_hir) => {
-                self.process_type_alias(type_alias_hir, owner_path, &mut push_dependencies)
+                self.process_type_alias(type_alias_hir, &mut push_dependencies)
             }
             hir::ModuleDef::BuiltinType(builtin_type_hir) => {
-                self.process_builtin_type(builtin_type_hir, owner_path, &mut push_dependencies)
+                self.process_builtin_type(builtin_type_hir, &mut push_dependencies)
             }
             hir::ModuleDef::Macro(macro_hir) => {
-                self.process_macro(macro_hir, owner_path, &mut push_dependencies)
+                self.process_macro(macro_hir, &mut push_dependencies)
             }
         };
 
@@ -234,23 +201,20 @@ impl<'a> Builder<'a> {
     fn process_module(
         &mut self,
         module_hir: hir::Module,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, module_hir, self.db);
-
-        trace!("Processing module {path}...", path = path.join("::"));
+        trace!("Processing module...");
 
         defer! {
-            trace!("Finished processing module {path}", path = path.join("::"));
+            trace!("Finished processing module.");
         }
 
-        let node_idx = self.add_node_if_necessary(module_hir.into(), path.clone());
+        let node_idx = self.add_node_if_necessary(module_hir.into());
 
         if let Some(node_idx) = node_idx {
             // Process sub-items:
             for declaration in module_hir.declarations(self.db) {
-                let Some(declaration_idx) = self.process_moduledef(declaration, &path) else {
+                let Some(declaration_idx) = self.process_moduledef(declaration) else {
                     continue;
                 };
 
@@ -283,19 +247,15 @@ impl<'a> Builder<'a> {
     fn process_function(
         &mut self,
         function_hir: hir::Function,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, function_hir, self.db);
-
-        trace!("Processing function {path}...", path = path.join("::"));
+        trace!("Processing function...");
 
         defer! {
-            trace!("Finished processing function {path}", path = path.join("::"));
+            trace!("Finished processing function.");
         }
 
-        let Some(node_idx) =
-            self.add_node_if_necessary(hir::ModuleDef::Function(function_hir), path.clone())
+        let Some(node_idx) = self.add_node_if_necessary(hir::ModuleDef::Function(function_hir))
         else {
             return None;
         };
@@ -353,7 +313,6 @@ impl<'a> Builder<'a> {
     fn process_adt(
         &mut self,
         adt_hir: hir::Adt,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
         trace!("Processing adt...");
@@ -363,36 +322,25 @@ impl<'a> Builder<'a> {
         }
 
         match adt_hir {
-            hir::Adt::Struct(struct_hir) => {
-                self.process_struct(struct_hir, owner_path, dependencies_callback)
-            }
-            hir::Adt::Enum(enum_hir) => {
-                self.process_enum(enum_hir, owner_path, dependencies_callback)
-            }
-            hir::Adt::Union(union_hir) => {
-                self.process_union(union_hir, owner_path, dependencies_callback)
-            }
+            hir::Adt::Struct(struct_hir) => self.process_struct(struct_hir, dependencies_callback),
+            hir::Adt::Enum(enum_hir) => self.process_enum(enum_hir, dependencies_callback),
+            hir::Adt::Union(union_hir) => self.process_union(union_hir, dependencies_callback),
         }
     }
 
     fn process_struct(
         &mut self,
         struct_hir: hir::Struct,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, struct_hir, self.db);
-
-        trace!("Processing struct {path}...", path = path.join("::"));
+        trace!("Processing struct...");
 
         defer! {
-            trace!("Finished processing struct {path}", path = path.join("::"));
+            trace!("Finished processing struct.");
         }
 
-        let node_idx = self.add_node_if_necessary(
-            hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)),
-            path.clone(),
-        );
+        let node_idx =
+            self.add_node_if_necessary(hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)));
 
         for field_hir in struct_hir.fields(self.db) {
             Self::walk_and_push_type(
@@ -408,19 +356,15 @@ impl<'a> Builder<'a> {
     fn process_enum(
         &mut self,
         enum_hir: hir::Enum,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, enum_hir, self.db);
-
-        trace!("Processing enum {path}...", path = path.join("::"));
+        trace!("Processing enum...");
 
         defer! {
-            trace!("Finished processing enum {path}", path = path.join("::"));
+            trace!("Finished processing enum.");
         }
 
-        let node_idx =
-            self.add_node_if_necessary(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)), path.clone());
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)));
 
         for variant_hir in enum_hir.variants(self.db) {
             for field_hir in variant_hir.fields(self.db) {
@@ -438,21 +382,15 @@ impl<'a> Builder<'a> {
     fn process_union(
         &mut self,
         union_hir: hir::Union,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, union_hir, self.db);
-
-        trace!("Processing union {path}...", path = path.join("::"));
+        trace!("Processing union...");
 
         defer! {
-            trace!("Finished processing union {path}", path = path.join("::"));
+            trace!("Finished processing union.");
         }
 
-        let node_idx = self.add_node_if_necessary(
-            hir::ModuleDef::Adt(hir::Adt::Union(union_hir)),
-            path.clone(),
-        );
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)));
 
         for field_hir in union_hir.fields(self.db) {
             Self::walk_and_push_type(
@@ -468,15 +406,12 @@ impl<'a> Builder<'a> {
     fn process_variant(
         &mut self,
         variant_hir: hir::Variant,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, variant_hir, self.db);
-
-        trace!("Processing variant {path}...", path = path.join("::"));
+        trace!("Processing variant...");
 
         defer! {
-            trace!("Finished processing variant {path}", path = path.join("::"));
+            trace!("Finished processing variant.");
         }
 
         for field_hir in variant_hir.fields(self.db) {
@@ -489,15 +424,12 @@ impl<'a> Builder<'a> {
     fn process_const(
         &mut self,
         const_hir: hir::Const,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, const_hir, self.db);
-
-        trace!("Processing const {path}...", path = path.join("::"));
+        trace!("Processing const...");
 
         defer! {
-            trace!("Finished processing const {path}", path = path.join("::"));
+            trace!("Finished processing const.");
         }
 
         Self::walk_and_push_type(const_hir.ty(self.db), self.db, dependencies_callback);
@@ -508,15 +440,12 @@ impl<'a> Builder<'a> {
     fn process_static(
         &mut self,
         static_hir: hir::Static,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, static_hir, self.db);
-
-        trace!("Processing static {path}...", path = path.join("::"));
+        trace!("Processing static...");
 
         defer! {
-            trace!("Finished processing static {path}", path = path.join("::"));
+            trace!("Finished processing static.");
         }
 
         Self::walk_and_push_type(static_hir.ty(self.db), self.db, dependencies_callback);
@@ -527,18 +456,15 @@ impl<'a> Builder<'a> {
     fn process_trait(
         &mut self,
         trait_hir: hir::Trait,
-        owner_path: &[String],
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, trait_hir, self.db);
-
-        trace!("Processing trait {path}...", path = path.join("::"));
+        trace!("Processing trait...");
 
         defer! {
-            trace!("Finished processing trait {path}", path = path.join("::"));
+            trace!("Finished processing trait.");
         }
 
-        let node_idx = self.add_node_if_necessary(hir::ModuleDef::Trait(trait_hir), path.clone());
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::Trait(trait_hir));
 
         // TODO: walk types?
 
@@ -549,19 +475,15 @@ impl<'a> Builder<'a> {
     fn process_trait_alias(
         &mut self,
         trait_alias_hir: hir::TraitAlias,
-        owner_path: &[String],
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, trait_alias_hir, self.db);
-
-        trace!("Processing trait alias {path}...", path = path.join("::"));
+        trace!("Processing trait alias...");
 
         defer! {
-            trace!("Finished processing trait alias {path}", path = path.join("::"));
+            trace!("Finished processing trait alias.");
         }
 
-        let node_idx =
-            self.add_node_if_necessary(hir::ModuleDef::TraitAlias(trait_alias_hir), path.clone());
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::TraitAlias(trait_alias_hir));
 
         // TODO: walk types?
 
@@ -572,19 +494,15 @@ impl<'a> Builder<'a> {
     fn process_type_alias(
         &mut self,
         type_alias_hir: hir::TypeAlias,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, type_alias_hir, self.db);
-
-        trace!("Processing type alias {path}...", path = path.join("::"));
+        trace!("Processing type alias...");
 
         defer! {
-            trace!("Finished processing type alias {path}", path = path.join("::"));
+            trace!("Finished processing type alias.");
         }
 
-        let node_idx =
-            self.add_node_if_necessary(hir::ModuleDef::TypeAlias(type_alias_hir), path.clone());
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::TypeAlias(type_alias_hir));
 
         Self::walk_and_push_type(type_alias_hir.ty(self.db), self.db, dependencies_callback);
 
@@ -594,19 +512,15 @@ impl<'a> Builder<'a> {
     fn process_builtin_type(
         &mut self,
         builtin_type_hir: hir::BuiltinType,
-        owner_path: &[String],
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, builtin_type_hir, self.db);
-
-        trace!("Processing builtin type {path}...", path = path.join("::"));
+        trace!("Processing builtin type...");
 
         defer! {
-            trace!("Finished processing builtin type {path}", path = path.join("::"));
+            trace!("Finished processing builtin type.");
         }
 
-        let node_idx =
-            self.add_node_if_necessary(hir::ModuleDef::BuiltinType(builtin_type_hir), path.clone());
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::BuiltinType(builtin_type_hir));
 
         Self::walk_and_push_type(builtin_type_hir.ty(self.db), self.db, dependencies_callback);
 
@@ -615,16 +529,13 @@ impl<'a> Builder<'a> {
 
     fn process_macro(
         &mut self,
-        macro_hir: hir::Macro,
-        owner_path: &[String],
+        _macro_hir: hir::Macro,
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        let path = analyzer::path_appending(owner_path, macro_hir, self.db);
-
-        trace!("Processing macro {path}...", path = path.join("::"));
+        trace!("Processing macro...");
 
         defer! {
-            trace!("Finished processing macro {path}", path = path.join("::"));
+            trace!("Finished processing macro.");
         }
 
         // TODO: should the macro be walked, somehow?
@@ -813,8 +724,7 @@ impl<'a> Builder<'a> {
         }
 
         for dependency_hir in dependencies {
-            let path = analyzer::path(dependency_hir, self.db);
-            let Some(dependency_hir) = self.add_node_if_necessary(dependency_hir, path) else {
+            let Some(dependency_hir) = self.add_node_if_necessary(dependency_hir) else {
                 continue;
             };
 
@@ -826,11 +736,7 @@ impl<'a> Builder<'a> {
         }
     }
 
-    fn add_node_if_necessary(
-        &mut self,
-        moduledef_hir: hir::ModuleDef,
-        path: Vec<String>,
-    ) -> Option<NodeIndex> {
+    fn add_node_if_necessary(&mut self, moduledef_hir: hir::ModuleDef) -> Option<NodeIndex> {
         let name = moduledef_hir
             .name(self.db)
             .map(|name| name.display(self.db).to_string());
@@ -843,8 +749,6 @@ impl<'a> Builder<'a> {
             trace!("Finished adding node {name}", name = name.clone().unwrap_or_default());
         }
 
-        assert!(!path.iter().any(|segment| { segment.contains(' ') }));
-
         // Check if we already added an equivalent node:
         match self.nodes.get(&moduledef_hir) {
             Some(node_idx) => {
@@ -853,7 +757,7 @@ impl<'a> Builder<'a> {
             }
             None => {
                 // Otherwise try to add a node:
-                let node = Node::new(Item::new(moduledef_hir, path, self.db, self.vfs));
+                let node = Node::new(Item::new(moduledef_hir));
                 let node_idx = self.graph.add_node(node);
                 self.nodes.insert(moduledef_hir, node_idx);
 
@@ -872,8 +776,8 @@ impl<'a> Builder<'a> {
             return None;
         }
 
-        let source_path = self.graph[source_idx].item.path.join("::");
-        let target_path = self.graph[target_idx].item.path.join("::");
+        let source_path = self.graph[source_idx].item.display_path(self.db);
+        let target_path = self.graph[target_idx].item.display_path(self.db);
         let edge_name = edge.kind.display_name();
 
         let edge_id = (source_idx, edge.kind, target_idx);

@@ -8,7 +8,6 @@ use clap::Parser;
 use log::trace;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
-use ra_ap_vfs::Vfs;
 
 use crate::{
     analyzer::LoadOptions,
@@ -29,10 +28,10 @@ impl Command {
     pub(crate) fn sanitize(&mut self) {}
 
     #[doc(hidden)]
-    pub fn run(self, krate: hir::Crate, db: &RootDatabase, vfs: &Vfs) -> anyhow::Result<()> {
+    pub fn run(self, krate: hir::Crate, db: &RootDatabase) -> anyhow::Result<()> {
         trace!("Building tree ...");
 
-        let builder = Builder::new(&self.options, db, vfs, krate);
+        let builder = Builder::new(&self.options, db, krate);
         let tree = builder.build()?;
 
         trace!("Filtering tree ...");

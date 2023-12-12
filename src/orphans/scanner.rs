@@ -49,10 +49,11 @@ impl<'a> Scanner<'a> {
     }
 
     fn process_module(&mut self, module_hir: hir::Module, callback: &mut dyn FnMut(Orphan)) {
-        let module_path = analyzer::path(ModuleDef::Module(module_hir), self.db);
+        let Some(module_path) = analyzer::path(ModuleDef::Module(module_hir), self.db) else {
+            return;
+        };
 
-        let file_path =
-            analyzer::module_file(module_hir.definition_source(self.db), self.db, self.vfs);
+        let file_path = analyzer::module_file(module_hir, self.db, self.vfs);
 
         let submodules: Vec<hir::Module> = module_hir
             .declarations(self.db)
@@ -65,13 +66,11 @@ impl<'a> Scanner<'a> {
 
         let submodule_names: HashSet<String> = submodules
             .iter()
-            .map(|module_hir| analyzer::name(hir::ModuleDef::Module(*module_hir), self.db))
+            .filter_map(|module_hir| analyzer::name(hir::ModuleDef::Module(*module_hir), self.db))
             .collect();
 
         if let Some(file_path) = file_path {
-            let module_path_string = module_path.join("::");
-            for orphan in orphans_of_module(&module_path_string, &file_path, &submodule_names) {
-                // eprintln!("- orphan: {:?}", subnode.item.path);
+            for orphan in orphans_of_module(&module_path, &file_path, &submodule_names) {
                 callback(orphan);
             }
         }

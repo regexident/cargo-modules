@@ -7,7 +7,6 @@ use log::trace;
 use petgraph::graph::NodeIndex;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
-use ra_ap_vfs::Vfs;
 
 use crate::{
     analyzer::LoadOptions,
@@ -35,10 +34,10 @@ impl Command {
     pub(crate) fn sanitize(&mut self) {}
 
     #[doc(hidden)]
-    pub fn run(self, krate: hir::Crate, db: &RootDatabase, vfs: &Vfs) -> anyhow::Result<()> {
+    pub fn run(self, krate: hir::Crate, db: &RootDatabase) -> anyhow::Result<()> {
         trace!("Building graph ...");
 
-        let builder = Builder::new(self.options.clone(), db, vfs, krate);
+        let builder = Builder::new(self.options.clone(), db, krate);
         let (graph, crate_node_idx) = builder.build()?;
 
         if self.options.acyclic {
@@ -46,9 +45,9 @@ impl Command {
                 TriColorDepthFirstSearch::new(&graph).run_from(crate_node_idx, &mut CycleDetector)
             {
                 assert!(cycle.len() >= 2);
-                let first = graph[cycle[0]].display_path();
-                let last = graph[*cycle.last().unwrap()].display_path();
-                let drawing = draw_cycle(&graph, cycle);
+                let first = graph[cycle[0]].item.display_path(db);
+                let last = graph[*cycle.last().unwrap()].item.display_path(db);
+                let drawing = draw_cycle(&graph, cycle, db);
                 anyhow::bail!("Circular dependency between `{first}` and `{last}`.\n\n{drawing}");
             }
         }
@@ -84,14 +83,14 @@ impl Command {
     }
 }
 
-fn draw_cycle(graph: &Graph, cycle: Vec<NodeIndex>) -> String {
+fn draw_cycle(graph: &Graph, cycle: Vec<NodeIndex>, db: &RootDatabase) -> String {
     assert!(!cycle.is_empty());
 
-    let first = graph[cycle[0]].display_path();
+    let first = graph[cycle[0]].item.display_path(db);
     let mut drawing = format!("┌> {first}\n");
 
     for (i, node) in cycle[1..].iter().enumerate() {
-        let path = graph[*node].display_path();
+        let path = graph[*node].item.display_path(db);
         drawing += &format!("│  {:>width$}└─> {path}\n", "", width = i * 4);
     }
 

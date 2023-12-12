@@ -60,9 +60,9 @@ impl Command {
 
         match self {
             #[allow(unused_variables)]
-            Self::Structure(command) => command.run(krate, db, &vfs),
+            Self::Structure(command) => command.run(krate, db),
             #[allow(unused_variables)]
-            Self::Dependencies(command) => command.run(krate, db, &vfs),
+            Self::Dependencies(command) => command.run(krate, db),
             #[allow(unused_variables)]
             Self::Orphans(command) => command.run(krate, db, &vfs),
         }
