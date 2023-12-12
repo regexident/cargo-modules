@@ -71,14 +71,14 @@ impl<'a> Builder<'a> {
             .collect()
     }
 
-    fn process_moduledef(&mut self, moduledef_hir: hir::ModuleDef) -> Option<Node> {
-        trace!("Processing moduledef {moduledef_hir:?}...");
+    fn process_moduledef(&mut self, module_def_hir: hir::ModuleDef) -> Option<Node> {
+        trace!("Processing moduledef {module_def_hir:?}...");
 
         defer! {
-            trace!("Finished processing moduledef {moduledef_hir:?}.");
+            trace!("Finished processing moduledef {module_def_hir:?}.");
         }
 
-        match moduledef_hir {
+        match module_def_hir {
             hir::ModuleDef::Module(module_hir) => self.process_module(module_hir),
             hir::ModuleDef::Function(function_hir) => self.process_function(function_hir),
             hir::ModuleDef::Adt(adt_hir) => self.process_adt(adt_hir),
@@ -110,7 +110,7 @@ impl<'a> Builder<'a> {
         let subnodes = module_hir
             .declarations(self.db)
             .into_iter()
-            .filter_map(|moduledef_hir| self.process_moduledef(moduledef_hir));
+            .filter_map(|module_def_hir| self.process_moduledef(module_def_hir));
 
         for subnode in subnodes {
             node.push_subnode(subnode);
@@ -263,8 +263,8 @@ impl<'a> Builder<'a> {
         None
     }
 
-    fn simple_node(&mut self, moduledef_hir: hir::ModuleDef) -> Option<Node> {
-        let item = Item::new(moduledef_hir);
+    fn simple_node(&mut self, module_def_hir: hir::ModuleDef) -> Option<Node> {
+        let item = Item::new(module_def_hir);
         Some(Node::new(item, vec![]))
     }
 }

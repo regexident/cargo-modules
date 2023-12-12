@@ -650,15 +650,15 @@ pub fn cfg(hir: hir::ModuleDef, db: &RootDatabase) -> Option<CfgExpr> {
     }
 }
 
-pub fn cfg_attrs(moduledef_hir: hir::ModuleDef, db: &RootDatabase) -> Vec<ItemCfgAttr> {
-    cfgs(moduledef_hir, db)
+pub fn cfg_attrs(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Vec<ItemCfgAttr> {
+    cfgs(module_def_hir, db)
         .into_iter()
         .filter_map(ItemCfgAttr::new)
         .collect()
 }
 
-pub fn test_attr(moduledef_hir: hir::ModuleDef, db: &RootDatabase) -> Option<ItemTestAttr> {
-    let function = match moduledef_hir {
+pub fn test_attr(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<ItemTestAttr> {
+    let function = match module_def_hir {
         hir::ModuleDef::Function(function) => function,
         _ => return None,
     };
@@ -697,8 +697,8 @@ pub fn module_file(module: hir::Module, db: &RootDatabase, vfs: &Vfs) -> Option<
     Some(path.to_owned())
 }
 
-pub fn moduledef_is_crate(moduledef_hir: hir::ModuleDef, _db: &RootDatabase) -> bool {
-    let hir::ModuleDef::Module(module) = moduledef_hir else {
+pub fn moduledef_is_crate(module_def_hir: hir::ModuleDef, _db: &RootDatabase) -> bool {
+    let hir::ModuleDef::Module(module) = module_def_hir else {
         return false;
     };
     module.is_crate_root()

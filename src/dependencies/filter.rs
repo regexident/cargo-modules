@@ -229,12 +229,12 @@ impl<'a> Filter<'a> {
         Ok(graph)
     }
 
-    fn should_retain_moduledef(&self, moduledef_hir: hir::ModuleDef) -> bool {
-        if self.options.selection.no_externs && self.is_extern(moduledef_hir) {
+    fn should_retain_moduledef(&self, module_def_hir: hir::ModuleDef) -> bool {
+        if self.options.selection.no_externs && self.is_extern(module_def_hir) {
             return false;
         }
 
-        match moduledef_hir {
+        match module_def_hir {
             hir::ModuleDef::Module(module_hir) => self.should_retain_module(module_hir),
             hir::ModuleDef::Function(function_hir) => self.should_retain_function(function_hir),
             hir::ModuleDef::Adt(adt_hir) => self.should_retain_adt(adt_hir),
@@ -327,11 +327,11 @@ impl<'a> Filter<'a> {
         false
     }
 
-    fn is_extern(&self, moduledef_hir: hir::ModuleDef) -> bool {
-        let module = if let hir::ModuleDef::Module(module_hir) = moduledef_hir {
+    fn is_extern(&self, module_def_hir: hir::ModuleDef) -> bool {
+        let module = if let hir::ModuleDef::Module(module_hir) = module_def_hir {
             Some(module_hir)
         } else {
-            moduledef_hir.module(self.db)
+            module_def_hir.module(self.db)
         };
 
         let Some(import_krate) = module.map(|module| module.krate()) else {
