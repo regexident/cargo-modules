@@ -75,6 +75,10 @@ jobs:
           toolchain: nightly
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
-      - run: cargo minimal-versions check --workspace --all-features --ignore-private -v
-      - run: cargo minimal-versions build --workspace --all-features --ignore-private -v
-      # - run: cargo minimal-versions test --release --workspace --all-features -v
+      - name: minimal-versions check
+        run: cargo minimal-versions check --workspace --all-features --ignore-private -v
+      - name: minimal-versions build
+        run: cargo minimal-versions build --workspace --all-features --ignore-private -v
+      - name: minimal-versions test
+        run: cargo minimal-versions test --release --workspace --all-features -v
+        continue-on-error: true
