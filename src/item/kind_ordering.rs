@@ -2,13 +2,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::{cmp::Ordering, fmt};
+use std::cmp::Ordering;
 
 use ra_ap_hir::{self as hir, ModuleDef};
 use ra_ap_ide_db::RootDatabase;
 
+use super::Item;
+
 #[derive(Clone, PartialEq, Eq, Debug)]
-pub enum ItemKind {
+pub(crate) enum ItemKindOrdering {
     Module {
         is_crate_root: bool,
     },
@@ -32,9 +34,9 @@ pub enum ItemKind {
     Macro,
 }
 
-impl ItemKind {
-    pub fn new(hir: hir::ModuleDef, db: &RootDatabase) -> Self {
-        match hir {
+impl ItemKindOrdering {
+    pub fn new(item: &Item, db: &RootDatabase) -> Self {
+        match item.hir {
             ModuleDef::Module(module_def_hir) => Self::Module {
                 is_crate_root: module_def_hir.is_crate_root(),
             },
@@ -63,30 +65,30 @@ impl ItemKind {
 
     fn numerical_order(&self) -> isize {
         match self {
-            ItemKind::Module { .. } => 0,
-            ItemKind::Trait { .. } => 1,
-            ItemKind::TraitAlias => 1,
-            ItemKind::TypeAlias => 2,
-            ItemKind::Struct => 3,
-            ItemKind::Enum => 4,
-            ItemKind::Variant => 5,
-            ItemKind::Union => 6,
-            ItemKind::BuiltinType => 7,
-            ItemKind::Function { .. } => 8,
-            ItemKind::Const => 9,
-            ItemKind::Static => 10,
-            ItemKind::Macro => 11,
+            Self::Module { .. } => 0,
+            Self::Trait { .. } => 1,
+            Self::TraitAlias => 1,
+            Self::TypeAlias => 2,
+            Self::Struct => 3,
+            Self::Enum => 4,
+            Self::Variant => 5,
+            Self::Union => 6,
+            Self::BuiltinType => 7,
+            Self::Function { .. } => 8,
+            Self::Const => 9,
+            Self::Static => 10,
+            Self::Macro => 11,
         }
     }
 }
 
-impl PartialOrd for ItemKind {
+impl PartialOrd for ItemKindOrdering {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for ItemKind {
+impl Ord for ItemKindOrdering {
     fn cmp(&self, other: &Self) -> Ordering {
         let ord = self.numerical_order().cmp(&other.numerical_order());
 
@@ -171,59 +173,6 @@ impl Ord for ItemKind {
             (Self::BuiltinType, _) => ord,
             (Self::Macro, _) => ord,
             _ => ord,
-        }
-    }
-}
-
-impl fmt::Display for ItemKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Module { is_crate_root } => {
-                if *is_crate_root {
-                    write!(f, "crate")
-                } else {
-                    write!(f, "mod")
-                }
-            }
-            Self::Function {
-                is_const,
-                is_async,
-                is_unsafe_to_call,
-            } => {
-                let mut keywords = vec![];
-
-                if *is_const {
-                    keywords.push("const");
-                }
-                if *is_async {
-                    keywords.push("async");
-                }
-                if *is_unsafe_to_call {
-                    keywords.push("unsafe");
-                }
-
-                keywords.push("fn");
-
-                write!(f, "{}", keywords.join(" "))
-            }
-            Self::Struct => write!(f, "struct"),
-            Self::Union => write!(f, "union"),
-            Self::Enum => write!(f, "enum"),
-            Self::Variant => write!(f, "variant"),
-            Self::Const => write!(f, "const"),
-            Self::Static => write!(f, "static"),
-            Self::Trait { is_unsafe } => {
-                let mut keywords = vec![];
-                if *is_unsafe {
-                    keywords.push("unsafe");
-                }
-                keywords.push("trait");
-                write!(f, "{}", keywords.join(" "))
-            }
-            Self::TraitAlias => write!(f, "trait"),
-            Self::TypeAlias => write!(f, "type"),
-            Self::BuiltinType => write!(f, "builtin"),
-            Self::Macro => write!(f, "macro"),
         }
     }
 }

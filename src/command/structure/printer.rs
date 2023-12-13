@@ -60,10 +60,10 @@ impl<'a> Printer<'a> {
                 subtrees.sort_by_cached_key(|tree| tree.item.display_name(self.db));
             }
             SortBy::Visibility => {
-                subtrees.sort_by_cached_key(|tree| tree.item.visibility(self.db).clone());
+                subtrees.sort_by_cached_key(|tree| tree.item.visibility(self.db));
             }
             SortBy::Kind => {
-                subtrees.sort_by_cached_key(|tree| tree.item.kind(self.db).clone());
+                subtrees.sort_by_cached_key(|tree| tree.item.kind_ordering(self.db));
             }
         }
 

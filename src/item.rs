@@ -7,15 +7,17 @@ use ra_ap_ide_db::RootDatabase;
 
 use crate::analyzer;
 
-mod attr;
-mod kind;
-mod visibility;
-
 pub(crate) use self::{
     attr::{ItemAttrs, ItemCfgAttr, ItemTestAttr},
-    kind::ItemKind,
+    kind_display_name::ItemKindDisplayName,
+    kind_ordering::ItemKindOrdering,
     visibility::ItemVisibility,
 };
+
+mod attr;
+mod kind_display_name;
+mod kind_ordering;
+mod visibility;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Item {
@@ -32,13 +34,15 @@ impl Item {
     }
 
     pub fn attrs(&self, db: &RootDatabase) -> ItemAttrs {
-        let cfgs: Vec<_> = analyzer::cfg_attrs(self.hir, db);
-        let test = analyzer::test_attr(self.hir, db);
-        ItemAttrs { cfgs, test }
+        ItemAttrs::new(self, db)
     }
 
-    pub fn kind(&self, db: &RootDatabase) -> ItemKind {
-        ItemKind::new(self.hir, db)
+    pub fn kind_ordering(&self, db: &RootDatabase) -> ItemKindOrdering {
+        ItemKindOrdering::new(self, db)
+    }
+
+    pub fn kind_display_name(&self, db: &RootDatabase) -> ItemKindDisplayName {
+        ItemKindDisplayName::new(self, db)
     }
 
     pub fn display_name(&self, db: &RootDatabase) -> String {
@@ -47,9 +51,5 @@ impl Item {
 
     pub fn display_path(&self, db: &RootDatabase) -> String {
         analyzer::display_path(self.hir, db)
-    }
-
-    pub fn kind_display_name(&self, db: &RootDatabase) -> String {
-        self.kind(db).to_string()
     }
 }
