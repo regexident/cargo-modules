@@ -4,11 +4,8 @@
 
 pub mod options;
 
-pub(crate) mod builder;
 pub(crate) mod command;
 pub(super) mod cycles;
 pub(super) mod filter;
-pub(crate) mod graph;
 pub(super) mod printer;
 pub(super) mod theme;
-pub(super) mod walker;

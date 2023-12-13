@@ -8,6 +8,11 @@ use petgraph::stable_graph::StableGraph;
 
 use crate::item::Item;
 
+mod builder;
+mod walker;
+
+pub(crate) use self::{builder::GraphBuilder, walker::GraphWalker};
+
 pub type Graph = StableGraph<Node, Edge>;
 
 #[derive(Clone, PartialEq, Debug)]

@@ -20,7 +20,7 @@ use std::{marker::PhantomData, ops::ControlFlow};
 use bitvec::vec::BitVec;
 use petgraph::graph::{IndexType, NodeIndex};
 
-use super::super::graph::Graph as G;
+use crate::graph::Graph as G;
 
 struct BitSet<T> {
     vec: BitVec,

@@ -6,7 +6,7 @@ use std::collections::HashSet;
 
 use petgraph::{graph::NodeIndex, visit::EdgeRef, Direction};
 
-use super::graph::{Edge, Graph, Node};
+use crate::graph::{Edge, Graph, Node};
 
 pub(crate) struct GraphWalker {
     direction: Direction,

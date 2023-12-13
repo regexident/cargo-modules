@@ -13,11 +13,9 @@ use ra_ap_hir_ty::{self as hir_ty, db::HirDatabase as _, TyExt as _};
 use ra_ap_ide_db::{self as ide_db};
 use scopeguard::defer;
 
-use crate::item::Item;
-
-use super::{
+use crate::{
     graph::{Edge, EdgeKind, Graph, Node},
-    options::Options,
+    item::Item,
 };
 
 #[derive(Debug, Hash, Eq, PartialEq)]
@@ -27,9 +25,7 @@ struct Dependency {
 }
 
 #[derive(Debug)]
-pub struct Builder<'a> {
-    #[allow(dead_code)]
-    options: Options,
+pub struct GraphBuilder<'a> {
     db: &'a ide_db::RootDatabase,
     krate: hir::Crate,
     graph: Graph,
@@ -37,14 +33,13 @@ pub struct Builder<'a> {
     edges: HashMap<(NodeIndex, EdgeKind, NodeIndex), EdgeIndex>,
 }
 
-impl<'a> Builder<'a> {
-    pub fn new(options: Options, db: &'a ide_db::RootDatabase, krate: hir::Crate) -> Self {
+impl<'a> GraphBuilder<'a> {
+    pub fn new(db: &'a ide_db::RootDatabase, krate: hir::Crate) -> Self {
         let graph = Graph::default();
         let nodes = HashMap::default();
         let edges = HashMap::default();
 
         Self {
-            options,
             db,
             krate,
             graph,
