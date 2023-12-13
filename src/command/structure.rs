@@ -4,9 +4,7 @@
 
 pub mod options;
 
-pub(crate) mod builder;
 pub(super) mod command;
 pub(super) mod filter;
 pub(crate) mod printer;
 pub(super) mod theme;
-pub(super) mod tree;

@@ -9,9 +9,9 @@ use log::trace;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
-use crate::analyzer::LoadOptions;
+use crate::{analyzer::LoadOptions, tree::TreeBuilder};
 
-use super::{builder::Builder, filter::Filter, options::Options, printer::Printer};
+use super::{filter::Filter, options::Options, printer::Printer};
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 pub struct Command {
@@ -30,7 +30,7 @@ impl Command {
     pub fn run(self, krate: hir::Crate, db: &RootDatabase) -> anyhow::Result<()> {
         trace!("Building tree ...");
 
-        let builder = Builder::new(&self.options, db, krate);
+        let builder = TreeBuilder::new(db, krate);
         let tree = builder.build()?;
 
         trace!("Filtering tree ...");
