@@ -6,9 +6,8 @@ use std::path::{Path, PathBuf};
 
 use log::{debug, trace};
 
-use hir::{AsAssocItem, ModuleSource};
 use ra_ap_cfg::{CfgAtom, CfgDiff, CfgExpr};
-use ra_ap_hir::{self as hir, Crate, HasAttrs};
+use ra_ap_hir::{self as hir, AsAssocItem, Crate, HasAttrs, HirFileIdExt as _, ModuleSource};
 use ra_ap_ide::{AnalysisHost, RootDatabase};
 use ra_ap_ide_db::FxHashMap;
 use ra_ap_load_cargo::{LoadCargoConfig, ProcMacroServerChoice};
