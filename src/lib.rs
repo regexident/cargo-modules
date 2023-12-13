@@ -5,10 +5,6 @@
 pub mod command;
 pub mod options;
 
-pub mod dependencies;
-pub mod orphans;
-pub mod structure;
-
 pub(crate) mod analyzer;
 pub(crate) mod colors;
 pub(crate) mod item;

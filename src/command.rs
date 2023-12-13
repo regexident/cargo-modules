@@ -6,11 +6,17 @@ use clap::Parser;
 
 use crate::{
     analyzer::{load_workspace, LoadOptions},
-    dependencies::command::Command as DependenciesCommand,
     options::{general::Options as GeneralOptions, project::Options as ProjectOptions},
-    orphans::command::Command as OrphansCommand,
-    structure::command::Command as StructureCommand,
 };
+
+use self::{
+    dependencies::command::Command as DependenciesCommand,
+    orphans::command::Command as OrphansCommand, structure::command::Command as StructureCommand,
+};
+
+pub mod dependencies;
+pub mod orphans;
+pub mod structure;
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 #[command(

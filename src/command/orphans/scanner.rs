@@ -14,7 +14,9 @@ use ra_ap_hir::{self as hir, Crate};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_vfs::Vfs;
 
-use crate::{analyzer, orphans::orphan::Orphan};
+use crate::analyzer;
+
+use super::orphan::Orphan;
 
 #[derive(Debug)]
 pub struct Scanner<'a> {

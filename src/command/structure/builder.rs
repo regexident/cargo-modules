@@ -8,10 +8,9 @@ use ra_ap_hir::{self as hir, Crate};
 use ra_ap_ide_db::RootDatabase;
 use scopeguard::defer;
 
-use crate::{
-    item::Item,
-    structure::{options::Options, tree::Tree},
-};
+use crate::item::Item;
+
+use super::{options::Options, tree::Tree};
 
 #[derive(Debug)]
 pub struct Builder<'a> {

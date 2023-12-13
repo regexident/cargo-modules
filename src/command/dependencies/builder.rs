@@ -13,12 +13,11 @@ use ra_ap_hir_ty::{self as hir_ty, db::HirDatabase as _, TyExt as _};
 use ra_ap_ide_db::{self as ide_db};
 use scopeguard::defer;
 
-use crate::{
-    dependencies::{
-        graph::{Edge, EdgeKind, Graph, Node},
-        options::Options,
-    },
-    item::Item,
+use crate::item::Item;
+
+use super::{
+    graph::{Edge, EdgeKind, Graph, Node},
+    options::Options,
 };
 
 #[derive(Debug, Hash, Eq, PartialEq)]
