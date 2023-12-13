@@ -8,13 +8,14 @@ use petgraph::graph::NodeIndex;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
-use crate::analyzer::LoadOptions;
+use crate::{
+    analyzer::LoadOptions,
+    graph::{Graph, GraphBuilder},
+};
 
 use super::{
-    builder::Builder,
     cycles::tri_color::{CycleDetector, TriColorDepthFirstSearch},
     filter::Filter,
-    graph::Graph,
     options::{LayoutAlgorithm, Options},
     printer::Printer,
 };
@@ -36,7 +37,7 @@ impl Command {
     pub fn run(self, krate: hir::Crate, db: &RootDatabase) -> anyhow::Result<()> {
         trace!("Building graph ...");
 
-        let builder = Builder::new(self.options.clone(), db, krate);
+        let builder = GraphBuilder::new(db, krate);
         let (graph, crate_node_idx) = builder.build()?;
 
         if self.options.acyclic {

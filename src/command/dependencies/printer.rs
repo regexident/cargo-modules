@@ -13,10 +13,13 @@ use petgraph::{
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
-use crate::{analyzer, item::visibility::ItemVisibility};
+use crate::{
+    analyzer,
+    graph::{Edge, EdgeKind, Graph, Node},
+    item::visibility::ItemVisibility,
+};
 
 use super::{
-    graph::{Edge, EdgeKind, Graph, Node},
     options::Options,
     theme::{edge_styles, node_styles},
 };

@@ -15,13 +15,12 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_syntax::ast;
 
-use crate::analyzer;
-
-use super::{
-    graph::{Edge, EdgeKind, Graph},
-    options::Options,
-    walker::GraphWalker,
+use crate::{
+    analyzer,
+    graph::{Edge, EdgeKind, Graph, GraphWalker},
 };
+
+use super::options::Options;
 
 #[derive(Debug)]
 pub struct Filter<'a> {
