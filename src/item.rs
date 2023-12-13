@@ -7,11 +7,15 @@ use ra_ap_ide_db::RootDatabase;
 
 use crate::analyzer;
 
-use self::{attr::ItemAttrs, visibility::ItemVisibility};
+mod attr;
+mod kind;
+mod visibility;
 
-pub(crate) mod attr;
-pub(crate) mod kind;
-pub(crate) mod visibility;
+pub(crate) use self::{
+    attr::{ItemAttrs, ItemCfgAttr, ItemTestAttr},
+    kind::ItemKind,
+    visibility::ItemVisibility,
+};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Item {
@@ -33,8 +37,8 @@ impl Item {
         ItemAttrs { cfgs, test }
     }
 
-    pub fn kind(&self, db: &RootDatabase) -> kind::ItemKind {
-        kind::ItemKind::new(self.hir, db)
+    pub fn kind(&self, db: &RootDatabase) -> ItemKind {
+        ItemKind::new(self.hir, db)
     }
 
     pub fn display_name(&self, db: &RootDatabase) -> String {
