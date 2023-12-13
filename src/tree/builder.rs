@@ -8,21 +8,17 @@ use ra_ap_hir::{self as hir, Crate};
 use ra_ap_ide_db::RootDatabase;
 use scopeguard::defer;
 
-use crate::item::Item;
-
-use super::{options::Options, tree::Tree};
+use crate::{item::Item, tree::Tree};
 
 #[derive(Debug)]
-pub struct Builder<'a> {
-    #[allow(dead_code)]
-    options: &'a Options,
+pub struct TreeBuilder<'a> {
     db: &'a RootDatabase,
     krate: hir::Crate,
 }
 
-impl<'a> Builder<'a> {
-    pub fn new(options: &'a Options, db: &'a RootDatabase, krate: hir::Crate) -> Self {
-        Self { options, db, krate }
+impl<'a> TreeBuilder<'a> {
+    pub fn new(db: &'a RootDatabase, krate: hir::Crate) -> Self {
+        Self { db, krate }
     }
 
     pub fn build(mut self) -> anyhow::Result<Tree> {

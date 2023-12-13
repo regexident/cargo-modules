@@ -6,9 +6,9 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_syntax::ast;
 
-use crate::analyzer;
+use crate::{analyzer, tree::Tree};
 
-use super::{options::Options, tree::Tree};
+use super::options::Options;
 
 #[derive(Debug)]
 pub struct Filter<'a> {

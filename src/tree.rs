@@ -4,6 +4,10 @@
 
 use crate::item::Item;
 
+mod builder;
+
+pub(crate) use self::builder::TreeBuilder;
+
 #[derive(Clone, PartialEq, Debug)]
 pub struct Tree {
     pub item: Item,
