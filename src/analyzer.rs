@@ -22,7 +22,7 @@ use ra_ap_syntax::{ast, AstNode, SourceFile};
 use ra_ap_vfs::Vfs;
 
 use crate::{
-    item::attr::{ItemCfgAttr, ItemTestAttr},
+    item::{ItemCfgAttr, ItemTestAttr},
     options::{general::Options as GeneralOptions, project::Options as ProjectOptions},
 };
 

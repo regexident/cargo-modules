@@ -16,7 +16,7 @@ use ra_ap_ide::RootDatabase;
 use crate::{
     analyzer,
     graph::{Edge, EdgeKind, Graph, Node},
-    item::visibility::ItemVisibility,
+    item::ItemVisibility,
 };
 
 use super::{

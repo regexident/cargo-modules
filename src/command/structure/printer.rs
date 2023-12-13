@@ -8,7 +8,7 @@ use std::fmt;
 
 use ra_ap_ide::RootDatabase;
 
-use crate::{analyzer, item::visibility::ItemVisibility, tree::Tree};
+use crate::{analyzer, item::ItemVisibility, tree::Tree};
 
 use super::{
     options::{Options, SortBy},
