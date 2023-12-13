@@ -5,6 +5,9 @@
 use std::fmt;
 
 use ra_ap_cfg::{CfgAtom, CfgExpr};
+use ra_ap_ide_db::RootDatabase;
+
+use crate::{analyzer, item::Item};
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum ItemCfgAttr {
@@ -88,6 +91,12 @@ pub struct ItemAttrs {
 }
 
 impl ItemAttrs {
+    pub fn new(item: &Item, db: &RootDatabase) -> ItemAttrs {
+        let cfgs: Vec<_> = analyzer::cfg_attrs(item.hir, db);
+        let test = analyzer::test_attr(item.hir, db);
+        Self { cfgs, test }
+    }
+
     pub fn is_empty(&self) -> bool {
         self.test.is_none() && self.cfgs.is_empty()
     }
