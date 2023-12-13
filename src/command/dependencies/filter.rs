@@ -15,13 +15,12 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide_db::RootDatabase;
 use ra_ap_syntax::ast;
 
-use crate::{
-    analyzer,
-    dependencies::{
-        graph::{Edge, EdgeKind, Graph},
-        options::Options,
-        walker::GraphWalker,
-    },
+use crate::analyzer;
+
+use super::{
+    graph::{Edge, EdgeKind, Graph},
+    options::Options,
+    walker::GraphWalker,
 };
 
 #[derive(Debug)]

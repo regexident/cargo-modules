@@ -8,16 +8,15 @@ use petgraph::graph::NodeIndex;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
-use crate::{
-    analyzer::LoadOptions,
-    dependencies::{
-        builder::Builder,
-        cycles::tri_color::{CycleDetector, TriColorDepthFirstSearch},
-        filter::Filter,
-        graph::Graph,
-        options::{LayoutAlgorithm, Options},
-        printer::Printer,
-    },
+use crate::analyzer::LoadOptions;
+
+use super::{
+    builder::Builder,
+    cycles::tri_color::{CycleDetector, TriColorDepthFirstSearch},
+    filter::Filter,
+    graph::Graph,
+    options::{LayoutAlgorithm, Options},
+    printer::Printer,
 };
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]

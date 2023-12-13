@@ -2,18 +2,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+use std::fmt::Write;
+
 use clap::Parser;
 use log::trace;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
-use ra_ap_vfs::Vfs;
 
-use crate::{
-    analyzer::{self, LoadOptions},
-    orphans::{options::Options, printer::Printer},
-};
+use crate::analyzer::LoadOptions;
 
-use super::scanner::Scanner;
+use super::{builder::Builder, filter::Filter, options::Options, printer::Printer};
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 pub struct Command {
@@ -29,28 +27,29 @@ impl Command {
     pub(crate) fn sanitize(&mut self) {}
 
     #[doc(hidden)]
-    pub fn run(self, krate: hir::Crate, db: &RootDatabase, vfs: &Vfs) -> anyhow::Result<()> {
+    pub fn run(self, krate: hir::Crate, db: &RootDatabase) -> anyhow::Result<()> {
         trace!("Building tree ...");
 
-        let crate_name = analyzer::crate_name(krate, db);
+        let builder = Builder::new(&self.options, db, krate);
+        let tree = builder.build()?;
 
-        let scanner = Scanner::new(db, vfs, krate);
-        let mut orphans = Vec::from_iter(scanner.scan()?);
+        trace!("Filtering tree ...");
 
-        orphans.sort_by_cached_key(|orphan| orphan.file_path.clone());
+        let filter = Filter::new(&self.options, db, krate);
+        let tree = filter.filter(&tree)?;
 
-        let mut stdout = std::io::stdout();
+        trace!("Printing tree ...");
+
+        let mut string = String::new();
+
+        writeln!(&mut string)?;
+
         let printer = Printer::new(&self.options, db);
-        printer.fmt(&mut stdout, &orphans[..])?;
+        printer.fmt(&mut string, &tree)?;
 
-        if orphans.is_empty() {
-            Ok(())
-        } else {
-            let count = orphans.len();
-            Err(anyhow::anyhow!(
-                "Found {count} orphans in crate '{crate_name}'"
-            ))
-        }
+        print!("{string}");
+
+        Ok(())
     }
 
     pub fn load_options(&self) -> LoadOptions {

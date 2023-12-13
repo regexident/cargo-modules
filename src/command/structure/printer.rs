@@ -8,14 +8,12 @@ use std::fmt;
 
 use ra_ap_ide::RootDatabase;
 
-use crate::{
-    analyzer,
-    item::visibility::ItemVisibility,
-    structure::{
-        options::{Options, SortBy},
-        theme::styles,
-        tree::Tree,
-    },
+use crate::{analyzer, item::visibility::ItemVisibility};
+
+use super::{
+    options::{Options, SortBy},
+    theme::styles,
+    tree::Tree,
 };
 
 #[derive(Debug)]

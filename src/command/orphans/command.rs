@@ -2,17 +2,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::fmt::Write;
-
 use clap::Parser;
 use log::trace;
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
+use ra_ap_vfs::Vfs;
 
-use crate::{
-    analyzer::LoadOptions,
-    structure::{builder::Builder, filter::Filter, options::Options, printer::Printer},
-};
+use crate::analyzer::{self, LoadOptions};
+
+use super::{options::Options, printer::Printer};
+
+use super::scanner::Scanner;
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 pub struct Command {
@@ -28,29 +28,28 @@ impl Command {
     pub(crate) fn sanitize(&mut self) {}
 
     #[doc(hidden)]
-    pub fn run(self, krate: hir::Crate, db: &RootDatabase) -> anyhow::Result<()> {
+    pub fn run(self, krate: hir::Crate, db: &RootDatabase, vfs: &Vfs) -> anyhow::Result<()> {
         trace!("Building tree ...");
 
-        let builder = Builder::new(&self.options, db, krate);
-        let tree = builder.build()?;
+        let crate_name = analyzer::crate_name(krate, db);
 
-        trace!("Filtering tree ...");
+        let scanner = Scanner::new(db, vfs, krate);
+        let mut orphans = Vec::from_iter(scanner.scan()?);
 
-        let filter = Filter::new(&self.options, db, krate);
-        let tree = filter.filter(&tree)?;
+        orphans.sort_by_cached_key(|orphan| orphan.file_path.clone());
 
-        trace!("Printing tree ...");
-
-        let mut string = String::new();
-
-        writeln!(&mut string)?;
-
+        let mut stdout = std::io::stdout();
         let printer = Printer::new(&self.options, db);
-        printer.fmt(&mut string, &tree)?;
+        printer.fmt(&mut stdout, &orphans[..])?;
 
-        print!("{string}");
-
-        Ok(())
+        if orphans.is_empty() {
+            Ok(())
+        } else {
+            let count = orphans.len();
+            Err(anyhow::anyhow!(
+                "Found {count} orphans in crate '{crate_name}'"
+            ))
+        }
     }
 
     pub fn load_options(&self) -> LoadOptions {

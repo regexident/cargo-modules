@@ -8,4 +8,4 @@ header:
   paths:
     - "src/**/*.rs"
   paths-ignore:
-    - "src/dependencies/cycles/tri_color.rs"
+    - "src/command/dependencies/cycles/tri_color.rs"

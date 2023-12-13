@@ -6,10 +6,7 @@
 
 use ra_ap_ide::RootDatabase;
 
-use crate::{
-    orphans::orphan::Orphan,
-    orphans::{options::Options, theme::styles},
-};
+use super::{options::Options, orphan::Orphan, theme::styles};
 
 pub struct Printer<'a> {
     #[allow(dead_code)]

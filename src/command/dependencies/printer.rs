@@ -13,14 +13,12 @@ use petgraph::{
 use ra_ap_hir as hir;
 use ra_ap_ide::RootDatabase;
 
-use crate::{
-    analyzer,
-    dependencies::{
-        graph::{Edge, EdgeKind, Graph, Node},
-        options::Options,
-        theme::{edge_styles, node_styles},
-    },
-    item::visibility::ItemVisibility,
+use crate::{analyzer, item::visibility::ItemVisibility};
+
+use super::{
+    graph::{Edge, EdgeKind, Graph, Node},
+    options::Options,
+    theme::{edge_styles, node_styles},
 };
 
 const INDENTATION: &str = "    ";
