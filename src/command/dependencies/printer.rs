@@ -48,7 +48,7 @@ impl<'a> Printer<'a> {
         start_node_idx: NodeIndex,
     ) -> Result<(), anyhow::Error> {
         let root_node = &graph[start_node_idx];
-        let label = root_node.item.display_path(self.db);
+        let label = root_node.display_path(self.db);
         let layout = self.options.layout.to_string();
         let i = INDENTATION;
 
@@ -125,8 +125,8 @@ impl<'a> Printer<'a> {
             .map(|node_ref| {
                 let node: &Node = node_ref.weight();
 
-                let id = node.item.display_path(self.db);
-                let kind = node.item.kind_display_name(self.db);
+                let id = node.display_path(self.db);
+                let kind = node.kind_display_name(self.db);
 
                 let label = self.node_label(node).unwrap();
                 let attributes = self.node_attributes(node);
@@ -152,8 +152,8 @@ impl<'a> Printer<'a> {
             let edge = &graph[edge_idx];
             let (source_idx, target_idx) = graph.edge_endpoints(edge_idx).unwrap();
 
-            let source = graph[source_idx].item.display_path(self.db);
-            let target = graph[target_idx].item.display_path(self.db);
+            let source = graph[source_idx].display_path(self.db);
+            let target = graph[target_idx].display_path(self.db);
 
             let kind = edge.kind.display_name();
 
@@ -191,20 +191,20 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_header(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let krate = analyzer::krate(node.item.hir, self.db);
+        let krate = analyzer::krate(node.hir, self.db);
 
         let is_external = krate != Some(self.member_krate);
-        let is_crate = analyzer::moduledef_is_crate(node.item.hir, self.db);
+        let is_crate = analyzer::moduledef_is_crate(node.hir, self.db);
 
         let visibility = if is_external {
             Some("external".to_owned())
         } else if is_crate {
             None
         } else {
-            Some(format!("{}", node.item.visibility(self.db)))
+            Some(format!("{}", node.visibility(self.db)))
         };
 
-        let kind = node.item.kind_display_name(self.db);
+        let kind = node.kind_display_name(self.db);
 
         if let Some(visibility) = visibility {
             write!(f, "{visibility} ")?;
@@ -214,7 +214,7 @@ impl<'a> Printer<'a> {
     }
 
     fn fmt_node_body(&self, f: &mut dyn fmt::Write, node: &Node) -> fmt::Result {
-        let path = node.item.display_path(self.db);
+        let path = node.display_path(self.db);
 
         let refined_path = if self.options.selection.no_externs {
             // Try to drop the crate-name from the path if externs are being filtered:
@@ -233,12 +233,12 @@ impl<'a> Printer<'a> {
     fn node_attributes(&self, node: &Node) -> String {
         let styles = node_styles();
 
-        let is_crate = analyzer::moduledef_is_crate(node.item.hir, self.db);
+        let is_crate = analyzer::moduledef_is_crate(node.hir, self.db);
 
         let style = if is_crate {
             styles.krate
         } else {
-            match &node.item.visibility(self.db) {
+            match &node.visibility(self.db) {
                 ItemVisibility::Crate => styles.visibility.pub_crate,
                 ItemVisibility::Module(_) => styles.visibility.pub_module,
                 ItemVisibility::Private => styles.visibility.pub_private,
