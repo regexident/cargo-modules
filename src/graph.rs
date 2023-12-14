@@ -18,12 +18,12 @@ pub type Graph<N, E> = StableGraph<N, E>;
 pub type Node = Item;
 
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
-pub enum EdgeKind {
+pub enum Relationship {
     Uses,
     Owns,
 }
 
-impl EdgeKind {
+impl Relationship {
     pub fn display_name(&self) -> &'static str {
         match self {
             Self::Uses => "uses",
@@ -32,7 +32,7 @@ impl EdgeKind {
     }
 }
 
-impl fmt::Display for EdgeKind {
+impl fmt::Display for Relationship {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = match self {
             Self::Uses => "Uses",
@@ -44,5 +44,5 @@ impl fmt::Display for EdgeKind {
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Edge {
-    pub kind: EdgeKind,
+    pub kind: Relationship,
 }
