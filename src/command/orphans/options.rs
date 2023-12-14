@@ -4,16 +4,16 @@
 
 use clap::Parser;
 
-use crate::options;
+use crate::options::{GeneralOptions, ProjectOptions};
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 #[group(id = "OrphansOptions")]
 pub struct Options {
     #[command(flatten)]
-    pub general: options::general::Options,
+    pub general: GeneralOptions,
 
     #[command(flatten)]
-    pub project: options::project::Options,
+    pub project: ProjectOptions,
 
     /// Returns a failure code if one or more orphans are found.
     #[arg(long = "deny")]
