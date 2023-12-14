@@ -20,6 +20,40 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
+- n/a
+
+### Changed
+
+- n/a
+
+### Deprecated
+
+- n/a
+
+### Removed
+
+- n/a
+
+### Fixed
+
+- n/a
+
+### Performance
+
+- n/a
+
+### Security
+
+- n/a
+
+### Other
+
+- n/a
+
+## [0.13.0] - 2023-12-14
+
+### Added
+
 - Added dedicated top-level `orphans` command (replacing the now removed `--orphans` CLI flag) for detecting orphaned Rust source files within projects.
 
 ### Changed
@@ -32,10 +66,6 @@ Please make sure to add your changes to the appropriate categories:
   Use `--no-modules`, `--no-uses`, `--no-externs`, `--no-types`, `--no-traits`, `--no-fns` to opt-out.
 - Updated dependencies:
   - `rust-analyzer` from `0.0.188` to `0.0.189`
-
-### Deprecated
-
-- n/a
 
 ### Removed
 
@@ -58,22 +88,6 @@ Please make sure to add your changes to the appropriate categories:
   - Removed CLI option `--fns`
   - Removed CLI option `--tests`
   - Removed CLI option `--no-tests`
-
-### Fixed
-
-- n/a
-
-### Performance
-
-- n/a
-
-### Security
-
-- n/a
-
-### Other
-
-- n/a
 
 ## [0.12.0] - 2023-12-05
 
