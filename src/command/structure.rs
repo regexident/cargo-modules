@@ -8,3 +8,5 @@ pub(super) mod command;
 pub(super) mod filter;
 pub(crate) mod printer;
 pub(super) mod theme;
+
+type Node = crate::item::Item;
