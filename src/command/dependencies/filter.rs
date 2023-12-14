@@ -17,7 +17,7 @@ use ra_ap_syntax::ast;
 
 use crate::{
     analyzer,
-    graph::{Edge, EdgeKind, Graph, GraphWalker, Node},
+    graph::{Edge, Graph, GraphWalker, Node, Relationship},
 };
 
 use super::options::Options;
@@ -125,7 +125,7 @@ impl<'a> Filter<'a> {
             let parent_owned_node = |node_idx| {
                 graph
                     .edges_directed(node_idx, Direction::Incoming)
-                    .find(|edge_ref| matches!(edge_ref.weight().kind, EdgeKind::Owns))
+                    .find(|edge_ref| matches!(edge_ref.weight().kind, Relationship::Owns))
                     .map(|edge_ref| edge_ref.source())
             };
 
@@ -187,7 +187,7 @@ impl<'a> Filter<'a> {
         if self.options.selection.no_uses {
             graph.retain_edges(|graph, edge_idx| {
                 let edge = &graph[edge_idx];
-                edge.kind == EdgeKind::Owns
+                edge.kind == Relationship::Owns
             });
         }
 
@@ -347,7 +347,7 @@ impl<'a> Filter<'a> {
         graph.filter_map(
             |_node_idx, node| Some(node.clone()),
             |_edge_idx, edge| {
-                if matches!(edge.kind, EdgeKind::Owns) {
+                if matches!(edge.kind, Relationship::Owns) {
                     Some(edge.clone())
                 } else {
                     None
@@ -387,7 +387,7 @@ impl<'a> Filter<'a> {
             // Walks from a node to its ascendants in the graph (i.e. super-items & dependents):
             let mut ascendants_walker = GraphWalker::new(petgraph::Direction::Incoming);
             ascendants_walker.walk_graph(graph, *start_node_idx, |edge, _node, depth| {
-                (edge.kind == EdgeKind::Owns) || (depth <= max_depth)
+                (edge.kind == Relationship::Owns) || (depth <= max_depth)
             });
             nodes_to_keep.extend(ascendants_walker.nodes_visited);
         }

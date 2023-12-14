@@ -15,7 +15,7 @@ use ra_ap_ide::RootDatabase;
 
 use crate::{
     analyzer,
-    graph::{Edge, EdgeKind, Graph, Node},
+    graph::{Edge, Graph, Node, Relationship},
     item::ItemVisibility,
 };
 
@@ -161,8 +161,8 @@ impl<'a> Printer<'a> {
             let attributes = self.edge_attributes(edge);
 
             let constraint = match edge.kind {
-                EdgeKind::Uses => "[constraint=false]",
-                EdgeKind::Owns => "[constraint=true]",
+                Relationship::Uses => "[constraint=false]",
+                Relationship::Owns => "[constraint=true]",
             };
 
             let i = INDENTATION;
@@ -258,8 +258,8 @@ impl<'a> Printer<'a> {
         let styles = edge_styles();
 
         let style = match edge.kind {
-            EdgeKind::Uses { .. } => styles.uses,
-            EdgeKind::Owns => styles.owns,
+            Relationship::Uses { .. } => styles.uses,
+            Relationship::Owns => styles.owns,
         };
 
         format!(r#", color="{}", style="{}""#, style.color, style.stroke)

@@ -14,7 +14,7 @@ use ra_ap_ide_db::{self as ide_db};
 use scopeguard::defer;
 
 use crate::{
-    graph::{Edge, EdgeKind, Graph, Node},
+    graph::{Edge, Graph, Node, Relationship},
     item::Item,
 };
 
@@ -30,7 +30,7 @@ pub struct GraphBuilder<'a> {
     krate: hir::Crate,
     graph: Graph<Node, Edge>,
     nodes: HashMap<hir::ModuleDef, NodeIndex>,
-    edges: HashMap<(NodeIndex, EdgeKind, NodeIndex), EdgeIndex>,
+    edges: HashMap<(NodeIndex, Relationship, NodeIndex), EdgeIndex>,
 }
 
 impl<'a> GraphBuilder<'a> {
@@ -90,7 +90,7 @@ impl<'a> GraphBuilder<'a> {
 
             for impl_item_idx in self.process_impl(impl_hir) {
                 let edge = Edge {
-                    kind: EdgeKind::Owns,
+                    kind: Relationship::Owns,
                 };
 
                 self.add_edge(impl_ty_idx, impl_item_idx, edge);
@@ -213,7 +213,7 @@ impl<'a> GraphBuilder<'a> {
                 };
 
                 let edge = Edge {
-                    kind: EdgeKind::Owns,
+                    kind: Relationship::Owns,
                 };
 
                 self.add_edge(node_idx, declaration_idx, edge);
@@ -723,7 +723,7 @@ impl<'a> GraphBuilder<'a> {
             };
 
             let edge = Edge {
-                kind: EdgeKind::Uses,
+                kind: Relationship::Uses,
             };
 
             self.add_edge(depender_idx, dependency_hir, edge);
