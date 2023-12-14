@@ -13,6 +13,7 @@ use crate::{analyzer, item::ItemVisibility, tree::Tree};
 use super::{
     options::{Options, SortBy},
     theme::styles,
+    Node,
 };
 
 #[derive(Debug)]
@@ -31,7 +32,7 @@ impl<'a> Printer<'a> {
         Self { options, db }
     }
 
-    pub fn fmt(&self, f: &mut dyn fmt::Write, tree: &Tree) -> Result<(), anyhow::Error> {
+    pub fn fmt(&self, f: &mut dyn fmt::Write, tree: &Tree<Node>) -> Result<(), anyhow::Error> {
         let mut twigs: Vec<Twig> = vec![Twig { is_last: true }];
         self.fmt_tree(f, tree, &mut twigs)
     }
@@ -39,7 +40,7 @@ impl<'a> Printer<'a> {
     fn fmt_tree(
         &self,
         f: &mut dyn fmt::Write,
-        tree: &Tree,
+        tree: &Tree<Node>,
         twigs: &mut Vec<Twig>,
     ) -> Result<(), anyhow::Error> {
         self.fmt_branch(f, &twigs[..])?;
@@ -49,7 +50,7 @@ impl<'a> Printer<'a> {
         let mut subtrees = tree.subtrees.clone();
 
         // Sort the children by name for easier visual scanning of output:
-        subtrees.sort_by_cached_key(|tree: &Tree| tree.item.display_name(self.db));
+        subtrees.sort_by_cached_key(|tree: &Tree<Node>| tree.node.display_name(self.db));
 
         // The default sorting functions in Rust are stable, so we can use it to re-sort,
         // resulting in a list that's sorted prioritizing whatever we re-sort by.
@@ -57,13 +58,13 @@ impl<'a> Printer<'a> {
         // Re-sort the children by name, visibility or kind, for easier visual scanning of output:
         match self.options.sort_by {
             SortBy::Name => {
-                subtrees.sort_by_cached_key(|tree| tree.item.display_name(self.db));
+                subtrees.sort_by_cached_key(|tree| tree.node.display_name(self.db));
             }
             SortBy::Visibility => {
-                subtrees.sort_by_cached_key(|tree| tree.item.visibility(self.db));
+                subtrees.sort_by_cached_key(|tree| tree.node.visibility(self.db));
             }
             SortBy::Kind => {
-                subtrees.sort_by_cached_key(|tree| tree.item.kind_ordering(self.db));
+                subtrees.sort_by_cached_key(|tree| tree.node.kind_ordering(self.db));
             }
         }
 
@@ -82,12 +83,12 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
-    fn fmt_subtree(&self, f: &mut dyn fmt::Write, tree: &Tree) -> fmt::Result {
+    fn fmt_subtree(&self, f: &mut dyn fmt::Write, tree: &Tree<Node>) -> fmt::Result {
         self.fmt_tree_kind(f, tree)?;
         write!(f, " ")?;
         self.fmt_tree_name(f, tree)?;
 
-        if analyzer::moduledef_is_crate(tree.item.hir, self.db) {
+        if analyzer::moduledef_is_crate(tree.node.hir, self.db) {
             return Ok(());
         }
 
@@ -95,7 +96,7 @@ impl<'a> Printer<'a> {
         write!(f, " ")?;
         self.fmt_tree_visibility(f, tree)?;
 
-        if !tree.item.attrs(self.db).is_empty() {
+        if !tree.node.attrs(self.db).is_empty() {
             write!(f, " ")?;
             self.fmt_tree_attrs(f, tree)?;
         }
@@ -103,11 +104,11 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
-    fn fmt_tree_kind(&self, f: &mut dyn fmt::Write, tree: &Tree) -> fmt::Result {
+    fn fmt_tree_kind(&self, f: &mut dyn fmt::Write, tree: &Tree<Node>) -> fmt::Result {
         let styles = styles();
         let kind_style = styles.kind;
 
-        let display_name = tree.item.kind_display_name(self.db);
+        let display_name = tree.node.kind_display_name(self.db);
         let kind = kind_style.paint(display_name);
 
         write!(f, "{kind}")?;
@@ -115,7 +116,7 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
-    fn fmt_tree_colon(&self, f: &mut dyn fmt::Write, _tree: &Tree) -> fmt::Result {
+    fn fmt_tree_colon(&self, f: &mut dyn fmt::Write, _tree: &Tree<Node>) -> fmt::Result {
         let styles = styles();
         let colon_style = styles.colon;
 
@@ -125,11 +126,11 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
-    fn fmt_tree_visibility(&self, f: &mut dyn fmt::Write, tree: &Tree) -> fmt::Result {
+    fn fmt_tree_visibility(&self, f: &mut dyn fmt::Write, tree: &Tree<Node>) -> fmt::Result {
         let styles = styles();
 
         let visibility_styles = styles.visibility;
-        let visibility_style = match &tree.item.visibility(self.db) {
+        let visibility_style = match &tree.node.visibility(self.db) {
             ItemVisibility::Crate => visibility_styles.pub_crate,
             ItemVisibility::Module(_) => visibility_styles.pub_module,
             ItemVisibility::Private => visibility_styles.pub_private,
@@ -140,30 +141,30 @@ impl<'a> Printer<'a> {
         write!(
             f,
             "{}",
-            visibility_style.paint(&tree.item.visibility(self.db))
+            visibility_style.paint(&tree.node.visibility(self.db))
         )?;
 
         Ok(())
     }
 
-    fn fmt_tree_name(&self, f: &mut dyn fmt::Write, tree: &Tree) -> fmt::Result {
+    fn fmt_tree_name(&self, f: &mut dyn fmt::Write, tree: &Tree<Node>) -> fmt::Result {
         let styles = styles();
 
         let name_style = styles.name;
 
-        write!(f, "{}", name_style.paint(tree.item.display_name(self.db)))?;
+        write!(f, "{}", name_style.paint(tree.node.display_name(self.db)))?;
 
         Ok(())
     }
 
-    fn fmt_tree_attrs(&self, f: &mut dyn fmt::Write, tree: &Tree) -> fmt::Result {
+    fn fmt_tree_attrs(&self, f: &mut dyn fmt::Write, tree: &Tree<Node>) -> fmt::Result {
         let styles = styles();
         let attr_chrome_style = styles.attr_chrome;
         let attr_style = styles.attr;
 
         let mut is_first = true;
 
-        if let Some(test_attr) = &tree.item.attrs(self.db).test {
+        if let Some(test_attr) = &tree.node.attrs(self.db).test {
             let prefix = attr_chrome_style.paint("#[");
             let cfg = attr_style.paint(test_attr);
             let suffix = attr_chrome_style.paint("]");
@@ -173,7 +174,7 @@ impl<'a> Printer<'a> {
             is_first = false;
         }
 
-        for cfg in &tree.item.attrs(self.db).cfgs[..] {
+        for cfg in &tree.node.attrs(self.db).cfgs[..] {
             if !is_first {
                 write!(f, ", ")?;
             }

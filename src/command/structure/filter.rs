@@ -8,7 +8,7 @@ use ra_ap_syntax::ast;
 
 use crate::{analyzer, tree::Tree};
 
-use super::options::Options;
+use super::{options::Options, Node};
 
 #[derive(Debug)]
 pub struct Filter<'a> {
@@ -22,7 +22,7 @@ impl<'a> Filter<'a> {
         Self { options, db, krate }
     }
 
-    pub fn filter(&self, tree: &Tree) -> anyhow::Result<Tree> {
+    pub fn filter(&self, tree: &Tree<Node>) -> anyhow::Result<Tree<Node>> {
         let focus_on = self
             .options
             .focus_on
@@ -44,18 +44,18 @@ impl<'a> Filter<'a> {
 
     fn filter_tree(
         &self,
-        tree: &Tree,
+        tree: &Tree<Node>,
         depth: Option<usize>,
         max_depth: usize,
         focus_tree: &ast::UseTree,
-    ) -> Option<Tree> {
-        let path = tree.item.display_path(self.db);
+    ) -> Option<Tree<Node>> {
+        let path = tree.node.display_path(self.db);
 
         let is_focus_tree = analyzer::use_tree_matches_item_path(focus_tree, &path);
 
         let depth = if is_focus_tree { Some(0) } else { depth };
 
-        let should_be_retained = self.should_retain_moduledef(tree.item.hir);
+        let should_be_retained = self.should_retain_moduledef(tree.node.hir);
 
         let subtree_contains_focus_tree = tree
             .subtrees
@@ -65,7 +65,7 @@ impl<'a> Filter<'a> {
         let is_or_contains_focus_tree =
             is_focus_tree || subtree_contains_focus_tree.clone().any(|flag| flag);
 
-        let subtrees: Vec<Tree> = tree
+        let subtrees: Vec<Tree<Node>> = tree
             .subtrees
             .iter()
             .zip(subtree_contains_focus_tree)
@@ -91,14 +91,14 @@ impl<'a> Filter<'a> {
             return None;
         }
 
-        let item = tree.item.clone();
+        let item = tree.node.clone();
         let tree = Tree::new(item, subtrees);
 
         Some(tree)
     }
 
-    fn is_or_contains_focus_tree(&self, tree: &Tree, focus_tree: &ast::UseTree) -> bool {
-        let path = tree.item.display_path(self.db);
+    fn is_or_contains_focus_tree(&self, tree: &Tree<Node>, focus_tree: &ast::UseTree) -> bool {
+        let path = tree.node.display_path(self.db);
 
         if analyzer::use_tree_matches_item_path(focus_tree, &path) {
             return true;
