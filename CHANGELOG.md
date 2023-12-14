@@ -30,6 +30,8 @@ Please make sure to add your changes to the appropriate categories:
   Use `--no-types`, `--no-traits`, `--no-fns` to opt-out.
 - Made `dependencies` command include uses, externs, types, traits, and fns by default.
   Use `--no-modules`, `--no-uses`, `--no-externs`, `--no-types`, `--no-traits`, `--no-fns` to opt-out.
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.188` to `0.0.189`
 
 ### Deprecated
 
