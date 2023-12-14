@@ -89,11 +89,7 @@ impl<'a> GraphBuilder<'a> {
             let impl_ty_idx = *self.nodes.get(&impl_ty_hir).expect("impl type node");
 
             for impl_item_idx in self.process_impl(impl_hir) {
-                let edge = Edge {
-                    kind: Relationship::Owns,
-                };
-
-                self.add_edge(impl_ty_idx, impl_item_idx, edge);
+                self.add_edge(impl_ty_idx, impl_item_idx, Edge::Owns);
             }
         }
 
@@ -212,11 +208,7 @@ impl<'a> GraphBuilder<'a> {
                     continue;
                 };
 
-                let edge = Edge {
-                    kind: Relationship::Owns,
-                };
-
-                self.add_edge(node_idx, declaration_idx, edge);
+                self.add_edge(node_idx, declaration_idx, Edge::Owns);
             }
         }
 
@@ -722,11 +714,7 @@ impl<'a> GraphBuilder<'a> {
                 continue;
             };
 
-            let edge = Edge {
-                kind: Relationship::Uses,
-            };
-
-            self.add_edge(depender_idx, dependency_hir, edge);
+            self.add_edge(depender_idx, dependency_hir, Edge::Uses);
         }
     }
 
@@ -770,11 +758,11 @@ impl<'a> GraphBuilder<'a> {
             return None;
         }
 
-        let edge_name = edge.kind.display_name();
         let source_path = self.graph[source_idx].display_path(self.db);
         let target_path = self.graph[target_idx].display_path(self.db);
+        let edge_name = edge.display_name();
 
-        let edge_id = (source_idx, edge.kind, target_idx);
+        let edge_id = (source_idx, edge, target_idx);
 
         trace!("Adding edge: {source_path} --({edge_name})-> {target_path}...");
 

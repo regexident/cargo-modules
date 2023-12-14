@@ -16,6 +16,7 @@ pub(crate) use self::{builder::GraphBuilder, walker::GraphWalker};
 pub type Graph<N, E> = StableGraph<N, E>;
 
 pub type Node = Item;
+pub type Edge = Relationship;
 
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
 pub enum Relationship {
@@ -40,9 +41,4 @@ impl fmt::Display for Relationship {
         };
         write!(f, "{name}")
     }
-}
-
-#[derive(Clone, PartialEq, Eq, Hash, Debug)]
-pub struct Edge {
-    pub kind: Relationship,
 }

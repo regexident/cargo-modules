@@ -125,7 +125,7 @@ impl<'a> Filter<'a> {
             let parent_owned_node = |node_idx| {
                 graph
                     .edges_directed(node_idx, Direction::Incoming)
-                    .find(|edge_ref| matches!(edge_ref.weight().kind, Relationship::Owns))
+                    .find(|edge_ref| matches!(edge_ref.weight(), Edge::Owns))
                     .map(|edge_ref| edge_ref.source())
             };
 
@@ -185,10 +185,7 @@ impl<'a> Filter<'a> {
 
         // Drop any "uses" edges, if necessary:
         if self.options.selection.no_uses {
-            graph.retain_edges(|graph, edge_idx| {
-                let edge = &graph[edge_idx];
-                edge.kind == Relationship::Owns
-            });
+            graph.retain_edges(|graph, edge_idx| graph[edge_idx] == Relationship::Owns);
         }
 
         // The edge-reconciliation above may have resulted in redundant edges, so we need to remove those:
@@ -198,16 +195,16 @@ impl<'a> Filter<'a> {
         for edge_ref in graph.edge_references() {
             let source = edge_ref.source();
             let target = edge_ref.target();
-            let weight = edge_ref.weight().clone();
+            let weight = edge_ref.weight();
             let idx = edge_ref.id();
-            unique_edges.entry((source, target, weight)).or_insert(idx);
+            unique_edges.entry((source, target, *weight)).or_insert(idx);
         }
 
         // Drop any redundant edges:
 
         graph.retain_edges(|graph, edge_idx| {
             let (source, target) = graph.edge_endpoints(edge_idx).unwrap();
-            let weight = graph[edge_idx].clone();
+            let weight = graph[edge_idx];
             let idx = unique_edges[&(source, target, weight)];
             edge_idx == idx
         });
@@ -347,8 +344,8 @@ impl<'a> Filter<'a> {
         graph.filter_map(
             |_node_idx, node| Some(node.clone()),
             |_edge_idx, edge| {
-                if matches!(edge.kind, Relationship::Owns) {
-                    Some(edge.clone())
+                if matches!(edge, Edge::Owns) {
+                    Some(*edge)
                 } else {
                     None
                 }
@@ -387,7 +384,7 @@ impl<'a> Filter<'a> {
             // Walks from a node to its ascendants in the graph (i.e. super-items & dependents):
             let mut ascendants_walker = GraphWalker::new(petgraph::Direction::Incoming);
             ascendants_walker.walk_graph(graph, *start_node_idx, |edge, _node, depth| {
-                (edge.kind == Relationship::Owns) || (depth <= max_depth)
+                (*edge == Edge::Owns) || (depth <= max_depth)
             });
             nodes_to_keep.extend(ascendants_walker.nodes_visited);
         }
