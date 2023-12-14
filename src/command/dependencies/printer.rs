@@ -44,7 +44,7 @@ impl<'a> Printer<'a> {
     pub fn fmt(
         &self,
         f: &mut dyn fmt::Write,
-        graph: &Graph,
+        graph: &Graph<Node, Edge>,
         start_node_idx: NodeIndex,
     ) -> Result<(), anyhow::Error> {
         let root_node = &graph[start_node_idx];
@@ -119,7 +119,7 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
-    fn fmt_nodes(&self, f: &mut dyn fmt::Write, graph: &Graph) -> fmt::Result {
+    fn fmt_nodes(&self, f: &mut dyn fmt::Write, graph: &Graph<Node, Edge>) -> fmt::Result {
         let mut lines: Vec<_> = graph
             .node_references()
             .map(|node_ref| {
@@ -147,7 +147,7 @@ impl<'a> Printer<'a> {
         Ok(())
     }
 
-    fn fmt_edges(&self, f: &mut dyn fmt::Write, graph: &Graph) -> fmt::Result {
+    fn fmt_edges(&self, f: &mut dyn fmt::Write, graph: &Graph<Node, Edge>) -> fmt::Result {
         let mut lines: Vec<_> = graph.edge_indices().map(|edge_idx| {
             let edge = &graph[edge_idx];
             let (source_idx, target_idx) = graph.edge_endpoints(edge_idx).unwrap();

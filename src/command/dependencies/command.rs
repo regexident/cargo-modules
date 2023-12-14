@@ -10,7 +10,7 @@ use ra_ap_ide::RootDatabase;
 
 use crate::{
     analyzer::LoadOptions,
-    graph::{Graph, GraphBuilder},
+    graph::{Edge, Graph, GraphBuilder, Node},
 };
 
 use super::{
@@ -83,7 +83,7 @@ impl Command {
     }
 }
 
-fn draw_cycle(graph: &Graph, cycle: Vec<NodeIndex>, db: &RootDatabase) -> String {
+fn draw_cycle(graph: &Graph<Node, Edge>, cycle: Vec<NodeIndex>, db: &RootDatabase) -> String {
     assert!(!cycle.is_empty());
 
     let first = graph[cycle[0]].item.display_path(db);

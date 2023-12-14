@@ -13,7 +13,7 @@ mod walker;
 
 pub(crate) use self::{builder::GraphBuilder, walker::GraphWalker};
 
-pub type Graph = StableGraph<Node, Edge>;
+pub type Graph<N, E> = StableGraph<N, E>;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Node {
