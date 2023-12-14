@@ -15,16 +15,7 @@ pub(crate) use self::{builder::GraphBuilder, walker::GraphWalker};
 
 pub type Graph<N, E> = StableGraph<N, E>;
 
-#[derive(Clone, PartialEq, Debug)]
-pub struct Node {
-    pub item: Item,
-}
-
-impl Node {
-    pub fn new(item: Item) -> Self {
-        Self { item }
-    }
-}
+pub type Node = Item;
 
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
 pub enum EdgeKind {

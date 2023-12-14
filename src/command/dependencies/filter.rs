@@ -59,7 +59,7 @@ impl<'a> Filter<'a> {
             .node_indices()
             .filter(|node_idx| {
                 let node = &graph[*node_idx];
-                let path = node.item.display_path(self.db);
+                let path = node.display_path(self.db);
                 analyzer::use_tree_matches_item_path(&use_tree, &path[..])
             })
             .collect();
@@ -103,7 +103,7 @@ impl<'a> Filter<'a> {
                 should_keep_node &= nodes_within_max_depth.contains(node_idx);
 
                 // Make sure the node's `moduledef` should be retained:
-                should_keep_node &= self.should_retain_moduledef(node.item.hir);
+                should_keep_node &= self.should_retain_moduledef(node.hir);
 
                 // Make sure the root node doesn't get dropped:
                 should_keep_node |= *node_idx == root_idx;

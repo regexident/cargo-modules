@@ -751,7 +751,7 @@ impl<'a> GraphBuilder<'a> {
             }
             None => {
                 // Otherwise try to add a node:
-                let node = Node::new(Item::new(module_def_hir));
+                let node = Item::new(module_def_hir);
                 let node_idx = self.graph.add_node(node);
                 self.nodes.insert(module_def_hir, node_idx);
 
@@ -770,9 +770,9 @@ impl<'a> GraphBuilder<'a> {
             return None;
         }
 
-        let source_path = self.graph[source_idx].item.display_path(self.db);
-        let target_path = self.graph[target_idx].item.display_path(self.db);
         let edge_name = edge.kind.display_name();
+        let source_path = self.graph[source_idx].display_path(self.db);
+        let target_path = self.graph[target_idx].display_path(self.db);
 
         let edge_id = (source_idx, edge.kind, target_idx);
 
