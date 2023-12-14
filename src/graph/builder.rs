@@ -28,7 +28,7 @@ struct Dependency {
 pub struct GraphBuilder<'a> {
     db: &'a ide_db::RootDatabase,
     krate: hir::Crate,
-    graph: Graph,
+    graph: Graph<Node, Edge>,
     nodes: HashMap<hir::ModuleDef, NodeIndex>,
     edges: HashMap<(NodeIndex, EdgeKind, NodeIndex), EdgeIndex>,
 }
@@ -48,7 +48,7 @@ impl<'a> GraphBuilder<'a> {
         }
     }
 
-    pub fn build(mut self) -> anyhow::Result<(Graph, NodeIndex)> {
+    pub fn build(mut self) -> anyhow::Result<(Graph<Node, Edge>, NodeIndex)> {
         trace!("Scanning project...");
 
         defer! {

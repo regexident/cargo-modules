@@ -17,7 +17,7 @@ use ra_ap_syntax::ast;
 
 use crate::{
     analyzer,
-    graph::{Edge, EdgeKind, Graph, GraphWalker},
+    graph::{Edge, EdgeKind, Graph, GraphWalker, Node},
 };
 
 use super::options::Options;
@@ -34,7 +34,11 @@ impl<'a> Filter<'a> {
         Self { options, db, krate }
     }
 
-    pub fn filter(&self, graph: &Graph, root_idx: NodeIndex) -> anyhow::Result<Graph> {
+    pub fn filter(
+        &self,
+        graph: &Graph<Node, Edge>,
+        root_idx: NodeIndex,
+    ) -> anyhow::Result<Graph<Node, Edge>> {
         const ROOT_DROP_ERR_MSG: &str = "Root module should not be dropped";
 
         let mut graph = graph.clone();
@@ -339,7 +343,7 @@ impl<'a> Filter<'a> {
         self.krate != import_krate
     }
 
-    fn owner_only_graph(graph: &Graph) -> Graph {
+    fn owner_only_graph(graph: &Graph<Node, Edge>) -> Graph<Node, Edge> {
         graph.filter_map(
             |_node_idx, node| Some(node.clone()),
             |_edge_idx, edge| {
@@ -352,14 +356,17 @@ impl<'a> Filter<'a> {
         )
     }
 
-    fn nodes_reachable_from(graph: &Graph, start_node_idx: NodeIndex) -> HashSet<NodeIndex> {
+    fn nodes_reachable_from(
+        graph: &Graph<Node, Edge>,
+        start_node_idx: NodeIndex,
+    ) -> HashSet<NodeIndex> {
         let mut reachability_walker = GraphWalker::new(petgraph::Direction::Outgoing);
         reachability_walker.walk_graph(graph, start_node_idx, |_edge, _node, _depth| true);
         reachability_walker.nodes_visited
     }
 
     fn nodes_within_max_depth_from<'b, I>(
-        graph: &Graph,
+        graph: &Graph<Node, Edge>,
         max_depth: usize,
         start_node_idxs: I,
     ) -> HashSet<NodeIndex>

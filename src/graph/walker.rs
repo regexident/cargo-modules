@@ -23,8 +23,12 @@ impl GraphWalker {
         }
     }
 
-    pub(crate) fn walk_graph<F>(&mut self, graph: &Graph, origin_node_idx: NodeIndex, predicate: F)
-    where
+    pub(crate) fn walk_graph<F>(
+        &mut self,
+        graph: &Graph<Node, Edge>,
+        origin_node_idx: NodeIndex,
+        predicate: F,
+    ) where
         F: Fn(&Edge, &Node, usize) -> bool,
     {
         self.visit_node_recursively(graph, origin_node_idx, 0, &predicate);
@@ -32,7 +36,7 @@ impl GraphWalker {
 
     pub(crate) fn visit_node_recursively<F>(
         &mut self,
-        graph: &Graph,
+        graph: &Graph<Node, Edge>,
         node_idx: NodeIndex,
         depth: usize,
         predicate: &F,
