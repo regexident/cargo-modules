@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 use clap::Parser;
 
-use crate::options;
+use crate::options::{GeneralOptions, ProjectOptions};
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum LayoutAlgorithm {
@@ -55,10 +55,10 @@ impl ToString for LayoutAlgorithm {
 #[group(id = "GenerateSelectionOptions")]
 pub struct Options {
     #[command(flatten)]
-    pub general: options::general::Options,
+    pub general: GeneralOptions,
 
     #[command(flatten)]
-    pub project: options::project::Options,
+    pub project: ProjectOptions,
 
     #[command(flatten)]
     pub selection: SelectionOptions,

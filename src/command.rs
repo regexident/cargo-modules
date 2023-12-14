@@ -6,7 +6,7 @@ use clap::Parser;
 
 use crate::{
     analyzer::{load_workspace, LoadOptions},
-    options::{general::Options as GeneralOptions, project::Options as ProjectOptions},
+    options::{GeneralOptions, ProjectOptions},
 };
 
 use self::{

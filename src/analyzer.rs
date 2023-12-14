@@ -23,7 +23,7 @@ use ra_ap_vfs::Vfs;
 
 use crate::{
     item::{ItemCfgAttr, ItemTestAttr},
-    options::{general::Options as GeneralOptions, project::Options as ProjectOptions},
+    options::{GeneralOptions, ProjectOptions},
 };
 
 pub struct LoadOptions {
