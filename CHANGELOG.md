@@ -24,7 +24,9 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Bumped MSRV from `1.68.2` to `1.70.0`
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.189` to `0.0.190`
 
 ### Deprecated
 
