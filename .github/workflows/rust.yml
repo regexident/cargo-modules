@@ -82,3 +82,14 @@ jobs:
       - name: minimal-versions test
         run: cargo minimal-versions test --release --workspace --all-features -v
         continue-on-error: true
+
+  msrv:
+    name: Verify minimal supported rust version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: nightly
+      - uses: taiki-e/install-action@cargo-hack
+      - run: cargo hack check --rust-version --workspace --all-targets --ignore-private
