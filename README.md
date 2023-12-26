@@ -107,7 +107,7 @@ Options:
 
 ```bash
 cd ./tests/projects/readme_tree_example
-cargo-modules structure --types --traits --fns --tests
+cargo-modules structure --cfg-test
 ```
 
 Output:
@@ -116,15 +116,15 @@ Output:
 
 ```rust
 crate readme_tree_example
-├── pub trait Lorem
-├── pub(crate) mod amet
-│   └── pub(self) mod consectetur
-│       └── pub(self) mod adipiscing
-│           └── pub(in crate::amet) union Elit
-├── pub(crate) mod dolor
-│   └── pub(crate) enum Sit
-└── pub(crate) mod tests #[cfg(test)]
-    └── pub(self) fn it_works #[test]
+├── trait Lorem: pub
+├── mod amet: pub(crate)
+│   └── mod consectetur: pub(self)
+│       └── mod adipiscing: pub(self)
+│           └── union Elit: pub(in crate::amet)
+├── mod dolor: pub(crate)
+│   └── enum Sit: pub(crate)
+└── mod tests: pub(crate) #[cfg(test)]
+    └── fn it_works: pub(self) #[test]
 ```
 
 (Project source code: [readme_tree_example/src/lib.rs](./tests/projects/readme_tree_example/src/lib.rs))
@@ -203,7 +203,7 @@ Options:
 
 ```bash
 cd ./tests/projects/smoke
-cargo-modules dependencies --types --tests --orphans | dot -Tsvg
+cargo-modules dependencies --cfg-test | dot -Tsvg
 ```
 
 ![Output of `cargo modules dependencies …`](docs/dependencies_output.svg)
