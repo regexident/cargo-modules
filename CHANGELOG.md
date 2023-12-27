@@ -25,6 +25,8 @@ Please make sure to add your changes to the appropriate categories:
 ### Changed
 
 - Bumped MSRV from `1.70.0` to `1.74.0`
+- Updated dependencies:
+  - `anyhow` from `1.0.75` to `1.0.76`
 
 ### Deprecated
 
