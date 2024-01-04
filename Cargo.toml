@@ -19,12 +19,12 @@ version = "0.13.2"
 bitvec = "1.0"
 json = "0.12.4"
 petgraph = "0.6.4"
-anyhow = "1.0.76"
+anyhow = "1.0.79"
 yansi = "0.5.1"
 log = "0.4.20"
 env_logger = "0.10.1"
 indoc = "2.0.4"
-clap = { version = "4.4.11", features = ["derive"] }
+clap = { version = "4.4.13", features = ["derive"] }
 scopeguard = "1.2.0"
 
 ra_ap_base_db = "=0.0.190"
