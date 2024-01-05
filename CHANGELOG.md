@@ -24,10 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `anyhow` from `1.0.76` to `1.0.79`
-  - `clap` from `4.4.11` to `4.4.13`
-  - `rust-analyzer` from `0.0.190` to `0.0.194`
+- n/a
 
 ### Deprecated
 
@@ -52,6 +49,15 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.13.3] - 2023-01-05
+
+### Changed
+
+- Updated dependencies:
+  - `anyhow` from `1.0.76` to `1.0.79`
+  - `clap` from `4.4.11` to `4.4.13`
+  - `rust-analyzer` from `0.0.190` to `0.0.194`
 
 ## [0.13.2] - 2023-12-27
 
