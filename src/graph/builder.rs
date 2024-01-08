@@ -5,7 +5,7 @@
 use std::collections::{HashMap, HashSet};
 
 use hir::HirDisplay;
-use log::trace;
+use log::{debug, trace};
 use petgraph::graph::{EdgeIndex, NodeIndex};
 use ra_ap_hir::{self as hir};
 use ra_ap_hir_def::{self as hir_def};
@@ -14,6 +14,7 @@ use ra_ap_ide_db::{self as ide_db};
 use scopeguard::defer;
 
 use crate::{
+    analyzer,
     graph::{Edge, Graph, Node, Relationship},
     item::Item,
 };
@@ -86,7 +87,11 @@ impl<'a> GraphBuilder<'a> {
                 continue;
             };
 
-            let impl_ty_idx = *self.nodes.get(&impl_ty_hir).expect("impl type node");
+            let Some(&impl_ty_idx) = self.nodes.get(&impl_ty_hir) else {
+                let ty_path = analyzer::display_path(impl_ty_hir, self.db);
+                debug!("Could not find node for type {ty_path:?}, skipping impl.");
+                continue;
+            };
 
             for impl_item_idx in self.process_impl(impl_hir) {
                 self.add_edge(impl_ty_idx, impl_item_idx, Edge::Owns);
