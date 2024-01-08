@@ -36,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/a
+- Skip impl if type's node can't be found, rather than crashing
 
 ### Performance
 
