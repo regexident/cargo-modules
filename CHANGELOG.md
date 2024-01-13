@@ -36,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/a
+- Fixed bug (#172) where external nodes were not correctly filtered out.
 
 ### Performance
 

@@ -36,13 +36,10 @@ digraph {
         fontsize="10",
     ];
 
-    "alloc::fmt" [label="external mod|alloc::fmt", fillcolor="#81c169"]; // "mod" node
     "alloc::string::String" [label="external struct|alloc::string::String", fillcolor="#81c169"]; // "struct" node
     "bool" [label="external builtin|bool", fillcolor="#81c169"]; // "builtin" node
-    "core::cmp" [label="external mod|core::cmp", fillcolor="#81c169"]; // "mod" node
     "core::future::future::Future" [label="external trait|core::future::future::Future", fillcolor="#81c169"]; // "trait" node
     "core::marker::Sized" [label="external trait|core::marker::Sized", fillcolor="#81c169"]; // "trait" node
-    "core::ops" [label="external mod|core::ops", fillcolor="#81c169"]; // "mod" node
     "i32" [label="external builtin|i32", fillcolor="#81c169"]; // "builtin" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
     "smoke::derives::Dummy" [label="pub(self) struct|smoke::derives::Dummy", fillcolor="#db5367"]; // "struct" node
@@ -114,9 +111,6 @@ digraph {
     "smoke::visibility::dummy::unions::PubSuper" [label="pub(super) union|smoke::visibility::dummy::unions::PubSuper", fillcolor="#fe9454"]; // "union" node
     "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
 
-    "smoke" -> "alloc::fmt" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke" -> "core::cmp" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke" -> "core::ops" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke" -> "smoke::derives::Dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::functions::Core" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::functions::Crate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
