@@ -26,6 +26,10 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.194` to `0.0.196`
+  - `assert_cmd` from `2.0.12` to `2.0.13`
+  - `clap` from `4.4.13` to `4.4.16`
+  - `rust-analyzer-salsa` from `0.17.0-pre.4` to `0.17.0-pre.5`
+  - `rust-analyzer-salsa-macros` from `0.17.0-pre.4` to `0.17.0-pre.5`
 
 ### Deprecated
 
