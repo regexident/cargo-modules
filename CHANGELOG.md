@@ -24,12 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.194` to `0.0.196`
-  - `assert_cmd` from `2.0.12` to `2.0.13`
-  - `clap` from `4.4.13` to `4.4.16`
-  - `rust-analyzer-salsa` from `0.17.0-pre.4` to `0.17.0-pre.5`
-  - `rust-analyzer-salsa-macros` from `0.17.0-pre.4` to `0.17.0-pre.5`
+- n/a
 
 ### Deprecated
 
@@ -41,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- Skip impl if type's node can't be found, rather than crashing
+- n/a
 
 ### Performance
 
@@ -55,7 +50,22 @@ Please make sure to add your changes to the appropriate categories:
 
 - n/a
 
-## [0.13.3] - 2023-01-05
+## [0.13.4] - 2024-01-13
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.194` to `0.0.196`
+  - `assert_cmd` from `2.0.12` to `2.0.13`
+  - `clap` from `4.4.13` to `4.4.16`
+  - `rust-analyzer-salsa` from `0.17.0-pre.4` to `0.17.0-pre.5`
+  - `rust-analyzer-salsa-macros` from `0.17.0-pre.4` to `0.17.0-pre.5`
+
+### Fixed
+
+- Skip impl if type's node can't be found, rather than crashing
+
+## [0.13.3] - 2024-01-05
 
 ### Changed
 
