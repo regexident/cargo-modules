@@ -36,7 +36,6 @@ digraph {
         fontsize="10",
     ];
 
-    "i32" [label="external builtin|i32", fillcolor="#81c169"]; // "builtin" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
     "smoke::derives" [label="pub(crate) mod|derives", fillcolor="#f8c04c"]; // "mod" node
     "smoke::derives::Dummy" [label="pub(self) struct|derives::Dummy", fillcolor="#db5367"]; // "struct" node
@@ -139,7 +138,6 @@ digraph {
     "smoke::visibility::dummy::unions::PubPrivate" [label="pub(self) union|visibility::dummy::unions::PubPrivate", fillcolor="#db5367"]; // "union" node
     "smoke::visibility::dummy::unions::PubPublic" [label="pub union|visibility::dummy::unions::PubPublic", fillcolor="#81c169"]; // "union" node
     "smoke::visibility::dummy::unions::PubSuper" [label="pub(super) union|visibility::dummy::unions::PubSuper", fillcolor="#fe9454"]; // "union" node
-    "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
 
     "smoke" -> "smoke::derives" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::functions" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -157,14 +155,10 @@ digraph {
     "smoke::functions" -> "smoke::functions::inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::functions" -> "smoke::functions::outputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::functions::Crate" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::functions::body" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::body" -> "smoke::functions::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::body" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::functions::body" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::functions::inputs" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::inputs" -> "smoke::functions::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::inputs" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::functions::outputs" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::outputs" -> "smoke::functions::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::outputs" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::hierarchy" -> "smoke::hierarchy::lorem" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -192,14 +186,10 @@ digraph {
     "smoke::methods::Dummy" -> "smoke::methods::Dummy::body" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::methods::Dummy" -> "smoke::methods::Dummy::inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::methods::Dummy" -> "smoke::methods::Dummy::outputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::methods::Dummy::body" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::body" -> "smoke::methods::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::body" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::methods::Dummy::body" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::methods::Dummy::inputs" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::inputs" -> "smoke::methods::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::inputs" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::methods::Dummy::outputs" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::outputs" -> "smoke::methods::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::outputs" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::target" -> "smoke::target::Target" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge

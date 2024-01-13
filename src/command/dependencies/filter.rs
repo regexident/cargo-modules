@@ -78,20 +78,19 @@ impl<'a> Filter<'a> {
             ROOT_DROP_ERR_MSG
         );
 
-        // Populate stack with owned nodes in breadth-first order:
+        // Populate stack with nodes in breadth-first order:
         let mut stack: Vec<_> = {
             let mut stack: Vec<_> = Vec::default();
 
-            let owner_only_graph = Self::owner_only_graph(&graph);
-            let mut traversal = Bfs::new(&owner_only_graph, root_idx);
-            while let Some(node_idx) = traversal.next(&owner_only_graph) {
+            let mut traversal = Bfs::new(&graph, root_idx);
+            while let Some(node_idx) = traversal.next(&graph) {
                 stack.push(node_idx);
             }
 
             stack
         };
 
-        let owned_nodes_to_keep: HashSet<_> = stack
+        let nodes_to_keep: HashSet<_> = stack
             .iter()
             .cloned()
             .filter(|node_idx| {
@@ -117,7 +116,7 @@ impl<'a> Filter<'a> {
         // Popping from the stack results in a reverse level-order,
         // which ensures that sub-items are processed before their parent items:
         while let Some(node_idx) = stack.pop() {
-            if owned_nodes_to_keep.contains(&node_idx) {
+            if nodes_to_keep.contains(&node_idx) {
                 // If we're gonna keep the node then we can just keep it as is:
                 continue;
             }
@@ -135,7 +134,7 @@ impl<'a> Filter<'a> {
             const MAX_FILTER_ITERATIONS: usize = 32;
 
             while let Some(node_idx) = parent_node_idx {
-                if owned_nodes_to_keep.contains(&node_idx) {
+                if nodes_to_keep.contains(&node_idx) {
                     break;
                 }
 
@@ -338,19 +337,6 @@ impl<'a> Filter<'a> {
         };
 
         self.krate != import_krate
-    }
-
-    fn owner_only_graph(graph: &Graph<Node, Edge>) -> Graph<Node, Edge> {
-        graph.filter_map(
-            |_node_idx, node| Some(node.clone()),
-            |_edge_idx, edge| {
-                if matches!(edge, Edge::Owns) {
-                    Some(*edge)
-                } else {
-                    None
-                }
-            },
-        )
     }
 
     fn nodes_reachable_from(
