@@ -24,7 +24,10 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `bitflags` from `2.4.1` -> `2.4.2`
+  - `clap` from `4.4.16` -> `4.4.18`
+  - `env_logger` from `0.10.1` -> `0.10.2`
 
 ### Deprecated
 
