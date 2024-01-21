@@ -29,7 +29,7 @@ impl ItemVisibility {
         let krate_module = parent_module.krate().root_module();
 
         match visibility {
-            hir::Visibility::Module(visibility_module_id) => {
+            hir::Visibility::Module(visibility_module_id, _visibility_explicity) => {
                 let visibility_module = hir::Module::from(visibility_module_id);
                 if visibility_module == krate_module {
                     Self::Crate
