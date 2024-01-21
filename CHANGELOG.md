@@ -24,11 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `bitflags` from `2.4.1` -> `2.4.2`
-  - `clap` from `4.4.16` -> `4.4.18`
-  - `env_logger` from `0.10.1` -> `0.10.2`
-  - `rust-analyzer` from `0.0.196` to `0.0.197`
+- n/a
 
 ### Deprecated
 
@@ -40,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- Fixed bug (#172) where external nodes were not correctly filtered out.
+- n/A
 
 ### Performance
 
@@ -53,6 +49,20 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.13.5] - 2024-01-21
+
+### Changed
+
+- Updated dependencies:
+  - `bitflags` from `2.4.1` -> `2.4.2`
+  - `clap` from `4.4.16` -> `4.4.18`
+  - `env_logger` from `0.10.1` -> `0.10.2`
+  - `rust-analyzer` from `0.0.196` to `0.0.197`
+
+### Fixed
+
+- Fixed bug (#172) where external nodes were not correctly filtered out.
 
 ## [0.13.4] - 2024-01-13
 
