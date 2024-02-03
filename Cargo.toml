@@ -22,7 +22,7 @@ petgraph = "0.6.4"
 anyhow = "1.0.79"
 yansi = "0.5.1"
 log = "0.4.20"
-env_logger = "0.10.2"
+env_logger = "0.11.1"
 indoc = "2.0.4"
 clap = { version = "4.4.18", features = ["derive"] }
 scopeguard = "1.2.0"
@@ -44,10 +44,10 @@ ra_ap_vfs = "=0.0.200"
 
 # minimal versions
 wyz = "0.6.1"
-pulldown-cmark = "0.9.3"
+pulldown-cmark = "0.10.0"
 getopts = "0.2.21"
-rust-analyzer-salsa = "0.17.0-pre.5"        # resolving rust-analyzer = "=0.0.189"
-rust-analyzer-salsa-macros = "0.17.0-pre.5" # resolving rust-analyzer = "=0.0.189"
+rust-analyzer-salsa = "0.17.0-pre.6"        # resolving rust-analyzer = "=0.0.189"
+rust-analyzer-salsa-macros = "0.17.0-pre.6" # resolving rust-analyzer = "=0.0.189"
 
 # security fixes
 memoffset = "0.9.0"    #230
