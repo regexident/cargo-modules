@@ -623,10 +623,10 @@ impl<'a> GraphBuilder<'a> {
             TyKind::Closure(_closure_id, substitution) => {
                 Self::walk_and_push_substitution(substitution.clone(), db, visit);
             }
-            TyKind::Generator(_generator_id, substitution) => {
+            TyKind::Coroutine(_coroutine_id, substitution) => {
                 Self::walk_and_push_substitution(substitution.clone(), db, visit);
             }
-            TyKind::GeneratorWitness(_generator_id, substitution) => {
+            TyKind::CoroutineWitness(_generator_id, substitution) => {
                 Self::walk_and_push_substitution(substitution.clone(), db, visit);
             }
             TyKind::Foreign(_foreign_def_id) => {
