@@ -87,6 +87,9 @@ pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions
     // Target triple
     let target = project_options.target.clone();
 
+    // Whether to invoke cargo metadata on the sysroot crate
+    let sysroot_query_metadata = false;
+
     // Whether to load sysroot crates (`std`, `core` & friends).
     let sysroot = if load_options.sysroot {
         Some(RustLibSource::Discover)
@@ -131,6 +134,7 @@ pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions
     CargoConfig {
         features,
         target,
+        sysroot_query_metadata,
         sysroot,
         rustc_source,
         cfg_overrides,
