@@ -26,6 +26,10 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.197` to `0.0.200`
+  - `env_logger` from `0.10.2` to `0.11.1`
+  - `pulldown-cmark` from `0.9.3` to `0.10.0`
+  - `rust-analyzer-salsa` from `0.17.0-pre.5` to `0.17.0-pre.6`
+  - `rust-analyzer-salsa-macros` from `0.17.0-pre.5` to `0.17.0-pre.6`
 
 ### Deprecated
 
