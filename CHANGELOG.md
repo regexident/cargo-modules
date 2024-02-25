@@ -31,6 +31,7 @@ Please make sure to add your changes to the appropriate categories:
   - `env_logger` from `0.11.1` to `0.11.2`
   - `insta` from `1.34.0` to `1.35.1`
   - `thread_local` from `1.1.7` to `1.1.8`
+- Bumped MSRV from `1.74.0` to `1.75.0`
 
 ### Deprecated
 
