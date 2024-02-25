@@ -24,15 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `anyhow` from `1.0.79` to `1.0.80`
-  - `assert_cmd` from `2.0.13` to `2.0.14`
-  - `clap` from `4.4.18` to `4.5.1`
-  - `env_logger` from `0.11.1` to `0.11.2`
-  - `insta` from `1.34.0` to `1.35.1`
-  - `thread_local` from `1.1.7` to `1.1.8`
-  - `rust-analyzer` from `0.0.200` to `0.0.202`
-- Bumped MSRV from `1.74.0` to `1.75.0`
+- n/a
 
 ### Deprecated
 
@@ -44,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/A
+- n/a
 
 ### Performance
 
@@ -57,6 +49,20 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.14.0] - 2024-02-25
+
+### Changed
+
+- Updated dependencies:
+  - `anyhow` from `1.0.79` to `1.0.80`
+  - `assert_cmd` from `2.0.13` to `2.0.14`
+  - `clap` from `4.4.18` to `4.5.1`
+  - `env_logger` from `0.11.1` to `0.11.2`
+  - `insta` from `1.34.0` to `1.35.1`
+  - `thread_local` from `1.1.7` to `1.1.8`
+  - `rust-analyzer` from `0.0.200` to `0.0.202`
+- Bumped MSRV from `1.74.0` to `1.75.0`
 
 ## [0.13.6] - 2024-02-07
 
