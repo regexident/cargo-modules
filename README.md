@@ -103,7 +103,7 @@ Options:
 
 </details>
 
-#### Example
+#### Example: Modules Structure as Text Tree
 
 ```bash
 cd ./tests/projects/readme_tree_example
@@ -128,6 +128,16 @@ crate readme_tree_example
 ```
 
 (Project source code: [readme_tree_example/src/lib.rs](./tests/projects/readme_tree_example/src/lib.rs))
+
+#### Example: Graphical Module Structure
+
+The behaviour of older versions of `cargo-modules generate graph > mods.dot` can be achieved by:
+
+```bash
+cargo modules dependencies --no-externs --no-fns --no-sysroot --no-traits --no-types --no-uses > mods.dot
+```
+
+![Output of `cargo modules dependencies …`](docs/dependencies_mods_only_output.svg)
 
 #### Terminal Colors
 
