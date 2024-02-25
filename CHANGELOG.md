@@ -24,7 +24,13 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `anyhow` from `1.0.79` to `1.0.80`
+  - `assert_cmd` from `2.0.13` to `2.0.14`
+  - `clap` from `4.4.18` to `4.5.1`
+  - `env_logger` from `0.11.1` to `0.11.2`
+  - `insta` from `1.34.0` to `1.35.1`
+  - `thread_local` from `1.1.7` to `1.1.8`
 
 ### Deprecated
 
