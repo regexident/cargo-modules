@@ -281,7 +281,7 @@ pub fn select_target(
             let target = &workspace[*target_idx];
             match target.kind {
                 TargetKind::Bin => true,
-                TargetKind::Lib => true,
+                TargetKind::Lib { .. } => true,
                 TargetKind::Example => false,
                 TargetKind::Test => false,
                 TargetKind::Bench => false,
@@ -307,7 +307,7 @@ pub fn select_target(
             let target = &workspace[*target_idx];
             match target.kind {
                 TargetKind::Bin => format!("- {} (--bin {})", target.name, target.name),
-                TargetKind::Lib => format!("- {} (--lib)", target.name),
+                TargetKind::Lib { .. } => format!("- {} (--lib)", target.name),
                 TargetKind::Example => unreachable!(),
                 TargetKind::Test => unreachable!(),
                 TargetKind::Bench => unreachable!(),
@@ -324,7 +324,7 @@ pub fn select_target(
     if options.lib {
         let target = targets.into_iter().find(|target_idx| {
             let target = &workspace[*target_idx];
-            target.kind == TargetKind::Lib
+            matches!(target.kind, TargetKind::Lib { .. })
         });
 
         return target.ok_or_else(|| {
