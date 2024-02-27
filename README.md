@@ -129,16 +129,6 @@ crate readme_tree_example
 
 (Project source code: [readme_tree_example/src/lib.rs](./tests/projects/readme_tree_example/src/lib.rs))
 
-#### Example: Graphical Module Structure
-
-The behaviour of older versions of `cargo-modules generate graph > mods.dot` can be achieved by:
-
-```bash
-cargo modules dependencies --no-externs --no-fns --no-sysroot --no-traits --no-types --no-uses > mods.dot
-```
-
-![Output of `cargo modules dependencies …`](docs/dependencies_mods_only_output.svg)
-
 #### Terminal Colors
 
 If you are running the command on a terminal with color support and don't have `NO_COLOR` defined in your environment, then the output will be colored for easier visual parsing:
@@ -209,7 +199,17 @@ Options:
 
 </details>
 
-#### Example
+#### Example: Graphical Module Structure
+
+```bash
+cargo modules dependencies --no-externs --no-fns --no-sysroot --no-traits --no-types --no-uses > mods.dot
+```
+
+(The command above is equivalent to `cargo-modules generate graph` from v0.12.0 or earlier.)
+
+![Output of `cargo modules dependencies …`](docs/dependencies_mods_only_output.svg)
+
+#### Example: Graphical Dependencies
 
 ```bash
 cd ./tests/projects/smoke
