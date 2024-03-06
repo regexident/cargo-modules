@@ -24,13 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `mio` from `0.8.10` to `0.8.11`
-  - `env_logger` from `0.11.2` to `0.11.3`
-  - `insta` from `1.35.1` to `1.36.1`
-  - `log` from `0.4.20` to `0.4.21`
-  - `rust-analyzer` from `0.0.203` to `0.0.204`
-- Bumped MSRV from `1.75.0` to `1.76.0`
+- n/a
 
 ### Deprecated
 
@@ -50,11 +44,25 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Security
 
-- Fixed potential vulnerability in `mio` by upgrading it from `0.8.10` to `0.8.11`.
+- n/a
 
 ### Other
 
 - n/a
+
+## [0.15.0] - 2024-03-06
+
+### Changed
+
+- Updated dependencies:
+  - `mio` from `0.8.10` to `0.8.11`
+  - `env_logger` from `0.11.2` to `0.11.3`
+  - `insta` from `1.35.1` to `1.36.1`
+  - `log` from `0.4.20` to `0.4.21`
+
+### Security
+
+- Fixed potential vulnerability in `mio` by upgrading it from `0.8.10` to `0.8.11`.
 
 ## [0.14.1] - 2024-02-27
 
