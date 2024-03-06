@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `mio` from `0.8.10` to `0.8.11`
 
 ### Deprecated
 
@@ -44,7 +45,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Security
 
-- n/a
+- Fixed potential vulnerability in `mio` by upgrading it from `0.8.10` to `0.8.11`.
 
 ### Other
 
