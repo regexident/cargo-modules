@@ -29,6 +29,8 @@ Please make sure to add your changes to the appropriate categories:
   - `env_logger` from `0.11.2` to `0.11.3`
   - `insta` from `1.35.1` to `1.36.1`
   - `log` from `0.4.20` to `0.4.21`
+  - `rust-analyzer` from `0.0.203` to `0.0.204`
+- Bumped MSRV from `1.75.0` to `1.76.0`
 
 ### Deprecated
 
