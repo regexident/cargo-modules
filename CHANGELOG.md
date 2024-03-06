@@ -26,6 +26,9 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `mio` from `0.8.10` to `0.8.11`
+  - `env_logger` from `0.11.2` to `0.11.3`
+  - `insta` from `1.35.1` to `1.36.1`
+  - `log` from `0.4.20` to `0.4.21`
 
 ### Deprecated
 
