@@ -63,12 +63,12 @@ pub fn load_workspace(
         project_workspace.set_build_scripts(build_scripts)
     }
 
-    let (host, vfs, _proc_macro_client) =
+    let (db, vfs, _proc_macro_client) =
         ra_ap_load_cargo::load_workspace(project_workspace, &cargo_config.extra_env, &load_config)?;
 
-    let db = host.raw_database();
+    let host = AnalysisHost::with_database(db);
 
-    let krate = find_crate(db, &vfs, &target)?;
+    let krate = find_crate(host.raw_database(), &vfs, &target)?;
 
     Ok((krate, host, vfs))
 }
