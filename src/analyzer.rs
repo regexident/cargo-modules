@@ -517,9 +517,7 @@ fn assoc_item_path(assoc_item_hir: hir::AssocItem, db: &RootDatabase) -> Option<
             .map(|name| name.display(db).to_string()),
     };
 
-    let Some(name) = name else {
-        return None;
-    };
+    let name = name?;
 
     let container_path = match assoc_item_hir.container(db) {
         hir::AssocItemContainer::Trait(trait_hir) => {
@@ -531,9 +529,7 @@ fn assoc_item_path(assoc_item_hir: hir::AssocItem, db: &RootDatabase) -> Option<
             .and_then(|adt_hir| hir::ModuleDef::Adt(adt_hir).canonical_path(db)),
     };
 
-    let Some(container_path) = container_path else {
-        return None;
-    };
+    let container_path = container_path?;
 
     Some(format!("{container_path}::{name}"))
 }
