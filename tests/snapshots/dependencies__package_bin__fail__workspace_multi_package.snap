@@ -6,11 +6,10 @@ STDERR:
 Error: No package found with name "workspace-package".
 
 Packages present in workspace:
+- workspace_multi_package
 - package_bin_target
 - package_lib_target
 - package_multi_target
-- workspace_multi_package
 
 
 STDOUT:
-
