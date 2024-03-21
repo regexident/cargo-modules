@@ -5,6 +5,7 @@
 //! Printer for displaying module structure as a tree.
 
 use ra_ap_ide::RootDatabase;
+use yansi::Paint as _;
 
 use super::{options::Options, orphan::Orphan, theme::styles};
 
@@ -25,7 +26,7 @@ impl<'a> Printer<'a> {
 
         if orphans.is_empty() {
             writeln!(f)?;
-            writeln!(f, "{}", styles.success.paint("No orphans found."))?;
+            writeln!(f, "{}", "No orphans found.".paint(styles.success))?;
 
             return Ok(());
         }
@@ -59,9 +60,9 @@ impl<'a> Printer<'a> {
                 .to_string_lossy();
 
             let issue = if self.options.deny {
-                styles.error.paint("error")
+                "error".paint(styles.error)
             } else {
-                styles.warning.paint("warning")
+                "warning".paint(styles.warning)
             };
 
             writeln!(
@@ -74,7 +75,7 @@ impl<'a> Printer<'a> {
             writeln!(
                 f,
                 "  {arrow} {parent_file_path}",
-                arrow = styles.chrome.paint("-->"),
+                arrow = "-->".paint(styles.chrome),
             )?;
 
             let carets =
@@ -82,29 +83,29 @@ impl<'a> Printer<'a> {
             writeln!(
                 f,
                 "   {pipe}  {carets} {message}",
-                pipe = styles.chrome.paint("|"),
-                carets = styles.deletion.paint(carets),
-                message = styles.deletion.paint("orphan module not loaded from file")
+                pipe = "|".paint(styles.chrome),
+                carets = carets.paint(styles.deletion),
+                message = "orphan module not loaded from file".paint(styles.deletion)
             )?;
 
-            writeln!(f, "   {pipe}", pipe = styles.chrome.paint("|"),)?;
+            writeln!(f, "   {pipe}", pipe = "|".paint(styles.chrome),)?;
 
             writeln!(
                 f,
                 " {help}: consider loading `{orphan_name}` from module `{parent_module_path}`",
                 // eq = styles.chrome.paint("="),
-                help = styles.help.paint("help"),
+                help = "help".paint(styles.help),
                 orphan_name = orphan.name,
                 parent_module_path = parent_module_path,
             )?;
 
-            writeln!(f, "   {pipe}", pipe = styles.chrome.paint("|"),)?;
+            writeln!(f, "   {pipe}", pipe = "|".paint(styles.chrome),)?;
 
             writeln!(
                 f,
                 "   {pipe}  {insertion}",
-                pipe = styles.chrome.paint("|"),
-                insertion = styles.insertion.paint(format!("mod {};", orphan.name))
+                pipe = "|".paint(styles.chrome),
+                insertion = format!("mod {};", orphan.name).paint(styles.insertion)
             )?;
 
             let plusses =
@@ -112,11 +113,11 @@ impl<'a> Printer<'a> {
             writeln!(
                 f,
                 "   {pipe}  {plusses}",
-                pipe = styles.chrome.paint("|"),
-                plusses = styles.insertion.paint(plusses)
+                pipe = "|".paint(styles.chrome),
+                plusses = plusses.paint(styles.insertion)
             )?;
 
-            writeln!(f, "   {pipe}", pipe = styles.chrome.paint("|"),)?;
+            writeln!(f, "   {pipe}", pipe = "|".paint(styles.chrome),)?;
 
             writeln!(f)?;
         }

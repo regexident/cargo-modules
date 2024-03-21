@@ -20,12 +20,12 @@ pub(crate) struct Styles {
 pub(crate) fn styles() -> Styles {
     let color_palette = color_palette();
     Styles {
-        chrome: Style::new(color_palette.blue).bold(),
-        insertion: Style::new(color_palette.green).bold(),
-        deletion: Style::new(color_palette.red).bold(),
-        success: Style::new(color_palette.green).bold(),
-        error: Style::new(color_palette.red).bold(),
-        warning: Style::new(color_palette.orange).bold(),
-        help: Style::new(color_palette.cyan).bold(),
+        chrome: Style::default().fg(color_palette.blue).bold(),
+        insertion: Style::default().fg(color_palette.green).bold(),
+        deletion: Style::default().fg(color_palette.red).bold(),
+        success: Style::default().fg(color_palette.green).bold(),
+        error: Style::default().fg(color_palette.red).bold(),
+        warning: Style::default().fg(color_palette.orange).bold(),
+        help: Style::default().fg(color_palette.cyan).bold(),
     }
 }

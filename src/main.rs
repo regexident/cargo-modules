@@ -6,7 +6,6 @@ use std::env;
 
 use clap::Parser;
 use log::debug;
-use yansi::Paint;
 
 use cargo_modules::options::App;
 
@@ -23,7 +22,7 @@ fn main() -> anyhow::Result<()> {
 
     if env::var("NO_COLOR").is_ok() {
         debug!("Disabling color output");
-        Paint::disable()
+        yansi::disable();
     }
 
     let app = App::parse();
