@@ -7,6 +7,7 @@
 use std::fmt;
 
 use ra_ap_ide::RootDatabase;
+use yansi::Paint as _;
 
 use crate::{analyzer, item::ItemVisibility, tree::Tree};
 
@@ -109,7 +110,7 @@ impl<'a> Printer<'a> {
         let kind_style = styles.kind;
 
         let display_name = tree.node.kind_display_name(self.db);
-        let kind = kind_style.paint(display_name);
+        let kind = display_name.paint(kind_style);
 
         write!(f, "{kind}")?;
 
@@ -120,7 +121,7 @@ impl<'a> Printer<'a> {
         let styles = styles();
         let colon_style = styles.colon;
 
-        let colon = colon_style.paint(":");
+        let colon = ":".paint(colon_style);
         write!(f, "{colon}")?;
 
         Ok(())
@@ -141,7 +142,7 @@ impl<'a> Printer<'a> {
         write!(
             f,
             "{}",
-            visibility_style.paint(&tree.node.visibility(self.db))
+            tree.node.visibility(self.db).paint(visibility_style)
         )?;
 
         Ok(())
@@ -152,7 +153,7 @@ impl<'a> Printer<'a> {
 
         let name_style = styles.name;
 
-        write!(f, "{}", name_style.paint(tree.node.display_name(self.db)))?;
+        write!(f, "{}", tree.node.display_name(self.db).paint(name_style))?;
 
         Ok(())
     }
@@ -165,9 +166,9 @@ impl<'a> Printer<'a> {
         let mut is_first = true;
 
         if let Some(test_attr) = &tree.node.attrs(self.db).test {
-            let prefix = attr_chrome_style.paint("#[");
-            let cfg = attr_style.paint(test_attr);
-            let suffix = attr_chrome_style.paint("]");
+            let prefix = "#[".paint(attr_chrome_style);
+            let cfg = test_attr.paint(attr_style);
+            let suffix = "]".paint(attr_chrome_style);
 
             write!(f, "{prefix}{cfg}{suffix}")?;
 
@@ -179,9 +180,9 @@ impl<'a> Printer<'a> {
                 write!(f, ", ")?;
             }
 
-            let prefix = attr_chrome_style.paint("#[cfg(");
-            let cfg = attr_style.paint(cfg);
-            let suffix = attr_chrome_style.paint(")]");
+            let prefix = "#[cfg(".paint(attr_chrome_style);
+            let cfg = cfg.paint(attr_style);
+            let suffix = ")]".paint(attr_chrome_style);
 
             write!(f, "{prefix}{cfg}{suffix}")?;
 
@@ -196,7 +197,7 @@ impl<'a> Printer<'a> {
         let branch_style = styles.branch;
 
         let prefix = self.branch_prefix(twigs);
-        write!(f, "{}", branch_style.paint(&prefix))
+        write!(f, "{}", prefix.paint(branch_style))
     }
 
     /// Print a branch's prefix:

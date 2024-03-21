@@ -29,18 +29,18 @@ pub(crate) struct Styles {
 pub(crate) fn styles() -> Styles {
     let color_palette = color_palette();
     Styles {
-        kind: Style::new(color_palette.blue),
+        kind: Style::default().fg(color_palette.blue),
         name: Style::default(),
         visibility: VisibilityStyles {
-            pub_crate: Style::new(color_palette.yellow),
-            pub_module: Style::new(color_palette.orange),
-            pub_private: Style::new(color_palette.red),
-            pub_global: Style::new(color_palette.green),
-            pub_super: Style::new(color_palette.orange),
+            pub_crate: Style::default().fg(color_palette.yellow),
+            pub_module: Style::default().fg(color_palette.orange),
+            pub_private: Style::default().fg(color_palette.red),
+            pub_global: Style::default().fg(color_palette.green),
+            pub_super: Style::default().fg(color_palette.orange),
         },
-        attr: Style::new(color_palette.cyan),
-        colon: Style::default().dimmed(),
-        attr_chrome: Style::default().dimmed(),
-        branch: Style::default().dimmed(),
+        attr: Style::default().fg(color_palette.cyan),
+        colon: Style::default().dim(),
+        attr_chrome: Style::default().dim(),
+        branch: Style::default().dim(),
     }
 }
