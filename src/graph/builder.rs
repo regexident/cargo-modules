@@ -246,10 +246,7 @@ impl<'a> GraphBuilder<'a> {
             trace!("Finished processing function.");
         }
 
-        let Some(node_idx) = self.add_node_if_necessary(hir::ModuleDef::Function(function_hir))
-        else {
-            return None;
-        };
+        let node_idx = self.add_node_if_necessary(hir::ModuleDef::Function(function_hir))?;
 
         for param in function_hir.params_without_self(self.db) {
             Self::walk_and_push_type(
