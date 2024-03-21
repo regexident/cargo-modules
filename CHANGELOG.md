@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `yansi` from `0.5.1` to `1.0.1`
 
 ### Deprecated
 
