@@ -29,6 +29,7 @@ Please make sure to add your changes to the appropriate categories:
   - `clap` from `4.5.3` to `4.5.4`
   - `indoc` from `2.0.4` to `2.0.5`
   - `memoffset` from `0.9.0` to `0.9.1`
+  - `rust-analyzer` from `0.0.206` to `0.0.207`
 
 ### Deprecated
 
