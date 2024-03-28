@@ -26,6 +26,9 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `yansi` from `0.5.1` to `1.0.1`
+  - `clap` from `4.5.3` to `4.5.4`
+  - `indoc` from `2.0.4` to `2.0.5`
+  - `memoffset` from `0.9.0` to `0.9.1`
 
 ### Deprecated
 
