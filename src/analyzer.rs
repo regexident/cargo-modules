@@ -11,7 +11,7 @@ use ra_ap_hir::{self as hir, AsAssocItem, Crate, HasAttrs, HirFileIdExt as _, Mo
 use ra_ap_ide::{AnalysisHost, RootDatabase};
 use ra_ap_ide_db::FxHashMap;
 use ra_ap_load_cargo::{LoadCargoConfig, ProcMacroServerChoice};
-use ra_ap_paths::AbsPathBuf;
+use ra_ap_paths::{AbsPathBuf, Utf8PathBuf};
 use ra_ap_project_model::{
     CargoConfig, CargoFeatures, CfgOverrides, InvocationLocation, InvocationStrategy, PackageData,
     ProjectManifest, ProjectWorkspace, RustLibSource, TargetData,
@@ -166,7 +166,9 @@ pub fn load_project_workspace(
     cargo_config: &CargoConfig,
     progress: &dyn Fn(String),
 ) -> anyhow::Result<ProjectWorkspace> {
-    let root = AbsPathBuf::assert(std::env::current_dir()?.join(project_path));
+    let path_buf = std::env::current_dir()?.join(project_path);
+    let utf8_path_buf = Utf8PathBuf::from_path_buf(path_buf).unwrap();
+    let root = AbsPathBuf::assert(utf8_path_buf);
     let root = ProjectManifest::discover_single(root.as_path())?;
 
     ProjectWorkspace::load(root, cargo_config, &progress)
