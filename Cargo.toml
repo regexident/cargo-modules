@@ -23,8 +23,8 @@ anyhow = "1.0.81"
 yansi = "1.0.1"
 log = "0.4.21"
 env_logger = "0.11.3"
-indoc = "2.0.4"
-clap = { version = "4.5.3", features = ["derive"] }
+indoc = "2.0.5"
+clap = { version = "4.5.4", features = ["derive"] }
 scopeguard = "1.2.0"
 
 ra_ap_base_db = "=0.0.206"
@@ -50,12 +50,12 @@ rust-analyzer-salsa = "0.17.0-pre.6"        # resolving rust-analyzer = "=0.0.18
 rust-analyzer-salsa-macros = "0.17.0-pre.6" # resolving rust-analyzer = "=0.0.189"
 
 # security fixes
-memoffset = "0.9.0"    #230
+memoffset = "0.9.1"    #230
 thread_local = "1.1.8" #231
 
 # required by tests
 [dev-dependencies]
 assert_cmd = "2.0.14"
 shellwords = "1.1"
-insta = "1.36.1"
+insta = "1.38.0"
 bitflags = "2.5.0"
