@@ -24,12 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `yansi` from `0.5.1` to `1.0.1`
-  - `clap` from `4.5.3` to `4.5.4`
-  - `indoc` from `2.0.4` to `2.0.5`
-  - `memoffset` from `0.9.0` to `0.9.1`
-  - `rust-analyzer` from `0.0.206` to `0.0.207`
+- n/a
 
 ### Deprecated
 
@@ -54,6 +49,17 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.15.2] - 2024-03-27
+
+### Changed
+
+- Updated dependencies:
+  - `yansi` from `0.5.1` to `1.0.1`
+  - `clap` from `4.5.3` to `4.5.4`
+  - `indoc` from `2.0.4` to `2.0.5`
+  - `memoffset` from `0.9.0` to `0.9.1`
+  - `rust-analyzer` from `0.0.206` to `0.0.207`
 
 ## [0.15.1] - 2024-03-21
 
