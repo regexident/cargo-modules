@@ -162,7 +162,7 @@ dependencies = [
  "log",
  "memoffset",
  "petgraph",
- "pulldown-cmark 0.10.0",
+ "pulldown-cmark 0.10.2",
  "ra_ap_base_db",
  "ra_ap_cfg",
  "ra_ap_hir",
@@ -918,9 +918,9 @@ dependencies = [
 
 [[package]]
 name = "pulldown-cmark"
-version = "0.10.0"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dce76ce678ffc8e5675b22aa1405de0b7037e2fdf8913fea40d1926c6fe1e6e7"
+checksum = "5f0530d13d87d1f549b66a3e8d0c688952abe5994e204ed62615baaf25dc029c"
 dependencies = [
  "bitflags 2.5.0",
  "getopts",
