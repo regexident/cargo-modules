@@ -26,6 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.207` to `0.0.208`
+  - `pulldown-cmark` from `0.10.0` to `0.10.2`
 
 ### Deprecated
 
