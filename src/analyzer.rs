@@ -74,6 +74,8 @@ pub fn load_workspace(
 }
 
 pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions) -> CargoConfig {
+    let all_targets = false;
+
     // List of features to activate (or deactivate).
     let features = if project_options.all_features {
         CargoFeatures::All
@@ -132,6 +134,7 @@ pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions
     let target_dir = None;
 
     CargoConfig {
+        all_targets,
         features,
         target,
         sysroot_query_metadata,
