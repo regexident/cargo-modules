@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `anyhow` from `1.0.81` to `1.0.82`
 
 ### Deprecated
 
