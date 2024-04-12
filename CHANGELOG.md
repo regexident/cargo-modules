@@ -26,6 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `anyhow` from `1.0.81` to `1.0.82`
+  - `rust-analyzer` from `0.0.208` to `0.0.210`
 
 ### Deprecated
 
