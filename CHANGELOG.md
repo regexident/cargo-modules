@@ -24,9 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `anyhow` from `1.0.81` to `1.0.82`
-  - `rust-analyzer` from `0.0.208` to `0.0.210`
+- n/a
 
 ### Deprecated
 
@@ -51,6 +49,14 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.15.4] - 2024-04-13
+
+### Changed
+
+- Updated dependencies:
+  - `anyhow` from `1.0.81` to `1.0.82`
+  - `rust-analyzer` from `0.0.208` to `0.0.210`
 
 ## [0.15.3] - 2024-04-05
 
