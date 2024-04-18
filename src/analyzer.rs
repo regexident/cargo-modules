@@ -8,7 +8,7 @@ use log::{debug, trace};
 
 use ra_ap_cfg::{CfgAtom, CfgDiff, CfgExpr};
 use ra_ap_hir::{self as hir, AsAssocItem, Crate, HasAttrs, HirFileIdExt as _, ModuleSource};
-use ra_ap_ide::{AnalysisHost, RootDatabase};
+use ra_ap_ide::{AnalysisHost, Edition, RootDatabase};
 use ra_ap_ide_db::FxHashMap;
 use ra_ap_load_cargo::{LoadCargoConfig, ProcMacroServerChoice};
 use ra_ap_paths::{AbsPathBuf, Utf8PathBuf};
@@ -541,7 +541,7 @@ fn assoc_item_path(assoc_item_hir: hir::AssocItem, db: &RootDatabase) -> Option<
 
 // https://github.com/rust-lang/rust-analyzer/blob/36a70b7435c48837018c71576d7bb4e8f763f501/crates/syntax/src/ast/make.rs#L821
 pub(crate) fn parse_ast<N: AstNode>(text: &str) -> N {
-    let parse = SourceFile::parse(text);
+    let parse = SourceFile::parse(text, Edition::CURRENT);
     let node = match parse.tree().syntax().descendants().find_map(N::cast) {
         Some(it) => it,
         None => {
