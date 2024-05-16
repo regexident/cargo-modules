@@ -43,7 +43,7 @@ pub fn load_workspace(
 
         // See: https://github.com/rust-lang/cargo/pull/13909
         // The `canonicalize` func on windows will return `r"\\?\"` verbatim prefix.
-        // "The Cargo makes a core assumption that verbatim paths aren't used." 
+        // "The Cargo makes a core assumption that verbatim paths aren't used."
         // So we cannot use this func on windows.
         if cfg!(windows) {
             project_path.to_path_buf()
