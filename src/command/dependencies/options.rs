@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use clap::Parser;
 
@@ -36,9 +36,9 @@ impl FromStr for LayoutAlgorithm {
     }
 }
 
-impl ToString for LayoutAlgorithm {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for LayoutAlgorithm {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
             Self::None => "none",
             Self::Dot => "dot",
             Self::Neato => "neato",
@@ -46,8 +46,7 @@ impl ToString for LayoutAlgorithm {
             Self::Circo => "circo",
             Self::Fdp => "fdp",
             Self::Sfdp => "sfdp",
-        }
-        .to_owned()
+        })
     }
 }
 

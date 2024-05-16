@@ -19,6 +19,7 @@ use crate::{
     item::Item,
 };
 
+#[allow(unused)]
 #[derive(Debug, Hash, Eq, PartialEq)]
 struct Dependency {
     source_idx: NodeIndex,
