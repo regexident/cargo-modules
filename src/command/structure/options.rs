@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use clap::Parser;
 
@@ -28,14 +28,13 @@ impl FromStr for SortBy {
     }
 }
 
-impl ToString for SortBy {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for SortBy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
             Self::Name => "name",
             Self::Visibility => "visibility",
             Self::Kind => "kind",
-        }
-        .to_owned()
+        })
     }
 }
 
