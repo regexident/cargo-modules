@@ -44,7 +44,7 @@ ra_ap_vfs = "=0.0.211"
 
 # minimal versions
 wyz = "0.6.1"
-pulldown-cmark = "0.10.2"
+pulldown-cmark = "0.11.0"
 getopts = "0.2.21"
 rust-analyzer-salsa = "0.17.0-pre.6"        # resolving rust-analyzer = "=0.0.189"
 rust-analyzer-salsa-macros = "0.17.0-pre.6" # resolving rust-analyzer = "=0.0.189"
