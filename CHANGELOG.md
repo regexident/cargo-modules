@@ -24,7 +24,11 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `anyhow` from `1.0.82` to `1.0.86`
+  - `insta` from `1.38.0` to `1.39.0`
+  - `petgraph` from `0.6.4` to `0.6.5`
+  - `pulldown-cmark` from `0.10.2` to `0.11.0`
 
 ### Deprecated
 
