@@ -36,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/a
+- Don't call `.canonicalize()` on the project path on Windows to avoid cargo incompatibility with verbatim paths.
 
 ### Performance
 
