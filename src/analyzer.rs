@@ -14,7 +14,7 @@ use ra_ap_load_cargo::{LoadCargoConfig, ProcMacroServerChoice};
 use ra_ap_paths::{AbsPathBuf, Utf8PathBuf};
 use ra_ap_project_model::{
     CargoConfig, CargoFeatures, CfgOverrides, InvocationLocation, InvocationStrategy, PackageData,
-    ProjectManifest, ProjectWorkspace, RustLibSource, TargetData,
+    ProjectManifest, ProjectWorkspace, ProjectWorkspaceKind, RustLibSource, TargetData,
 };
 use ra_ap_project_model::{CargoWorkspace, Package, Target, TargetKind};
 use ra_ap_syntax::{ast, AstNode, SourceFile};
@@ -194,10 +194,12 @@ pub fn select_package_and_target(
     project_workspace: &ProjectWorkspace,
     options: &ProjectOptions,
 ) -> anyhow::Result<(PackageData, TargetData)> {
-    let cargo_workspace = match project_workspace {
-        ProjectWorkspace::Cargo { cargo, .. } => Ok(cargo),
-        ProjectWorkspace::Json { .. } => Err(anyhow::anyhow!("Unexpected JSON workspace")),
-        ProjectWorkspace::DetachedFiles { .. } => Err(anyhow::anyhow!("Unexpected detached files")),
+    let cargo_workspace = match project_workspace.kind {
+        ProjectWorkspaceKind::Cargo { ref cargo, .. } => Ok(cargo),
+        ProjectWorkspaceKind::Json { .. } => Err(anyhow::anyhow!("Unexpected JSON workspace")),
+        ProjectWorkspaceKind::DetachedFile { .. } => {
+            Err(anyhow::anyhow!("Unexpected detached files"))
+        }
     }?;
 
     let package_idx = select_package(cargo_workspace, options)?;
