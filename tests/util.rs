@@ -10,7 +10,7 @@ use shellwords::split;
 // See: https://github.com/rust-lang/rust-analyzer/blob/21ec8f523812b88418b2bfc64240c62b3dd967bd/crates/rust-analyzer/src/bin/main.rs#L105
 // See: https://github.com/rust-lang/rust-analyzer/blob/21ec8f523812b88418b2bfc64240c62b3dd967bd/editors/code/src/run.ts#L73
 fn correct_cmd_env(command: &mut Command) {
-    // The baseline snapshots (fixtures) make core without `backtrace`.
+    // The baseline snapshots (fixtures) make core assumption that tests are running without `backtrace`.
     // So we need to make sure that currently the command is without `backtrace` as well.
     if std::env::var("RUST_BACKTRACE").is_ok_and(|v| !v.is_empty()) {
         command.env("RUST_BACKTRACE", "0");
