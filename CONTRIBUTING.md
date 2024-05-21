@@ -12,6 +12,8 @@ issue trackers, chatrooms, and mailing lists.
 
 1. Fork the repo (preferably on a feature-branch).
 
+    If you are using **Windows system**, please clone the repo with `git clone -c core.symlinks=true <repo url>`. 'Cause here are some symlink-like files under the `tests/projects` directory, these work well on Linux system, but not on Windows system. So you need to transform them as real symlinks through setting `core.symlinks=true` when cloning.
+
 2. Make your changes.
 
 3. Make sure your changes make the tests pass:
