@@ -5,6 +5,18 @@ use std::{path::PathBuf, str::from_utf8};
 use assert_cmd::Command;
 use shellwords::split;
 
+// If we clicking the `Run test(s)` btn which is(are) provided by `vscode-rust-analyzer` plugin.
+// That plugin will automatically set the `RUST_BACKTRACE` env as `short` and then trigger `cargo test`.
+// See: https://github.com/rust-lang/rust-analyzer/blob/21ec8f523812b88418b2bfc64240c62b3dd967bd/crates/rust-analyzer/src/bin/main.rs#L105
+// See: https://github.com/rust-lang/rust-analyzer/blob/21ec8f523812b88418b2bfc64240c62b3dd967bd/editors/code/src/run.ts#L73
+fn correct_cmd_env(command: &mut Command) {
+    // The baseline snapshots (fixtures) make core without `backtrace`.
+    // So we need to make sure that currently the command is without `backtrace` as well.
+    if std::env::var("RUST_BACKTRACE").is_ok_and(|v| !v.is_empty()) {
+        command.env("RUST_BACKTRACE", "0");
+    }
+}
+
 #[allow(dead_code)]
 pub enum ColorMode {
     Plain,
@@ -47,6 +59,9 @@ pub fn cmd(dir: &str, args: &str) -> Command {
 
     command.current_dir(dir_path);
     command.args(args);
+
+    // Correct the env of the command.
+    correct_cmd_env(&mut command);
 
     command
 }
