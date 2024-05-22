@@ -5,6 +5,7 @@
 //! Printer for displaying module structure as a tree.
 
 use ra_ap_ide::RootDatabase;
+use sugar_path::SugarPath as _;
 use yansi::Paint as _;
 
 use super::{options::Options, orphan::Orphan, theme::styles};
@@ -55,14 +56,14 @@ impl<'a> Printer<'a> {
                 .file_path
                 .strip_prefix(&prefix_path)
                 .expect("relative path")
-                .to_string_lossy();
+                .to_slash_lossy(); // Change the slashes from `\` to `/` on Windows.
 
             let parent_module_path = &orphan.parent_module_path;
             let parent_file_path = orphan
                 .parent_file_path
                 .strip_prefix(&prefix_path)
                 .expect("relative path")
-                .to_string_lossy();
+                .to_slash_lossy(); // Change the slashes from `\` to `/` on Windows.
 
             let issue = if self.options.deny {
                 "error".paint(styles.error)
