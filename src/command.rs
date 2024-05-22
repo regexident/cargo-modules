@@ -21,6 +21,7 @@ pub mod structure;
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 #[command(
     name = "cargo-modules",
+    bin_name = "cargo-modules",
     about = "Visualize/analyze a crate's internal structure."
 )]
 pub enum Command {
