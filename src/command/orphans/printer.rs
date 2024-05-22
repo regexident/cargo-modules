@@ -41,6 +41,11 @@ impl<'a> Printer<'a> {
         })
         .expect("canonical path");
 
+        // The `canonicalize()` invoking can make sure the file path is meaningful.
+        // But on Windows, this invoking will make the path be with verbatim path prefix.
+        // So, we needs to make the path `simplified`, otherwise the `strip_prefix()` invoking will be failed.
+        let prefix_path = dunce::simplified(&prefix_path).to_path_buf();
+
         writeln!(f)?;
         writeln!(f, "{count} orphans found:", count = orphans.len())?;
         writeln!(f)?;

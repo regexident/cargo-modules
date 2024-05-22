@@ -26,6 +26,7 @@ env_logger = "0.11.3"
 indoc = "2.0.5"
 clap = { version = "4.5.4", features = ["derive"] }
 scopeguard = "1.2.0"
+dunce = "1.0.4"
 
 ra_ap_base_db = "=0.0.216"
 ra_ap_cfg = "=0.0.216"
