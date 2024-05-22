@@ -36,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/a
+- Fixed differences in test snapshots between macOS/Linux and Windows.
 
 ### Performance
 
