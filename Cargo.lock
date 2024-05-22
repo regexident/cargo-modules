@@ -182,6 +182,7 @@ dependencies = [
  "rust-analyzer-salsa-macros",
  "scopeguard",
  "shellwords",
+ "sugar_path",
  "thread_local",
  "wyz 0.6.1",
  "yansi",
@@ -1873,6 +1874,12 @@ name = "strsim"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ee073c9e4cd00e28217186dbe12796d692868f432bf2e97ee73bed0c56dfa01"
+
+[[package]]
+name = "sugar_path"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8230d5b8a65a6d4d4a7e5ee8dbdd9312ba447a8b8329689a390a0945d69b57ce"
 
 [[package]]
 name = "syn"
