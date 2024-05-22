@@ -38,19 +38,13 @@ pub fn load_workspace(
     project_options: &ProjectOptions,
     load_options: &LoadOptions,
 ) -> anyhow::Result<(Crate, AnalysisHost, Vfs)> {
-    let project_path = {
-        let project_path = project_options.manifest_path.as_path();
+    let project_path = project_options.manifest_path.as_path().canonicalize()?;
 
-        // See: https://github.com/rust-lang/cargo/pull/13909
-        // The `canonicalize` func on windows will return `r"\\?\"` verbatim prefix.
-        // "The Cargo makes a core assumption that verbatim paths aren't used."
-        // So we cannot use this func on windows.
-        if cfg!(windows) {
-            project_path.to_path_buf()
-        } else {
-            project_path.canonicalize()?
-        }
-    };
+    // See: https://github.com/rust-lang/cargo/pull/13909
+    // The `canonicalize` func on windows will return `r"\\?\"` verbatim prefix.
+    // "The Cargo makes a core assumption that verbatim paths aren't used."
+    // So we need to `simplify` the path as the non-verbatim path.
+    let project_path = dunce::simplified(&project_path).to_path_buf();
 
     let cargo_config = cargo_config(project_options, load_options);
     let load_config = load_config();
