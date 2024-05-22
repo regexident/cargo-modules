@@ -22,16 +22,6 @@ jobs:
         shell: bash
         run: rustup --version
 
-  check:
-    name: Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@v1
-        with:
-          toolchain: stable
-      - run: cargo check
-
   test:
     name: Test Suite
     runs-on: ubuntu-latest
@@ -76,11 +66,7 @@ jobs:
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
       - name: minimal-versions check
-        run: cargo minimal-versions check --workspace --all-features --ignore-private -v
-      - name: minimal-versions build
-        run: cargo minimal-versions build --workspace --all-features --ignore-private -v
-      - name: minimal-versions test
-        run: cargo minimal-versions test --release --workspace --all-features -v
+        run: cargo minimal-versions check --workspace --all-features --tests --ignore-private -v
         continue-on-error: true
 
   msrv:
@@ -92,4 +78,4 @@ jobs:
         with:
           toolchain: nightly
       - uses: taiki-e/install-action@cargo-hack
-      - run: cargo hack check --rust-version --workspace --all-targets --ignore-private
+      - run: cargo hack check --rust-version --workspace --all-targets --tests --ignore-private -v
