@@ -26,6 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `libc` from `0.2.153` to `0.2.155`
+  - `rust-analyzer` from `0.0.216` to `0.0.217`
 
 ### Deprecated
 
