@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `libc` from `0.2.153` to `0.2.155`
 
 ### Deprecated
 
