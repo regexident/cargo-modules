@@ -24,9 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `libc` from `0.2.153` to `0.2.155`
-  - `rust-analyzer` from `0.0.216` to `0.0.217`
+- n/a
 
 ### Deprecated
 
@@ -38,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- Fixed differences in test snapshots between macOS/Linux and Windows.
+- n/a
 
 ### Performance
 
@@ -52,7 +50,19 @@ Please make sure to add your changes to the appropriate categories:
 
 - n/a
 
-## [0.16.0] - 2024-04-17
+## [0.16.1] - 2024-05-29
+
+### Changed
+
+- Updated dependencies:
+  - `libc` from `0.2.153` to `0.2.155`
+  - `rust-analyzer` from `0.0.216` to `0.0.217`
+
+### Fixed
+
+- Fixed differences in test snapshots between macOS/Linux and Windows.
+
+## [0.16.0] - 2024-05-21
 
 ### Changed
 
