@@ -160,6 +160,7 @@ dependencies = [
  "indoc",
  "insta",
  "json",
+ "libc",
  "log",
  "memoffset",
  "petgraph",
