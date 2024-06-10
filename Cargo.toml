@@ -24,7 +24,7 @@ yansi = "1.0.1"
 log = "0.4.21"
 env_logger = "0.11.3"
 indoc = "2.0.5"
-clap = { version = "4.5.4", features = ["derive"] }
+clap = { version = "4.5.7", features = ["derive"] }
 scopeguard = "1.2.0"
 dunce = "1.0.4"
 sugar_path = "1.2.0"
