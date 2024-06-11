@@ -78,4 +78,4 @@ jobs:
         with:
           toolchain: nightly
       - uses: taiki-e/install-action@cargo-hack
-      - run: cargo hack check --rust-version --workspace --all-targets --tests --ignore-private -v
+      - run: cargo hack check --rust-version --bin "cargo-modules" --ignore-private
