@@ -26,6 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `clap` from `4.5.4` to `4.5.7`
+  - `rust-analyzer` from `0.0.218` to `0.0.220`
 
 ### Deprecated
 
