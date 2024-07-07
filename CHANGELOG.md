@@ -26,6 +26,8 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.220` to `0.0.223`
+  - `clap` from `4.5.7` to `4.5.8`
+  - `log` from `0.4.21` to `0.4.22`
 
 ### Deprecated
 
