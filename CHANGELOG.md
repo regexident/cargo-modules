@@ -26,6 +26,8 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.225` to `0.0.226`
+  - `clap` from `4.5.9` to `4.5.10`
+  - `env_logger` from `0.11.3` to `0.11.4`
 
 ### Deprecated
 
@@ -460,7 +462,8 @@ Please make sure to add your changes to the appropriate categories:
   - `proc-macro2` from `1.0.60` to `1.0.63`
   - `serde_repr` from `0.1.12` to `0.1.13`
   - `rust-analyzer` from `0.0.148` to `0.0.160`
-  - 
+  -
+
 ## [0.9.0] - 2023-05-31
 
 ### Added
@@ -650,7 +653,6 @@ Please make sure to add your changes to the appropriate categories:
 
 - Replaced example screenshots in `README.md` with more illustrative ones
 
-
 ## [0.5.7] - 2021-12-23
 
 ### Changed
@@ -716,7 +718,6 @@ Please make sure to add your changes to the appropriate categories:
 ### Fixed
 
 - Improved CLI help comments
-
 
 ## [0.5.0-beta.2] - 2021-02-21
 
@@ -888,7 +889,6 @@ Please make sure to add your changes to the appropriate categories:
 ### Added
 
 - Added crates.io categories to Cargo manifest.
-
 
 ## [0.3.0] - 2016-08-20
 
