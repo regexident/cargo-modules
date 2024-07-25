@@ -19,16 +19,16 @@ pub enum ItemCfgAttr {
 }
 
 impl ItemCfgAttr {
-    pub fn new(cfg: CfgExpr) -> Option<Self> {
+    pub fn new(cfg: &CfgExpr) -> Option<Self> {
         match cfg {
             CfgExpr::Invalid => None,
             CfgExpr::Atom(CfgAtom::Flag(flag)) => Some(Self::Flag(flag.to_string())),
             CfgExpr::Atom(CfgAtom::KeyValue { key, value }) => {
                 Some(Self::KeyValue(key.to_string(), value.to_string()))
             }
-            CfgExpr::All(cfgs) => Some(Self::All(cfgs.into_iter().filter_map(Self::new).collect())),
-            CfgExpr::Any(cfgs) => Some(Self::Any(cfgs.into_iter().filter_map(Self::new).collect())),
-            CfgExpr::Not(cfg) => Self::new(*cfg).map(|cfg| Self::Not(Box::new(cfg))),
+            CfgExpr::All(cfgs) => Some(Self::All(cfgs.iter().filter_map(Self::new).collect())),
+            CfgExpr::Any(cfgs) => Some(Self::Any(cfgs.iter().filter_map(Self::new).collect())),
+            CfgExpr::Not(cfg) => Self::new(cfg).map(|cfg| Self::Not(Box::new(cfg))),
         }
     }
 }

@@ -7,7 +7,9 @@ use std::path::{Path, PathBuf};
 use log::{debug, trace};
 
 use ra_ap_cfg::{CfgAtom, CfgDiff, CfgExpr};
-use ra_ap_hir::{self as hir, AsAssocItem, Crate, HasAttrs, HirFileIdExt as _, ModuleSource};
+use ra_ap_hir::{
+    self as hir, AsAssocItem, Crate, HasAttrs, HirFileIdExt as _, ModuleSource, Symbol,
+};
 use ra_ap_ide::{AnalysisHost, Edition, RootDatabase};
 use ra_ap_ide_db::FxHashMap;
 use ra_ap_load_cargo::{LoadCargoConfig, ProcMacroServerChoice};
@@ -112,11 +114,11 @@ pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions
     // Crates to enable/disable `#[cfg(test)]` on
     let cfg_overrides = match load_options.cfg_test {
         true => CfgOverrides {
-            global: CfgDiff::new(vec![CfgAtom::Flag("test".into())], Vec::new()).unwrap(),
+            global: CfgDiff::new(vec![CfgAtom::Flag(Symbol::intern("test"))], Vec::new()).unwrap(),
             selective: Default::default(),
         },
         false => CfgOverrides {
-            global: CfgDiff::new(Vec::new(), vec![CfgAtom::Flag("test".into())]).unwrap(),
+            global: CfgDiff::new(Vec::new(), vec![CfgAtom::Flag(Symbol::intern("test"))]).unwrap(),
             selective: Default::default(),
         },
     };
@@ -629,7 +631,8 @@ fn tree_contains_self(tree: &ast::UseTree) -> bool {
 
 pub(crate) fn is_test_function(function: hir::Function, db: &RootDatabase) -> bool {
     let attrs = function.attrs(db);
-    attrs.by_key("test").exists()
+    let key = hir::Symbol::intern("test");
+    attrs.by_key(&key).exists()
 }
 
 pub fn cfgs(hir: hir::ModuleDef, db: &RootDatabase) -> Vec<CfgExpr> {
@@ -641,7 +644,7 @@ pub fn cfgs(hir: hir::ModuleDef, db: &RootDatabase) -> Vec<CfgExpr> {
     match cfg {
         CfgExpr::Invalid => vec![],
         cfg @ CfgExpr::Atom(_) => vec![cfg],
-        CfgExpr::All(cfgs) => cfgs,
+        CfgExpr::All(cfgs) => cfgs.to_vec(),
         cfg @ CfgExpr::Any(_) => vec![cfg],
         cfg @ CfgExpr::Not(_) => vec![cfg],
     }
@@ -665,7 +668,7 @@ pub fn cfg(hir: hir::ModuleDef, db: &RootDatabase) -> Option<CfgExpr> {
 
 pub fn cfg_attrs(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Vec<ItemCfgAttr> {
     cfgs(module_def_hir, db)
-        .into_iter()
+        .iter()
         .filter_map(ItemCfgAttr::new)
         .collect()
 }
@@ -696,7 +699,7 @@ pub fn module_file(module: hir::Module, db: &RootDatabase, vfs: &Vfs) -> Option<
     }
 
     let file_id = module_source.file_id.original_file(db);
-    let vfs_path = vfs.file_path(file_id);
+    let vfs_path = vfs.file_path(file_id.into());
     let abs_path = vfs_path.as_path().expect("Could not convert to path");
 
     let path: &Path = abs_path.as_ref();
