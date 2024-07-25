@@ -24,10 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.225` to `0.0.226`
-  - `clap` from `4.5.9` to `4.5.10`
-  - `env_logger` from `0.11.3` to `0.11.4`
+- n/a
 
 ### Deprecated
 
@@ -52,6 +49,15 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.16.7] - 2024-07-25
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.225` to `0.0.226`
+  - `clap` from `4.5.9` to `4.5.10`
+  - `env_logger` from `0.11.3` to `0.11.4`
 
 ## [0.16.6] - 2024-07-17
 
@@ -462,7 +468,6 @@ Please make sure to add your changes to the appropriate categories:
   - `proc-macro2` from `1.0.60` to `1.0.63`
   - `serde_repr` from `0.1.12` to `0.1.13`
   - `rust-analyzer` from `0.0.148` to `0.0.160`
-  -
 
 ## [0.9.0] - 2023-05-31
 
