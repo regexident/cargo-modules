@@ -24,10 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.226` to `0.0.227`
-  - `clap` from `4.5.10` to `4.5.11`
-  - `env_logger` from `0.11.4` to `0.11.5`
+- n/a
 
 ### Deprecated
 
@@ -52,6 +49,15 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.16.8] - 2024-07-30
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.226` to `0.0.227`
+  - `clap` from `4.5.10` to `4.5.11`
+  - `env_logger` from `0.11.4` to `0.11.5`
 
 ## [0.16.7] - 2024-07-25
 
