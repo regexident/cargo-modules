@@ -26,6 +26,8 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.227` to `0.0.228`
+  - `clap` from `4.5.11` to `4.5.13`
+  - `dunce` from `1.0.4` to `1.0.5`
 
 ### Deprecated
 
