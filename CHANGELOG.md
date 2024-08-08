@@ -24,10 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.227` to `0.0.228`
-  - `clap` from `4.5.11` to `4.5.13`
-  - `dunce` from `1.0.4` to `1.0.5`
+- n/a
 
 ### Deprecated
 
@@ -52,6 +49,15 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.16.9] - 2024-08-08
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.227` to `0.0.228`
+  - `clap` from `4.5.11` to `4.5.13`
+  - `dunce` from `1.0.4` to `1.0.5`
 
 ## [0.16.8] - 2024-07-30
 
