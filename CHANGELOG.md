@@ -24,9 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.228` to `0.0.229`
-  - `pulldown-cmark` from `0.11.0` to `0.12.0`
+- n/a
 
 ### Deprecated
 
@@ -51,6 +49,14 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.16.10] - 2024-08-18
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.228` to `0.0.229`
+  - `pulldown-cmark` from `0.11.0` to `0.12.0`
 
 ## [0.16.9] - 2024-08-08
 
