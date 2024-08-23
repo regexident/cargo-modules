@@ -5,7 +5,7 @@
 use clap::Parser;
 use log::trace;
 
-use ra_ap_hir as hir;
+use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 use ra_ap_vfs::{self as vfs};
 
@@ -34,12 +34,13 @@ impl Command {
         krate: hir::Crate,
         db: &ide::RootDatabase,
         vfs: &vfs::Vfs,
+        edition: ide::Edition,
     ) -> anyhow::Result<()> {
         trace!("Building tree ...");
 
         let crate_name = analyzer::crate_name(krate, db);
 
-        let scanner = Scanner::new(db, vfs, krate);
+        let scanner = Scanner::new(db, vfs, krate, edition);
         let mut orphans = Vec::from_iter(scanner.scan()?);
 
         orphans.sort_by_cached_key(|orphan| orphan.file_path.clone());

@@ -62,16 +62,17 @@ impl Command {
         let project_options = self.project_options();
         let load_options = self.load_options();
 
-        let (krate, host, vfs) = load_workspace(general_options, project_options, &load_options)?;
+        let (krate, host, vfs, edition) =
+            load_workspace(general_options, project_options, &load_options)?;
         let db = host.raw_database();
 
         match self {
             #[allow(unused_variables)]
-            Self::Structure(command) => command.run(krate, db),
+            Self::Structure(command) => command.run(krate, db, edition),
             #[allow(unused_variables)]
-            Self::Dependencies(command) => command.run(krate, db),
+            Self::Dependencies(command) => command.run(krate, db, edition),
             #[allow(unused_variables)]
-            Self::Orphans(command) => command.run(krate, db, &vfs),
+            Self::Orphans(command) => command.run(krate, db, &vfs, edition),
         }
     }
 

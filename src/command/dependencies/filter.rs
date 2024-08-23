@@ -27,12 +27,23 @@ use super::options::Options;
 pub struct Filter<'a> {
     options: &'a Options,
     db: &'a ide::RootDatabase,
+    edition: ide::Edition,
     krate: hir::Crate,
 }
 
 impl<'a> Filter<'a> {
-    pub fn new(options: &'a Options, db: &'a ide::RootDatabase, krate: hir::Crate) -> Self {
-        Self { options, db, krate }
+    pub fn new(
+        options: &'a Options,
+        db: &'a ide::RootDatabase,
+        edition: ide::Edition,
+        krate: hir::Crate,
+    ) -> Self {
+        Self {
+            options,
+            db,
+            krate,
+            edition,
+        }
     }
 
     pub fn filter(
@@ -60,7 +71,7 @@ impl<'a> Filter<'a> {
             .node_indices()
             .filter(|node_idx| {
                 let node = &graph[*node_idx];
-                let path = node.display_path(self.db);
+                let path = node.display_path(self.db, self.edition);
                 analyzer::use_tree_matches_item_path(&use_tree, &path[..])
             })
             .collect();

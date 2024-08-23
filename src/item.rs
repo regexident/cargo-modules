@@ -29,27 +29,35 @@ impl Item {
         Self { hir }
     }
 
-    pub fn visibility(&self, db: &ide::RootDatabase) -> ItemVisibility {
-        ItemVisibility::new(self.hir, db)
+    pub fn visibility(&self, db: &ide::RootDatabase, edition: ide::Edition) -> ItemVisibility {
+        ItemVisibility::new(self.hir, db, edition)
     }
 
-    pub fn attrs(&self, db: &ide::RootDatabase) -> ItemAttrs {
+    pub fn attrs(&self, db: &ide::RootDatabase, _edition: ide::Edition) -> ItemAttrs {
         ItemAttrs::new(self, db)
     }
 
-    pub fn kind_ordering(&self, db: &ide::RootDatabase) -> ItemKindOrdering {
+    pub fn kind_ordering(
+        &self,
+        db: &ide::RootDatabase,
+        _edition: ide::Edition,
+    ) -> ItemKindOrdering {
         ItemKindOrdering::new(self, db)
     }
 
-    pub fn kind_display_name(&self, db: &ide::RootDatabase) -> ItemKindDisplayName {
+    pub fn kind_display_name(
+        &self,
+        db: &ide::RootDatabase,
+        _edition: ide::Edition,
+    ) -> ItemKindDisplayName {
         ItemKindDisplayName::new(self, db)
     }
 
-    pub fn display_name(&self, db: &ide::RootDatabase) -> String {
-        analyzer::display_name(self.hir, db)
+    pub fn display_name(&self, db: &ide::RootDatabase, edition: ide::Edition) -> String {
+        analyzer::display_name(self.hir, db, edition)
     }
 
-    pub fn display_path(&self, db: &ide::RootDatabase) -> String {
-        analyzer::display_path(self.hir, db)
+    pub fn display_path(&self, db: &ide::RootDatabase, edition: ide::Edition) -> String {
+        analyzer::display_path(self.hir, db, edition)
     }
 }

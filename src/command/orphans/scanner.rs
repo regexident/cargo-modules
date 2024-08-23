@@ -8,7 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use ra_ap_hir::{self as hir, Crate};
+use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 use ra_ap_vfs::{self as vfs};
 
@@ -23,11 +23,22 @@ pub struct Scanner<'a> {
     db: &'a ide::RootDatabase,
     vfs: &'a vfs::Vfs,
     krate: hir::Crate,
+    edition: ide::Edition,
 }
 
 impl<'a> Scanner<'a> {
-    pub fn new(db: &'a ide::RootDatabase, vfs: &'a vfs::Vfs, krate: hir::Crate) -> Self {
-        Self { db, vfs, krate }
+    pub fn new(
+        db: &'a ide::RootDatabase,
+        vfs: &'a vfs::Vfs,
+        krate: hir::Crate,
+        edition: ide::Edition,
+    ) -> Self {
+        Self {
+            db,
+            vfs,
+            krate,
+            edition,
+        }
     }
 
     pub fn scan(mut self) -> anyhow::Result<HashSet<Orphan>> {
@@ -38,7 +49,7 @@ impl<'a> Scanner<'a> {
         Ok(orphans)
     }
 
-    fn process_crate(&mut self, krate: Crate) -> HashSet<Orphan> {
+    fn process_crate(&mut self, krate: hir::Crate) -> HashSet<Orphan> {
         let mut orphans = HashSet::new();
         let mut callback = |orphan| {
             orphans.insert(orphan);
@@ -51,7 +62,9 @@ impl<'a> Scanner<'a> {
     }
 
     fn process_module(&mut self, module_hir: hir::Module, callback: &mut dyn FnMut(Orphan)) {
-        let Some(module_path) = analyzer::path(hir::ModuleDef::Module(module_hir), self.db) else {
+        let Some(module_path) =
+            analyzer::path(hir::ModuleDef::Module(module_hir), self.db, self.edition)
+        else {
             return;
         };
 
@@ -68,7 +81,9 @@ impl<'a> Scanner<'a> {
 
         let submodule_names: HashSet<String> = submodules
             .iter()
-            .filter_map(|module_hir| analyzer::name(hir::ModuleDef::Module(*module_hir), self.db))
+            .filter_map(|module_hir| {
+                analyzer::name(hir::ModuleDef::Module(*module_hir), self.db, self.edition)
+            })
             .collect();
 
         if let Some(file_path) = file_path {

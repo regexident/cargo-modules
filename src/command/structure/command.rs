@@ -28,7 +28,12 @@ impl Command {
     pub(crate) fn sanitize(&mut self) {}
 
     #[doc(hidden)]
-    pub fn run(self, krate: hir::Crate, db: &ide::RootDatabase) -> anyhow::Result<()> {
+    pub fn run(
+        self,
+        krate: hir::Crate,
+        db: &ide::RootDatabase,
+        edition: ide::Edition,
+    ) -> anyhow::Result<()> {
         trace!("Building tree ...");
 
         let builder = TreeBuilder::new(db, krate);
@@ -36,7 +41,7 @@ impl Command {
 
         trace!("Filtering tree ...");
 
-        let filter = Filter::new(&self.options, db, krate);
+        let filter = Filter::new(&self.options, krate, db, edition);
         let tree = filter.filter(&tree)?;
 
         trace!("Printing tree ...");
@@ -45,7 +50,7 @@ impl Command {
 
         writeln!(&mut string)?;
 
-        let printer = Printer::new(&self.options, db);
+        let printer = Printer::new(&self.options, db, edition);
         printer.fmt(&mut string, &tree)?;
 
         print!("{string}");

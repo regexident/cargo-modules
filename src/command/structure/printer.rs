@@ -27,11 +27,16 @@ pub struct Printer<'a> {
     #[allow(dead_code)]
     options: &'a Options,
     db: &'a ide::RootDatabase,
+    edition: ide::Edition,
 }
 
 impl<'a> Printer<'a> {
-    pub fn new(options: &'a Options, db: &'a ide::RootDatabase) -> Self {
-        Self { options, db }
+    pub fn new(options: &'a Options, db: &'a ide::RootDatabase, edition: ide::Edition) -> Self {
+        Self {
+            options,
+            db,
+            edition,
+        }
     }
 
     pub fn fmt(&self, f: &mut dyn fmt::Write, tree: &Tree<Node>) -> Result<(), anyhow::Error> {
@@ -52,7 +57,8 @@ impl<'a> Printer<'a> {
         let mut subtrees = tree.subtrees.clone();
 
         // Sort the children by name for easier visual scanning of output:
-        subtrees.sort_by_cached_key(|tree: &Tree<Node>| tree.node.display_name(self.db));
+        subtrees
+            .sort_by_cached_key(|tree: &Tree<Node>| tree.node.display_name(self.db, self.edition));
 
         // The default sorting functions in Rust are stable, so we can use it to re-sort,
         // resulting in a list that's sorted prioritizing whatever we re-sort by.
@@ -60,13 +66,13 @@ impl<'a> Printer<'a> {
         // Re-sort the children by name, visibility or kind, for easier visual scanning of output:
         match self.options.sort_by {
             SortBy::Name => {
-                subtrees.sort_by_cached_key(|tree| tree.node.display_name(self.db));
+                subtrees.sort_by_cached_key(|tree| tree.node.display_name(self.db, self.edition));
             }
             SortBy::Visibility => {
-                subtrees.sort_by_cached_key(|tree| tree.node.visibility(self.db));
+                subtrees.sort_by_cached_key(|tree| tree.node.visibility(self.db, self.edition));
             }
             SortBy::Kind => {
-                subtrees.sort_by_cached_key(|tree| tree.node.kind_ordering(self.db));
+                subtrees.sort_by_cached_key(|tree| tree.node.kind_ordering(self.db, self.edition));
             }
         }
 
@@ -98,7 +104,7 @@ impl<'a> Printer<'a> {
         write!(f, " ")?;
         self.fmt_tree_visibility(f, tree)?;
 
-        if !tree.node.attrs(self.db).is_empty() {
+        if !tree.node.attrs(self.db, self.edition).is_empty() {
             write!(f, " ")?;
             self.fmt_tree_attrs(f, tree)?;
         }
@@ -110,7 +116,7 @@ impl<'a> Printer<'a> {
         let styles = styles();
         let kind_style = styles.kind;
 
-        let display_name = tree.node.kind_display_name(self.db);
+        let display_name = tree.node.kind_display_name(self.db, self.edition);
         let kind = display_name.paint(kind_style);
 
         write!(f, "{kind}")?;
@@ -132,7 +138,7 @@ impl<'a> Printer<'a> {
         let styles = styles();
 
         let visibility_styles = styles.visibility;
-        let visibility_style = match &tree.node.visibility(self.db) {
+        let visibility_style = match &tree.node.visibility(self.db, self.edition) {
             ItemVisibility::Crate => visibility_styles.pub_crate,
             ItemVisibility::Module(_) => visibility_styles.pub_module,
             ItemVisibility::Private => visibility_styles.pub_private,
@@ -143,7 +149,9 @@ impl<'a> Printer<'a> {
         write!(
             f,
             "{}",
-            tree.node.visibility(self.db).paint(visibility_style)
+            tree.node
+                .visibility(self.db, self.edition)
+                .paint(visibility_style)
         )?;
 
         Ok(())
@@ -154,7 +162,13 @@ impl<'a> Printer<'a> {
 
         let name_style = styles.name;
 
-        write!(f, "{}", tree.node.display_name(self.db).paint(name_style))?;
+        write!(
+            f,
+            "{}",
+            tree.node
+                .display_name(self.db, self.edition)
+                .paint(name_style)
+        )?;
 
         Ok(())
     }
@@ -166,7 +180,7 @@ impl<'a> Printer<'a> {
 
         let mut is_first = true;
 
-        if let Some(test_attr) = &tree.node.attrs(self.db).test {
+        if let Some(test_attr) = &tree.node.attrs(self.db, self.edition).test {
             let prefix = "#[".paint(attr_chrome_style);
             let cfg = test_attr.paint(attr_style);
             let suffix = "]".paint(attr_chrome_style);
@@ -176,7 +190,7 @@ impl<'a> Printer<'a> {
             is_first = false;
         }
 
-        for cfg in &tree.node.attrs(self.db).cfgs[..] {
+        for cfg in &tree.node.attrs(self.db, self.edition).cfgs[..] {
             if !is_first {
                 write!(f, ", ")?;
             }

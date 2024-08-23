@@ -33,7 +33,7 @@ pub fn load_workspace(
     general_options: &GeneralOptions,
     project_options: &ProjectOptions,
     load_options: &LoadOptions,
-) -> anyhow::Result<(hir::Crate, ide::AnalysisHost, vfs::Vfs)> {
+) -> anyhow::Result<(hir::Crate, ide::AnalysisHost, vfs::Vfs, ide::Edition)> {
     let project_path = project_options.manifest_path.as_path().canonicalize()?;
 
     // See: https://github.com/rust-lang/cargo/pull/13909
@@ -61,6 +61,8 @@ pub fn load_workspace(
         eprintln!();
     }
 
+    let edition = package.edition;
+
     if load_config.load_out_dirs_from_check {
         let build_scripts = project_workspace.run_build_scripts(&cargo_config, &progress)?;
         project_workspace.set_build_scripts(build_scripts)
@@ -73,7 +75,7 @@ pub fn load_workspace(
 
     let krate = find_crate(host.raw_database(), &vfs, &target)?;
 
-    Ok((krate, host, vfs))
+    Ok((krate, host, vfs, edition))
 }
 
 pub fn cargo_config(
@@ -443,7 +445,11 @@ pub(crate) fn module(
     }
 }
 
-pub(crate) fn display_name(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> String {
+pub(crate) fn display_name(
+    module_def_hir: hir::ModuleDef,
+    db: &ide::RootDatabase,
+    edition: ide::Edition,
+) -> String {
     match module_def_hir {
         hir::ModuleDef::Module(module_hir) => {
             if module_hir.is_crate_root() {
@@ -451,35 +457,47 @@ pub(crate) fn display_name(module_def_hir: hir::ModuleDef, db: &ide::RootDatabas
             } else {
                 module_hir
                     .name(db)
-                    .map(|name| name.display(db).to_string())
+                    .map(|name| name.display(db, edition).to_string())
                     .expect("name")
             }
         }
         hir::ModuleDef::Const(const_hir) => {
             if let Some(name) = const_hir.name(db) {
-                name.display(db).to_string()
+                name.display(db, edition).to_string()
             } else {
                 "_".to_owned()
             }
         }
         module_def_hir => module_def_hir
             .name(db)
-            .map(|name| name.display(db).to_string())
+            .map(|name| name.display(db, edition).to_string())
             .expect("name"),
     }
 }
 
-pub(crate) fn name(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<String> {
+pub(crate) fn name(
+    module_def_hir: hir::ModuleDef,
+    db: &ide::RootDatabase,
+    edition: ide::Edition,
+) -> Option<String> {
     module_def_hir
         .name(db)
-        .map(|name| name.display(db).to_string())
+        .map(|name| name.display(db, edition).to_string())
 }
 
-pub(crate) fn display_path(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> String {
-    path(module_def_hir, db).unwrap_or_else(|| "<anonymous>".to_owned())
+pub(crate) fn display_path(
+    module_def_hir: hir::ModuleDef,
+    db: &ide::RootDatabase,
+    edition: ide::Edition,
+) -> String {
+    path(module_def_hir, db, edition).unwrap_or_else(|| "<anonymous>".to_owned())
 }
 
-pub(crate) fn path(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<String> {
+pub(crate) fn path(
+    module_def_hir: hir::ModuleDef,
+    db: &ide::RootDatabase,
+    edition: ide::Edition,
+) -> Option<String> {
     let mut path = String::new();
 
     let krate = krate(module_def_hir, db);
@@ -493,29 +511,29 @@ pub(crate) fn path(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Op
     let relative_path = match module_def_hir {
         hir::ModuleDef::Function(function_hir) => {
             if let Some(assoc_item_hir) = function_hir.as_assoc_item(db) {
-                assoc_item_path(assoc_item_hir, db)
+                assoc_item_path(assoc_item_hir, db, edition)
             } else {
-                hir::ModuleDef::Function(function_hir).canonical_path(db)
+                hir::ModuleDef::Function(function_hir).canonical_path(db, edition)
             }
         }
         hir::ModuleDef::Const(const_hir) => {
             if let Some(assoc_item_hir) = const_hir.as_assoc_item(db) {
-                assoc_item_path(assoc_item_hir, db)
+                assoc_item_path(assoc_item_hir, db, edition)
             } else {
-                hir::ModuleDef::Const(const_hir).canonical_path(db)
+                hir::ModuleDef::Const(const_hir).canonical_path(db, edition)
             }
         }
         hir::ModuleDef::TypeAlias(type_alias_hir) => {
             if let Some(assoc_item_hir) = type_alias_hir.as_assoc_item(db) {
-                assoc_item_path(assoc_item_hir, db)
+                assoc_item_path(assoc_item_hir, db, edition)
             } else {
-                hir::ModuleDef::TypeAlias(type_alias_hir).canonical_path(db)
+                hir::ModuleDef::TypeAlias(type_alias_hir).canonical_path(db, edition)
             }
         }
         hir::ModuleDef::BuiltinType(builtin_type_hir) => {
-            Some(builtin_type_hir.name().display(db).to_string())
+            Some(builtin_type_hir.name().display(db, edition).to_string())
         }
-        module_def_hir => module_def_hir.canonical_path(db),
+        module_def_hir => module_def_hir.canonical_path(db, edition),
     };
 
     if let Some(relative_path) = relative_path {
@@ -532,29 +550,33 @@ pub(crate) fn path(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Op
     }
 }
 
-fn assoc_item_path(assoc_item_hir: hir::AssocItem, db: &ide::RootDatabase) -> Option<String> {
+fn assoc_item_path(
+    assoc_item_hir: hir::AssocItem,
+    db: &ide::RootDatabase,
+    edition: ide::Edition,
+) -> Option<String> {
     let name = match assoc_item_hir {
         hir::AssocItem::Function(function_hir) => hir::ModuleDef::Function(function_hir)
             .name(db)
-            .map(|name| name.display(db).to_string()),
+            .map(|name| name.display(db, edition).to_string()),
         hir::AssocItem::Const(const_hir) => hir::ModuleDef::Const(const_hir)
             .name(db)
-            .map(|name| name.display(db).to_string()),
+            .map(|name| name.display(db, edition).to_string()),
         hir::AssocItem::TypeAlias(type_alias_hir) => hir::ModuleDef::TypeAlias(type_alias_hir)
             .name(db)
-            .map(|name| name.display(db).to_string()),
+            .map(|name| name.display(db, edition).to_string()),
     };
 
     let name = name?;
 
     let container_path = match assoc_item_hir.container(db) {
         hir::AssocItemContainer::Trait(trait_hir) => {
-            hir::ModuleDef::Trait(trait_hir).canonical_path(db)
+            hir::ModuleDef::Trait(trait_hir).canonical_path(db, edition)
         }
         hir::AssocItemContainer::Impl(impl_hir) => impl_hir
             .self_ty(db)
             .as_adt()
-            .and_then(|adt_hir| hir::ModuleDef::Adt(adt_hir).canonical_path(db)),
+            .and_then(|adt_hir| hir::ModuleDef::Adt(adt_hir).canonical_path(db, edition)),
     };
 
     let container_path = container_path?;
