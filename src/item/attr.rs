@@ -4,8 +4,8 @@
 
 use std::fmt;
 
-use ra_ap_cfg::{CfgAtom, CfgExpr};
-use ra_ap_ide_db::RootDatabase;
+use ra_ap_cfg::{self as cfg};
+use ra_ap_ide::{self as ide};
 
 use crate::{analyzer, item::Item};
 
@@ -19,16 +19,16 @@ pub enum ItemCfgAttr {
 }
 
 impl ItemCfgAttr {
-    pub fn new(cfg: &CfgExpr) -> Option<Self> {
+    pub fn new(cfg: &cfg::CfgExpr) -> Option<Self> {
         match cfg {
-            CfgExpr::Invalid => None,
-            CfgExpr::Atom(CfgAtom::Flag(flag)) => Some(Self::Flag(flag.to_string())),
-            CfgExpr::Atom(CfgAtom::KeyValue { key, value }) => {
+            cfg::CfgExpr::Invalid => None,
+            cfg::CfgExpr::Atom(cfg::CfgAtom::Flag(flag)) => Some(Self::Flag(flag.to_string())),
+            cfg::CfgExpr::Atom(cfg::CfgAtom::KeyValue { key, value }) => {
                 Some(Self::KeyValue(key.to_string(), value.to_string()))
             }
-            CfgExpr::All(cfgs) => Some(Self::All(cfgs.iter().filter_map(Self::new).collect())),
-            CfgExpr::Any(cfgs) => Some(Self::Any(cfgs.iter().filter_map(Self::new).collect())),
-            CfgExpr::Not(cfg) => Self::new(cfg).map(|cfg| Self::Not(Box::new(cfg))),
+            cfg::CfgExpr::All(cfgs) => Some(Self::All(cfgs.iter().filter_map(Self::new).collect())),
+            cfg::CfgExpr::Any(cfgs) => Some(Self::Any(cfgs.iter().filter_map(Self::new).collect())),
+            cfg::CfgExpr::Not(cfg) => Self::new(cfg).map(|cfg| Self::Not(Box::new(cfg))),
         }
     }
 }
@@ -91,7 +91,7 @@ pub struct ItemAttrs {
 }
 
 impl ItemAttrs {
-    pub fn new(item: &Item, db: &RootDatabase) -> ItemAttrs {
+    pub fn new(item: &Item, db: &ide::RootDatabase) -> ItemAttrs {
         let cfgs: Vec<_> = analyzer::cfg_attrs(item.hir, db);
         let test = analyzer::test_attr(item.hir, db);
         Self { cfgs, test }

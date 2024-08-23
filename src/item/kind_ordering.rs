@@ -4,8 +4,8 @@
 
 use std::cmp::Ordering;
 
-use ra_ap_hir::{self as hir, ModuleDef};
-use ra_ap_ide_db::RootDatabase;
+use ra_ap_hir::{self as hir};
+use ra_ap_ide::{self as ide};
 
 use super::Item;
 
@@ -35,31 +35,31 @@ pub(crate) enum ItemKindOrdering {
 }
 
 impl ItemKindOrdering {
-    pub fn new(item: &Item, db: &RootDatabase) -> Self {
+    pub fn new(item: &Item, db: &ide::RootDatabase) -> Self {
         match item.hir {
-            ModuleDef::Module(module_def_hir) => Self::Module {
+            hir::ModuleDef::Module(module_def_hir) => Self::Module {
                 is_crate_root: module_def_hir.is_crate_root(),
             },
-            ModuleDef::Function(function_def) => Self::Function {
+            hir::ModuleDef::Function(function_def) => Self::Function {
                 is_const: function_def.is_const(db),
                 is_async: function_def.is_async(db),
                 is_unsafe_to_call: function_def.is_unsafe_to_call(db),
             },
-            ModuleDef::Adt(adt_def) => match adt_def {
+            hir::ModuleDef::Adt(adt_def) => match adt_def {
                 hir::Adt::Struct(_) => Self::Struct,
                 hir::Adt::Union(_) => Self::Union,
                 hir::Adt::Enum(_) => Self::Enum,
             },
-            ModuleDef::Variant(_) => Self::Variant,
-            ModuleDef::Const(_) => Self::Const,
-            ModuleDef::Static(_) => Self::Static,
-            ModuleDef::Trait(trait_def) => Self::Trait {
+            hir::ModuleDef::Variant(_) => Self::Variant,
+            hir::ModuleDef::Const(_) => Self::Const,
+            hir::ModuleDef::Static(_) => Self::Static,
+            hir::ModuleDef::Trait(trait_def) => Self::Trait {
                 is_unsafe: trait_def.is_unsafe(db),
             },
-            ModuleDef::TraitAlias(_) => Self::TraitAlias,
-            ModuleDef::TypeAlias(_) => Self::TypeAlias,
-            ModuleDef::BuiltinType(_) => Self::BuiltinType,
-            ModuleDef::Macro(_) => Self::Macro,
+            hir::ModuleDef::TraitAlias(_) => Self::TraitAlias,
+            hir::ModuleDef::TypeAlias(_) => Self::TypeAlias,
+            hir::ModuleDef::BuiltinType(_) => Self::BuiltinType,
+            hir::ModuleDef::Macro(_) => Self::Macro,
         }
     }
 

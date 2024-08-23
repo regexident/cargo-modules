@@ -6,12 +6,13 @@
 
 use std::fmt::{self, Write};
 
+use ra_ap_hir::{self as hir};
+use ra_ap_ide::{self as ide};
+
 use petgraph::{
     graph::NodeIndex,
     visit::{IntoNodeReferences, NodeRef},
 };
-use ra_ap_hir as hir;
-use ra_ap_ide::RootDatabase;
 
 use crate::{
     analyzer,
@@ -29,11 +30,11 @@ const INDENTATION: &str = "    ";
 pub struct Printer<'a> {
     options: &'a Options,
     member_krate: hir::Crate,
-    db: &'a RootDatabase,
+    db: &'a ide::RootDatabase,
 }
 
 impl<'a> Printer<'a> {
-    pub fn new(options: &'a Options, member_krate: hir::Crate, db: &'a RootDatabase) -> Self {
+    pub fn new(options: &'a Options, member_krate: hir::Crate, db: &'a ide::RootDatabase) -> Self {
         Self {
             options,
             member_krate,

@@ -4,10 +4,11 @@
 
 use std::fmt::Write;
 
+use ra_ap_hir::{self as hir};
+use ra_ap_ide::{self as ide};
+
 use clap::Parser;
 use log::trace;
-use ra_ap_hir as hir;
-use ra_ap_ide::RootDatabase;
 
 use crate::{analyzer::LoadOptions, tree::TreeBuilder};
 
@@ -27,7 +28,7 @@ impl Command {
     pub(crate) fn sanitize(&mut self) {}
 
     #[doc(hidden)]
-    pub fn run(self, krate: hir::Crate, db: &RootDatabase) -> anyhow::Result<()> {
+    pub fn run(self, krate: hir::Crate, db: &ide::RootDatabase) -> anyhow::Result<()> {
         trace!("Building tree ...");
 
         let builder = TreeBuilder::new(db, krate);

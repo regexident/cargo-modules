@@ -2,10 +2,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use hir::ModuleDef;
+use ra_ap_hir::{self as hir};
+use ra_ap_ide::{self as ide};
+
 use log::trace;
-use ra_ap_hir::{self as hir, Crate};
-use ra_ap_ide_db::RootDatabase;
 use scopeguard::defer;
 
 use crate::{item::Item, tree::Tree};
@@ -14,12 +14,12 @@ type Node = Item;
 
 #[derive(Debug)]
 pub struct TreeBuilder<'a> {
-    db: &'a RootDatabase,
+    db: &'a ide::RootDatabase,
     krate: hir::Crate,
 }
 
 impl<'a> TreeBuilder<'a> {
-    pub fn new(db: &'a RootDatabase, krate: hir::Crate) -> Self {
+    pub fn new(db: &'a ide::RootDatabase, krate: hir::Crate) -> Self {
         Self { db, krate }
     }
 
@@ -37,7 +37,7 @@ impl<'a> TreeBuilder<'a> {
         Ok(tree)
     }
 
-    fn process_crate(&mut self, crate_hir: Crate) -> Option<Tree<Node>> {
+    fn process_crate(&mut self, crate_hir: hir::Crate) -> Option<Tree<Node>> {
         trace!("Processing crate {crate_hir:?}...");
 
         defer! {
@@ -96,7 +96,7 @@ impl<'a> TreeBuilder<'a> {
             trace!("Finished processing module {module_hir:?}.");
         }
 
-        let item = Item::new(ModuleDef::Module(module_hir));
+        let item = Item::new(hir::ModuleDef::Module(module_hir));
         let mut node = Tree::new(item, vec![]);
 
         let subtrees = module_hir

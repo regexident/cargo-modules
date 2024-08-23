@@ -6,21 +6,15 @@ use std::path::{Path, PathBuf};
 
 use log::{debug, trace};
 
-use ra_ap_cfg::{CfgAtom, CfgDiff, CfgExpr};
-use ra_ap_hir::{
-    self as hir, AsAssocItem, Crate, HasAttrs, HirFileIdExt as _, ModuleSource, Symbol,
-};
-use ra_ap_ide::{AnalysisHost, Edition, RootDatabase};
-use ra_ap_ide_db::FxHashMap;
-use ra_ap_load_cargo::{LoadCargoConfig, ProcMacroServerChoice};
-use ra_ap_paths::{AbsPathBuf, Utf8PathBuf};
-use ra_ap_project_model::{
-    CargoConfig, CargoFeatures, CfgOverrides, InvocationLocation, InvocationStrategy, PackageData,
-    ProjectManifest, ProjectWorkspace, ProjectWorkspaceKind, RustLibSource, TargetData,
-};
-use ra_ap_project_model::{CargoWorkspace, Package, Target, TargetKind};
-use ra_ap_syntax::{ast, AstNode, SourceFile};
-use ra_ap_vfs::Vfs;
+use ra_ap_cfg::{self as cfg};
+use ra_ap_hir::{self as hir, AsAssocItem as _, HasAttrs as _, HirFileIdExt as _};
+use ra_ap_ide::{self as ide};
+use ra_ap_ide_db::{self as ide_db};
+use ra_ap_load_cargo::{self as load_cargo};
+use ra_ap_paths::{self as paths};
+use ra_ap_project_model::{self as project_model};
+use ra_ap_syntax::{self as syntax, ast, AstNode as _};
+use ra_ap_vfs::{self as vfs};
 
 use crate::{
     item::{ItemCfgAttr, ItemTestAttr},
@@ -39,7 +33,7 @@ pub fn load_workspace(
     general_options: &GeneralOptions,
     project_options: &ProjectOptions,
     load_options: &LoadOptions,
-) -> anyhow::Result<(Crate, AnalysisHost, Vfs)> {
+) -> anyhow::Result<(hir::Crate, ide::AnalysisHost, vfs::Vfs)> {
     let project_path = project_options.manifest_path.as_path().canonicalize()?;
 
     // See: https://github.com/rust-lang/cargo/pull/13909
@@ -75,21 +69,24 @@ pub fn load_workspace(
     let (db, vfs, _proc_macro_client) =
         ra_ap_load_cargo::load_workspace(project_workspace, &cargo_config.extra_env, &load_config)?;
 
-    let host = AnalysisHost::with_database(db);
+    let host = ide::AnalysisHost::with_database(db);
 
     let krate = find_crate(host.raw_database(), &vfs, &target)?;
 
     Ok((krate, host, vfs))
 }
 
-pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions) -> CargoConfig {
+pub fn cargo_config(
+    project_options: &ProjectOptions,
+    load_options: &LoadOptions,
+) -> project_model::CargoConfig {
     let all_targets = false;
 
     // List of features to activate (or deactivate).
     let features = if project_options.all_features {
-        CargoFeatures::All
+        project_model::CargoFeatures::All
     } else {
-        CargoFeatures::Selected {
+        project_model::CargoFeatures::Selected {
             features: project_options.features.clone(),
             no_default_features: project_options.no_default_features,
         }
@@ -100,7 +97,7 @@ pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions
 
     // Whether to load sysroot crates (`std`, `core` & friends).
     let sysroot = if load_options.sysroot {
-        Some(RustLibSource::Discover)
+        Some(project_model::RustLibSource::Discover)
     } else {
         None
     };
@@ -110,12 +107,20 @@ pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions
 
     // Crates to enable/disable `#[cfg(test)]` on
     let cfg_overrides = match load_options.cfg_test {
-        true => CfgOverrides {
-            global: CfgDiff::new(vec![CfgAtom::Flag(Symbol::intern("test"))], Vec::new()).unwrap(),
+        true => project_model::CfgOverrides {
+            global: cfg::CfgDiff::new(
+                vec![cfg::CfgAtom::Flag(hir::Symbol::intern("test"))],
+                Vec::new(),
+            )
+            .unwrap(),
             selective: Default::default(),
         },
-        false => CfgOverrides {
-            global: CfgDiff::new(Vec::new(), vec![CfgAtom::Flag(Symbol::intern("test"))]).unwrap(),
+        false => project_model::CfgOverrides {
+            global: cfg::CfgDiff::new(
+                Vec::new(),
+                vec![cfg::CfgAtom::Flag(hir::Symbol::intern("test"))],
+            )
+            .unwrap(),
             selective: Default::default(),
         },
     };
@@ -128,10 +133,10 @@ pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions
     let run_build_script_command = None;
 
     // FIXME: support extra environment variables via CLI:
-    let extra_env = FxHashMap::default();
+    let extra_env = ide_db::FxHashMap::default();
 
-    let invocation_strategy = InvocationStrategy::PerWorkspace;
-    let invocation_location = InvocationLocation::Workspace;
+    let invocation_strategy = project_model::InvocationStrategy::PerWorkspace;
+    let invocation_location = project_model::InvocationLocation::Workspace;
 
     let sysroot_src = None;
 
@@ -139,7 +144,7 @@ pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions
 
     let target_dir = None;
 
-    CargoConfig {
+    project_model::CargoConfig {
         all_targets,
         features,
         target,
@@ -157,12 +162,12 @@ pub fn cargo_config(project_options: &ProjectOptions, load_options: &LoadOptions
     }
 }
 
-pub fn load_config() -> LoadCargoConfig {
+pub fn load_config() -> load_cargo::LoadCargoConfig {
     let load_out_dirs_from_check = true;
     let prefill_caches = false;
-    let with_proc_macro_server = ProcMacroServerChoice::Sysroot;
+    let with_proc_macro_server = load_cargo::ProcMacroServerChoice::Sysroot;
 
-    LoadCargoConfig {
+    load_cargo::LoadCargoConfig {
         load_out_dirs_from_check,
         prefill_caches,
         with_proc_macro_server,
@@ -171,25 +176,27 @@ pub fn load_config() -> LoadCargoConfig {
 
 pub fn load_project_workspace(
     project_path: &Path,
-    cargo_config: &CargoConfig,
+    cargo_config: &project_model::CargoConfig,
     progress: &dyn Fn(String),
-) -> anyhow::Result<ProjectWorkspace> {
+) -> anyhow::Result<project_model::ProjectWorkspace> {
     let path_buf = std::env::current_dir()?.join(project_path);
-    let utf8_path_buf = Utf8PathBuf::from_path_buf(path_buf).unwrap();
-    let root = AbsPathBuf::assert(utf8_path_buf);
-    let root = ProjectManifest::discover_single(root.as_path())?;
+    let utf8_path_buf = paths::Utf8PathBuf::from_path_buf(path_buf).unwrap();
+    let root = paths::AbsPathBuf::assert(utf8_path_buf);
+    let root = project_model::ProjectManifest::discover_single(root.as_path())?;
 
-    ProjectWorkspace::load(root, cargo_config, &progress)
+    project_model::ProjectWorkspace::load(root, cargo_config, &progress)
 }
 
 pub fn select_package_and_target(
-    project_workspace: &ProjectWorkspace,
+    project_workspace: &project_model::ProjectWorkspace,
     options: &ProjectOptions,
-) -> anyhow::Result<(PackageData, TargetData)> {
+) -> anyhow::Result<(project_model::PackageData, project_model::TargetData)> {
     let cargo_workspace = match project_workspace.kind {
-        ProjectWorkspaceKind::Cargo { ref cargo, .. } => Ok(cargo),
-        ProjectWorkspaceKind::Json { .. } => Err(anyhow::anyhow!("Unexpected JSON workspace")),
-        ProjectWorkspaceKind::DetachedFile { .. } => {
+        project_model::ProjectWorkspaceKind::Cargo { ref cargo, .. } => Ok(cargo),
+        project_model::ProjectWorkspaceKind::Json { .. } => {
+            Err(anyhow::anyhow!("Unexpected JSON workspace"))
+        }
+        project_model::ProjectWorkspaceKind::DetachedFile { .. } => {
             Err(anyhow::anyhow!("Unexpected detached files"))
         }
     }?;
@@ -206,9 +213,9 @@ pub fn select_package_and_target(
 }
 
 pub fn select_package(
-    workspace: &CargoWorkspace,
+    workspace: &project_model::CargoWorkspace,
     options: &ProjectOptions,
-) -> anyhow::Result<Package> {
+) -> anyhow::Result<project_model::Package> {
     let packages: Vec<_> = workspace
         .packages()
         .filter(|idx| workspace[*idx].is_member)
@@ -277,10 +284,10 @@ pub fn select_package(
 }
 
 pub fn select_target(
-    workspace: &CargoWorkspace,
-    package_idx: Package,
+    workspace: &project_model::CargoWorkspace,
+    package_idx: project_model::Package,
     options: &ProjectOptions,
-) -> anyhow::Result<Target> {
+) -> anyhow::Result<project_model::Target> {
     let package = &workspace[package_idx];
 
     // Retrieve list of indices for bin/lib targets:
@@ -292,13 +299,13 @@ pub fn select_target(
         .filter(|target_idx| {
             let target = &workspace[*target_idx];
             match target.kind {
-                TargetKind::Bin => true,
-                TargetKind::Lib { .. } => true,
-                TargetKind::Example => false,
-                TargetKind::Test => false,
-                TargetKind::Bench => false,
-                TargetKind::Other => false,
-                TargetKind::BuildScript => false,
+                project_model::TargetKind::Bin => true,
+                project_model::TargetKind::Lib { .. } => true,
+                project_model::TargetKind::Example => false,
+                project_model::TargetKind::Test => false,
+                project_model::TargetKind::Bench => false,
+                project_model::TargetKind::Other => false,
+                project_model::TargetKind::BuildScript => false,
             }
         })
         .collect();
@@ -318,13 +325,15 @@ pub fn select_target(
         .map(|target_idx| {
             let target = &workspace[*target_idx];
             match target.kind {
-                TargetKind::Bin => format!("- {} (--bin {})", target.name, target.name),
-                TargetKind::Lib { .. } => format!("- {} (--lib)", target.name),
-                TargetKind::Example => unreachable!(),
-                TargetKind::Test => unreachable!(),
-                TargetKind::Bench => unreachable!(),
-                TargetKind::Other => unreachable!(),
-                TargetKind::BuildScript => unreachable!(),
+                project_model::TargetKind::Bin => {
+                    format!("- {} (--bin {})", target.name, target.name)
+                }
+                project_model::TargetKind::Lib { .. } => format!("- {} (--lib)", target.name),
+                project_model::TargetKind::Example => unreachable!(),
+                project_model::TargetKind::Test => unreachable!(),
+                project_model::TargetKind::Bench => unreachable!(),
+                project_model::TargetKind::Other => unreachable!(),
+                project_model::TargetKind::BuildScript => unreachable!(),
             }
         })
         .collect();
@@ -336,7 +345,7 @@ pub fn select_target(
     if options.lib {
         let target = targets.into_iter().find(|target_idx| {
             let target = &workspace[*target_idx];
-            matches!(target.kind, TargetKind::Lib { .. })
+            matches!(target.kind, project_model::TargetKind::Lib { .. })
         });
 
         return target.ok_or_else(|| {
@@ -356,7 +365,7 @@ pub fn select_target(
     if let Some(bin_name) = &options.bin {
         let target = targets.into_iter().find(|target_idx| {
             let target = &workspace[*target_idx];
-            (target.kind == TargetKind::Bin) && (target.name == bin_name[..])
+            (target.kind == project_model::TargetKind::Bin) && (target.name == bin_name[..])
         });
 
         return target.ok_or_else(|| {
@@ -393,8 +402,12 @@ pub fn select_target(
     ))
 }
 
-pub fn find_crate(db: &RootDatabase, vfs: &Vfs, target: &TargetData) -> anyhow::Result<Crate> {
-    let crates = Crate::all(db);
+pub fn find_crate(
+    db: &ide::RootDatabase,
+    vfs: &vfs::Vfs,
+    target: &project_model::TargetData,
+) -> anyhow::Result<hir::Crate> {
+    let crates = hir::Crate::all(db);
 
     let target_root_path = target.root.as_path();
 
@@ -408,7 +421,7 @@ pub fn find_crate(db: &RootDatabase, vfs: &Vfs, target: &TargetData) -> anyhow::
     krate.ok_or_else(|| anyhow::anyhow!("Crate not found"))
 }
 
-pub(crate) fn crate_name(krate: hir::Crate, db: &RootDatabase) -> String {
+pub(crate) fn crate_name(krate: hir::Crate, db: &ide::RootDatabase) -> String {
     // Obtain the crate's declaration name:
     let display_name = &krate.display_name(db).unwrap();
 
@@ -416,18 +429,21 @@ pub(crate) fn crate_name(krate: hir::Crate, db: &RootDatabase) -> String {
     display_name.replace('-', "_")
 }
 
-pub(crate) fn krate(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<hir::Crate> {
+pub(crate) fn krate(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<hir::Crate> {
     module(module_def_hir, db).map(|module| module.krate())
 }
 
-pub(crate) fn module(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<hir::Module> {
+pub(crate) fn module(
+    module_def_hir: hir::ModuleDef,
+    db: &ide::RootDatabase,
+) -> Option<hir::Module> {
     match module_def_hir {
         hir::ModuleDef::Module(module) => Some(module),
         module_def_hir => module_def_hir.module(db),
     }
 }
 
-pub(crate) fn display_name(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> String {
+pub(crate) fn display_name(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> String {
     match module_def_hir {
         hir::ModuleDef::Module(module_hir) => {
             if module_hir.is_crate_root() {
@@ -453,17 +469,17 @@ pub(crate) fn display_name(module_def_hir: hir::ModuleDef, db: &RootDatabase) ->
     }
 }
 
-pub(crate) fn name(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<String> {
+pub(crate) fn name(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<String> {
     module_def_hir
         .name(db)
         .map(|name| name.display(db).to_string())
 }
 
-pub(crate) fn display_path(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> String {
+pub(crate) fn display_path(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> String {
     path(module_def_hir, db).unwrap_or_else(|| "<anonymous>".to_owned())
 }
 
-pub(crate) fn path(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<String> {
+pub(crate) fn path(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<String> {
     let mut path = String::new();
 
     let krate = krate(module_def_hir, db);
@@ -516,7 +532,7 @@ pub(crate) fn path(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<
     }
 }
 
-fn assoc_item_path(assoc_item_hir: hir::AssocItem, db: &RootDatabase) -> Option<String> {
+fn assoc_item_path(assoc_item_hir: hir::AssocItem, db: &ide::RootDatabase) -> Option<String> {
     let name = match assoc_item_hir {
         hir::AssocItem::Function(function_hir) => hir::ModuleDef::Function(function_hir)
             .name(db)
@@ -547,8 +563,8 @@ fn assoc_item_path(assoc_item_hir: hir::AssocItem, db: &RootDatabase) -> Option<
 }
 
 // https://github.com/rust-lang/rust-analyzer/blob/36a70b7435c48837018c71576d7bb4e8f763f501/crates/syntax/src/ast/make.rs#L821
-pub(crate) fn parse_ast<N: AstNode>(text: &str) -> N {
-    let parse = SourceFile::parse(text, Edition::CURRENT);
+pub(crate) fn parse_ast<N: syntax::AstNode>(text: &str) -> N {
+    let parse = syntax::SourceFile::parse(text, ide::Edition::CURRENT);
     let node = match parse.tree().syntax().descendants().find_map(N::cast) {
         Some(it) => it,
         None => {
@@ -625,28 +641,28 @@ fn tree_contains_self(tree: &ast::UseTree) -> bool {
         .unwrap_or(false)
 }
 
-pub(crate) fn is_test_function(function: hir::Function, db: &RootDatabase) -> bool {
+pub(crate) fn is_test_function(function: hir::Function, db: &ide::RootDatabase) -> bool {
     let attrs = function.attrs(db);
     let key = hir::Symbol::intern("test");
     attrs.by_key(&key).exists()
 }
 
-pub fn cfgs(hir: hir::ModuleDef, db: &RootDatabase) -> Vec<CfgExpr> {
+pub fn cfgs(hir: hir::ModuleDef, db: &ide::RootDatabase) -> Vec<cfg::CfgExpr> {
     let cfg = match cfg(hir, db) {
         Some(cfg) => cfg,
         None => return vec![],
     };
 
     match cfg {
-        CfgExpr::Invalid => vec![],
-        cfg @ CfgExpr::Atom(_) => vec![cfg],
-        CfgExpr::All(cfgs) => cfgs.to_vec(),
-        cfg @ CfgExpr::Any(_) => vec![cfg],
-        cfg @ CfgExpr::Not(_) => vec![cfg],
+        cfg::CfgExpr::Invalid => vec![],
+        cfg @ cfg::CfgExpr::Atom(_) => vec![cfg],
+        cfg::CfgExpr::All(cfgs) => cfgs.to_vec(),
+        cfg @ cfg::CfgExpr::Any(_) => vec![cfg],
+        cfg @ cfg::CfgExpr::Not(_) => vec![cfg],
     }
 }
 
-pub fn cfg(hir: hir::ModuleDef, db: &RootDatabase) -> Option<CfgExpr> {
+pub fn cfg(hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<cfg::CfgExpr> {
     match hir {
         hir::ModuleDef::Module(r#mod) => r#mod.attrs(db).cfg(),
         hir::ModuleDef::Function(r#fn) => r#fn.attrs(db).cfg(),
@@ -662,14 +678,14 @@ pub fn cfg(hir: hir::ModuleDef, db: &RootDatabase) -> Option<CfgExpr> {
     }
 }
 
-pub fn cfg_attrs(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Vec<ItemCfgAttr> {
+pub fn cfg_attrs(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Vec<ItemCfgAttr> {
     cfgs(module_def_hir, db)
         .iter()
         .filter_map(ItemCfgAttr::new)
         .collect()
 }
 
-pub fn test_attr(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<ItemTestAttr> {
+pub fn test_attr(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<ItemTestAttr> {
     let function = match module_def_hir {
         hir::ModuleDef::Function(function) => function,
         _ => return None,
@@ -682,12 +698,12 @@ pub fn test_attr(module_def_hir: hir::ModuleDef, db: &RootDatabase) -> Option<It
     }
 }
 
-pub fn module_file(module: hir::Module, db: &RootDatabase, vfs: &Vfs) -> Option<PathBuf> {
+pub fn module_file(module: hir::Module, db: &ide::RootDatabase, vfs: &vfs::Vfs) -> Option<PathBuf> {
     let module_source = module.definition_source(db);
     let is_file_module: bool = match &module_source.value {
-        ModuleSource::SourceFile(_) => true,
-        ModuleSource::Module(_) => false,
-        ModuleSource::BlockExpr(_) => false,
+        hir::ModuleSource::SourceFile(_) => true,
+        hir::ModuleSource::Module(_) => false,
+        hir::ModuleSource::BlockExpr(_) => false,
     };
 
     if !is_file_module {
@@ -709,7 +725,7 @@ pub fn module_file(module: hir::Module, db: &RootDatabase, vfs: &Vfs) -> Option<
     Some(path.to_owned())
 }
 
-pub fn moduledef_is_crate(module_def_hir: hir::ModuleDef, _db: &RootDatabase) -> bool {
+pub fn moduledef_is_crate(module_def_hir: hir::ModuleDef, _db: &ide::RootDatabase) -> bool {
     let hir::ModuleDef::Module(module) = module_def_hir else {
         return false;
     };

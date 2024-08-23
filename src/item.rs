@@ -3,7 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use ra_ap_hir::{self as hir};
-use ra_ap_ide_db::RootDatabase;
+use ra_ap_ide::{self as ide};
 
 use crate::analyzer;
 
@@ -29,27 +29,27 @@ impl Item {
         Self { hir }
     }
 
-    pub fn visibility(&self, db: &RootDatabase) -> ItemVisibility {
+    pub fn visibility(&self, db: &ide::RootDatabase) -> ItemVisibility {
         ItemVisibility::new(self.hir, db)
     }
 
-    pub fn attrs(&self, db: &RootDatabase) -> ItemAttrs {
+    pub fn attrs(&self, db: &ide::RootDatabase) -> ItemAttrs {
         ItemAttrs::new(self, db)
     }
 
-    pub fn kind_ordering(&self, db: &RootDatabase) -> ItemKindOrdering {
+    pub fn kind_ordering(&self, db: &ide::RootDatabase) -> ItemKindOrdering {
         ItemKindOrdering::new(self, db)
     }
 
-    pub fn kind_display_name(&self, db: &RootDatabase) -> ItemKindDisplayName {
+    pub fn kind_display_name(&self, db: &ide::RootDatabase) -> ItemKindDisplayName {
         ItemKindDisplayName::new(self, db)
     }
 
-    pub fn display_name(&self, db: &RootDatabase) -> String {
+    pub fn display_name(&self, db: &ide::RootDatabase) -> String {
         analyzer::display_name(self.hir, db)
     }
 
-    pub fn display_path(&self, db: &RootDatabase) -> String {
+    pub fn display_path(&self, db: &ide::RootDatabase) -> String {
         analyzer::display_path(self.hir, db)
     }
 }
