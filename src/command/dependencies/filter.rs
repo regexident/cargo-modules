@@ -4,6 +4,10 @@
 
 use std::collections::{HashMap, HashSet};
 
+use ra_ap_hir::{self as hir};
+use ra_ap_ide::{self as ide};
+use ra_ap_syntax::ast;
+
 use log::trace;
 use petgraph::{
     graph::NodeIndex,
@@ -11,9 +15,6 @@ use petgraph::{
     visit::{Bfs, EdgeRef, IntoEdgeReferences},
     Direction,
 };
-use ra_ap_hir::{self as hir};
-use ra_ap_ide_db::RootDatabase;
-use ra_ap_syntax::ast;
 
 use crate::{
     analyzer,
@@ -25,12 +26,12 @@ use super::options::Options;
 #[derive(Debug)]
 pub struct Filter<'a> {
     options: &'a Options,
-    db: &'a RootDatabase,
+    db: &'a ide::RootDatabase,
     krate: hir::Crate,
 }
 
 impl<'a> Filter<'a> {
-    pub fn new(options: &'a Options, db: &'a RootDatabase, krate: hir::Crate) -> Self {
+    pub fn new(options: &'a Options, db: &'a ide::RootDatabase, krate: hir::Crate) -> Self {
         Self { options, db, krate }
     }
 

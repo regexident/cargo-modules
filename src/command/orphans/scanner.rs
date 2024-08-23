@@ -8,11 +8,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use hir::ModuleDef;
-use log::{debug, trace};
 use ra_ap_hir::{self as hir, Crate};
-use ra_ap_ide_db::RootDatabase;
-use ra_ap_vfs::Vfs;
+use ra_ap_ide::{self as ide};
+use ra_ap_vfs::{self as vfs};
+
+use log::{debug, trace};
 
 use crate::analyzer;
 
@@ -20,13 +20,13 @@ use super::orphan::Orphan;
 
 #[derive(Debug)]
 pub struct Scanner<'a> {
-    db: &'a RootDatabase,
-    vfs: &'a Vfs,
+    db: &'a ide::RootDatabase,
+    vfs: &'a vfs::Vfs,
     krate: hir::Crate,
 }
 
 impl<'a> Scanner<'a> {
-    pub fn new(db: &'a RootDatabase, vfs: &'a Vfs, krate: hir::Crate) -> Self {
+    pub fn new(db: &'a ide::RootDatabase, vfs: &'a vfs::Vfs, krate: hir::Crate) -> Self {
         Self { db, vfs, krate }
     }
 
@@ -51,7 +51,7 @@ impl<'a> Scanner<'a> {
     }
 
     fn process_module(&mut self, module_hir: hir::Module, callback: &mut dyn FnMut(Orphan)) {
-        let Some(module_path) = analyzer::path(ModuleDef::Module(module_hir), self.db) else {
+        let Some(module_path) = analyzer::path(hir::ModuleDef::Module(module_hir), self.db) else {
             return;
         };
 

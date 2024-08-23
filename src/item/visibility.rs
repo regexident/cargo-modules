@@ -4,8 +4,8 @@
 
 use std::{cmp::Ordering, fmt};
 
-use ra_ap_hir::{self as hir, HasVisibility};
-use ra_ap_ide_db::RootDatabase;
+use ra_ap_hir::{self as hir, HasVisibility as _};
+use ra_ap_ide::{self as ide};
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum ItemVisibility {
@@ -17,7 +17,7 @@ pub enum ItemVisibility {
 }
 
 impl ItemVisibility {
-    pub fn new(hir: hir::ModuleDef, db: &RootDatabase) -> Self {
+    pub fn new(hir: hir::ModuleDef, db: &ide::RootDatabase) -> Self {
         let visibility = hir.visibility(db);
 
         let parent_module = match hir.module(db) {

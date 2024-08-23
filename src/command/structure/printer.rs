@@ -6,7 +6,8 @@
 
 use std::fmt;
 
-use ra_ap_ide::RootDatabase;
+use ra_ap_ide::{self as ide};
+
 use yansi::Paint as _;
 
 use crate::{analyzer, item::ItemVisibility, tree::Tree};
@@ -25,11 +26,11 @@ struct Twig {
 pub struct Printer<'a> {
     #[allow(dead_code)]
     options: &'a Options,
-    db: &'a RootDatabase,
+    db: &'a ide::RootDatabase,
 }
 
 impl<'a> Printer<'a> {
-    pub fn new(options: &'a Options, db: &'a RootDatabase) -> Self {
+    pub fn new(options: &'a Options, db: &'a ide::RootDatabase) -> Self {
         Self { options, db }
     }
 

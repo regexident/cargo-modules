@@ -5,7 +5,7 @@
 use core::fmt;
 
 use ra_ap_hir::{self as hir};
-use ra_ap_ide_db::RootDatabase;
+use ra_ap_ide::{self as ide};
 
 use super::Item;
 
@@ -13,7 +13,7 @@ use super::Item;
 pub struct ItemKindDisplayName(String);
 
 impl ItemKindDisplayName {
-    pub fn new(item: &Item, db: &RootDatabase) -> Self {
+    pub fn new(item: &Item, db: &ide::RootDatabase) -> Self {
         Self(match item.hir {
             hir::ModuleDef::Module(hir) => {
                 if hir.is_crate_root() {

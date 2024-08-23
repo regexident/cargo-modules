@@ -2,11 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+use ra_ap_hir::{self as hir};
+use ra_ap_ide::{self as ide};
+
 use clap::Parser;
 use log::trace;
 use petgraph::graph::NodeIndex;
-use ra_ap_hir as hir;
-use ra_ap_ide::RootDatabase;
 
 use crate::{
     analyzer::LoadOptions,
@@ -34,7 +35,7 @@ impl Command {
     pub(crate) fn sanitize(&mut self) {}
 
     #[doc(hidden)]
-    pub fn run(self, krate: hir::Crate, db: &RootDatabase) -> anyhow::Result<()> {
+    pub fn run(self, krate: hir::Crate, db: &ide::RootDatabase) -> anyhow::Result<()> {
         trace!("Building graph ...");
 
         let builder = GraphBuilder::new(db, krate);
@@ -83,7 +84,7 @@ impl Command {
     }
 }
 
-fn draw_cycle(graph: &Graph<Node, Edge>, cycle: Vec<NodeIndex>, db: &RootDatabase) -> String {
+fn draw_cycle(graph: &Graph<Node, Edge>, cycle: Vec<NodeIndex>, db: &ide::RootDatabase) -> String {
     assert!(!cycle.is_empty());
 
     let first = graph[cycle[0]].display_path(db);

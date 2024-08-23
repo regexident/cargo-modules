@@ -4,13 +4,13 @@
 
 use std::collections::{HashMap, HashSet};
 
-use hir::HirDisplay;
-use log::{debug, trace};
-use petgraph::graph::{EdgeIndex, NodeIndex};
-use ra_ap_hir::{self as hir};
+use ra_ap_hir::{self as hir, HirDisplay as _};
 use ra_ap_hir_def::{self as hir_def};
 use ra_ap_hir_ty::{self as hir_ty, db::HirDatabase as _, TyExt as _};
-use ra_ap_ide_db::{self as ide_db};
+use ra_ap_ide::{self as ide};
+
+use log::{debug, trace};
+use petgraph::graph::{EdgeIndex, NodeIndex};
 use scopeguard::defer;
 
 use crate::{
@@ -28,7 +28,7 @@ struct Dependency {
 
 #[derive(Debug)]
 pub struct GraphBuilder<'a> {
-    db: &'a ide_db::RootDatabase,
+    db: &'a ide::RootDatabase,
     krate: hir::Crate,
     graph: Graph<Node, Edge>,
     nodes: HashMap<hir::ModuleDef, NodeIndex>,
@@ -36,7 +36,7 @@ pub struct GraphBuilder<'a> {
 }
 
 impl<'a> GraphBuilder<'a> {
-    pub fn new(db: &'a ide_db::RootDatabase, krate: hir::Crate) -> Self {
+    pub fn new(db: &'a ide::RootDatabase, krate: hir::Crate) -> Self {
         let graph = Graph::default();
         let nodes = HashMap::default();
         let edges = HashMap::default();
@@ -534,7 +534,7 @@ impl<'a> GraphBuilder<'a> {
 
     pub(super) fn walk_and_push_type(
         ty: hir::Type,
-        db: &ide_db::RootDatabase,
+        db: &ide::RootDatabase,
         visit: &mut dyn FnMut(hir::ModuleDef),
     ) {
         trace!("Walking type {ty}...", ty = ty.display(db));
@@ -558,7 +558,7 @@ impl<'a> GraphBuilder<'a> {
 
     fn walk_and_push_ty(
         ty: hir_ty::Ty,
-        db: &ide_db::RootDatabase,
+        db: &ide::RootDatabase,
         visit: &mut dyn FnMut(hir::ModuleDef),
     ) {
         trace!("Walking type {ty}...", ty = ty.display(db));
@@ -669,7 +669,7 @@ impl<'a> GraphBuilder<'a> {
 
     fn walk_and_push_substitution(
         substitution: hir_ty::Substitution,
-        db: &ide_db::RootDatabase,
+        db: &ide::RootDatabase,
         visit: &mut dyn FnMut(hir::ModuleDef),
     ) {
         trace!("Walking substitution {substitution:?}...");
@@ -688,7 +688,7 @@ impl<'a> GraphBuilder<'a> {
 
     fn walk_and_push_binders<'b>(
         binders: impl Iterator<Item = &'b hir_ty::VariableKind>,
-        db: &ide_db::RootDatabase,
+        db: &ide::RootDatabase,
         visit: &mut dyn FnMut(hir::ModuleDef),
     ) {
         for binder in binders {
