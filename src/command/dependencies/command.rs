@@ -35,10 +35,15 @@ impl Command {
     pub(crate) fn sanitize(&mut self) {}
 
     #[doc(hidden)]
-    pub fn run(self, krate: hir::Crate, db: &ide::RootDatabase) -> anyhow::Result<()> {
+    pub fn run(
+        self,
+        krate: hir::Crate,
+        db: &ide::RootDatabase,
+        edition: ide::Edition,
+    ) -> anyhow::Result<()> {
         trace!("Building graph ...");
 
-        let builder = GraphBuilder::new(db, krate);
+        let builder = GraphBuilder::new(db, edition, krate);
         let (graph, crate_node_idx) = builder.build()?;
 
         if self.options.acyclic {
@@ -46,9 +51,9 @@ impl Command {
                 TriColorDepthFirstSearch::new(&graph).run_from(crate_node_idx, &mut CycleDetector)
             {
                 assert!(cycle.len() >= 2);
-                let first = graph[cycle[0]].display_path(db);
-                let last = graph[*cycle.last().unwrap()].display_path(db);
-                let drawing = draw_cycle(&graph, cycle, db);
+                let first = graph[cycle[0]].display_path(db, edition);
+                let last = graph[*cycle.last().unwrap()].display_path(db, edition);
+                let drawing = draw_cycle(&graph, cycle, db, edition);
                 anyhow::bail!("Circular dependency between `{first}` and `{last}`.\n\n{drawing}");
             }
         }
@@ -59,14 +64,14 @@ impl Command {
 
         trace!("Filtering graph ...");
 
-        let filter = Filter::new(&self.options, db, krate);
+        let filter = Filter::new(&self.options, db, edition, krate);
         let graph = filter.filter(&graph, crate_node_idx)?;
 
         trace!("Printing graph ...");
 
         let mut string = String::new();
 
-        let printer = Printer::new(&self.options, krate, db);
+        let printer = Printer::new(&self.options, krate, db, edition);
         printer.fmt(&mut string, &graph, crate_node_idx)?;
 
         print!("{string}");
@@ -84,14 +89,19 @@ impl Command {
     }
 }
 
-fn draw_cycle(graph: &Graph<Node, Edge>, cycle: Vec<NodeIndex>, db: &ide::RootDatabase) -> String {
+fn draw_cycle(
+    graph: &Graph<Node, Edge>,
+    cycle: Vec<NodeIndex>,
+    db: &ide::RootDatabase,
+    edition: ide::Edition,
+) -> String {
     assert!(!cycle.is_empty());
 
-    let first = graph[cycle[0]].display_path(db);
+    let first = graph[cycle[0]].display_path(db, edition);
     let mut drawing = format!("┌> {first}\n");
 
     for (i, node) in cycle[1..].iter().enumerate() {
-        let path = graph[*node].display_path(db);
+        let path = graph[*node].display_path(db, edition);
         drawing += &format!("│  {:>width$}└─> {path}\n", "", width = i * 4);
     }
 

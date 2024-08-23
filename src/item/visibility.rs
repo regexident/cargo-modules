@@ -17,7 +17,7 @@ pub enum ItemVisibility {
 }
 
 impl ItemVisibility {
-    pub fn new(hir: hir::ModuleDef, db: &ide::RootDatabase) -> Self {
+    pub fn new(hir: hir::ModuleDef, db: &ide::RootDatabase, edition: ide::Edition) -> Self {
         let visibility = hir.visibility(db);
 
         let parent_module = match hir.module(db) {
@@ -41,7 +41,9 @@ impl ItemVisibility {
                     Self::Private
                 } else {
                     let visibility_module_def_hir = hir::ModuleDef::Module(visibility_module);
-                    let path = visibility_module_def_hir.canonical_path(db).unwrap();
+                    let path = visibility_module_def_hir
+                        .canonical_path(db, edition)
+                        .unwrap();
                     Self::Module(path)
                 }
             }

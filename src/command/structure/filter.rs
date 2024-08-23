@@ -13,13 +13,24 @@ use super::{options::Options, Node};
 #[derive(Debug)]
 pub struct Filter<'a> {
     options: &'a Options,
-    db: &'a ide::RootDatabase,
     krate: hir::Crate,
+    db: &'a ide::RootDatabase,
+    edition: ide::Edition,
 }
 
 impl<'a> Filter<'a> {
-    pub fn new(options: &'a Options, db: &'a ide::RootDatabase, krate: hir::Crate) -> Self {
-        Self { options, db, krate }
+    pub fn new(
+        options: &'a Options,
+        krate: hir::Crate,
+        db: &'a ide::RootDatabase,
+        edition: ide::Edition,
+    ) -> Self {
+        Self {
+            options,
+            krate,
+            db,
+            edition,
+        }
     }
 
     pub fn filter(&self, tree: &Tree<Node>) -> anyhow::Result<Tree<Node>> {
@@ -49,7 +60,7 @@ impl<'a> Filter<'a> {
         max_depth: usize,
         focus_tree: &ast::UseTree,
     ) -> Option<Tree<Node>> {
-        let path = tree.node.display_path(self.db);
+        let path = tree.node.display_path(self.db, self.edition);
 
         let is_focus_tree = analyzer::use_tree_matches_item_path(focus_tree, &path);
 
@@ -98,7 +109,7 @@ impl<'a> Filter<'a> {
     }
 
     fn is_or_contains_focus_tree(&self, tree: &Tree<Node>, focus_tree: &ast::UseTree) -> bool {
-        let path = tree.node.display_path(self.db);
+        let path = tree.node.display_path(self.db, self.edition);
 
         if analyzer::use_tree_matches_item_path(focus_tree, &path) {
             return true;
