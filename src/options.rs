@@ -7,6 +7,7 @@ use std::path::PathBuf;
 use clap::{ArgGroup, Parser};
 
 use crate::command::Command;
+use modlib;
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 pub struct App {
@@ -63,10 +64,33 @@ pub struct ProjectOptions {
     pub manifest_path: PathBuf,
 }
 
+impl Into<modlib::options::ProjectOptions> for ProjectOptions {
+    fn into(self) -> modlib::options::ProjectOptions {
+        modlib::options::ProjectOptions {
+            lib: self.lib,
+            bin: self.bin,
+            package: self.package,
+            no_default_features: self.no_default_features,
+            all_features: self.all_features,
+            features: self.features,
+            target: self.target,
+            manifest_path: self.manifest_path,
+        }
+    }
+}
+
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 #[group(id = "GeneralOptions")]
 pub struct GeneralOptions {
     /// Use verbose output.
     #[arg(long = "verbose")]
     pub verbose: bool,
+}
+
+impl Into<modlib::options::GeneralOptions> for GeneralOptions {
+    fn into(self) -> modlib::options::GeneralOptions {
+        modlib::options::GeneralOptions {
+            verbose: self.verbose,
+        }
+    }
 }

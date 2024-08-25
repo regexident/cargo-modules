@@ -14,7 +14,7 @@ use petgraph::{
     visit::{IntoNodeReferences, NodeRef},
 };
 
-use crate::{
+use modlib::{
     analyzer,
     graph::{Edge, Graph, Node},
     item::ItemVisibility,
@@ -79,8 +79,8 @@ impl<'a> Printer<'a> {
             {i}    overlap=false,
             {i}    splines="line",
             {i}    rankdir=LR,
-            
-            {i}    fontname="Helvetica", 
+
+            {i}    fontname="Helvetica",
             {i}    fontsize="36",
             {i}];
             "#,

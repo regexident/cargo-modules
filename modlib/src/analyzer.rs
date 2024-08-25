@@ -423,7 +423,7 @@ pub fn find_crate(
     krate.ok_or_else(|| anyhow::anyhow!("Crate not found"))
 }
 
-pub(crate) fn crate_name(krate: hir::Crate, db: &ide::RootDatabase) -> String {
+pub fn crate_name(krate: hir::Crate, db: &ide::RootDatabase) -> String {
     // Obtain the crate's declaration name:
     let display_name = &krate.display_name(db).unwrap();
 
@@ -431,21 +431,18 @@ pub(crate) fn crate_name(krate: hir::Crate, db: &ide::RootDatabase) -> String {
     display_name.replace('-', "_")
 }
 
-pub(crate) fn krate(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<hir::Crate> {
+pub fn krate(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<hir::Crate> {
     module(module_def_hir, db).map(|module| module.krate())
 }
 
-pub(crate) fn module(
-    module_def_hir: hir::ModuleDef,
-    db: &ide::RootDatabase,
-) -> Option<hir::Module> {
+pub fn module(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<hir::Module> {
     match module_def_hir {
         hir::ModuleDef::Module(module) => Some(module),
         module_def_hir => module_def_hir.module(db),
     }
 }
 
-pub(crate) fn display_name(
+pub fn display_name(
     module_def_hir: hir::ModuleDef,
     db: &ide::RootDatabase,
     edition: ide::Edition,
@@ -475,7 +472,7 @@ pub(crate) fn display_name(
     }
 }
 
-pub(crate) fn name(
+pub fn name(
     module_def_hir: hir::ModuleDef,
     db: &ide::RootDatabase,
     edition: ide::Edition,
@@ -485,7 +482,7 @@ pub(crate) fn name(
         .map(|name| name.display(db, edition).to_string())
 }
 
-pub(crate) fn display_path(
+pub fn display_path(
     module_def_hir: hir::ModuleDef,
     db: &ide::RootDatabase,
     edition: ide::Edition,
@@ -493,7 +490,7 @@ pub(crate) fn display_path(
     path(module_def_hir, db, edition).unwrap_or_else(|| "<anonymous>".to_owned())
 }
 
-pub(crate) fn path(
+pub fn path(
     module_def_hir: hir::ModuleDef,
     db: &ide::RootDatabase,
     edition: ide::Edition,
@@ -585,7 +582,7 @@ fn assoc_item_path(
 }
 
 // https://github.com/rust-lang/rust-analyzer/blob/36a70b7435c48837018c71576d7bb4e8f763f501/crates/syntax/src/ast/make.rs#L821
-pub(crate) fn parse_ast<N: syntax::AstNode>(text: &str) -> N {
+pub fn parse_ast<N: syntax::AstNode>(text: &str) -> N {
     let parse = syntax::SourceFile::parse(text, ide::Edition::CURRENT);
     let node = match parse.tree().syntax().descendants().find_map(N::cast) {
         Some(it) => it,
@@ -599,7 +596,7 @@ pub(crate) fn parse_ast<N: syntax::AstNode>(text: &str) -> N {
     node
 }
 
-pub(crate) fn use_tree_matches_item_path(use_tree: &ast::UseTree, item_path: &str) -> bool {
+pub fn use_tree_matches_item_path(use_tree: &ast::UseTree, item_path: &str) -> bool {
     if item_path.is_empty() {
         return false;
     }
@@ -610,7 +607,7 @@ pub(crate) fn use_tree_matches_item_path(use_tree: &ast::UseTree, item_path: &st
     use_tree_matches_path(use_tree, &node_path)
 }
 
-pub(crate) fn use_tree_matches_path(use_tree: &ast::UseTree, path: &ast::Path) -> bool {
+pub fn use_tree_matches_path(use_tree: &ast::UseTree, path: &ast::Path) -> bool {
     let mut path_segments_iter = path.segments();
 
     if let Some(use_tree_path) = use_tree.path() {
@@ -663,7 +660,7 @@ fn tree_contains_self(tree: &ast::UseTree) -> bool {
         .unwrap_or(false)
 }
 
-pub(crate) fn is_test_function(function: hir::Function, db: &ide::RootDatabase) -> bool {
+pub fn is_test_function(function: hir::Function, db: &ide::RootDatabase) -> bool {
     let attrs = function.attrs(db);
     let key = hir::Symbol::intern("test");
     attrs.by_key(&key).exists()

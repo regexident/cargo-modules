@@ -10,7 +10,7 @@ use ra_ap_ide::{self as ide};
 use clap::Parser;
 use log::trace;
 
-use crate::{analyzer::LoadOptions, tree::TreeBuilder};
+use modlib::{analyzer::LoadOptions, tree::TreeBuilder};
 
 use super::{filter::Filter, options::Options, printer::Printer};
 

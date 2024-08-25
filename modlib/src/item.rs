@@ -7,7 +7,7 @@ use ra_ap_ide::{self as ide};
 
 use crate::analyzer;
 
-pub(crate) use self::{
+pub use self::{
     attr::{ItemAttrs, ItemCfgAttr, ItemTestAttr},
     kind_display_name::ItemKindDisplayName,
     kind_ordering::ItemKindOrdering,

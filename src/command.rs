@@ -4,10 +4,8 @@
 
 use clap::Parser;
 
-use crate::{
-    analyzer::{load_workspace, LoadOptions},
-    options::{GeneralOptions, ProjectOptions},
-};
+use crate::options::{GeneralOptions, ProjectOptions};
+use modlib::analyzer::{load_workspace, LoadOptions};
 
 use self::{
     dependencies::command::Command as DependenciesCommand,
@@ -58,12 +56,15 @@ impl Command {
     }
 
     pub fn run(self) -> Result<(), anyhow::Error> {
-        let general_options = self.general_options();
-        let project_options = self.project_options();
+        let general_options = self.general_options().clone();
+        let project_options = self.project_options().clone();
         let load_options = self.load_options();
 
-        let (krate, host, vfs, edition) =
-            load_workspace(general_options, project_options, &load_options)?;
+        let (krate, host, vfs, edition) = load_workspace(
+            &general_options.into(),
+            &project_options.into(),
+            &load_options,
+        )?;
         let db = host.raw_database();
 
         match self {

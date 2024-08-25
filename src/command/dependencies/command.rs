@@ -9,7 +9,7 @@ use clap::Parser;
 use log::trace;
 use petgraph::graph::NodeIndex;
 
-use crate::{
+use modlib::{
     analyzer::LoadOptions,
     graph::{Edge, Graph, GraphBuilder, Node},
 };

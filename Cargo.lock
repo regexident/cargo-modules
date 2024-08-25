@@ -164,6 +164,7 @@ dependencies = [
  "libc",
  "log",
  "memoffset",
+ "modlib",
  "petgraph",
  "pulldown-cmark 0.12.0",
  "ra_ap_base_db",
@@ -752,6 +753,46 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "359f76430b20a79f9e20e115b3428614e654f04fab314482fc0fda0ebd3c6044"
 dependencies = [
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "modlib"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bitvec",
+ "clap",
+ "dunce",
+ "env_logger",
+ "getopts",
+ "indoc",
+ "json",
+ "libc",
+ "log",
+ "memoffset",
+ "petgraph",
+ "pulldown-cmark 0.12.0",
+ "ra_ap_base_db",
+ "ra_ap_cfg",
+ "ra_ap_hir",
+ "ra_ap_hir_def",
+ "ra_ap_hir_ty",
+ "ra_ap_ide",
+ "ra_ap_ide_db",
+ "ra_ap_load-cargo",
+ "ra_ap_paths",
+ "ra_ap_proc_macro_api",
+ "ra_ap_project_model",
+ "ra_ap_syntax",
+ "ra_ap_text_edit",
+ "ra_ap_vfs",
+ "rust-analyzer-salsa",
+ "rust-analyzer-salsa-macros",
+ "scopeguard",
+ "sugar_path",
+ "thread_local",
+ "wyz 0.6.1",
+ "yansi",
 ]
 
 [[package]]

@@ -5,8 +5,4 @@
 pub mod command;
 pub mod options;
 
-pub(crate) mod analyzer;
 pub(crate) mod colors;
-pub(crate) mod graph;
-pub(crate) mod item;
-pub(crate) mod tree;

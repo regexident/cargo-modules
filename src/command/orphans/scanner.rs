@@ -14,7 +14,7 @@ use ra_ap_vfs::{self as vfs};
 
 use log::{debug, trace};
 
-use crate::analyzer;
+use modlib::analyzer;
 
 use super::orphan::Orphan;
 

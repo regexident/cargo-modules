@@ -10,7 +10,7 @@ use ra_ap_ide::{self as ide};
 
 use yansi::Paint as _;
 
-use crate::{analyzer, item::ItemVisibility, tree::Tree};
+use modlib::{analyzer, item::ItemVisibility, tree::Tree};
 
 use super::{
     options::{Options, SortBy},
