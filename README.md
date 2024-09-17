@@ -137,7 +137,7 @@ If you are running the command on a terminal with color support and don't have `
 └── <visibility> <keyword> <name> [<test-attributes>]
 ```
 
-The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-and-privacy.html)) is further more highlighted by the following colors:
+The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-and-privacy.html)) is furthermore highlighted by the following colors:
 
 | Color    | Meaning                                                                            |
 | -------- | ---------------------------------------------------------------------------------- |
@@ -238,7 +238,7 @@ The individual nodes are structured as follows:
 
 #### Node Colors
 
-The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-and-privacy.html)) is further more highlighted by the following colors:
+The `<visibility>` ([more info](https://doc.rust-lang.org/reference/visibility-and-privacy.html)) is furthermore highlighted by the following colors:
 
 | Color    | Meaning                                                                            |
 | -------- | ---------------------------------------------------------------------------------- |
