@@ -16,7 +16,7 @@ use petgraph::{
     Direction,
 };
 
-use crate::{
+use modlib::{
     analyzer,
     graph::{Edge, Graph, GraphWalker, Node, Relationship},
 };

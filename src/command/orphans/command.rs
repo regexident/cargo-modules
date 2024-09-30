@@ -9,7 +9,7 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 use ra_ap_vfs::{self as vfs};
 
-use crate::analyzer::{self, LoadOptions};
+use modlib::analyzer::{self, LoadOptions};
 
 use super::{options::Options, printer::Printer};
 

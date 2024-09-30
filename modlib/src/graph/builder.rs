@@ -66,7 +66,7 @@ impl<'a> GraphBuilder<'a> {
         Ok((self.graph, node_idx))
     }
 
-    fn process_crate(&mut self, crate_hir: hir::Crate) -> Option<NodeIndex> {
+    pub fn process_crate(&mut self, crate_hir: hir::Crate) -> Option<NodeIndex> {
         trace!("Processing crate...");
 
         defer! {
@@ -104,7 +104,7 @@ impl<'a> GraphBuilder<'a> {
         node_idx
     }
 
-    fn process_impl(&mut self, impl_hir: hir::Impl) -> Vec<NodeIndex> {
+    pub fn process_impl(&mut self, impl_hir: hir::Impl) -> Vec<NodeIndex> {
         trace!("Processing impl...");
 
         defer! {
@@ -142,7 +142,7 @@ impl<'a> GraphBuilder<'a> {
             .collect()
     }
 
-    fn process_moduledef(&mut self, module_def_hir: hir::ModuleDef) -> Option<NodeIndex> {
+    pub fn process_moduledef(&mut self, module_def_hir: hir::ModuleDef) -> Option<NodeIndex> {
         trace!("Processing moduledef...");
 
         defer! {
@@ -196,7 +196,7 @@ impl<'a> GraphBuilder<'a> {
         node_idx
     }
 
-    fn process_module(
+    pub fn process_module(
         &mut self,
         module_hir: hir::Module,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -238,7 +238,7 @@ impl<'a> GraphBuilder<'a> {
         node_idx
     }
 
-    fn process_function(
+    pub fn process_function(
         &mut self,
         function_hir: hir::Function,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -304,7 +304,7 @@ impl<'a> GraphBuilder<'a> {
         Some(node_idx)
     }
 
-    fn process_adt(
+    pub fn process_adt(
         &mut self,
         adt_hir: hir::Adt,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -322,7 +322,7 @@ impl<'a> GraphBuilder<'a> {
         }
     }
 
-    fn process_struct(
+    pub fn process_struct(
         &mut self,
         struct_hir: hir::Struct,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -348,7 +348,7 @@ impl<'a> GraphBuilder<'a> {
         node_idx
     }
 
-    fn process_enum(
+    pub fn process_enum(
         &mut self,
         enum_hir: hir::Enum,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -375,7 +375,7 @@ impl<'a> GraphBuilder<'a> {
         node_idx
     }
 
-    fn process_union(
+    pub fn process_union(
         &mut self,
         union_hir: hir::Union,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -400,7 +400,7 @@ impl<'a> GraphBuilder<'a> {
         node_idx
     }
 
-    fn process_variant(
+    pub fn process_variant(
         &mut self,
         variant_hir: hir::Variant,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -423,7 +423,7 @@ impl<'a> GraphBuilder<'a> {
         None
     }
 
-    fn process_const(
+    pub fn process_const(
         &mut self,
         const_hir: hir::Const,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -444,7 +444,7 @@ impl<'a> GraphBuilder<'a> {
         None
     }
 
-    fn process_static(
+    pub fn process_static(
         &mut self,
         static_hir: hir::Static,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -465,7 +465,7 @@ impl<'a> GraphBuilder<'a> {
         None
     }
 
-    fn process_trait(
+    pub fn process_trait(
         &mut self,
         trait_hir: hir::Trait,
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -484,7 +484,7 @@ impl<'a> GraphBuilder<'a> {
         node_idx
     }
 
-    fn process_trait_alias(
+    pub fn process_trait_alias(
         &mut self,
         trait_alias_hir: hir::TraitAlias,
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -503,7 +503,7 @@ impl<'a> GraphBuilder<'a> {
         node_idx
     }
 
-    fn process_type_alias(
+    pub fn process_type_alias(
         &mut self,
         type_alias_hir: hir::TypeAlias,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -526,7 +526,7 @@ impl<'a> GraphBuilder<'a> {
         node_idx
     }
 
-    fn process_builtin_type(
+    pub fn process_builtin_type(
         &mut self,
         builtin_type_hir: hir::BuiltinType,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -549,7 +549,7 @@ impl<'a> GraphBuilder<'a> {
         node_idx
     }
 
-    fn process_macro(
+    pub fn process_macro(
         &mut self,
         _macro_hir: hir::Macro,
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
@@ -590,7 +590,7 @@ impl<'a> GraphBuilder<'a> {
         });
     }
 
-    fn walk_and_push_ty(
+    pub fn walk_and_push_ty(
         ty: hir_ty::Ty,
         db: &ide::RootDatabase,
         edition: ide::Edition,
@@ -720,7 +720,7 @@ impl<'a> GraphBuilder<'a> {
         }
     }
 
-    fn walk_and_push_substitution(
+    pub fn walk_and_push_substitution(
         substitution: hir_ty::Substitution,
         db: &ide::RootDatabase,
         edition: ide::Edition,
@@ -740,7 +740,7 @@ impl<'a> GraphBuilder<'a> {
         }
     }
 
-    fn walk_and_push_binders<'b>(
+    pub fn walk_and_push_binders<'b>(
         binders: impl Iterator<Item = &'b hir_ty::VariableKind>,
         db: &ide::RootDatabase,
         edition: ide::Edition,
@@ -757,7 +757,7 @@ impl<'a> GraphBuilder<'a> {
         }
     }
 
-    fn add_dependencies<I>(&mut self, depender_idx: NodeIndex, dependencies: I)
+    pub fn add_dependencies<I>(&mut self, depender_idx: NodeIndex, dependencies: I)
     where
         I: IntoIterator<Item = hir::ModuleDef>,
     {
@@ -776,7 +776,7 @@ impl<'a> GraphBuilder<'a> {
         }
     }
 
-    fn add_node_if_necessary(&mut self, module_def_hir: hir::ModuleDef) -> Option<NodeIndex> {
+    pub fn add_node_if_necessary(&mut self, module_def_hir: hir::ModuleDef) -> Option<NodeIndex> {
         let name = module_def_hir
             .name(self.db)
             .map(|name| name.display(self.db, self.edition).to_string());
@@ -806,7 +806,7 @@ impl<'a> GraphBuilder<'a> {
         }
     }
 
-    fn add_edge(
+    pub fn add_edge(
         &mut self,
         source_idx: NodeIndex,
         target_idx: NodeIndex,

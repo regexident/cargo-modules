@@ -6,7 +6,7 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 use ra_ap_syntax::ast;
 
-use crate::{analyzer, tree::Tree};
+use modlib::{analyzer, tree::Tree};
 
 use super::{options::Options, Node};
 

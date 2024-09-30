@@ -11,7 +11,7 @@ use crate::item::Item;
 mod builder;
 mod walker;
 
-pub(crate) use self::{builder::GraphBuilder, walker::GraphWalker};
+pub use self::{builder::GraphBuilder, walker::GraphWalker};
 
 pub type Graph<N, E> = StableGraph<N, E>;
 

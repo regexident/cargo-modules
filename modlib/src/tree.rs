@@ -4,7 +4,7 @@
 
 mod builder;
 
-pub(crate) use self::builder::TreeBuilder;
+pub use self::builder::TreeBuilder;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Tree<N> {

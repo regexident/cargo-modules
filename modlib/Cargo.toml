@@ -1,26 +1,11 @@
-workspace = { members = ["modlib"] }
 [package]
-authors = ["Vincent Esche <regexident@gmail.com>", "Hmvp <github@hmvp.nl>"]
-categories = ["command-line-utilities", "development-tools::cargo-plugins"]
-description = "A cargo plugin for showing a tree-like overview of a crate's modules."
-documentation = "https://docs.rs/crate/cargo-modules/"
-homepage = "https://github.com/regexident/cargo-modules"
-keywords = ["cargo", "plugin", "module", "mod", "tree"]
-license = "MPL-2.0"
-edition = "2021"
-name = "cargo-modules"
-readme = "README.md"
-repository = "https://github.com/regexident/cargo-modules"
-rust-version = "1.80.0"
-version = "0.17.0"
-
-[dependencies.modlib]
-path = "modlib"
+name = "modlib"
 version = "0.1.0"
-package = "modlib"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
 # required by lib
 bitvec = "1.0"
 json = "0.12.4"
@@ -61,10 +46,3 @@ libc = "0.2.155"
 # security fixes
 memoffset = "0.9.1"    #230
 thread_local = "1.1.8" #231
-
-# required by tests
-[dev-dependencies]
-assert_cmd = "2.0.14"
-shellwords = "1.1"
-insta = "1.38.0"
-bitflags = "2.5.0"

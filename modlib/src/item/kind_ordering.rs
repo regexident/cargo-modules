@@ -10,7 +10,7 @@ use ra_ap_ide::{self as ide};
 use super::Item;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
-pub(crate) enum ItemKindOrdering {
+pub enum ItemKindOrdering {
     Module {
         is_crate_root: bool,
     },
