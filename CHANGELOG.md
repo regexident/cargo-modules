@@ -24,7 +24,12 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `anyhow` from `1.0.86` to `1.0.89`
+  - `clap` from `4.5.16` to `4.5.18`
+  - `insta` from `1.39.0` to `1.40.0`
+  - `libc` from `0.2.158` to `0.2.159`
+  - `pulldown-cmark` from `0.12.0` to `0.12.1`
 
 ### Deprecated
 
