@@ -138,7 +138,6 @@ pub fn cargo_config(
     let extra_env = ide_db::FxHashMap::default();
 
     let invocation_strategy = project_model::InvocationStrategy::PerWorkspace;
-    let invocation_location = project_model::InvocationLocation::Workspace;
 
     let sysroot_src = None;
 
@@ -157,7 +156,6 @@ pub fn cargo_config(
         run_build_script_command,
         extra_env,
         invocation_strategy,
-        invocation_location,
         sysroot_src,
         extra_args,
         target_dir,
