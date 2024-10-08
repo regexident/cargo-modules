@@ -300,13 +300,24 @@ mod package_bin {
 }
 
 mod cfg_test {
-    test_cmd!(
-        args: "dependencies \
-                --cfg-test",
-        success: true,
-        color_mode: ColorMode::Plain,
-        project: smoke
-    );
+    mod without_tests {
+        test_cmd!(
+            args: "dependencies",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod with_tests {
+        test_cmd!(
+            args: "dependencies \
+                    --cfg-test",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
 }
 
 mod selection {
