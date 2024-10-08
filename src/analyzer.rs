@@ -108,24 +108,7 @@ pub fn cargo_config(
     let rustc_source = None;
 
     // Crates to enable/disable `#[cfg(test)]` on
-    let cfg_overrides = match load_options.cfg_test {
-        true => project_model::CfgOverrides {
-            global: cfg::CfgDiff::new(
-                vec![cfg::CfgAtom::Flag(hir::Symbol::intern("test"))],
-                Vec::new(),
-            )
-            .unwrap(),
-            selective: Default::default(),
-        },
-        false => project_model::CfgOverrides {
-            global: cfg::CfgDiff::new(
-                Vec::new(),
-                vec![cfg::CfgAtom::Flag(hir::Symbol::intern("test"))],
-            )
-            .unwrap(),
-            selective: Default::default(),
-        },
-    };
+    let cfg_overrides = project_model::CfgOverrides::default();
 
     // Setup RUSTC_WRAPPER to point to `rust-analyzer` binary itself.
     // (We use that to compile only proc macros and build scripts
@@ -145,6 +128,8 @@ pub fn cargo_config(
 
     let target_dir = None;
 
+    let set_test = load_options.cfg_test;
+
     project_model::CargoConfig {
         all_targets,
         features,
@@ -159,6 +144,7 @@ pub fn cargo_config(
         sysroot_src,
         extra_args,
         target_dir,
+        set_test,
     }
 }
 
