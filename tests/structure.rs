@@ -283,7 +283,7 @@ mod package_bin {
 
 mod cfg_test {
     test_cmd!(
-        args: "dependencies \
+        args: "structure \
                 --cfg-test",
         success: true,
         color_mode: ColorMode::Plain,
