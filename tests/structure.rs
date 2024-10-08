@@ -289,6 +289,24 @@ mod cfg_test {
         color_mode: ColorMode::Plain,
         project: smoke
     );
+    mod without_tests {
+        test_cmd!(
+            args: "structure",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
+    mod with_tests {
+        test_cmd!(
+            args: "structure \
+                    --cfg-test",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
 }
 
 mod selection {

@@ -40,12 +40,9 @@ digraph {
     "alloc::string::String" [label="external struct|alloc::string::String", fillcolor="#81c169"]; // "struct" node
     "bool" [label="external builtin|bool", fillcolor="#81c169"]; // "builtin" node
     "core::cmp" [label="external mod|core::cmp", fillcolor="#81c169"]; // "mod" node
-    "core::fmt::Arguments" [label="external struct|core::fmt::Arguments", fillcolor="#81c169"]; // "struct" node
     "core::future::future::Future" [label="external trait|core::future::future::Future", fillcolor="#81c169"]; // "trait" node
     "core::marker::Sized" [label="external trait|core::marker::Sized", fillcolor="#81c169"]; // "trait" node
     "core::ops" [label="external mod|core::ops", fillcolor="#81c169"]; // "mod" node
-    "core::option::Option" [label="external enum|core::option::Option", fillcolor="#81c169"]; // "enum" node
-    "core::panicking::AssertKind" [label="external enum|core::panicking::AssertKind", fillcolor="#81c169"]; // "enum" node
     "i32" [label="external builtin|i32", fillcolor="#81c169"]; // "builtin" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
     "smoke::derives" [label="pub(crate) mod|smoke::derives", fillcolor="#f8c04c"]; // "mod" node
@@ -87,8 +84,6 @@ digraph {
     "smoke::methods::Std" [label="pub(self) type|smoke::methods::Std", fillcolor="#db5367"]; // "type" node
     "smoke::target" [label="pub(crate) mod|smoke::target", fillcolor="#f8c04c"]; // "mod" node
     "smoke::target::Target" [label="pub struct|smoke::target::Target", fillcolor="#81c169"]; // "struct" node
-    "smoke::tests" [label="pub(crate) mod|smoke::tests", fillcolor="#f8c04c"]; // "mod" node
-    "smoke::tests::it_works" [label="pub(self) fn|smoke::tests::it_works", fillcolor="#db5367"]; // "fn" node
     "smoke::uses" [label="pub(crate) mod|smoke::uses", fillcolor="#f8c04c"]; // "mod" node
     "smoke::uses::cycle" [label="pub(self) mod|smoke::uses::cycle", fillcolor="#db5367"]; // "mod" node
     "smoke::uses::cycle::node_0" [label="pub(self) mod|smoke::uses::cycle::node_0", fillcolor="#db5367"]; // "mod" node
@@ -159,7 +154,6 @@ digraph {
     "smoke" -> "smoke::hierarchy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::methods" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::target" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke" -> "smoke::tests" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::uses" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::derives" -> "smoke::derives::Dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -232,12 +226,6 @@ digraph {
     "smoke::methods::Dummy::outputs" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Std" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::target" -> "smoke::target::Target" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::tests" -> "smoke::tests::it_works" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::tests::it_works" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::tests::it_works" -> "core::fmt::Arguments" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::tests::it_works" -> "core::option::Option" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::tests::it_works" -> "core::panicking::AssertKind" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::tests::it_works" -> "i32" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::uses" -> "alloc::fmt" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::uses" -> "core::cmp" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::uses" -> "core::ops" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
@@ -311,4 +299,3 @@ digraph {
     "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
-
