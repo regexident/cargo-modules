@@ -60,6 +60,8 @@ Please make sure to add your changes to the appropriate categories:
   - `insta` from `1.39.0` to `1.40.0`
   - `libc` from `0.2.158` to `0.2.159`
   - `pulldown-cmark` from `0.12.0` to `0.12.1`
+  - `rust-analyzer` from `0.0.230` to `0.0.237`
+- Bumped MSRV from `1.80.0` to `1.81.0`
 
 ## [0.17.0] - 2024-08-22
 
