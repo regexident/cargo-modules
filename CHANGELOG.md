@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `clap` from `4.5.18` to `4.5.19`
 
 ### Deprecated
 
