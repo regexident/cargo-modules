@@ -1,0 +1,35 @@
+---
+source: tests/structure.rs
+expression: output
+---
+COMMAND:
+structure
+--focus-on
+smoke_structure::lorem::sit::*
+
+STDERR:
+
+STDOUT:
+
+crate smoke_structure
+└── mod lorem: pub(crate)
+    ├── trait Amet: pub(self)
+    ├── mod adipiscing: pub(self)
+    ├── mod elit: pub(self)
+    │   ├── struct Ipsum: pub(self)
+    │   └── trait Lorem: pub(self)
+    └── mod sit: pub(self)
+        ├── enum Adipiscing: pub(self)
+        ├── mod elit: pub(self)
+        │   ├── mod amet: pub(self)
+        │   │   ├── union Ipsum: pub(self)
+        │   │   ├── mod dolor: pub(self)
+        │   │   │   ├── trait Amet: pub(self)
+        │   │   │   ├── enum Consectetur: pub(self)
+        │   │   │   └── mod adipiscing: pub(self)
+        │   │   │       ├── struct Consectetur: pub(self)
+        │   │   │       ├── trait Dolor: pub(self)
+        │   │   │       └── fn ipsum: pub(self)
+        │   │   └── fn elit: pub(self)
+        │   └── fn sit: pub(self)
+        └── mod ipsum: pub(self)
