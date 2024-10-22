@@ -150,13 +150,13 @@ macro_rules! test_cmd {
                 },
             }
 
-            let cmd_args = format!("{}\n", args.join("\n"));
+            let command = format!("{}\n", args.join("\n"));
 
             let (stdout, stderr) = crate::util::output(cmd, $success);
 
             let mut output = String::new();
 
-            writeln!(&mut output, "CMD:\n{cmd_args}").unwrap();
+            writeln!(&mut output, "COMMAND:\n{command}").unwrap();
             writeln!(&mut output, "STDERR:\n{stderr}").unwrap();
             writeln!(&mut output, "STDOUT:\n{stdout}").unwrap();
 

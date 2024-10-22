@@ -2,7 +2,7 @@
 source: tests/orphans.rs
 expression: output
 ---
-CMD:
+COMMAND:
 orphans
 
 STDERR:

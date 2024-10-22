@@ -2,7 +2,7 @@
 source: tests/structure.rs
 expression: output
 ---
-CMD:
+COMMAND:
 structure
 --package
 package_lib_target
