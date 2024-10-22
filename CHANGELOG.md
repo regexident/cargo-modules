@@ -24,7 +24,10 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `anyhow` from `1.0.89` to `1.0.90`
+  - `libc` from `0.2.159` to `0.2.161`
+  - `pulldown-cmark` from `0.12.1` to `0.12.2`
 
 ### Deprecated
 
