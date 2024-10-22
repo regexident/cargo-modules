@@ -45,16 +45,10 @@ ra_ap_text_edit = "=0.0.239"
 ra_ap_vfs = "=0.0.239"
 
 # minimal versions
-wyz = "0.6.1"
-pulldown-cmark = "0.12.0"
-getopts = "0.2.21"
-rust-analyzer-salsa = "0.17.0-pre.6"        # resolving rust-analyzer = "=0.0.189"
-rust-analyzer-salsa-macros = "0.17.0-pre.6" # resolving rust-analyzer = "=0.0.189"
-libc = "0.2.155"
+# n/a
 
 # security fixes
-memoffset = "0.9.1"    #230
-thread_local = "1.1.8" #231
+# n/a
 
 # required by tests
 [dev-dependencies]
