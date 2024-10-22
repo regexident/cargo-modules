@@ -40,7 +40,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/a
+- Fixed filtering of `#[test]` and `#[cfg(test)]` when `--cfg-test` is not used
 
 ### Performance
 

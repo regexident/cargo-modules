@@ -17,7 +17,7 @@ use petgraph::{
 };
 
 use crate::{
-    analyzer,
+    analyzer::{self, has_test_cfg, is_test_function},
     graph::{Edge, Graph, GraphWalker, Node, Relationship},
 };
 
@@ -244,6 +244,10 @@ impl<'a> Filter<'a> {
             return false;
         }
 
+        if !self.options.cfg_test && has_test_cfg(module_def_hir, self.db) {
+            return false;
+        }
+
         match module_def_hir {
             hir::ModuleDef::Module(module_hir) => self.should_retain_module(module_hir),
             hir::ModuleDef::Function(function_hir) => self.should_retain_function(function_hir),
@@ -273,8 +277,12 @@ impl<'a> Filter<'a> {
         true
     }
 
-    fn should_retain_function(&self, _function_hir: hir::Function) -> bool {
+    fn should_retain_function(&self, function_hir: hir::Function) -> bool {
         if self.options.selection.no_fns {
+            return false;
+        }
+
+        if !self.options.cfg_test && is_test_function(function_hir, self.db) {
             return false;
         }
 

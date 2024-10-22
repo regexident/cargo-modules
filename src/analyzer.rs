@@ -664,6 +664,27 @@ fn tree_contains_self(tree: &ast::UseTree) -> bool {
         .unwrap_or(false)
 }
 
+pub(crate) fn has_test_cfg(hir: hir::ModuleDef, db: &ide::RootDatabase) -> bool {
+    let Some(attrs) = hir.attrs(db) else {
+        return false;
+    };
+
+    let test_key = hir::Symbol::intern("test");
+    let cfg_exprs: Vec<_> = attrs.cfgs().collect();
+
+    cfg_exprs.into_iter().any(|cfg_expr| {
+        cfg_expr
+            .fold(&|cfg| {
+                use ra_ap_cfg::CfgAtom;
+                match cfg {
+                    CfgAtom::Flag(symbol) => symbol == &test_key,
+                    CfgAtom::KeyValue { .. } => false,
+                }
+            })
+            .is_some()
+    })
+}
+
 pub(crate) fn is_test_function(function: hir::Function, db: &ide::RootDatabase) -> bool {
     let attrs = function.attrs(db);
     let key = hir::Symbol::intern("test");
