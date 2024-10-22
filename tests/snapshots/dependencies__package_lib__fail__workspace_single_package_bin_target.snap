@@ -2,6 +2,12 @@
 source: tests/dependencies.rs
 expression: output
 ---
+CMD:
+dependencies
+--package
+package_bin_target
+--lib
+
 STDERR:
 Error: No library target found.
 

@@ -2,6 +2,11 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+--bin
+foobar
+
 STDERR:
 Error: No binary target found with name "foobar".
 

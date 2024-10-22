@@ -2,6 +2,11 @@
 source: tests/dependencies.rs
 expression: output
 ---
+CMD:
+dependencies
+--bin
+foobar
+
 STDERR:
 Error: Multiple packages present in workspace,
 please explicitly select one via --package flag.

@@ -2,6 +2,9 @@
 source: tests/orphans.rs
 expression: output
 ---
+CMD:
+orphans
+
 STDERR:
 Error: Found 2 orphans in crate 'orphans'
 

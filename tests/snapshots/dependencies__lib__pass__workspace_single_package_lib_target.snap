@@ -2,6 +2,10 @@
 source: tests/dependencies.rs
 expression: output
 ---
+CMD:
+dependencies
+--lib
+
 STDERR:
 
 STDOUT:

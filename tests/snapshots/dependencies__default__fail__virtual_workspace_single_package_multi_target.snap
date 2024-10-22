@@ -2,6 +2,9 @@
 source: tests/dependencies.rs
 expression: output
 ---
+CMD:
+dependencies
+
 STDERR:
 Error: Multiple targets present in package,
 please explicitly select one via --lib or --bin flag.

@@ -2,6 +2,12 @@
 source: tests/dependencies.rs
 expression: output
 ---
+CMD:
+dependencies
+--no-externs
+--no-fns
+--no-traits
+
 STDERR:
 
 STDOUT:

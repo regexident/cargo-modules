@@ -2,6 +2,13 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+--package
+package_bin_target
+--bin
+package_bin_target
+
 STDERR:
 
 STDOUT:

@@ -2,6 +2,11 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+--bin
+foobar
+
 STDERR:
 Error: Multiple packages present in workspace,
 please explicitly select one via --package flag.
