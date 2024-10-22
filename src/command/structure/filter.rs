@@ -37,15 +37,9 @@ impl<'a> Filter<'a> {
     }
 
     pub fn filter(&self, tree: &Tree<Node>) -> anyhow::Result<Tree<Node>> {
-        let focus_on = self
-            .options
-            .focus_on
-            .as_ref()
-            .cloned()
-            .unwrap_or_else(|| self.krate.display_name(self.db).unwrap().to_string());
-
-        let syntax = format!("use {focus_on};");
-        let use_tree: ast::UseTree = analyzer::parse_ast(&syntax);
+        let crate_name = self.krate.display_name(self.db).unwrap().to_string();
+        let focus_on = self.options.focus_on.as_deref();
+        let use_tree: ast::UseTree = crate::utils::sanitized_use_tree(focus_on, &crate_name)?;
 
         let max_depth = self.options.max_depth.unwrap_or(usize::MAX);
 

@@ -346,7 +346,7 @@ mod focus_on {
     mod simple_path {
         test_cmd!(
             args: "structure \
-                    --focus-on \"smoke_structure::lorem::sit\"",
+                    --focus-on \"crate::lorem::sit\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke_structure
@@ -356,7 +356,7 @@ mod focus_on {
     mod glob_path {
         test_cmd!(
             args: "structure \
-                    --focus-on \"smoke_structure::lorem::sit::*\"",
+                    --focus-on \"crate::lorem::sit::*\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke_structure
@@ -366,7 +366,7 @@ mod focus_on {
     mod self_path {
         test_cmd!(
             args: "structure \
-                    --focus-on \"smoke_structure::lorem::sit::{self}\"",
+                    --focus-on \"crate::lorem::sit::{self}\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke_structure
@@ -376,7 +376,7 @@ mod focus_on {
     mod use_tree {
         test_cmd!(
             args: "structure \
-                    --focus-on \"smoke_structure::{lorem::sit::ipsum, sit::dolor::amet::lorem::sit}\"",
+                    --focus-on \"crate::{lorem::sit::ipsum, sit::dolor::amet::lorem::sit}\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke_structure
@@ -386,7 +386,7 @@ mod focus_on {
     mod with_max_depth {
         test_cmd!(
             args: "structure \
-                    --focus-on \"smoke_structure::{lorem, sit}\" \
+                    --focus-on \"crate::{lorem, sit}\" \
                     --max-depth 2",
             success: true,
             color_mode: ColorMode::Plain,

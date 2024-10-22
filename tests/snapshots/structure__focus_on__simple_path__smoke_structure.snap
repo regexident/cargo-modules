@@ -5,7 +5,7 @@ expression: output
 COMMAND:
 structure
 --focus-on
-smoke_structure::lorem::sit
+crate::lorem::sit
 
 STDERR:
 
