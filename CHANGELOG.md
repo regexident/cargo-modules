@@ -40,6 +40,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
+- Fixed `structure`'s filtering logic with respect to `--focus-on` and `--max-depth` options.
 - Fixed filtering of `#[test]` and `#[cfg(test)]` when `--cfg-test` is not used
 
 ### Performance
