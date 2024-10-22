@@ -20,15 +20,11 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- The `--focus-on` option now accepts expressions starting with `crate::…` (previously the crate's name had to be written out).
+- n/a
 
 ### Changed
 
-- Updated dependencies:
-  - `anyhow` from `1.0.89` to `1.0.90`
-  - `libc` from `0.2.159` to `0.2.161`
-  - `pulldown-cmark` from `0.12.1` to `0.12.2`
-  - `rust-analyzer` from `0.0.239` to `0.0.240`
+- n/a
 
 ### Deprecated
 
@@ -40,8 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- Fixed `structure`'s filtering logic with respect to `--focus-on` and `--max-depth` options.
-- Fixed filtering of `#[test]` and `#[cfg(test)]` when `--cfg-test` is not used
+- n/a
 
 ### Performance
 
@@ -54,6 +49,25 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.19.0] - 2024-10-23
+
+### Added
+
+- The `--focus-on` option now accepts expressions starting with `crate::…` (previously the crate's name had to be written out).
+
+### Changed
+
+- Updated dependencies:
+  - `anyhow` from `1.0.89` to `1.0.90`
+  - `libc` from `0.2.159` to `0.2.161`
+  - `pulldown-cmark` from `0.12.1` to `0.12.2`
+  - `rust-analyzer` from `0.0.239` to `0.0.240`
+
+### Fixed
+
+- Fixed `structure`'s filtering logic with respect to `--focus-on` and `--max-depth` options.
+- Fixed filtering of `#[test]` and `#[cfg(test)]` when `--cfg-test` is not used
 
 ## [0.18.2] - 2024-10-15
 
