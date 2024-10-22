@@ -77,7 +77,7 @@ impl<'a> Filter<'a> {
             .collect();
 
         if focus_node_idxs.is_empty() {
-            anyhow::bail!("No node found matching use tree '{:?}'", focus_on);
+            anyhow::bail!("no node found matching use tree '{:?}'", focus_on);
         }
 
         let max_depth = self.options.max_depth.unwrap_or(usize::MAX);

@@ -229,7 +229,7 @@ pub fn select_package(
     // If project contains no packages, bail out:
 
     if package_count < 1 {
-        anyhow::bail!("No packages found");
+        anyhow::bail!("no packages found");
     }
 
     // If no (or a non-existent) package was provided via options bail out:
@@ -318,7 +318,7 @@ pub fn select_target(
     // If package contains no targets, bail out:
 
     if target_count < 1 {
-        anyhow::bail!("No targets found");
+        anyhow::bail!("no targets found");
     }
 
     // If no (or a non-existent) target was provided via options bail out:

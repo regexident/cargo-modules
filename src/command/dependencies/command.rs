@@ -54,7 +54,7 @@ impl Command {
                 let first = graph[cycle[0]].display_path(db, edition);
                 let last = graph[*cycle.last().unwrap()].display_path(db, edition);
                 let drawing = draw_cycle(&graph, cycle, db, edition);
-                anyhow::bail!("Circular dependency between `{first}` and `{last}`.\n\n{drawing}");
+                anyhow::bail!("circular dependency between `{first}` and `{last}`.\n\n{drawing}");
             }
         }
 
