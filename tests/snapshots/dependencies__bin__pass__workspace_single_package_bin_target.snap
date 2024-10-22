@@ -2,6 +2,11 @@
 source: tests/dependencies.rs
 expression: output
 ---
+CMD:
+dependencies
+--bin
+package_bin_target
+
 STDERR:
 
 STDOUT:

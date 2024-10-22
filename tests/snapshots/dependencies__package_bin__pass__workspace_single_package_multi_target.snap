@@ -2,6 +2,13 @@
 source: tests/dependencies.rs
 expression: output
 ---
+CMD:
+dependencies
+--package
+package_multi_target
+--bin
+package_multi_target
+
 STDERR:
 
 STDOUT:

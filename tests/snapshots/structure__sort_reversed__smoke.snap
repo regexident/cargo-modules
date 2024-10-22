@@ -2,6 +2,10 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+--sort-reversed
+
 STDERR:
 
 STDOUT:

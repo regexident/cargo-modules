@@ -2,6 +2,9 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+
 STDERR:
 
 STDOUT:

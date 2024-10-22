@@ -2,6 +2,11 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+--no-traits
+--no-fns
+
 STDERR:
 
 STDOUT:

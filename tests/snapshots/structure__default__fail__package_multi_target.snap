@@ -2,6 +2,9 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+
 STDERR:
 Error: Multiple targets present in package,
 please explicitly select one via --lib or --bin flag.

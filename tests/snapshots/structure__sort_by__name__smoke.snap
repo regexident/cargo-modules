@@ -2,6 +2,11 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+--sort-by
+name
+
 STDERR:
 
 STDOUT:

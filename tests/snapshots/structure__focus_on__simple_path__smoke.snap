@@ -2,6 +2,11 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+--focus-on
+smoke::visibility::dummy
+
 STDERR:
 
 STDOUT:

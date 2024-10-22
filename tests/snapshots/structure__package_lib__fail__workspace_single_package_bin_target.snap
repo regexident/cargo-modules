@@ -2,6 +2,12 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+--package
+package_bin_target
+--lib
+
 STDERR:
 Error: No library target found.
 

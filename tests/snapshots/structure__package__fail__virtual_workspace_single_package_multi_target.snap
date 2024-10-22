@@ -2,6 +2,11 @@
 source: tests/structure.rs
 expression: output
 ---
+CMD:
+structure
+--package
+foobar
+
 STDERR:
 Error: No package found with name "foobar".
 

@@ -3,7 +3,6 @@
 use std::{path::PathBuf, str::from_utf8};
 
 use assert_cmd::Command;
-use shellwords::split;
 
 // If we clicking the `Run test(s)` btn which is(are) provided by `vscode-rust-analyzer` plugin.
 // That plugin will automatically set the `RUST_BACKTRACE` env as `short` and then trigger `cargo test`.
@@ -41,19 +40,13 @@ pub fn output(mut cmd: Command, expect_success: bool) -> (String, String) {
 }
 
 #[allow(dead_code)]
-pub fn cmd(dir: &str, args: &str) -> Command {
+pub fn cmd<'a>(dir: &str, args: impl Iterator<Item = &'a String>) -> Command {
     let mut dir_path = PathBuf::new();
 
     dir_path.push(".");
     dir_path.push("tests");
     dir_path.push("projects");
     dir_path.push(dir);
-
-    let args: Vec<String> = match split(args) {
-        Ok(args) => args,
-        Err(err) => panic!("{}", err),
-    };
-    let args: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
 
     let mut command = Command::cargo_bin("cargo-modules").unwrap();
 
@@ -137,9 +130,12 @@ macro_rules! test_cmd {
         $(#[$attrs])*
         #[test]
         fn $project() {
+            use std::fmt::Write;
+
             use crate::util::ColorMode;
 
-            let mut cmd = crate::util::cmd(stringify!($project), $args);
+            let args: Vec<String> = ::shellwords::split($args).unwrap();
+            let mut cmd = crate::util::cmd(stringify!($project), args.iter());
 
             #[allow(unreachable_patterns)]
             match $color_mode {
@@ -154,8 +150,15 @@ macro_rules! test_cmd {
                 },
             }
 
+            let cmd_args = format!("{}\n", args.join("\n"));
+
             let (stdout, stderr) = crate::util::output(cmd, $success);
-            let output = format!("STDERR:\n{}\nSTDOUT:\n{}", stderr, stdout);
+
+            let mut output = String::new();
+
+            writeln!(&mut output, "CMD:\n{cmd_args}").unwrap();
+            writeln!(&mut output, "STDERR:\n{stderr}").unwrap();
+            writeln!(&mut output, "STDOUT:\n{stdout}").unwrap();
 
             insta::assert_snapshot!(output);
         }
