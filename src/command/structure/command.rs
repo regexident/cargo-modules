@@ -42,18 +42,18 @@ impl Command {
         trace!("Filtering tree ...");
 
         let filter = Filter::new(&self.options, krate, db, edition);
+
         let tree = filter.filter(&tree)?;
 
         trace!("Printing tree ...");
 
-        let mut string = String::new();
-
-        writeln!(&mut string)?;
+        let mut output = String::new();
+        writeln!(&mut output)?;
 
         let printer = Printer::new(&self.options, db, edition);
-        printer.fmt(&mut string, &tree)?;
+        printer.fmt(&mut output, &tree)?;
 
-        print!("{string}");
+        print!("{output}");
 
         Ok(())
     }

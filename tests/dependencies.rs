@@ -422,6 +422,16 @@ mod focus_on {
             project: smoke
         );
     }
+
+    mod nonexistent_path {
+        test_cmd!(
+            args: "dependencies \
+                    --focus-on \"nonexistent\"",
+            success: false,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
 }
 
 mod max_depth {
