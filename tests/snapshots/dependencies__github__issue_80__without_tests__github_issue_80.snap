@@ -63,4 +63,3 @@ digraph {
     "github_issue_80::only_exists_without_test" -> "github_issue_80::only_exists_without_test::Placebo" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
-

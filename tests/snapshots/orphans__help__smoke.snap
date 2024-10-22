@@ -22,4 +22,3 @@ Options:
       --deny                           Returns a failure code if one or more orphans are found
       --cfg-test                       Analyze with `#[cfg(test)]` enabled (i.e as if built via `cargo test`)
   -h, --help                           Print help
-

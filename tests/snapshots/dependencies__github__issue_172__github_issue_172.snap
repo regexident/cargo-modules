@@ -57,4 +57,3 @@ digraph {
     "github_issue_172::alpha::delta" -> "github_issue_172::alpha::delta::ATrait" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
-

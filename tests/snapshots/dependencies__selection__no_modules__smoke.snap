@@ -220,4 +220,3 @@ digraph {
     "smoke::visibility::dummy::kinds::TypeAlias" -> "smoke::visibility::dummy::kinds::Struct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 
 }
-

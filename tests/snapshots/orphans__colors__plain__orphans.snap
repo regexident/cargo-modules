@@ -28,5 +28,3 @@ warning: orphaned module `foo` at src/orphans/foo/mod.rs
    |  mod foo;
    |  ++++++++
    |
-
-

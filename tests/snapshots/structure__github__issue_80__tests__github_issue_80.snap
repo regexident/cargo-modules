@@ -17,4 +17,3 @@ crate github_issue_80
 └── mod only_exists_with_test: pub #[cfg(test)]
     ├── struct OnlyExistsWithTest: pub #[cfg(test)]
     └── struct Placebo: pub
-

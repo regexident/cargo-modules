@@ -8,4 +8,3 @@ STDOUT:
 
 crate package_multi_target
 └── fn main: pub(crate)
-

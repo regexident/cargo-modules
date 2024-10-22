@@ -36,4 +36,3 @@ Options:
 
         If you have xdot installed on your system, you can run this using:
         `cargo modules dependencies | xdot -`
-

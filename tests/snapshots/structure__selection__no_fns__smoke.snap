@@ -93,4 +93,3 @@ crate smoke
             ├── union PubPrivate: pub(self)
             ├── union PubPublic: pub
             └── union PubSuper: pub(super)
-

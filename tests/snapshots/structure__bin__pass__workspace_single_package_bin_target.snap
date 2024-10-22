@@ -8,4 +8,3 @@ STDOUT:
 
 crate package_bin_target
 └── fn main: pub(crate)
-
