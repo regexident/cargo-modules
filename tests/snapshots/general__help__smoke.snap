@@ -2,7 +2,7 @@
 source: tests/general.rs
 expression: output
 ---
-CMD:
+COMMAND:
 --help
 
 STDERR:

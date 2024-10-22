@@ -2,7 +2,7 @@
 source: tests/structure.rs
 expression: output
 ---
-CMD:
+COMMAND:
 structure
 --no-fns
 
