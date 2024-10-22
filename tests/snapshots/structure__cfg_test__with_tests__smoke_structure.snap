@@ -1,0 +1,434 @@
+---
+source: tests/structure.rs
+expression: output
+---
+COMMAND:
+structure
+--cfg-test
+
+STDERR:
+
+STDOUT:
+
+crate smoke_structure
+├── struct Adipiscing: pub(crate)
+├── enum Amet: pub(crate)
+├── struct Consectetur: pub(crate)
+├── fn dolor: pub(crate)
+├── mod elit: pub(crate)
+│   └── fn ipsum: pub(self)
+├── fn ipsum: pub(crate)
+├── mod lorem: pub(crate)
+│   ├── trait Amet: pub(self)
+│   ├── mod adipiscing: pub(self)
+│   │   └── mod consectetur: pub(self) #[cfg(test)]
+│   │       └── struct Amet: pub(self)
+│   ├── mod elit: pub(self)
+│   │   ├── struct Ipsum: pub(self)
+│   │   ├── trait Lorem: pub(self)
+│   │   ├── mod adipiscing: pub(self) #[cfg(test)]
+│   │   │   └── struct Ipsum: pub(self)
+│   │   └── fn sit: pub(self) #[test]
+│   └── mod sit: pub(self)
+│       ├── enum Adipiscing: pub(self)
+│       ├── fn dolor: pub(self) #[test]
+│       ├── mod elit: pub(self)
+│       │   ├── mod adipiscing: pub(self) #[cfg(test)]
+│       │   │   ├── struct Dolor: pub(self)
+│       │   │   ├── struct Lorem: pub(self)
+│       │   │   └── fn sit: pub(self)
+│       │   ├── mod amet: pub(self)
+│       │   │   ├── union Ipsum: pub(self)
+│       │   │   ├── mod dolor: pub(self)
+│       │   │   │   ├── trait Amet: pub(self)
+│       │   │   │   ├── enum Consectetur: pub(self)
+│       │   │   │   └── mod adipiscing: pub(self)
+│       │   │   │       ├── struct Consectetur: pub(self)
+│       │   │   │       ├── trait Dolor: pub(self)
+│       │   │   │       ├── fn ipsum: pub(self)
+│       │   │   │       └── mod lorem: pub(self) #[cfg(test)]
+│       │   │   │           └── trait Sit: pub(self)
+│       │   │   └── fn elit: pub(self)
+│       │   ├── fn dolor: pub(self) #[test]
+│       │   ├── mod ipsum: pub(self) #[cfg(test)]
+│       │   │   ├── struct Elit: pub(self)
+│       │   │   ├── fn consectetur: pub(self) #[test]
+│       │   │   ├── mod dolor: pub(self) #[cfg(test)]
+│       │   │   │   ├── struct Ipsum: pub(self)
+│       │   │   │   ├── mod consectetur: pub(self) #[cfg(test)]
+│       │   │   │   │   ├── struct Sit: pub(self)
+│       │   │   │   │   ├── fn elit: pub(self) #[test]
+│       │   │   │   │   ├── mod ipsum: pub(self) #[cfg(test)]
+│       │   │   │   │   │   ├── struct Amet: pub(self)
+│       │   │   │   │   │   ├── trait Consectetur: pub(self)
+│       │   │   │   │   │   ├── trait Dolor: pub(self)
+│       │   │   │   │   │   ├── mod adipiscing: pub(self)
+│       │   │   │   │   │   │   ├── struct Consectetur: pub(self)
+│       │   │   │   │   │   │   ├── mod dolor: pub(self) #[cfg(test)]
+│       │   │   │   │   │   │   │   ├── enum Elit: pub(self)
+│       │   │   │   │   │   │   │   ├── enum Sit: pub(self)
+│       │   │   │   │   │   │   │   ├── mod adipiscing: pub(self) #[cfg(test)]
+│       │   │   │   │   │   │   │   │   ├── struct Amet: pub(self)
+│       │   │   │   │   │   │   │   │   └── struct Ipsum: pub(self)
+│       │   │   │   │   │   │   │   └── fn ipsum: pub(self)
+│       │   │   │   │   │   │   ├── mod elit: pub(self)
+│       │   │   │   │   │   │   │   ├── union Consectetur: pub(self)
+│       │   │   │   │   │   │   │   ├── fn adipiscing: pub(self) #[test]
+│       │   │   │   │   │   │   │   └── mod ipsum: pub(self) #[cfg(test)]
+│       │   │   │   │   │   │   │       ├── struct Dolor: pub(self)
+│       │   │   │   │   │   │   │       ├── mod consectetur: pub(self) #[cfg(test)]
+│       │   │   │   │   │   │   │       │   ├── struct Amet: pub(self)
+│       │   │   │   │   │   │   │       │   ├── struct Ipsum: pub(self)
+│       │   │   │   │   │   │   │       │   ├── trait Sit: pub(self)
+│       │   │   │   │   │   │   │       │   └── mod dolor: pub(self) #[cfg(test)]
+│       │   │   │   │   │   │   │       │       ├── struct Elit: pub(self)
+│       │   │   │   │   │   │   │       │       ├── trait Ipsum: pub(self)
+│       │   │   │   │   │   │   │       │       ├── mod adipiscing: pub(self) #[cfg(test)]
+│       │   │   │   │   │   │   │       │       │   ├── enum Consectetur: pub(self)
+│       │   │   │   │   │   │   │       │       │   ├── trait Dolor: pub(self)
+│       │   │   │   │   │   │   │       │       │   ├── trait Lorem: pub(self)
+│       │   │   │   │   │   │   │       │       │   └── mod sit: pub(self) #[cfg(test)]
+│       │   │   │   │   │   │   │       │       │       ├── enum Consectetur: pub(self)
+│       │   │   │   │   │   │   │       │       │       ├── enum Elit: pub(self)
+│       │   │   │   │   │   │   │       │       │       ├── enum Ipsum: pub(self)
+│       │   │   │   │   │   │   │       │       │       ├── enum Lorem: pub(self)
+│       │   │   │   │   │   │   │       │       │       └── mod amet: pub(self)
+│       │   │   │   │   │   │   │       │       │           ├── enum Elit: pub(self)
+│       │   │   │   │   │   │   │       │       │           ├── enum Lorem: pub(self)
+│       │   │   │   │   │   │   │       │       │           ├── mod adipiscing: pub(self) #[cfg(test)]
+│       │   │   │   │   │   │   │       │       │           │   ├── struct Consectetur: pub(self)
+│       │   │   │   │   │   │   │       │       │           │   ├── trait Ipsum: pub(self)
+│       │   │   │   │   │   │   │       │       │           │   ├── fn amet: pub(self) #[test]
+│       │   │   │   │   │   │   │       │       │           │   ├── mod dolor: pub(self) #[cfg(test)]
+│       │   │   │   │   │   │   │       │       │           │   │   ├── enum Consectetur: pub(self)
+│       │   │   │   │   │   │   │       │       │           │   │   ├── trait Ipsum: pub(self)
+│       │   │   │   │   │   │   │       │       │           │   │   └── struct Lorem: pub(self)
+│       │   │   │   │   │   │   │       │       │           │   └── fn elit: pub(self)
+│       │   │   │   │   │   │   │       │       │           └── mod sit: pub(self)
+│       │   │   │   │   │   │   │       │       │               ├── union Adipiscing: pub(self)
+│       │   │   │   │   │   │   │       │       │               └── mod lorem: pub(self) #[cfg(test)]
+│       │   │   │   │   │   │   │       │       │                   └── struct Consectetur: pub(self)
+│       │   │   │   │   │   │   │       │       ├── fn lorem: pub(self) #[test]
+│       │   │   │   │   │   │   │       │       └── mod sit: pub(self)
+│       │   │   │   │   │   │   │       │           ├── enum Dolor: pub(self)
+│       │   │   │   │   │   │   │       │           └── trait Lorem: pub(self)
+│       │   │   │   │   │   │   │       └── fn lorem: pub(self) #[test]
+│       │   │   │   │   │   │   └── fn lorem: pub(self)
+│       │   │   │   │   │   └── mod elit: pub(self)
+│       │   │   │   │   │       ├── enum Dolor: pub(self)
+│       │   │   │   │   │       ├── trait Ipsum: pub(self)
+│       │   │   │   │   │       ├── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │   ├── mod dolor: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │   │   └── mod lorem: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │   │       ├── struct Consectetur: pub(self)
+│       │   │   │   │   │       │   │       └── union Elit: pub(self)
+│       │   │   │   │   │       │   ├── mod ipsum: pub(self)
+│       │   │   │   │   │       │   │   ├── trait Dolor: pub(self)
+│       │   │   │   │   │       │   │   └── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │   │       ├── enum Adipiscing: pub(self)
+│       │   │   │   │   │       │   │       └── fn dolor: pub(self) #[test]
+│       │   │   │   │   │       │   └── mod lorem: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │       ├── trait Ipsum: pub(self)
+│       │   │   │   │   │       │       └── mod sit: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           ├── trait Ipsum: pub(self)
+│       │   │   │   │   │       │           ├── fn amet: pub(self)
+│       │   │   │   │   │       │           ├── fn consectetur: pub(self)
+│       │   │   │   │   │       │           ├── mod elit: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │   ├── mod adipiscing: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │   │   ├── struct Consectetur: pub(self)
+│       │   │   │   │   │       │           │   │   ├── mod dolor: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │   │   │   ├── union Amet: pub(self)
+│       │   │   │   │   │       │           │   │   │   └── mod sit: pub(self)
+│       │   │   │   │   │       │           │   │   │       └── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │   │   │           ├── trait Consectetur: pub(self)
+│       │   │   │   │   │       │           │   │   │           ├── struct Lorem: pub(self)
+│       │   │   │   │   │       │           │   │   │           ├── fn adipiscing: pub(self)
+│       │   │   │   │   │       │           │   │   │           ├── fn ipsum: pub(self) #[test]
+│       │   │   │   │   │       │           │   │   │           └── mod sit: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │   │   │               ├── trait Consectetur: pub(self)
+│       │   │   │   │   │       │           │   │   │               └── struct Elit: pub(self)
+│       │   │   │   │   │       │           │   │   └── mod ipsum: pub(self)
+│       │   │   │   │   │       │           │   │       └── struct Sit: pub(self)
+│       │   │   │   │   │       │           │   └── mod ipsum: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       ├── trait Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       ├── struct Lorem: pub(self)
+│       │   │   │   │   │       │           │       ├── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │   └── mod elit: pub(self)
+│       │   │   │   │   │       │           │       │       ├── trait Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │       ├── struct Consectetur: pub(self)
+│       │   │   │   │   │       │           │       │       ├── trait Dolor: pub(self)
+│       │   │   │   │   │       │           │       │       ├── mod amet: pub(self)
+│       │   │   │   │   │       │           │       │       │   ├── trait Consectetur: pub(self)
+│       │   │   │   │   │       │           │       │       │   ├── union Dolor: pub(self)
+│       │   │   │   │   │       │           │       │       │   ├── trait Lorem: pub(self)
+│       │   │   │   │   │       │           │       │       │   ├── fn adipiscing: pub(self) #[test]
+│       │   │   │   │   │       │           │       │       │   └── fn elit: pub(self) #[test]
+│       │   │   │   │   │       │           │       │       └── mod sit: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │           └── union Elit: pub(self)
+│       │   │   │   │   │       │           │       ├── mod elit: pub(self)
+│       │   │   │   │   │       │           │       │   ├── mod adipiscing: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │   │   ├── enum Consectetur: pub(self)
+│       │   │   │   │   │       │           │       │   │   ├── fn amet: pub(self) #[test]
+│       │   │   │   │   │       │           │       │   │   ├── fn dolor: pub(self) #[test]
+│       │   │   │   │   │       │           │       │   │   └── mod lorem: pub(self)
+│       │   │   │   │   │       │           │       │   │       ├── enum Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │   │       ├── enum Elit: pub(self)
+│       │   │   │   │   │       │           │       │   │       ├── enum Sit: pub(self)
+│       │   │   │   │   │       │           │       │   │       └── fn dolor: pub(self) #[test]
+│       │   │   │   │   │       │           │       │   ├── fn dolor: pub(self) #[test]
+│       │   │   │   │   │       │           │       │   └── mod ipsum: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │       ├── struct Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │       ├── enum Amet: pub(self)
+│       │   │   │   │   │       │           │       │       ├── mod consectetur: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │       │   ├── enum Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │       │   ├── enum Dolor: pub(self)
+│       │   │   │   │   │       │           │       │       │   └── fn sit: pub(self) #[test]
+│       │   │   │   │   │       │           │       │       ├── mod dolor: pub(self)
+│       │   │   │   │   │       │           │       │       │   ├── union Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │       │   ├── fn elit: pub(self) #[test]
+│       │   │   │   │   │       │           │       │       │   ├── mod lorem: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │       │   │   ├── struct Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │       │   │   ├── struct Amet: pub(self)
+│       │   │   │   │   │       │           │       │       │   │   ├── enum Sit: pub(self)
+│       │   │   │   │   │       │           │       │       │   │   ├── mod consectetur: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │       │   │   │   ├── struct Amet: pub(self)
+│       │   │   │   │   │       │           │       │       │   │   │   ├── fn dolor: pub(self)
+│       │   │   │   │   │       │           │       │       │   │   │   └── fn elit: pub(self) #[test]
+│       │   │   │   │   │       │           │       │       │   │   └── fn ipsum: pub(self) #[test]
+│       │   │   │   │   │       │           │       │       │   └── mod sit: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │       │       ├── struct Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │       │       ├── union Dolor: pub(self)
+│       │   │   │   │   │       │           │       │       │       ├── struct Lorem: pub(self)
+│       │   │   │   │   │       │           │       │       │       ├── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │       │       │   ├── struct Elit: pub(self)
+│       │   │   │   │   │       │           │       │       │       │   ├── struct Ipsum: pub(self)
+│       │   │   │   │   │       │           │       │       │       │   └── fn adipiscing: pub(self) #[test]
+│       │   │   │   │   │       │           │       │       │       └── mod consectetur: pub(self)
+│       │   │   │   │   │       │           │       │       │           └── fn adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │       └── mod lorem: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │           ├── enum Consectetur: pub(self)
+│       │   │   │   │   │       │           │       │           ├── trait Dolor: pub(self)
+│       │   │   │   │   │       │           │       │           ├── union Sit: pub(self)
+│       │   │   │   │   │       │           │       │           └── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               ├── struct Elit: pub(self)
+│       │   │   │   │   │       │           │       │               ├── enum Ipsum: pub(self)
+│       │   │   │   │   │       │           │       │               ├── mod dolor: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   ├── trait Ipsum: pub(self)
+│       │   │   │   │   │       │           │       │               │   ├── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │   ├── trait Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   ├── mod consectetur: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │   │   ├── enum Amet: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │   ├── enum Lorem: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │   └── mod dolor: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │       ├── enum Ipsum: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │       ├── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │   │       │   ├── struct Ipsum: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │       │   └── mod elit: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │   │       │       ├── trait Dolor: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │       │       └── mod lorem: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │   │       │           ├── union Ipsum: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │       │           └── union Sit: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │       ├── mod elit: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │       │   ├── struct Amet: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │       │   └── fn lorem: pub(self) #[test]
+│       │   │   │   │   │       │           │       │               │   │   │       └── mod sit: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │   │           ├── trait Elit: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │           └── mod adipiscing: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │   │               ├── trait Consectetur: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │               └── mod sit: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │   │                   ├── struct Ipsum: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   │                   └── fn elit: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   └── mod dolor: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │       ├── trait Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │               │   │       └── enum Sit: pub(self)
+│       │   │   │   │   │       │           │       │               │   ├── mod consectetur: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │   ├── struct Dolor: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   ├── struct Lorem: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   ├── fn amet: pub(self)
+│       │   │   │   │   │       │           │       │               │   │   └── mod sit: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │       ├── trait Ipsum: pub(self)
+│       │   │   │   │   │       │           │       │               │   │       ├── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   │       │   ├── enum Elit: pub(self)
+│       │   │   │   │   │       │           │       │               │   │       │   ├── struct Ipsum: pub(self)
+│       │   │   │   │   │       │           │       │               │   │       │   └── fn consectetur: pub(self) #[test]
+│       │   │   │   │   │       │           │       │               │   │       ├── fn consectetur: pub(self) #[test]
+│       │   │   │   │   │       │           │       │               │   │       └── fn lorem: pub(self)
+│       │   │   │   │   │       │           │       │               │   └── fn sit: pub(self) #[test]
+│       │   │   │   │   │       │           │       │               ├── mod lorem: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │               │   ├── trait Consectetur: pub(self)
+│       │   │   │   │   │       │           │       │               │   └── mod dolor: pub(self)
+│       │   │   │   │   │       │           │       │               │       └── fn consectetur: pub(self) #[test]
+│       │   │   │   │   │       │           │       │               └── mod sit: pub(self)
+│       │   │   │   │   │       │           │       │                   ├── struct Consectetur: pub(self)
+│       │   │   │   │   │       │           │       │                   ├── trait Dolor: pub(self)
+│       │   │   │   │   │       │           │       │                   ├── mod adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │                   │   ├── struct Ipsum: pub(self)
+│       │   │   │   │   │       │           │       │                   │   ├── struct Lorem: pub(self)
+│       │   │   │   │   │       │           │       │                   │   ├── fn amet: pub(self) #[test]
+│       │   │   │   │   │       │           │       │                   │   ├── fn elit: pub(self)
+│       │   │   │   │   │       │           │       │                   │   └── mod sit: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │                   │       └── enum Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │                   ├── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │           │       │                   │   ├── union Adipiscing: pub(self)
+│       │   │   │   │   │       │           │       │                   │   ├── union Elit: pub(self)
+│       │   │   │   │   │       │           │       │                   │   ├── enum Sit: pub(self)
+│       │   │   │   │   │       │           │       │                   │   ├── fn consectetur: pub(self) #[test]
+│       │   │   │   │   │       │           │       │                   │   └── mod dolor: pub(self)
+│       │   │   │   │   │       │           │       │                   │       └── enum Lorem: pub(self)
+│       │   │   │   │   │       │           │       │                   └── fn ipsum: pub(self)
+│       │   │   │   │   │       │           │       └── fn sit: pub(self)
+│       │   │   │   │   │       │           └── mod lorem: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │               ├── trait Amet: pub(self)
+│       │   │   │   │   │       │               ├── struct Consectetur: pub(self)
+│       │   │   │   │   │       │               ├── trait Elit: pub(self)
+│       │   │   │   │   │       │               ├── struct Ipsum: pub(self)
+│       │   │   │   │   │       │               └── mod sit: pub(self)
+│       │   │   │   │   │       │                   ├── trait Consectetur: pub(self)
+│       │   │   │   │   │       │                   ├── union Ipsum: pub(self)
+│       │   │   │   │   │       │                   └── mod dolor: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │                       ├── mod amet: pub(self) #[cfg(test)]
+│       │   │   │   │   │       │                       │   └── trait Elit: pub(self)
+│       │   │   │   │   │       │                       └── mod ipsum: pub(self)
+│       │   │   │   │   │       │                           ├── struct Amet: pub(self)
+│       │   │   │   │   │       │                           ├── enum Lorem: pub(self)
+│       │   │   │   │   │       │                           └── fn dolor: pub(self) #[test]
+│       │   │   │   │   │       └── mod sit: pub(self)
+│       │   │   │   │   │           ├── struct Adipiscing: pub(self)
+│       │   │   │   │   │           ├── struct Amet: pub(self)
+│       │   │   │   │   │           ├── trait Consectetur: pub(self)
+│       │   │   │   │   │           └── trait Ipsum: pub(self)
+│       │   │   │   │   └── mod lorem: pub(self) #[cfg(test)]
+│       │   │   │   │       ├── struct Consectetur: pub(self)
+│       │   │   │   │       └── struct Sit: pub(self)
+│       │   │   │   └── mod sit: pub(self) #[cfg(test)]
+│       │   │   │       ├── trait Elit: pub(self)
+│       │   │   │       ├── mod dolor: pub(self) #[cfg(test)]
+│       │   │   │       │   ├── trait Elit: pub(self)
+│       │   │   │       │   ├── struct Lorem: pub(self)
+│       │   │   │       │   ├── fn adipiscing: pub(self)
+│       │   │   │       │   └── mod consectetur: pub(self) #[cfg(test)]
+│       │   │   │       │       ├── fn adipiscing: pub(self) #[test]
+│       │   │   │       │       └── fn elit: pub(self)
+│       │   │   │       └── fn lorem: pub(self) #[test]
+│       │   │   └── fn lorem: pub(self) #[test]
+│       │   └── fn sit: pub(self)
+│       ├── mod ipsum: pub(self)
+│       │   └── mod amet: pub(self) #[cfg(test)]
+│       │       ├── struct Consectetur: pub(self)
+│       │       ├── trait Ipsum: pub(self)
+│       │       ├── mod elit: pub(self) #[cfg(test)]
+│       │       │   ├── enum Amet: pub(self)
+│       │       │   ├── fn consectetur: pub(self) #[test]
+│       │       │   ├── mod dolor: pub(self) #[cfg(test)]
+│       │       │   │   └── trait Sit: pub(self)
+│       │       │   └── mod lorem: pub(self) #[cfg(test)]
+│       │       │       └── struct Ipsum: pub(self)
+│       │       ├── fn lorem: pub(self)
+│       │       └── mod sit: pub(self)
+│       │           ├── struct Adipiscing: pub(self)
+│       │           ├── trait Consectetur: pub(self)
+│       │           ├── enum Lorem: pub(self)
+│       │           └── mod ipsum: pub(self)
+│       │               ├── struct Amet: pub(self)
+│       │               ├── struct Sit: pub(self)
+│       │               ├── fn dolor: pub(self) #[test]
+│       │               └── fn lorem: pub(self)
+│       └── fn lorem: pub(self) #[test]
+└── mod sit: pub(crate)
+    ├── struct Ipsum: pub(self)
+    ├── mod dolor: pub(self)
+    │   ├── mod amet: pub(self) #[cfg(test)]
+    │   │   ├── mod dolor: pub(self)
+    │   │   │   ├── struct Ipsum: pub(self)
+    │   │   │   ├── mod consectetur: pub(self) #[cfg(test)]
+    │   │   │   │   ├── struct Amet: pub(self)
+    │   │   │   │   ├── fn adipiscing: pub(self) #[test]
+    │   │   │   │   ├── fn elit: pub(self) #[test]
+    │   │   │   │   └── fn lorem: pub(self) #[test]
+    │   │   │   ├── mod elit: pub(self) #[cfg(test)]
+    │   │   │   │   ├── enum Adipiscing: pub(self)
+    │   │   │   │   ├── struct Lorem: pub(self)
+    │   │   │   │   ├── fn amet: pub(self) #[test]
+    │   │   │   │   ├── fn dolor: pub(self) #[test]
+    │   │   │   │   └── mod sit: pub(self) #[cfg(test)]
+    │   │   │   │       ├── enum Adipiscing: pub(self)
+    │   │   │   │       └── mod elit: pub(self) #[cfg(test)]
+    │   │   │   │           ├── trait Dolor: pub(self)
+    │   │   │   │           ├── enum Sit: pub(self)
+    │   │   │   │           └── mod adipiscing: pub(self) #[cfg(test)]
+    │   │   │   │               └── trait Lorem: pub(self)
+    │   │   │   └── mod lorem: pub(self) #[cfg(test)]
+    │   │   │       └── enum Elit: pub(self)
+    │   │   └── mod lorem: pub(self)
+    │   │       ├── mod amet: pub(self) #[cfg(test)]
+    │   │       │   ├── enum Adipiscing: pub(self)
+    │   │       │   ├── enum Elit: pub(self)
+    │   │       │   ├── enum Ipsum: pub(self)
+    │   │       │   ├── mod consectetur: pub(self) #[cfg(test)]
+    │   │       │   │   ├── trait Adipiscing: pub(self)
+    │   │       │   │   ├── mod dolor: pub(self) #[cfg(test)]
+    │   │       │   │   │   ├── trait Ipsum: pub(self)
+    │   │       │   │   │   ├── fn amet: pub(self) #[test]
+    │   │       │   │   │   └── fn elit: pub(self)
+    │   │       │   │   └── mod ipsum: pub(self) #[cfg(test)]
+    │   │       │   │       ├── enum Adipiscing: pub(self)
+    │   │       │   │       ├── enum Amet: pub(self)
+    │   │       │   │       ├── enum Consectetur: pub(self)
+    │   │       │   │       ├── struct Sit: pub(self)
+    │   │       │   │       └── fn lorem: pub(self)
+    │   │       │   └── fn dolor: pub(self)
+    │   │       └── mod sit: pub(self)
+    │   │           ├── enum Elit: pub(self)
+    │   │           ├── fn adipiscing: pub(self) #[test]
+    │   │           ├── fn amet: pub(self)
+    │   │           ├── fn dolor: pub(self) #[test]
+    │   │           └── mod lorem: pub(self) #[cfg(test)]
+    │   │               ├── union Elit: pub(self)
+    │   │               ├── trait Sit: pub(self)
+    │   │               └── fn adipiscing: pub(self) #[test]
+    │   ├── fn consectetur: pub(self)
+    │   ├── mod ipsum: pub(self)
+    │   │   ├── mod adipiscing: pub(self)
+    │   │   │   └── enum Elit: pub(self)
+    │   │   ├── mod consectetur: pub(self)
+    │   │   │   ├── union Dolor: pub(self)
+    │   │   │   ├── struct Elit: pub(self)
+    │   │   │   ├── trait Lorem: pub(self)
+    │   │   │   ├── trait Sit: pub(self)
+    │   │   │   └── fn ipsum: pub(self) #[test]
+    │   │   └── mod dolor: pub(self) #[cfg(test)]
+    │   │       ├── trait Consectetur: pub(self)
+    │   │       ├── fn ipsum: pub(self) #[test]
+    │   │       └── mod sit: pub(self)
+    │   │           ├── trait Adipiscing: pub(self)
+    │   │           ├── mod consectetur: pub(self)
+    │   │           │   ├── trait Adipiscing: pub(self)
+    │   │           │   ├── mod elit: pub(self) #[cfg(test)]
+    │   │           │   │   ├── struct Consectetur: pub(self)
+    │   │           │   │   └── enum Ipsum: pub(self)
+    │   │           │   └── mod ipsum: pub(self) #[cfg(test)]
+    │   │           │       └── trait Adipiscing: pub(self)
+    │   │           ├── mod ipsum: pub(self) #[cfg(test)]
+    │   │           │   ├── trait Dolor: pub(self)
+    │   │           │   ├── mod lorem: pub(self) #[cfg(test)]
+    │   │           │   │   ├── trait Elit: pub(self)
+    │   │           │   │   ├── struct Ipsum: pub(self)
+    │   │           │   │   └── mod amet: pub(self) #[cfg(test)]
+    │   │           │   │       ├── struct Consectetur: pub(self)
+    │   │           │   │       ├── union Lorem: pub(self)
+    │   │           │   │       ├── fn dolor: pub(self)
+    │   │           │   │       └── mod elit: pub(self)
+    │   │           │   │           ├── trait Dolor: pub(self)
+    │   │           │   │           └── struct Lorem: pub(self)
+    │   │           │   └── mod sit: pub(self) #[cfg(test)]
+    │   │           │       ├── struct Amet: pub(self)
+    │   │           │       ├── trait Dolor: pub(self)
+    │   │           │       └── trait Lorem: pub(self)
+    │   │           └── fn lorem: pub(self)
+    │   └── mod sit: pub(self)
+    │       ├── trait Elit: pub(self)
+    │       ├── fn amet: pub(self) #[test]
+    │       └── mod ipsum: pub(self) #[cfg(test)]
+    │           ├── union Consectetur: pub(self)
+    │           └── fn dolor: pub(self) #[test]
+    └── fn elit: pub(self)

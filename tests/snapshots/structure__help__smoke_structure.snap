@@ -1,0 +1,34 @@
+---
+source: tests/structure.rs
+expression: output
+---
+COMMAND:
+structure
+--help
+
+STDERR:
+
+STDOUT:
+Prints a crate's hierarchical structure as a tree.
+
+Usage: cargo-modules structure [OPTIONS]
+
+Options:
+      --verbose                        Use verbose output
+      --lib                            Process only this package's library
+      --bin <BIN>                      Process only the specified binary
+  -p, --package <PACKAGE>              Package to process (see `cargo help pkgid`)
+      --no-default-features            Do not activate the `default` feature
+      --all-features                   Activate all available features
+      --features <FEATURES>            List of features to activate. This will be ignored if `--cargo-all-features` is provided
+      --target <TARGET>                Analyze for target triple
+      --manifest-path <MANIFEST_PATH>  Path to Cargo.toml [default: .]
+      --no-fns                         Filter out functions (e.g. fns, async fns, const fns) from tree
+      --no-traits                      Filter out traits (e.g. trait, unsafe trait) from tree
+      --no-types                       Filter out types (e.g. structs, unions, enums) from tree
+      --sort-by <SORT_BY>              The sorting order to use (e.g. name, visibility, kind) [default: name]
+      --sort-reversed                  Reverses the sorting order
+      --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo::bar::{self, baz, blee::*}"
+      --max-depth <MAX_DEPTH>          The maximum depth of the generated graph relative to the crate's root node, or nodes selected by '--focus-on'
+      --cfg-test                       Analyze with `#[cfg(test)]` enabled (i.e as if built via `cargo test`)
+  -h, --help                           Print help

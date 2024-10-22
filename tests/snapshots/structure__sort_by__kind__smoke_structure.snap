@@ -1,0 +1,57 @@
+---
+source: tests/structure.rs
+expression: output
+---
+COMMAND:
+structure
+--sort-by
+kind
+
+STDERR:
+
+STDOUT:
+
+crate smoke_structure
+├── mod elit: pub(crate)
+│   └── fn ipsum: pub(self)
+├── mod lorem: pub(crate)
+│   ├── mod adipiscing: pub(self)
+│   ├── mod elit: pub(self)
+│   │   ├── trait Lorem: pub(self)
+│   │   └── struct Ipsum: pub(self)
+│   ├── mod sit: pub(self)
+│   │   ├── mod elit: pub(self)
+│   │   │   ├── mod amet: pub(self)
+│   │   │   │   ├── mod dolor: pub(self)
+│   │   │   │   │   ├── mod adipiscing: pub(self)
+│   │   │   │   │   │   ├── trait Dolor: pub(self)
+│   │   │   │   │   │   ├── struct Consectetur: pub(self)
+│   │   │   │   │   │   └── fn ipsum: pub(self)
+│   │   │   │   │   ├── trait Amet: pub(self)
+│   │   │   │   │   └── enum Consectetur: pub(self)
+│   │   │   │   ├── union Ipsum: pub(self)
+│   │   │   │   └── fn elit: pub(self)
+│   │   │   └── fn sit: pub(self)
+│   │   ├── mod ipsum: pub(self)
+│   │   └── enum Adipiscing: pub(self)
+│   └── trait Amet: pub(self)
+├── mod sit: pub(crate)
+│   ├── mod dolor: pub(self)
+│   │   ├── mod ipsum: pub(self)
+│   │   │   ├── mod adipiscing: pub(self)
+│   │   │   │   └── enum Elit: pub(self)
+│   │   │   └── mod consectetur: pub(self)
+│   │   │       ├── trait Lorem: pub(self)
+│   │   │       ├── trait Sit: pub(self)
+│   │   │       ├── struct Elit: pub(self)
+│   │   │       └── union Dolor: pub(self)
+│   │   ├── mod sit: pub(self)
+│   │   │   └── trait Elit: pub(self)
+│   │   └── fn consectetur: pub(self)
+│   ├── struct Ipsum: pub(self)
+│   └── fn elit: pub(self)
+├── struct Adipiscing: pub(crate)
+├── struct Consectetur: pub(crate)
+├── enum Amet: pub(crate)
+├── fn dolor: pub(crate)
+└── fn ipsum: pub(crate)

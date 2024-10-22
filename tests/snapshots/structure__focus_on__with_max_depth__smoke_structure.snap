@@ -1,0 +1,33 @@
+---
+source: tests/structure.rs
+expression: output
+---
+COMMAND:
+structure
+--focus-on
+smoke_structure::{lorem, sit}
+--max-depth
+2
+
+STDERR:
+
+STDOUT:
+
+crate smoke_structure
+├── mod lorem: pub(crate)
+│   ├── trait Amet: pub(self)
+│   ├── mod adipiscing: pub(self)
+│   ├── mod elit: pub(self)
+│   │   ├── struct Ipsum: pub(self)
+│   │   └── trait Lorem: pub(self)
+│   └── mod sit: pub(self)
+│       ├── enum Adipiscing: pub(self)
+│       ├── mod elit: pub(self)
+│       └── mod ipsum: pub(self)
+└── mod sit: pub(crate)
+    ├── struct Ipsum: pub(self)
+    ├── mod dolor: pub(self)
+    │   ├── fn consectetur: pub(self)
+    │   ├── mod ipsum: pub(self)
+    │   └── mod sit: pub(self)
+    └── fn elit: pub(self)

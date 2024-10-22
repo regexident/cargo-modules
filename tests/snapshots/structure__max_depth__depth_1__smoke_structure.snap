@@ -1,0 +1,20 @@
+---
+source: tests/structure.rs
+expression: output
+---
+COMMAND:
+structure
+--no-types
+--no-traits
+--no-fns
+--max-depth
+1
+
+STDERR:
+
+STDOUT:
+
+crate smoke_structure
+├── mod elit: pub(crate)
+├── mod lorem: pub(crate)
+└── mod sit: pub(crate)

@@ -7,7 +7,7 @@ mod help {
                 --help",
         success: true,
         color_mode: ColorMode::Plain,
-        project: smoke
+        project: smoke_structure
     );
 }
 
@@ -17,7 +17,7 @@ mod colors {
             args: "structure",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 }
@@ -287,14 +287,15 @@ mod cfg_test {
                 --cfg-test",
         success: true,
         color_mode: ColorMode::Plain,
-        project: smoke
+        project: smoke_structure
     );
+
     mod without_tests {
         test_cmd!(
             args: "structure",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 
@@ -304,7 +305,7 @@ mod cfg_test {
                     --cfg-test",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 }
@@ -316,7 +317,7 @@ mod selection {
                     --no-fns",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 
@@ -326,7 +327,7 @@ mod selection {
                     --no-traits",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 
@@ -336,7 +337,7 @@ mod selection {
                     --no-types",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 }
@@ -345,40 +346,51 @@ mod focus_on {
     mod simple_path {
         test_cmd!(
             args: "structure \
-                    --focus-on \"smoke::visibility::dummy\"",
+                    --focus-on \"smoke_structure::lorem::sit\"",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 
     mod glob_path {
         test_cmd!(
             args: "structure \
-                    --focus-on \"smoke::visibility::*\"",
+                    --focus-on \"smoke_structure::lorem::sit::*\"",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 
     mod self_path {
         test_cmd!(
             args: "structure \
-                    --focus-on \"smoke::visibility::dummy::{self}\"",
+                    --focus-on \"smoke_structure::lorem::sit::{self}\"",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 
     mod use_tree {
         test_cmd!(
             args: "structure \
-                    --focus-on \"smoke::visibility::{dummy, hierarchy}\"",
+                    --focus-on \"smoke_structure::{lorem::sit::ipsum, sit::dolor::amet::lorem::sit}\"",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
+        );
+    }
+
+    mod with_max_depth {
+        test_cmd!(
+            args: "structure \
+                    --focus-on \"smoke_structure::{lorem, sit}\" \
+                    --max-depth 2",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke_structure
         );
     }
 
@@ -388,7 +400,7 @@ mod focus_on {
                     --focus-on \"nonexistent\"",
             success: false,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 }
@@ -403,7 +415,7 @@ mod max_depth {
                     --max-depth 0",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 
@@ -416,7 +428,7 @@ mod max_depth {
                     --max-depth 1",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 
@@ -429,7 +441,7 @@ mod max_depth {
                     --max-depth 2",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 }
@@ -441,7 +453,7 @@ mod sort_by {
                     --sort-by \"name\"",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 
@@ -451,7 +463,7 @@ mod sort_by {
                     --sort-by \"visibility\"",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 
@@ -461,7 +473,7 @@ mod sort_by {
                     --sort-by \"kind\"",
             success: true,
             color_mode: ColorMode::Plain,
-            project: smoke
+            project: smoke_structure
         );
     }
 }
@@ -472,7 +484,7 @@ mod sort_reversed {
                 --sort-reversed",
         success: true,
         color_mode: ColorMode::Plain,
-        project: smoke
+        project: smoke_structure
     );
 }
 

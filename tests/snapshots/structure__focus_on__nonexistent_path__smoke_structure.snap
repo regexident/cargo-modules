@@ -1,0 +1,13 @@
+---
+source: tests/structure.rs
+expression: output
+---
+COMMAND:
+structure
+--focus-on
+nonexistent
+
+STDERR:
+Error: no items found matching use tree "nonexistent"
+
+STDOUT:
