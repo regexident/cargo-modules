@@ -49,11 +49,14 @@ impl<'a> Filter<'a> {
 
         let max_depth = self.options.max_depth.unwrap_or(usize::MAX);
 
-        let tree = self
-            .filter_tree(tree, None, max_depth, &use_tree)
-            .expect("root tree");
-
-        Ok(tree)
+        if let Some(tree) = self.filter_tree(tree, None, max_depth, &use_tree) {
+            Ok(tree)
+        } else {
+            anyhow::bail!(
+                "no items found matching use tree {:?}",
+                focus_on.unwrap_or("crate")
+            );
+        }
     }
 
     fn filter_tree(
