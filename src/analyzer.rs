@@ -600,14 +600,19 @@ pub(crate) fn parse_ast<N: syntax::AstNode>(text: &str) -> N {
     node
 }
 
+pub(crate) fn parse_use_tree(path_expr: &str) -> ast::UseTree {
+    parse_ast(&format!("use {path_expr};"))
+}
+
+pub(crate) fn parse_path_expr(path_expr: &str) -> ast::Path {
+    parse_ast(path_expr)
+}
+
 pub(crate) fn use_tree_matches_item_path(use_tree: &ast::UseTree, item_path: &str) -> bool {
     if item_path.is_empty() {
         return false;
     }
-    let node_path: ast::Path = {
-        let syntax = format!("use {item_path};");
-        parse_ast(&syntax)
-    };
+    let node_path: ast::Path = parse_path_expr(item_path);
     use_tree_matches_path(use_tree, &node_path)
 }
 

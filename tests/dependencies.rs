@@ -386,7 +386,7 @@ mod focus_on {
     mod simple_path {
         test_cmd!(
             args: "dependencies \
-                    --focus-on \"smoke::visibility::dummy\"",
+                    --focus-on \"crate::visibility::dummy\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke
@@ -396,7 +396,7 @@ mod focus_on {
     mod glob_path {
         test_cmd!(
             args: "dependencies \
-                    --focus-on \"smoke::visibility::*\"",
+                    --focus-on \"crate::visibility::*\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke
@@ -406,7 +406,7 @@ mod focus_on {
     mod self_path {
         test_cmd!(
             args: "dependencies \
-                    --focus-on \"smoke::visibility::dummy::{self}\"",
+                    --focus-on \"crate::visibility::dummy::{self}\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke
@@ -416,7 +416,7 @@ mod focus_on {
     mod use_tree {
         test_cmd!(
             args: "dependencies \
-                    --focus-on \"smoke::visibility::{dummy, hierarchy}\"",
+                    --focus-on \"crate::visibility::{dummy, hierarchy}\"",
             success: true,
             color_mode: ColorMode::Plain,
             project: smoke

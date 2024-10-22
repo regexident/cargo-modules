@@ -20,7 +20,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- The `--focus-on` option now accepts expressions starting with `crate::…` (previously the crate's name had to be written out).
 
 ### Changed
 
