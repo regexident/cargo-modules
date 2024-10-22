@@ -66,4 +66,3 @@ crate smoke
         │       ├── trait PubPublic: pub
         │       └── trait PubSuper: pub(super)
         └── mod unions: pub(self)
-

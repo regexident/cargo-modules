@@ -28,4 +28,3 @@ Options:
       --max-depth <MAX_DEPTH>          The maximum depth of the generated graph relative to the crate's root node, or nodes selected by '--focus-on'
       --cfg-test                       Analyze with `#[cfg(test)]` enabled (i.e as if built via `cargo test`)
   -h, --help                           Print help
-

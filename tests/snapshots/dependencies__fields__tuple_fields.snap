@@ -89,4 +89,3 @@ digraph {
     "tuple_fields::TypeAlias" -> "tuple_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 
 }
-

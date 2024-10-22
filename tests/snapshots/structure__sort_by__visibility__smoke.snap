@@ -108,4 +108,3 @@ crate smoke
             ├── union PubModule: pub(in crate::visibility)
             ├── union PubSuper: pub(super)
             └── union PubPrivate: pub(self)
-

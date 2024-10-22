@@ -42,4 +42,3 @@ digraph {
     "package_multi_target" -> "package_multi_target::main" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
-

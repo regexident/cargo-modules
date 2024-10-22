@@ -162,4 +162,3 @@ digraph {
     "smoke::visibility::dummy::unions" -> "smoke::visibility::dummy::unions::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
-

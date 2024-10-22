@@ -195,4 +195,3 @@ digraph {
     "smoke::visibility::dummy::traits::safe" -> "smoke::visibility::dummy::traits::safe::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
-

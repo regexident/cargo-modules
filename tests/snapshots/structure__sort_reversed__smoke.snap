@@ -108,4 +108,3 @@ crate smoke
 │   └── type Core: pub(self)
 └── mod derives: pub(crate)
     └── struct Dummy: pub(self)
-

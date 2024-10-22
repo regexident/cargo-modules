@@ -42,4 +42,3 @@ digraph {
     "package_bin_target" -> "package_bin_target::main" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
-

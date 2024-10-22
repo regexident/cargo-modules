@@ -17,4 +17,3 @@ crate smoke
 │   └── mod cycle: pub(self)
 └── mod visibility: pub(crate)
     └── mod dummy: pub(self)
-
