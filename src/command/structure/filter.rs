@@ -43,7 +43,7 @@ impl<'a> Filter<'a> {
 
         let max_depth = self.options.max_depth.unwrap_or(usize::MAX);
 
-        if let Some(tree) = self.filter_tree(tree, None, max_depth, &use_tree) {
+        if let Some(tree) = self.filter_tree(tree, 0, max_depth, false, &use_tree) {
             Ok(tree)
         } else {
             anyhow::bail!(
@@ -56,49 +56,44 @@ impl<'a> Filter<'a> {
     fn filter_tree(
         &self,
         tree: &Tree<Node>,
-        depth: Option<usize>,
+        depth: usize,
         max_depth: usize,
+        ancestor_is_focus: bool,
         focus_tree: &ast::UseTree,
     ) -> Option<Tree<Node>> {
-        let path = tree.node.display_path(self.db, self.edition);
+        let is_focus = self.node_is_focus(tree, focus_tree);
 
-        let is_focus_tree = analyzer::use_tree_matches_item_path(focus_tree, &path);
-
-        let depth = if is_focus_tree { Some(0) } else { depth };
-
-        let should_be_retained = self.should_retain_moduledef(tree.node.hir);
-
-        let subtree_contains_focus_tree = tree
-            .subtrees
-            .iter()
-            .map(|tree| self.is_or_contains_focus_tree(tree, focus_tree));
-
-        let is_or_contains_focus_tree =
-            is_focus_tree || subtree_contains_focus_tree.clone().any(|flag| flag);
+        let has_children = !tree.subtrees.is_empty();
 
         let subtrees: Vec<Tree<Node>> = tree
             .subtrees
             .iter()
-            .zip(subtree_contains_focus_tree)
-            .filter_map(|(tree, is_or_contains_focus_tree)| {
-                let depth = if is_or_contains_focus_tree {
-                    Some(0)
-                } else {
-                    depth.map(|depth| depth + 1)
-                };
-                self.filter_tree(tree, depth, max_depth, focus_tree)
+            .filter_map(|tree| {
+                let depth = if is_focus { 1 } else { depth + 1 };
+                let ancestor_is_focus = ancestor_is_focus || is_focus;
+                self.filter_tree(tree, depth, max_depth, ancestor_is_focus, focus_tree)
             })
             .collect();
 
-        if !should_be_retained {
+        let children_contain_focus = has_children && !subtrees.is_empty();
+
+        if !self.should_retain_moduledef(tree.node.hir) {
             return None;
         }
 
-        if let Some(depth) = depth {
-            if depth > max_depth {
-                return None;
-            }
-        } else if !is_or_contains_focus_tree {
+        let mut should_retain_node = false;
+
+        // Keep the node if it is a sub-node of a node matched by `--focus-on`,
+        // as long as it is within the specified `--max-depth`:
+        should_retain_node |= ancestor_is_focus && depth <= max_depth;
+
+        // Keep the node if it is matched by `--focus-on`:
+        should_retain_node |= is_focus;
+
+        // Keep the node if one of its children is matched by `--focus-on`:
+        should_retain_node |= children_contain_focus;
+
+        if !should_retain_node {
             return None;
         }
 
@@ -108,16 +103,9 @@ impl<'a> Filter<'a> {
         Some(tree)
     }
 
-    fn is_or_contains_focus_tree(&self, tree: &Tree<Node>, focus_tree: &ast::UseTree) -> bool {
+    fn node_is_focus(&self, tree: &Tree<Node>, focus_tree: &ast::UseTree) -> bool {
         let path = tree.node.display_path(self.db, self.edition);
-
-        if analyzer::use_tree_matches_item_path(focus_tree, &path) {
-            return true;
-        }
-
-        tree.subtrees
-            .iter()
-            .any(|tree| self.is_or_contains_focus_tree(tree, focus_tree))
+        analyzer::use_tree_matches_item_path(focus_tree, &path)
     }
 
     fn should_retain_moduledef(&self, module_def_hir: hir::ModuleDef) -> bool {

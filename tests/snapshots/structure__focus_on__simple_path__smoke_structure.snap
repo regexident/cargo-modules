@@ -13,11 +13,6 @@ STDOUT:
 
 crate smoke_structure
 └── mod lorem: pub(crate)
-    ├── trait Amet: pub(self)
-    ├── mod adipiscing: pub(self)
-    ├── mod elit: pub(self)
-    │   ├── struct Ipsum: pub(self)
-    │   └── trait Lorem: pub(self)
     └── mod sit: pub(self)
         ├── enum Adipiscing: pub(self)
         ├── mod elit: pub(self)
