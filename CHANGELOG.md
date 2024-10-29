@@ -24,10 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.240` to `0.0.241`
-  - `insta` from `1.40.0` to `1.41.0`
-  - `anyhow` from `1.0.90` to `1.0.91`
+- n/a
 
 ### Deprecated
 
@@ -52,6 +49,15 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.19.1] - 2024-10-29
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.240` to `0.0.241`
+  - `insta` from `1.40.0` to `1.41.0`
+  - `anyhow` from `1.0.90` to `1.0.91`
 
 ## [0.19.0] - 2024-10-23
 
