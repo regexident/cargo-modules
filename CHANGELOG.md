@@ -26,6 +26,9 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.241` to `0.0.244`
+  - `anyhow` from `1.0.91` to `1.0.93`
+  - `clap` from `4.5.20` to `4.5.21`
+  - `libc` from `0.2.161` to `0.2.164`
 - Bumped MSRV from `1.81.0` to `1.82.0`
 
 ### Deprecated
