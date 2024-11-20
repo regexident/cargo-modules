@@ -1,23 +1,30 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
-  "packageRules": [{
-      "matchPackagePatterns": ["^ra_ap_"],
+  "packageRules": [
+    {
       "groupName": "rust-analyzer dependencies",
       "groupSlug": "rust-analyzer-dependencies",
-      "schedule": ["before 2am on Tuesday"]
+      "schedule": [
+        "before 2am on Tuesday"
+      ],
+      "matchPackageNames": [
+        "/^ra_ap_/"
+      ]
     },
     {
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "excludePackagePatterns": ["^ra_ap_"],
       "allowedVersions": "!/^=/",
       "groupName": "all other dependencies",
       "groupSlug": "other-dependencies",
-      "schedule": ["before 2am on Tuesday"]
+      "schedule": [
+        "before 2am on Tuesday"
+      ],
+      "matchPackageNames": [
+        "*",
+        "!/^ra_ap_/"
+      ]
     }
   ]
 }
