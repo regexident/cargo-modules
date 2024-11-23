@@ -9,6 +9,7 @@ use clap::{ArgGroup, Parser};
 use crate::command::Command;
 
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
+#[command(version = env!("CARGO_PKG_VERSION"))]
 pub struct App {
     #[arg(hide = true, value_parser = clap::builder::PossibleValuesParser::new(["modules"]))]
     pub dummy: Option<String>,
