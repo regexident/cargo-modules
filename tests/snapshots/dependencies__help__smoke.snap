@@ -1,5 +1,6 @@
 ---
 source: tests/dependencies.rs
+assertion_line: 5
 expression: output
 snapshot_kind: text
 ---
@@ -27,6 +28,7 @@ Options:
       --no-externs                     Filter out extern items from extern crates from graph
       --no-fns                         Filter out functions (e.g. fns, async fns, const fns) from graph
       --no-modules                     Filter out modules (e.g. `mod foo`, `mod foo {}`) from graph
+      --no-owns                        Filter out structural "owns" edges from graph
       --no-sysroot                     Filter out sysroot crates (`std`, `core` & friends) from graph
       --no-traits                      Filter out traits (e.g. trait, unsafe trait) from graph
       --no-types                       Filter out types (e.g. structs, unions, enums) from graph
