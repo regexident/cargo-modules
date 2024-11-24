@@ -107,6 +107,10 @@ pub struct SelectionOptions {
     #[clap(long = "no-modules")]
     pub no_modules: bool,
 
+    /// Filter out structural "owns" edges from graph.
+    #[clap(long = "no-owns")]
+    pub no_owns: bool,
+
     /// Filter out sysroot crates (`std`, `core` & friends) from graph.
     #[arg(long = "no-sysroot")]
     pub no_sysroot: bool,
