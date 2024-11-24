@@ -1,6 +1,7 @@
 ---
 source: tests/orphans.rs
 expression: output
+snapshot_kind: text
 ---
 COMMAND:
 orphans

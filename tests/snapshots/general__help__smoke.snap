@@ -1,6 +1,7 @@
 ---
 source: tests/general.rs
 expression: output
+snapshot_kind: text
 ---
 COMMAND:
 --help

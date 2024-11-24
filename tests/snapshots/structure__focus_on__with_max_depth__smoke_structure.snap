@@ -1,6 +1,7 @@
 ---
 source: tests/structure.rs
 expression: output
+snapshot_kind: text
 ---
 COMMAND:
 structure
