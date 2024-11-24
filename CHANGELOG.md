@@ -20,7 +20,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Added CLI flag `--version` for printing the version.
 
 ### Changed
 
