@@ -371,7 +371,7 @@ mod selection {
         );
     }
 
-    mod uses {
+    mod no_uses {
         test_cmd!(
             args: "dependencies \
                     --no-uses",
