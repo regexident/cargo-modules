@@ -1,6 +1,8 @@
 ---
 source: tests/general.rs
+assertion_line: 5
 expression: output
+snapshot_kind: text
 ---
 COMMAND:
 --help
