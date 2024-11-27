@@ -20,13 +20,11 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- Added CLI flag `--version` for printing the version.
+- n/a
 
 ### Changed
 
-- Updated dependencies:
-  - `libc` from `0.2.164` to `0.2.166`
-  - `rust-analyzer` from `0.0.245` to `0.0.246`
+- n/a
 
 ### Deprecated
 
@@ -51,6 +49,18 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.20.2] - 2024-11-27
+
+### Added
+
+- Added CLI flag `--version` for printing the version.
+
+### Changed
+
+- Updated dependencies:
+  - `libc` from `0.2.164` to `0.2.166`
+  - `rust-analyzer` from `0.0.245` to `0.0.246`
 
 ## [0.20.1] - 2024-11-20
 
