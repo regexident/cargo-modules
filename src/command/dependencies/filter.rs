@@ -233,6 +233,30 @@ impl<'a> Filter<'a> {
 
         debug_assert!(graph.contains_node(root_idx), "{}", ROOT_DROP_ERR_MSG);
 
+        if self.options.selection.no_owns {
+            // drop all "owns" edges:
+            graph.retain_edges(|graph, edge_idx| !matches!(&graph[edge_idx], Relationship::Owns));
+
+            // By removing the structural "owns" edges from the graph, that make it connected,
+            // we are likely to end up with a graph consisting of mostly individual unconnected nodes,
+            // which now basically contain no "dependency" information and thus aren't interesting to us.
+            //
+            // We thus also drop all nodes that don't have any remaining edges connected to them
+            // (with the exception of the crate's node, for reasons):
+            graph.retain_nodes(|graph, node_idx| {
+                let out_degree = graph
+                    .neighbors_directed(node_idx, Direction::Outgoing)
+                    .count();
+                let in_degree = graph
+                    .neighbors_directed(node_idx, Direction::Incoming)
+                    .count();
+
+                node_idx == root_idx || (out_degree + in_degree) > 0
+            });
+        }
+
+        debug_assert!(graph.contains_node(root_idx), "{}", ROOT_DROP_ERR_MSG);
+
         Ok(graph)
     }
 

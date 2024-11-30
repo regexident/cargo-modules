@@ -351,6 +351,16 @@ mod selection {
         );
     }
 
+    mod no_owns {
+        test_cmd!(
+            args: "dependencies \
+                    --no-owns",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: smoke
+        );
+    }
+
     mod no_traits {
         test_cmd!(
             args: "dependencies \
@@ -371,7 +381,7 @@ mod selection {
         );
     }
 
-    mod uses {
+    mod no_uses {
         test_cmd!(
             args: "dependencies \
                     --no-uses",
