@@ -20,7 +20,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Added CLI flag `--no-owns` for `dependencies` command for filtering out "owns" edges and resulting isolated nodes.
 
 ### Changed
 
