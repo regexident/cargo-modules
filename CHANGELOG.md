@@ -20,15 +20,11 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- Added CLI flag `--no-owns` for `dependencies` command for filtering out "owns" edges and resulting isolated nodes.
+- n/a
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.246` to `0.0.248`
-  - `anyhow` from `1.0.93` to `1.0.94`
-  - `clap` from `4.5.21` to `4.5.23`
-  - `libc` from `0.2.166` to `0.2.168`
+- n/a
 
 ### Deprecated
 
@@ -53,6 +49,20 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.21.0] - 2024-12-10
+
+### Added
+
+- Added CLI flag `--no-owns` for `dependencies` command for filtering out "owns" edges and resulting isolated nodes.
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.246` to `0.0.248`
+  - `anyhow` from `1.0.93` to `1.0.94`
+  - `clap` from `4.5.21` to `4.5.23`
+  - `libc` from `0.2.166` to `0.2.168`
 
 ## [0.20.2] - 2024-11-27
 
