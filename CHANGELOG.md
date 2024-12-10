@@ -26,6 +26,9 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.246` to `0.0.248`
+  - `anyhow` from `1.0.93` to `1.0.94`
+  - `clap` from `4.5.21` to `4.5.23`
+  - `libc` from `0.2.166` to `0.2.168`
 
 ### Deprecated
 
