@@ -12,7 +12,7 @@ use ra_ap_ide::{self as ide};
 use ra_ap_ide_db::{self as ide_db};
 use ra_ap_load_cargo::{self as load_cargo};
 use ra_ap_paths::{self as paths};
-use ra_ap_project_model::{self as project_model};
+use ra_ap_project_model::{self as project_model, SysrootQueryMetadata};
 use ra_ap_syntax::{self as syntax, ast, AstNode as _};
 use ra_ap_vfs::{self as vfs};
 
@@ -104,6 +104,9 @@ pub fn cargo_config(
         None
     };
 
+    let sysroot_query_metadata = SysrootQueryMetadata::None;
+    let sysroot_src = None;
+
     // Rustc private crate source
     let rustc_source = None;
 
@@ -139,8 +142,6 @@ pub fn cargo_config(
 
     let invocation_strategy = project_model::InvocationStrategy::PerWorkspace;
 
-    let sysroot_src = None;
-
     let extra_args = vec![];
 
     let target_dir = None;
@@ -152,13 +153,14 @@ pub fn cargo_config(
         features,
         target,
         sysroot,
+        sysroot_query_metadata,
+        sysroot_src,
         rustc_source,
         cfg_overrides,
         wrap_rustc_in_build_scripts,
         run_build_script_command,
         extra_env,
         invocation_strategy,
-        sysroot_src,
         extra_args,
         target_dir,
         set_test,
