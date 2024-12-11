@@ -55,6 +55,7 @@ libc = "0.2.155"
 # security fixes
 memoffset = "0.9.1"    #230
 thread_local = "1.1.8" #231
+url = "2.5.4"          # RUSTSEC-2024-0421
 
 # required by tests
 [dev-dependencies]
