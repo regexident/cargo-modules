@@ -44,7 +44,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Security
 
-- n/a
+- Resolved [RUSTSEC-2024-0421](https://rustsec.org/advisories/RUSTSEC-2024-0421.html) by upgrading `url` crate dependency to "2.5.4".
 
 ### Other
 
