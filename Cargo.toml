@@ -30,7 +30,7 @@ dunce = "1.0.4"
 sugar_path = "1.2.0"
 
 ra_ap_base_db = "=0.0.248"
-ra_ap_cfg = "=0.0.248"
+ra_ap_cfg = "=0.0.251"
 ra_ap_hir = "=0.0.248"
 ra_ap_hir_def = "=0.0.248"
 ra_ap_hir_ty = "=0.0.248"
