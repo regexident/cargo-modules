@@ -18,7 +18,7 @@ version = "0.21.1"
 # required by lib
 bitvec = "1.0"
 json = "0.12.4"
-petgraph = "0.6.4"
+petgraph = "0.7.0"
 anyhow = "1.0.82"
 yansi = "1.0.1"
 log = "0.4.21"
