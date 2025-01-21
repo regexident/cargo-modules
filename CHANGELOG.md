@@ -25,6 +25,7 @@ Please make sure to add your changes to the appropriate categories:
 ### Changed
 
 - Updated dependencies:
+  - `rust-analyzer` from `0.0.248` to `0.0.259`
   - `anyhow` from `1.0.94` to `1.0.95`
   - `bitflags` from `2.6.0` to `2.8.0`
   - `clap` from `4.5.23` to `4.5.27`
