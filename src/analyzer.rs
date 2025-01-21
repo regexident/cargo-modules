@@ -12,7 +12,7 @@ use ra_ap_ide::{self as ide};
 use ra_ap_ide_db::{self as ide_db};
 use ra_ap_load_cargo::{self as load_cargo};
 use ra_ap_paths::{self as paths};
-use ra_ap_project_model::{self as project_model, SysrootQueryMetadata};
+use ra_ap_project_model::{self as project_model};
 use ra_ap_syntax::{self as syntax, ast, AstNode as _};
 use ra_ap_vfs::{self as vfs};
 
@@ -84,32 +84,6 @@ pub fn cargo_config(
 ) -> project_model::CargoConfig {
     let all_targets = false;
 
-    // List of features to activate (or deactivate).
-    let features = if project_options.all_features {
-        project_model::CargoFeatures::All
-    } else {
-        project_model::CargoFeatures::Selected {
-            features: project_options.features.clone(),
-            no_default_features: project_options.no_default_features,
-        }
-    };
-
-    // Target triple
-    let target = project_options.target.clone();
-
-    // Whether to load sysroot crates (`std`, `core` & friends).
-    let sysroot = if load_options.sysroot {
-        Some(project_model::RustLibSource::Discover)
-    } else {
-        None
-    };
-
-    let sysroot_query_metadata = SysrootQueryMetadata::None;
-    let sysroot_src = None;
-
-    // Rustc private crate source
-    let rustc_source = None;
-
     // Crates to enable/disable `#[cfg(test)]` on
     let cfg_overrides = match load_options.cfg_test {
         true => project_model::CfgOverrides {
@@ -130,40 +104,67 @@ pub fn cargo_config(
         },
     };
 
+    let extra_args = vec![];
+
+    // FIXME: support extra environment variables via CLI:
+    let extra_env = ide_db::FxHashMap::default();
+
+    let extra_includes = vec![];
+
+    // List of features to activate (or deactivate).
+    let features = if project_options.all_features {
+        project_model::CargoFeatures::All
+    } else {
+        project_model::CargoFeatures::Selected {
+            features: project_options.features.clone(),
+            no_default_features: project_options.no_default_features,
+        }
+    };
+
+    let invocation_strategy = project_model::InvocationStrategy::PerWorkspace;
+
+    let run_build_script_command = None;
+
+    // Rustc private crate source
+    let rustc_source = None;
+
+    let set_test = load_options.cfg_test;
+
+    // Whether to load sysroot crates (`std`, `core` & friends).
+    let sysroot = if load_options.sysroot {
+        Some(project_model::RustLibSource::Discover)
+    } else {
+        None
+    };
+
+    let sysroot_src = None;
+
+    // Target triple
+    let target = project_options.target.clone();
+
+    let target_dir = None;
+
     // Setup RUSTC_WRAPPER to point to `rust-analyzer` binary itself.
     // (We use that to compile only proc macros and build scripts
     // during the initial `cargo check`.)
     let wrap_rustc_in_build_scripts = true;
 
-    let run_build_script_command = None;
-
-    // FIXME: support extra environment variables via CLI:
-    let extra_env = ide_db::FxHashMap::default();
-
-    let invocation_strategy = project_model::InvocationStrategy::PerWorkspace;
-
-    let extra_args = vec![];
-
-    let target_dir = None;
-
-    let set_test = load_options.cfg_test;
-
     project_model::CargoConfig {
         all_targets,
-        features,
-        target,
-        sysroot,
-        sysroot_query_metadata,
-        sysroot_src,
-        rustc_source,
         cfg_overrides,
-        wrap_rustc_in_build_scripts,
-        run_build_script_command,
-        extra_env,
-        invocation_strategy,
         extra_args,
-        target_dir,
+        extra_env,
+        extra_includes,
+        features,
+        invocation_strategy,
+        run_build_script_command,
+        rustc_source,
         set_test,
+        sysroot_src,
+        sysroot,
+        target_dir,
+        target,
+        wrap_rustc_in_build_scripts,
     }
 }
 
