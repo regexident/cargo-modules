@@ -24,16 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.248` to `0.0.259`
-  - `anyhow` from `1.0.94` to `1.0.95`
-  - `bitflags` from `2.6.0` to `2.8.0`
-  - `clap` from `4.5.23` to `4.5.27`
-  - `env_logger` from `0.11.5` to `0.11.6`
-  - `insta` from `1.41.1` to `1.42.0`
-  - `libc` from `0.2.168` to `0.2.169`
-  - `log` from `0.4.22` to `0.4.25`
-  - `petgraph` from `0.6.4` to `0.7.0`
+- n/a
 
 ### Deprecated
 
@@ -58,6 +49,21 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.21.2] - 2025-01-21
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.248` to `0.0.259`
+  - `anyhow` from `1.0.94` to `1.0.95`
+  - `bitflags` from `2.6.0` to `2.8.0`
+  - `clap` from `4.5.23` to `4.5.27`
+  - `env_logger` from `0.11.5` to `0.11.6`
+  - `insta` from `1.41.1` to `1.42.0`
+  - `libc` from `0.2.168` to `0.2.169`
+  - `log` from `0.4.22` to `0.4.25`
+  - `petgraph` from `0.6.4` to `0.7.0`
 
 ## [0.21.1] - 2024-12-11
 
