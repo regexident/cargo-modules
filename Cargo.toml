@@ -62,3 +62,8 @@ assert_cmd = "2.0.14"
 shellwords = "1.1"
 insta = "1.38.0"
 bitflags = "2.5.0"
+
+[profile.dev-opt]
+inherits = "dev"
+opt-level = 2
+debug = true
