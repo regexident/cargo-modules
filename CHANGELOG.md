@@ -24,9 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.259` to `0.0.260`
-- Bumped MSRV from `1.82.0` to `1.84.0`.
+- n/a
 
 ### Deprecated
 
@@ -51,6 +49,14 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.22.0] - 2025-01-28
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.259` to `0.0.260`
+- Bumped MSRV from `1.82.0` to `1.84.0`.
 
 ## [0.21.2] - 2025-01-21
 
