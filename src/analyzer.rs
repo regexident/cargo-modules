@@ -429,7 +429,7 @@ pub fn find_crate(
 
 pub(crate) fn crate_name(krate: hir::Crate, db: &ide::RootDatabase) -> String {
     // Obtain the crate's declaration name:
-    let display_name = &krate.display_name(db).unwrap();
+    let display_name = krate.display_name(db).unwrap().to_string();
 
     // Since a crate's name may contain `-` we canonicalize it by replacing with `_`:
     display_name.replace('-', "_")

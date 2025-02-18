@@ -40,11 +40,18 @@ impl ItemKindOrdering {
             hir::ModuleDef::Module(module_def_hir) => Self::Module {
                 is_crate_root: module_def_hir.is_crate_root(),
             },
-            hir::ModuleDef::Function(function_def) => Self::Function {
-                is_const: function_def.is_const(db),
-                is_async: function_def.is_async(db),
-                is_unsafe_to_call: function_def.is_unsafe_to_call(db),
-            },
+            hir::ModuleDef::Function(function_def) => {
+                let caller = None;
+                // Technically this should be the caller's edition,
+                // but for our purposes we should be fine with taking the
+                // callee's edition instead:
+                let edition = function_def.module(db).krate().edition(db);
+                Self::Function {
+                    is_const: function_def.is_const(db),
+                    is_async: function_def.is_async(db),
+                    is_unsafe_to_call: function_def.is_unsafe_to_call(db, caller, edition),
+                }
+            }
             hir::ModuleDef::Adt(adt_def) => match adt_def {
                 hir::Adt::Struct(_) => Self::Struct,
                 hir::Adt::Union(_) => Self::Union,

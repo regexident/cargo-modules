@@ -30,7 +30,12 @@ impl ItemKindDisplayName {
                 if hir.is_async(db) {
                     keywords.push("async");
                 }
-                if hir.is_unsafe_to_call(db) {
+                let caller = None;
+                // Technically this should be the caller's edition,
+                // but for our purposes we should be fine with taking the
+                // callee's edition instead:
+                let edition = hir.module(db).krate().edition(db);
+                if hir.is_unsafe_to_call(db, caller, edition) {
                     keywords.push("unsafe");
                 }
                 keywords.push("fn");
