@@ -6,7 +6,6 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 
 use clap::Parser;
-use log::trace;
 use petgraph::graph::NodeIndex;
 
 use crate::{
@@ -41,7 +40,7 @@ impl Command {
         db: &ide::RootDatabase,
         edition: ide::Edition,
     ) -> anyhow::Result<()> {
-        trace!("Building graph ...");
+        tracing::trace!("Building graph ...");
 
         let builder = GraphBuilder::new(db, edition, krate);
         let (graph, crate_node_idx) = builder.build()?;
@@ -62,12 +61,12 @@ impl Command {
             return Ok(());
         }
 
-        trace!("Filtering graph ...");
+        tracing::trace!("Filtering graph ...");
 
         let filter = Filter::new(&self.options, db, edition, krate);
         let graph = filter.filter(&graph, crate_node_idx)?;
 
-        trace!("Printing graph ...");
+        tracing::trace!("Printing graph ...");
 
         let mut string = String::new();
 

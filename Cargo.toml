@@ -21,13 +21,12 @@ json = "0.12.4"
 petgraph = "0.7.0"
 anyhow = "1.0.82"
 yansi = "1.0.1"
-log = "0.4.21"
-env_logger = "0.11.3"
 indoc = "2.0.5"
 clap = { version = "4.5.7", features = ["derive"] }
-scopeguard = "1.2.0"
 dunce = "1.0.4"
 sugar_path = "1.2.0"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 ra_ap_base_db = "=0.0.268"
 ra_ap_cfg = "=0.0.268"

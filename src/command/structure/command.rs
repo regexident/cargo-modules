@@ -8,7 +8,6 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 
 use clap::Parser;
-use log::trace;
 
 use crate::{analyzer::LoadOptions, tree::TreeBuilder};
 
@@ -34,18 +33,18 @@ impl Command {
         db: &ide::RootDatabase,
         edition: ide::Edition,
     ) -> anyhow::Result<()> {
-        trace!("Building tree ...");
+        tracing::trace!("Building tree ...");
 
         let builder = TreeBuilder::new(db, krate);
         let tree = builder.build()?;
 
-        trace!("Filtering tree ...");
+        tracing::trace!("Filtering tree ...");
 
         let filter = Filter::new(&self.options, krate, db, edition);
 
         let tree = filter.filter(&tree)?;
 
-        trace!("Printing tree ...");
+        tracing::trace!("Printing tree ...");
 
         let mut output = String::new();
         writeln!(&mut output)?;
