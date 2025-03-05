@@ -8,7 +8,6 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 use ra_ap_syntax::ast;
 
-use log::trace;
 use petgraph::{
     Direction,
     graph::NodeIndex,
@@ -59,7 +58,7 @@ impl<'a> Filter<'a> {
         let focus_on = self.options.focus_on.as_deref();
         let use_tree: ast::UseTree = crate::utils::sanitized_use_tree(focus_on, &crate_name)?;
 
-        trace!("Searching for focus nodes in graph ...");
+        tracing::trace!("Searching for focus nodes in graph ...");
 
         let focus_node_idxs: Vec<NodeIndex> = graph
             .node_indices()
@@ -120,7 +119,7 @@ impl<'a> Filter<'a> {
             })
             .collect();
 
-        trace!("Redirecting outgoing edges of filtered nodes in graph ...");
+        tracing::trace!("Redirecting outgoing edges of filtered nodes in graph ...");
 
         // Popping from the stack results in a reverse level-order,
         // which ensures that sub-items are processed before their parent items:

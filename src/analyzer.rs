@@ -4,8 +4,6 @@
 
 use std::path::{Path, PathBuf};
 
-use log::{debug, trace};
-
 use ra_ap_cfg::{self as cfg};
 use ra_ap_hir::{self as hir, AsAssocItem as _, HasAttrs as _, HirFileIdExt as _};
 use ra_ap_ide::{self as ide};
@@ -46,7 +44,7 @@ pub fn load_workspace(
     let load_config = load_config();
 
     let progress = |string| {
-        trace!("Progress: {}", string);
+        tracing::trace!("Progress: {}", string);
     };
 
     let mut project_workspace = load_project_workspace(&project_path, &cargo_config, &progress)?;
@@ -207,11 +205,11 @@ pub fn select_package_and_target(
 
     let package_idx = select_package(cargo_workspace, options)?;
     let package = cargo_workspace[package_idx].clone();
-    debug!("Selected package: {:#?}", package.name);
+    tracing::debug!("Selected package: {:#?}", package.name);
 
     let target_idx = select_target(cargo_workspace, package_idx, options)?;
     let target = cargo_workspace[target_idx].clone();
-    debug!("Selected target: {:#?}", target.name);
+    tracing::debug!("Selected target: {:#?}", target.name);
 
     Ok((package, target))
 }

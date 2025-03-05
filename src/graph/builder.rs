@@ -4,14 +4,12 @@
 
 use std::collections::{HashMap, HashSet};
 
-use ra_ap_hir::{self as hir, HirDisplay as _};
+use ra_ap_hir::{self as hir};
 use ra_ap_hir_def::{self as hir_def};
 use ra_ap_hir_ty::{self as hir_ty, TyExt as _, db::HirDatabase as _};
-use ra_ap_ide::{self as ide};
+use ra_ap_ide::{self as ide, Edition};
 
-use log::{debug, trace};
 use petgraph::graph::{EdgeIndex, NodeIndex};
-use scopeguard::defer;
 
 use crate::{
     analyzer,
@@ -53,11 +51,7 @@ impl<'a> GraphBuilder<'a> {
     }
 
     pub fn build(mut self) -> anyhow::Result<(Graph<Node, Edge>, NodeIndex)> {
-        trace!("Scanning project...");
-
-        defer! {
-            trace!("Finished canning project");
-        }
+        let _span = tracing::trace_span!("Scanning project...").entered();
 
         let node_idx = self
             .process_crate(self.krate)
@@ -67,11 +61,14 @@ impl<'a> GraphBuilder<'a> {
     }
 
     fn process_crate(&mut self, crate_hir: hir::Crate) -> Option<NodeIndex> {
-        trace!("Processing crate...");
-
-        defer! {
-            trace!("Finished processing crate.");
-        }
+        let _span = tracing::trace_span!(
+            "crate",
+            crate = crate_hir
+                .display_name(self.db)
+                .map(|name| name.to_string())
+                .unwrap_or_else(|| "<ANONYMOUS>".to_owned())
+        )
+        .entered();
 
         let module = crate_hir.root_module();
 
@@ -92,7 +89,7 @@ impl<'a> GraphBuilder<'a> {
 
             let Some(&impl_ty_idx) = self.nodes.get(&impl_ty_hir) else {
                 let ty_path = analyzer::display_path(impl_ty_hir, self.db, self.edition);
-                debug!("Could not find node for type {ty_path:?}, skipping impl.");
+                tracing::debug!("Could not find node for type {ty_path:?}, skipping impl.");
                 continue;
             };
 
@@ -105,11 +102,7 @@ impl<'a> GraphBuilder<'a> {
     }
 
     fn process_impl(&mut self, impl_hir: hir::Impl) -> Vec<NodeIndex> {
-        trace!("Processing impl...");
-
-        defer! {
-            trace!("Finished processing impl.");
-        }
+        let _span = tracing::trace_span!("impl").entered();
 
         impl_hir
             .items(self.db)
@@ -143,12 +136,6 @@ impl<'a> GraphBuilder<'a> {
     }
 
     fn process_moduledef(&mut self, module_def_hir: hir::ModuleDef) -> Option<NodeIndex> {
-        trace!("Processing moduledef...");
-
-        defer! {
-            trace!("Finished processing moduledef");
-        }
-
         let mut dependencies: HashSet<_> = HashSet::default();
 
         let mut push_dependencies = |module_def_hir| {
@@ -201,11 +188,14 @@ impl<'a> GraphBuilder<'a> {
         module_hir: hir::Module,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing module...");
-
-        defer! {
-            trace!("Finished processing module.");
-        }
+        let _span = tracing::trace_span!(
+            "module",
+            module = module_hir
+                .name(self.db)
+                .map(|name| name.display(self.db, Edition::CURRENT).to_string())
+                .unwrap_or_else(|| "<ROOT>".to_owned())
+        )
+        .entered();
 
         let node_idx = self.add_node_if_necessary(module_hir.into());
 
@@ -243,11 +233,14 @@ impl<'a> GraphBuilder<'a> {
         function_hir: hir::Function,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing function...");
-
-        defer! {
-            trace!("Finished processing function.");
-        }
+        let _span = tracing::trace_span!(
+            "function",
+            function = function_hir
+                .name(self.db)
+                .display(self.db, Edition::CURRENT)
+                .to_string()
+        )
+        .entered();
 
         let node_idx = self.add_node_if_necessary(hir::ModuleDef::Function(function_hir))?;
 
@@ -309,12 +302,6 @@ impl<'a> GraphBuilder<'a> {
         adt_hir: hir::Adt,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing adt...");
-
-        defer! {
-            trace!("Finished processing adt");
-        }
-
         match adt_hir {
             hir::Adt::Struct(struct_hir) => self.process_struct(struct_hir, dependencies_callback),
             hir::Adt::Enum(enum_hir) => self.process_enum(enum_hir, dependencies_callback),
@@ -327,11 +314,12 @@ impl<'a> GraphBuilder<'a> {
         struct_hir: hir::Struct,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing struct...");
-
-        defer! {
-            trace!("Finished processing struct.");
-        }
+        let _span = tracing::trace_span!("struct",
+            struct = struct_hir
+                .name(self.db)
+                .display(self.db, Edition::CURRENT)
+                .to_string())
+        .entered();
 
         let node_idx =
             self.add_node_if_necessary(hir::ModuleDef::Adt(hir::Adt::Struct(struct_hir)));
@@ -353,11 +341,12 @@ impl<'a> GraphBuilder<'a> {
         enum_hir: hir::Enum,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing enum...");
-
-        defer! {
-            trace!("Finished processing enum.");
-        }
+        let _span = tracing::trace_span!("enum",
+            enum = enum_hir
+                .name(self.db)
+                .display(self.db, Edition::CURRENT)
+                .to_string())
+        .entered();
 
         let node_idx = self.add_node_if_necessary(hir::ModuleDef::Adt(hir::Adt::Enum(enum_hir)));
 
@@ -380,11 +369,14 @@ impl<'a> GraphBuilder<'a> {
         union_hir: hir::Union,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing union...");
-
-        defer! {
-            trace!("Finished processing union.");
-        }
+        let _span = tracing::trace_span!(
+            "union",
+            union = union_hir
+                .name(self.db)
+                .display(self.db, Edition::CURRENT)
+                .to_string()
+        )
+        .entered();
 
         let node_idx = self.add_node_if_necessary(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)));
 
@@ -405,11 +397,14 @@ impl<'a> GraphBuilder<'a> {
         variant_hir: hir::Variant,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing variant...");
-
-        defer! {
-            trace!("Finished processing variant.");
-        }
+        let _span = tracing::trace_span!(
+            "variant",
+            variant = variant_hir
+                .name(self.db)
+                .display(self.db, Edition::CURRENT)
+                .to_string()
+        )
+        .entered();
 
         for field_hir in variant_hir.fields(self.db) {
             Self::walk_and_push_type(
@@ -428,11 +423,12 @@ impl<'a> GraphBuilder<'a> {
         const_hir: hir::Const,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing const...");
-
-        defer! {
-            trace!("Finished processing const.");
-        }
+        let _span = tracing::trace_span!("const",
+            const = const_hir
+                .name(self.db)
+                .map(|name| name.display(self.db, Edition::CURRENT).to_string())
+                .unwrap_or_else(|| "_".to_owned()))
+        .entered();
 
         Self::walk_and_push_type(
             const_hir.ty(self.db),
@@ -449,11 +445,12 @@ impl<'a> GraphBuilder<'a> {
         static_hir: hir::Static,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing static...");
-
-        defer! {
-            trace!("Finished processing static.");
-        }
+        let _span = tracing::trace_span!("static",
+            static = static_hir
+                .name(self.db)
+                .display(self.db, Edition::CURRENT)
+                .to_string())
+        .entered();
 
         Self::walk_and_push_type(
             static_hir.ty(self.db),
@@ -470,11 +467,12 @@ impl<'a> GraphBuilder<'a> {
         trait_hir: hir::Trait,
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing trait...");
-
-        defer! {
-            trace!("Finished processing trait.");
-        }
+        let _span = tracing::trace_span!("trait",
+            trait = trait_hir
+                .name(self.db)
+                .display(self.db, Edition::CURRENT)
+                .to_string())
+        .entered();
 
         let node_idx = self.add_node_if_necessary(hir::ModuleDef::Trait(trait_hir));
 
@@ -489,11 +487,14 @@ impl<'a> GraphBuilder<'a> {
         trait_alias_hir: hir::TraitAlias,
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing trait alias...");
-
-        defer! {
-            trace!("Finished processing trait alias.");
-        }
+        let _span = tracing::trace_span!(
+            "trait alias",
+            trait_alias = trait_alias_hir
+                .name(self.db)
+                .display(self.db, Edition::CURRENT)
+                .to_string()
+        )
+        .entered();
 
         let node_idx = self.add_node_if_necessary(hir::ModuleDef::TraitAlias(trait_alias_hir));
 
@@ -508,11 +509,14 @@ impl<'a> GraphBuilder<'a> {
         type_alias_hir: hir::TypeAlias,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing type alias...");
-
-        defer! {
-            trace!("Finished processing type alias.");
-        }
+        let _span = tracing::trace_span!(
+            "type alias",
+            type_alias = type_alias_hir
+                .name(self.db)
+                .display(self.db, Edition::CURRENT)
+                .to_string()
+        )
+        .entered();
 
         let node_idx = self.add_node_if_necessary(hir::ModuleDef::TypeAlias(type_alias_hir));
 
@@ -531,11 +535,14 @@ impl<'a> GraphBuilder<'a> {
         builtin_type_hir: hir::BuiltinType,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing builtin type...");
-
-        defer! {
-            trace!("Finished processing builtin type.");
-        }
+        let _span = tracing::trace_span!(
+            "builtin type",
+            builtin_type = builtin_type_hir
+                .name()
+                .display(self.db, Edition::CURRENT)
+                .to_string()
+        )
+        .entered();
 
         let node_idx = self.add_node_if_necessary(hir::ModuleDef::BuiltinType(builtin_type_hir));
 
@@ -551,14 +558,15 @@ impl<'a> GraphBuilder<'a> {
 
     fn process_macro(
         &mut self,
-        _macro_hir: hir::Macro,
+        macro_hir: hir::Macro,
         _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
-        trace!("Processing macro...");
-
-        defer! {
-            trace!("Finished processing macro.");
-        }
+        let _span = tracing::trace_span!("macro",
+            macro = macro_hir
+                .name(self.db)
+                .display(self.db, Edition::CURRENT)
+                .to_string())
+        .entered();
 
         // TODO: should the macro be walked, somehow?
 
@@ -568,14 +576,13 @@ impl<'a> GraphBuilder<'a> {
     pub(super) fn walk_and_push_type(
         ty: hir::Type,
         db: &ide::RootDatabase,
-        edition: ide::Edition,
+        _edition: ide::Edition,
         visit: &mut dyn FnMut(hir::ModuleDef),
     ) {
-        trace!("Walking type {ty}...", ty = ty.display(db, edition));
-
-        defer! {
-            trace!("Finished walking type {ty}", ty = ty.display(db, edition));
-        }
+        // tracing::trace!(
+        //     "Walking type {ty}...",
+        //     ty = ty.display(db, edition).to_string()
+        // );
 
         ty.walk(db, |ty| {
             if let Some(adt) = ty.as_adt() {
@@ -596,11 +603,10 @@ impl<'a> GraphBuilder<'a> {
         edition: ide::Edition,
         visit: &mut dyn FnMut(hir::ModuleDef),
     ) {
-        trace!("Walking type {ty}...", ty = ty.display(db, edition));
-
-        defer! {
-            trace!("Finished walking type {ty}", ty = ty.display(db, edition));
-        }
+        // tracing::trace!(
+        //     "Walking type {ty}...",
+        //     ty = ty.display(db, edition).to_string()
+        // );
 
         use hir_ty::TyKind;
 
@@ -726,11 +732,7 @@ impl<'a> GraphBuilder<'a> {
         edition: ide::Edition,
         visit: &mut dyn FnMut(hir::ModuleDef),
     ) {
-        trace!("Walking substitution {substitution:?}...");
-
-        defer! {
-            trace!("Finished walking substitution {substitution:?}");
-        }
+        // tracing::trace!("Walking substitution {substitution:?}...");
 
         for ty in substitution
             .iter(hir_ty::Interner)
@@ -761,11 +763,7 @@ impl<'a> GraphBuilder<'a> {
     where
         I: IntoIterator<Item = hir::ModuleDef>,
     {
-        trace!("Adding outgoing 'use' edges for node {depender_idx:?}...");
-
-        defer! {
-            trace!("Finished adding outgoing 'use' edges for node {depender_idx:?}");
-        }
+        // tracing::trace!("Adding outgoing 'use' edges for node {depender_idx:?}...");
 
         for dependency_hir in dependencies {
             let Some(dependency_hir) = self.add_node_if_necessary(dependency_hir) else {
@@ -777,17 +775,13 @@ impl<'a> GraphBuilder<'a> {
     }
 
     fn add_node_if_necessary(&mut self, module_def_hir: hir::ModuleDef) -> Option<NodeIndex> {
-        let name = module_def_hir
-            .name(self.db)
-            .map(|name| name.display(self.db, self.edition).to_string());
-        trace!(
-            "Adding node {name}...",
-            name = name.clone().unwrap_or_default()
-        );
-
-        defer! {
-            trace!("Finished adding node {name}", name = name.clone().unwrap_or_default());
-        }
+        // tracing::trace!(
+        //     "Adding node {name}...",
+        //     name = module_def_hir
+        //         .name(self.db)
+        //         .map(|name| name.display(self.db, self.edition).to_string())
+        //         .unwrap_or_default()
+        // );
 
         // Check if we already added an equivalent node:
         match self.nodes.get(&module_def_hir) {
@@ -816,17 +810,14 @@ impl<'a> GraphBuilder<'a> {
             return None;
         }
 
-        let source_path = self.graph[source_idx].display_path(self.db, self.edition);
-        let target_path = self.graph[target_idx].display_path(self.db, self.edition);
-        let edge_name = edge.display_name();
-
         let edge_id = (source_idx, edge, target_idx);
 
-        trace!("Adding edge: {source_path} --({edge_name})-> {target_path}...");
-
-        defer! {
-            trace!("Finished adding edge: {source_path} --({edge_name})-> {target_path}");
-        }
+        // tracing::trace!(
+        //     "Adding edge: {source_path} --({edge_name})-> {target_path}...",
+        //     source_path = self.graph[source_idx].display_path(self.db, self.edition),
+        //     target_path = self.graph[target_idx].display_path(self.db, self.edition),
+        //     edge_name = edge.display_name(),
+        // );
 
         // Check if we already added an equivalent edge:
         let edge_idx = match self.edges.get(&edge_id) {

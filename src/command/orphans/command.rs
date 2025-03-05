@@ -3,7 +3,6 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use clap::Parser;
-use log::trace;
 
 use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
@@ -36,7 +35,7 @@ impl Command {
         vfs: &vfs::Vfs,
         edition: ide::Edition,
     ) -> anyhow::Result<()> {
-        trace!("Building tree ...");
+        tracing::trace!("Building tree ...");
 
         let crate_name = analyzer::crate_name(krate, db);
 

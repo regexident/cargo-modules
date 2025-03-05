@@ -12,8 +12,6 @@ use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 use ra_ap_vfs::{self as vfs};
 
-use log::{debug, trace};
-
 use crate::analyzer;
 
 use super::orphan::Orphan;
@@ -42,7 +40,7 @@ impl<'a> Scanner<'a> {
     }
 
     pub fn scan(mut self) -> anyhow::Result<HashSet<Orphan>> {
-        trace!("Scanning project ...");
+        tracing::trace!("Scanning project ...");
 
         let orphans = self.process_crate(self.krate);
 
@@ -103,26 +101,26 @@ pub(crate) fn orphans_of_module(
     file_path: &Path,
     submodule_names: &HashSet<String>,
 ) -> Vec<Orphan> {
-    trace!("Searching for orphans of {module_path:?}");
+    tracing::trace!("Searching for orphans of {module_path:?}");
 
     let dir_path_buf = match mod_dir(file_path) {
         Some(path_buf) => path_buf,
         None => {
-            debug!("Could not obtain module directory path for {module_path:?}",);
+            tracing::debug!("Could not obtain module directory path for {module_path:?}",);
             return vec![];
         }
     };
     let dir_path = dir_path_buf.as_path();
 
     if !dir_path.exists() {
-        debug!("Module directory for {module_path:?} not found");
+        tracing::debug!("Module directory for {module_path:?} not found");
         return vec![];
     }
 
     let read_dir = match fs::read_dir(dir_path) {
         Ok(read_dir) => read_dir,
         Err(_) => {
-            debug!("Module directory for {module_path:?} not readable");
+            tracing::debug!("Module directory for {module_path:?} not readable");
             return vec![];
         }
     };

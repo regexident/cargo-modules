@@ -5,23 +5,29 @@
 use std::env;
 
 use clap::Parser;
-use log::debug;
+use tracing::level_filters::LevelFilter;
+use tracing_subscriber::{EnvFilter, fmt::format::FmtSpan};
 
 use cargo_modules::options::App;
 
 fn main() -> anyhow::Result<()> {
-    env_logger::init_from_env({
-        let env = env_logger::Env::default();
-        let key = env_logger::DEFAULT_FILTER_ENV;
-        let value = "cargo_modules=warn";
-        env.filter_or(key, value)
-    });
+    let filter = EnvFilter::builder()
+        .with_default_directive(LevelFilter::ERROR.into())
+        .from_env()?
+        .add_directive("cargo_modules=warn".parse().unwrap());
+
+    tracing_subscriber::fmt()
+        .with_env_filter(filter)
+        .with_level(true)
+        .with_span_events(FmtSpan::ACTIVE)
+        .compact()
+        .init();
 
     let args: Vec<_> = env::args().collect();
-    debug!("Arguments: {:?}", args);
+    tracing::debug!("Arguments: {:?}", args);
 
     if env::var("NO_COLOR").is_ok() {
-        debug!("Disabling color output");
+        tracing::debug!("Disabling color output");
         yansi::disable();
     }
 
