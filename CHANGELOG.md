@@ -20,7 +20,9 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Added dependencies:
+  - `tracing` at `0.1.41`
+  - `tracing-subscriber` at `0.3.19`
 
 ### Changed
 
@@ -42,7 +44,9 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Removed
 
-- n/a
+- Removed dependencies:
+  - `log`
+  - `env_logger`
 
 ### Fixed
 
