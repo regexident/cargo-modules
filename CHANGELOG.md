@@ -20,6 +20,40 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
+- n/a
+
+### Changed
+
+- n/a
+
+### Deprecated
+
+- n/a
+
+### Removed
+
+- n/a
+
+### Fixed
+
+- n/a
+
+### Performance
+
+- n/a
+
+### Security
+
+- n/a
+
+### Other
+
+- n/a
+
+## [0.23.0] - 2025-03-07
+
+### Added
+
 - Added dependencies:
   - `tracing` at `0.1.41`
   - `tracing-subscriber` at `0.3.19`
@@ -38,10 +72,6 @@ Please make sure to add your changes to the appropriate categories:
 - Bumped MSRV from `1.84.0` to `1.85.0`
 - Bumped edition from `2021` to `2024`
 
-### Deprecated
-
-- n/a
-
 ### Removed
 
 - Removed dependencies:
@@ -51,18 +81,6 @@ Please make sure to add your changes to the appropriate categories:
 ### Fixed
 
 - Fixed a bug that would filter out all items with a `#[cfg(…)]`, given `--cfg_test "false"`, not just those with `#[cfg(test)]`.
-
-### Performance
-
-- n/a
-
-### Security
-
-- n/a
-
-### Other
-
-- n/a
 
 ## [0.22.1] - 2025-02-18
 
