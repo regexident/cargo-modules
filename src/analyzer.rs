@@ -90,16 +90,14 @@ pub fn cargo_config(
             global: cfg::CfgDiff::new(
                 vec![cfg::CfgAtom::Flag(hir::Symbol::intern("test"))],
                 Vec::new(),
-            )
-            .unwrap(),
+            ),
             selective: Default::default(),
         },
         false => project_model::CfgOverrides {
             global: cfg::CfgDiff::new(
                 Vec::new(),
                 vec![cfg::CfgAtom::Flag(hir::Symbol::intern("test"))],
-            )
-            .unwrap(),
+            ),
             selective: Default::default(),
         },
     };
