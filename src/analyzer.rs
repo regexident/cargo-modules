@@ -683,7 +683,7 @@ pub(crate) fn has_test_cfg(hir: hir::ModuleDef, db: &ide::RootDatabase) -> bool 
                     CfgAtom::KeyValue { .. } => false,
                 }
             })
-            .is_some()
+            .unwrap_or_default()
     })
 }
 

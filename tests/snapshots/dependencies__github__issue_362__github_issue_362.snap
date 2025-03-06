@@ -42,6 +42,10 @@ digraph {
     ];
 
     "github_issue_362" [label="crate|github_issue_362", fillcolor="#5397c8"]; // "crate" node
+    "github_issue_362::on_by_default" [label="pub(crate) mod|github_issue_362::on_by_default", fillcolor="#f8c04c"]; // "mod" node
+    "github_issue_362::opt_in" [label="pub(crate) mod|github_issue_362::opt_in", fillcolor="#f8c04c"]; // "mod" node
 
+    "github_issue_362" -> "github_issue_362::on_by_default" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_362" -> "github_issue_362::opt_in" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }

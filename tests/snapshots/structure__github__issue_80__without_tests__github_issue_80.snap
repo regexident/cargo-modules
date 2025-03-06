@@ -1,7 +1,6 @@
 ---
 source: tests/structure.rs
 expression: output
-snapshot_kind: text
 ---
 COMMAND:
 structure
@@ -13,9 +12,13 @@ STDERR:
 STDOUT:
 
 crate github_issue_80
+├── struct OnlyExistsWithoutTest: pub #[cfg(not(test))]
 ├── struct Placebo: pub
 ├── mod imported: pub
 │   ├── struct OnlyUsedWithTest: pub
 │   ├── struct OnlyUsedWithoutTest: pub
 │   └── struct Placebo: pub
-└── mod importing: pub
+├── mod importing: pub
+└── mod only_exists_without_test: pub #[cfg(not(test))]
+    ├── struct OnlyExistsWithoutTest: pub #[cfg(not(test))]
+    └── struct Placebo: pub
