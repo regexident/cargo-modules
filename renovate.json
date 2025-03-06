@@ -1,6 +1,19 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": ["config:recommended"],
+    "extends": [
+        ":approveMajorUpdates",
+        ":dependencyDashboard",
+        ":ignoreModulesAndTests",
+        ":ignoreUnstable",
+        ":preserveSemverRanges",
+        ":separateMajorReleases",
+        "config:recommended",
+        "docker:pinDigests",
+        "group:monorepos",
+        "group:recommended",
+        "replacements:all",
+        "workarounds:all"
+    ],
     "rangeStrategy": "auto",
     "schedule": ["before 2am on Tuesday"],
     "packageRules": [
@@ -22,5 +35,6 @@
             "matchDepTypes": ["action"],
             "pinDigests": true
         }
-    ]
+    ],
+    "timezone": "Europe/Berlin"
 }
