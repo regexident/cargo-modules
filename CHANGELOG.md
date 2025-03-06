@@ -46,7 +46,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/a
+- Fixed a bug that would filter out all items with a `#[cfg(…)]`, given `--cfg_test "false"`, not just those with `#[cfg(test)]`.
 
 ### Performance
 
