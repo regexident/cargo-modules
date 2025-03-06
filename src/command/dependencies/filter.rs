@@ -10,10 +10,10 @@ use ra_ap_syntax::ast;
 
 use log::trace;
 use petgraph::{
+    Direction,
     graph::NodeIndex,
     stable_graph::EdgeIndex,
     visit::{Bfs, EdgeRef, IntoEdgeReferences},
-    Direction,
 };
 
 use crate::{

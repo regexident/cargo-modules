@@ -11,7 +11,7 @@ use crate::{
     tree::Tree,
 };
 
-use super::{options::Options, Node};
+use super::{Node, options::Options};
 
 #[derive(Debug)]
 pub struct Filter<'a> {

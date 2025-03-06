@@ -13,9 +13,9 @@ use yansi::Paint as _;
 use crate::{analyzer, item::ItemVisibility, tree::Tree};
 
 use super::{
+    Node,
     options::{Options, SortBy},
     theme::styles,
-    Node,
 };
 
 #[derive(Debug)]
@@ -222,19 +222,11 @@ impl<'a> Printer<'a> {
         }
 
         fn branch_str(is_last: bool) -> &'static str {
-            if is_last {
-                "    "
-            } else {
-                "│   "
-            }
+            if is_last { "    " } else { "│   " }
         }
 
         fn leaf_str(is_last: bool) -> &'static str {
-            if is_last {
-                "└── "
-            } else {
-                "├── "
-            }
+            if is_last { "└── " } else { "├── " }
         }
 
         let mut string = String::new();

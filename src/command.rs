@@ -5,7 +5,7 @@
 use clap::Parser;
 
 use crate::{
-    analyzer::{load_workspace, LoadOptions},
+    analyzer::{LoadOptions, load_workspace},
     options::{GeneralOptions, ProjectOptions},
 };
 

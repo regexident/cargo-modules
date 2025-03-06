@@ -13,7 +13,7 @@ use ra_ap_ide_db::{self as ide_db};
 use ra_ap_load_cargo::{self as load_cargo};
 use ra_ap_paths::{self as paths};
 use ra_ap_project_model::{self as project_model};
-use ra_ap_syntax::{self as syntax, ast, AstNode as _};
+use ra_ap_syntax::{self as syntax, AstNode as _, ast};
 use ra_ap_vfs::{self as vfs};
 
 use crate::{
@@ -545,11 +545,7 @@ pub(crate) fn path(
         path.push_str(&relative_path);
     }
 
-    if path.is_empty() {
-        None
-    } else {
-        Some(path)
-    }
+    if path.is_empty() { None } else { Some(path) }
 }
 
 fn assoc_item_path(
