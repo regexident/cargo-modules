@@ -6,7 +6,7 @@ use std::collections::{HashMap, HashSet};
 
 use ra_ap_hir::{self as hir, HirDisplay as _};
 use ra_ap_hir_def::{self as hir_def};
-use ra_ap_hir_ty::{self as hir_ty, db::HirDatabase as _, TyExt as _};
+use ra_ap_hir_ty::{self as hir_ty, TyExt as _, db::HirDatabase as _};
 use ra_ap_ide::{self as ide};
 
 use log::{debug, trace};
