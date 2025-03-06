@@ -12,3 +12,5 @@ STDERR:
 STDOUT:
 
 crate github_issue_362
+├── mod on_by_default: pub(crate) #[cfg(feature = "on-by-default")]
+└── mod opt_in: pub(crate) #[cfg(feature = "opt-in")]

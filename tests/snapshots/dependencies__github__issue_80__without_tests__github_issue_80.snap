@@ -1,7 +1,6 @@
 ---
 source: tests/dependencies.rs
 expression: output
-snapshot_kind: text
 ---
 COMMAND:
 dependencies
@@ -44,23 +43,29 @@ digraph {
     ];
 
     "github_issue_80" [label="crate|github_issue_80", fillcolor="#5397c8"]; // "crate" node
+    "github_issue_80::OnlyExistsWithoutTest" [label="pub struct|OnlyExistsWithoutTest", fillcolor="#81c169"]; // "struct" node
     "github_issue_80::Placebo" [label="pub struct|Placebo", fillcolor="#81c169"]; // "struct" node
     "github_issue_80::imported" [label="pub mod|imported", fillcolor="#81c169"]; // "mod" node
     "github_issue_80::imported::OnlyUsedWithTest" [label="pub struct|imported::OnlyUsedWithTest", fillcolor="#81c169"]; // "struct" node
     "github_issue_80::imported::OnlyUsedWithoutTest" [label="pub struct|imported::OnlyUsedWithoutTest", fillcolor="#81c169"]; // "struct" node
     "github_issue_80::imported::Placebo" [label="pub struct|imported::Placebo", fillcolor="#81c169"]; // "struct" node
     "github_issue_80::importing" [label="pub mod|importing", fillcolor="#81c169"]; // "mod" node
+    "github_issue_80::only_exists_without_test" [label="pub mod|only_exists_without_test", fillcolor="#81c169"]; // "mod" node
+    "github_issue_80::only_exists_without_test::OnlyExistsWithoutTest" [label="pub struct|only_exists_without_test::OnlyExistsWithoutTest", fillcolor="#81c169"]; // "struct" node
     "github_issue_80::only_exists_without_test::Placebo" [label="pub struct|only_exists_without_test::Placebo", fillcolor="#81c169"]; // "struct" node
 
+    "github_issue_80" -> "github_issue_80::OnlyExistsWithoutTest" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "github_issue_80" -> "github_issue_80::Placebo" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "github_issue_80" -> "github_issue_80::imported" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "github_issue_80" -> "github_issue_80::imported::OnlyUsedWithoutTest" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "github_issue_80" -> "github_issue_80::importing" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "github_issue_80" -> "github_issue_80::only_exists_without_test::Placebo" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_80" -> "github_issue_80::only_exists_without_test" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "github_issue_80::imported" -> "github_issue_80::imported::OnlyUsedWithTest" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "github_issue_80::imported" -> "github_issue_80::imported::OnlyUsedWithoutTest" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "github_issue_80::imported" -> "github_issue_80::imported::Placebo" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "github_issue_80::importing" -> "github_issue_80::imported::OnlyUsedWithoutTest" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "github_issue_80::importing" -> "github_issue_80::imported::Placebo" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
+    "github_issue_80::only_exists_without_test" -> "github_issue_80::only_exists_without_test::OnlyExistsWithoutTest" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
+    "github_issue_80::only_exists_without_test" -> "github_issue_80::only_exists_without_test::Placebo" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
 
 }
