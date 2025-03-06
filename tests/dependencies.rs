@@ -568,4 +568,14 @@ mod github {
             project: github_issue_172
         );
     }
+
+    mod issue_362 {
+        test_cmd!(
+            args: "dependencies \
+                    --features 'opt-in'",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: github_issue_362
+        );
+    }
 }

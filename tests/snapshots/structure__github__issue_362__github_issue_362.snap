@@ -1,0 +1,14 @@
+---
+source: tests/structure.rs
+expression: output
+---
+COMMAND:
+structure
+--features
+opt-in
+
+STDERR:
+
+STDOUT:
+
+crate github_issue_362
