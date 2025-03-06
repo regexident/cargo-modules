@@ -24,7 +24,10 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.264` to `0.0.268`
+- Bumped MSRV from `1.84.0` to `1.85.0`
+- Bumped edition from `2021` to `2024`
 
 ### Deprecated
 
