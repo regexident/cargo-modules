@@ -1,0 +1,10 @@
+[package]
+name = "github_issue_362"
+version = "0.1.0"
+edition = "2018"
+
+[features]
+default = ["on-by-default"]
+opt-in = []
+off-by-default = []
+on-by-default = []

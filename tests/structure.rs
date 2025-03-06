@@ -525,4 +525,14 @@ mod github {
             project: github_issue_222
         );
     }
+
+    mod issue_362 {
+        test_cmd!(
+            args: "structure \
+                    --features 'opt-in'",
+            success: true,
+            color_mode: ColorMode::Plain,
+            project: github_issue_362
+        );
+    }
 }
