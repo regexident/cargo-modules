@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `petgraph` from `0.7.0` to `0.8.0`
 
 ### Deprecated
 
