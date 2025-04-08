@@ -6,7 +6,7 @@ use std::collections::{HashMap, HashSet};
 
 use ra_ap_hir::{self as hir};
 use ra_ap_hir_def::{self as hir_def};
-use ra_ap_hir_ty::{self as hir_ty, TyExt as _, db::HirDatabase as _};
+use ra_ap_hir_ty::{self as hir_ty, TyExt as _, db::HirDatabase as _, from_assoc_type_id};
 use ra_ap_ide::{self as ide, Edition};
 
 use petgraph::graph::{EdgeIndex, NodeIndex};
@@ -617,7 +617,7 @@ impl<'a> GraphBuilder<'a> {
                 Self::walk_and_push_substitution(substitution.clone(), db, edition, visit);
             }
             TyKind::AssociatedType(assoc_type_id, substitution) => {
-                let associated_ty = db.associated_ty_data(*assoc_type_id);
+                let associated_ty = db.associated_ty_data(from_assoc_type_id(*assoc_type_id));
                 Self::walk_and_push_binders(
                     associated_ty.binders.binders.iter(hir_ty::Interner),
                     db,
