@@ -119,6 +119,8 @@ pub fn cargo_config(
 
     let invocation_strategy = project_model::InvocationStrategy::PerWorkspace;
 
+    let no_deps: bool = false;
+
     let run_build_script_command = None;
 
     // Rustc private crate source
@@ -153,6 +155,7 @@ pub fn cargo_config(
         extra_includes,
         features,
         invocation_strategy,
+        no_deps,
         run_build_script_command,
         rustc_source,
         set_test,
