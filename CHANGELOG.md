@@ -26,6 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `petgraph` from `0.7.0` to `0.8.0`
+  - `rust-analyzer` from `0.0.268` to `0.0.273`
 
 ### Deprecated
 
