@@ -11,7 +11,7 @@ name = "cargo-modules"
 readme = "README.md"
 repository = "https://github.com/regexident/cargo-modules"
 rust-version = "1.85.0"
-version = "0.23.0"
+version = "0.23.1"
 
 [dependencies]
 

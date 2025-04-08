@@ -24,9 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `petgraph` from `0.7.0` to `0.8.0`
-  - `rust-analyzer` from `0.0.268` to `0.0.273`
+- n/a
 
 ### Deprecated
 
@@ -38,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- Fixed tracing error logs leaking into program output.
+- n/a
 
 ### Performance
 
@@ -51,6 +49,18 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.23.1] - 2025-04-08
+
+### Changed
+
+- Updated dependencies:
+  - `petgraph` from `0.7.0` to `0.8.0`
+  - `rust-analyzer` from `0.0.268` to `0.0.273`
+
+### Fixed
+
+- Fixed tracing error logs leaking into program output.
 
 ## [0.23.0] - 2025-03-07
 
