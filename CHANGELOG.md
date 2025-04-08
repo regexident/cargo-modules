@@ -38,7 +38,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/a
+- Fixed tracing error logs leaking into program output.
 
 ### Performance
 
