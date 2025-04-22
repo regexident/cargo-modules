@@ -1,8 +1,6 @@
 ---
 source: tests/dependencies.rs
-assertion_line: 5
 expression: output
-snapshot_kind: text
 ---
 COMMAND:
 dependencies
@@ -35,6 +33,7 @@ Options:
       --no-uses                        Filter out "use" edges from graph
       --acyclic                        Require graph to be acyclic
       --layout <LAYOUT>                The graph layout algorithm to use (e.g. none, dot, neato, twopi, circo, fdp, sfdp) [default: neato]
+      --splines <SPLINES>              The different types to draw lines between nodes (e.g. none, line, spline, ortho) [default: line]
       --focus-on <FOCUS_ON>            Focus the graph on a particular path or use-tree's environment, e.g. "foo::bar::{self, baz, blee::*}"
       --max-depth <MAX_DEPTH>          The maximum depth of the generated graph relative to the crate's root node, or nodes selected by '--focus-on'
       --cfg-test                       Analyze with `#[cfg(test)]` enabled (i.e as if built via `cargo test`)

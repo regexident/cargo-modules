@@ -58,6 +58,7 @@ impl<'a> Printer<'a> {
         let root_node = &graph[start_node_idx];
         let label = root_node.display_path(self.db, self.edition);
         let layout = self.options.layout.to_string();
+        let splines = self.options.splines.to_string();
         let i = INDENTATION;
 
         writeln!(f, "digraph {{")?;
@@ -77,7 +78,7 @@ impl<'a> Printer<'a> {
             {i}    // [dot, neato, twopi, circo, fdp, sfdp]
             {i}    layout={layout},
             {i}    overlap=false,
-            {i}    splines="line",
+            {i}    splines="{splines}",
             {i}    rankdir=LR,
             
             {i}    fontname="Helvetica", 
