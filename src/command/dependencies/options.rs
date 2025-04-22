@@ -50,6 +50,39 @@ impl Display for LayoutAlgorithm {
     }
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum SplinesType {
+    None,
+    Line,
+    Spline,
+    Ortho,
+}
+
+impl FromStr for SplinesType {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "none" => Ok(Self::None),
+            "line" => Ok(Self::Line),
+            "spline" => Ok(Self::Spline),
+            "ortho" => Ok(Self::Ortho),
+            _ => Err("Unrecognized splines' type"),
+        }
+    }
+}
+
+impl Display for SplinesType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::None => "none",
+            Self::Line => "line",
+            Self::Spline => "spline",
+            Self::Ortho => "ortho",
+        })
+    }
+}
+
 #[derive(Parser, Clone, PartialEq, Eq, Debug)]
 #[group(id = "GenerateSelectionOptions")]
 pub struct Options {
@@ -70,6 +103,11 @@ pub struct Options {
     /// (e.g. none, dot, neato, twopi, circo, fdp, sfdp).
     #[arg(long = "layout", default_value = "neato")]
     pub layout: LayoutAlgorithm,
+
+    /// The different types to draw lines between nodes
+    /// (e.g. none, line, spline, ortho).
+    #[arg(long = "splines", default_value = "line")]
+    pub splines: SplinesType,
 
     /// Focus the graph on a particular path or use-tree's environment,
     /// e.g. "foo::bar::{self, baz, blee::*}".
