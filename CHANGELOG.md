@@ -20,14 +20,11 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- Added ability to change splines type of `dependencies` command via `--splines <SPLINES>`.
+- n/a
 
 ### Changed
 
-- Updated dependencies:
-  - `crossbeam-channel` from `0.5.14` to `0.5.15`
-  - `rust-analyzer` from `0.0.273` to `0.0.277`
-- Bumped MSRV from `1.85.0` to `1.86.0`
+- n/a
 
 ### Deprecated
 
@@ -52,6 +49,19 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.24.0] - 2025-05-04
+
+### Added
+
+- Added ability to change splines type of `dependencies` command via `--splines <SPLINES>`.
+
+### Changed
+
+- Updated dependencies:
+  - `crossbeam-channel` from `0.5.14` to `0.5.15`
+  - `rust-analyzer` from `0.0.273` to `0.0.277`
+- Bumped MSRV from `1.85.0` to `1.86.0`
 
 ## [0.23.1] - 2025-04-08
 
