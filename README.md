@@ -300,8 +300,8 @@ Options:
 #### Example
 
 ```bash
-cd ./tests/projects/readme_tree_example
-cargo-modules structure --types --traits --fns --tests
+cd ./tests/projects/orphans
+cargo-modules orphans
 ```
 
 Output:
@@ -334,7 +334,7 @@ warning: orphaned module `bar` at src/orphans/bar.rs
 Error: Found 2 orphans in crate 'orphans'
 ```
 
-(Project source code: [readme_tree_example/src/lib.rs](./tests/projects/readme_orphans_example/src/lib.rs))
+(Project source code: [orphans/src/lib.rs](./tests/projects/orphans/src/lib.rs))
 
 ### No-Color Mode
 
