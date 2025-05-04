@@ -20,7 +20,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Added ability to change splines type of `dependencies` command via `--splines <SPLINES>`.
 
 ### Changed
 
