@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `crossbeam-channel` from `0.5.14` to `0.5.15`
 
 ### Deprecated
 
