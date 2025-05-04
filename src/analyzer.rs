@@ -5,7 +5,7 @@
 use std::path::{Path, PathBuf};
 
 use ra_ap_cfg::{self as cfg};
-use ra_ap_hir::{self as hir, AsAssocItem as _, HasAttrs as _, HirFileIdExt as _};
+use ra_ap_hir::{self as hir, AsAssocItem as _, HasAttrs as _};
 use ra_ap_ide::{self as ide};
 use ra_ap_ide_db::{self as ide_db};
 use ra_ap_load_cargo::{self as load_cargo};
@@ -691,7 +691,7 @@ pub(crate) fn has_test_cfg(hir: hir::ModuleDef, db: &ide::RootDatabase) -> bool 
 pub(crate) fn is_test_function(function: hir::Function, db: &ide::RootDatabase) -> bool {
     let attrs = function.attrs(db);
     let key = hir::Symbol::intern("test");
-    attrs.by_key(&key).exists()
+    attrs.by_key(key).exists()
 }
 
 pub fn cfgs(hir: hir::ModuleDef, db: &ide::RootDatabase) -> Vec<cfg::CfgExpr> {
@@ -758,7 +758,7 @@ pub fn module_file(module: hir::Module, db: &ide::RootDatabase, vfs: &vfs::Vfs) 
     }
 
     let file_id = module_source.file_id.original_file(db);
-    let vfs_path = vfs.file_path(file_id.into());
+    let vfs_path = vfs.file_path(file_id.file_id(db));
     let abs_path = vfs_path.as_path().expect("Could not convert to path");
 
     let path: &Path = abs_path.as_ref();
