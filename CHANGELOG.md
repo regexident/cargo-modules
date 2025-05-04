@@ -26,6 +26,8 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `crossbeam-channel` from `0.5.14` to `0.5.15`
+  - `rust-analyzer` from `0.0.273` to `0.0.277`
+- Bumped MSRV from `1.85.0` to `1.86.0`
 
 ### Deprecated
 
