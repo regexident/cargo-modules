@@ -101,9 +101,6 @@ inherits = "dev-opt"
 [profile.dev.package."ra_ap_project_model"]
 inherits = "dev-opt"
 
-[profile.dev.package."ra_ap_salsa"]
-inherits = "dev-opt"
-
 [profile.dev.package."ra_ap_syntax"]
 inherits = "dev-opt"
 
