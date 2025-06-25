@@ -47,6 +47,7 @@ impl ItemVisibility {
                     Self::Module(path)
                 }
             }
+            hir::Visibility::PubCrate(_) => Self::Crate,
             hir::Visibility::Public => Self::Public,
         }
     }

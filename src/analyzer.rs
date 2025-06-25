@@ -182,7 +182,7 @@ pub fn load_config() -> load_cargo::LoadCargoConfig {
 pub fn load_project_workspace(
     project_path: &Path,
     cargo_config: &project_model::CargoConfig,
-    progress: &dyn Fn(String),
+    progress: &(dyn Fn(String) + Sync),
 ) -> anyhow::Result<project_model::ProjectWorkspace> {
     let path_buf = std::env::current_dir()?.join(project_path);
     let utf8_path_buf = paths::Utf8PathBuf::from_path_buf(path_buf).unwrap();
