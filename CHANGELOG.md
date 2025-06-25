@@ -51,7 +51,16 @@ Please make sure to add your changes to the appropriate categories:
 
 - n/a
 
+## [0.24.3] - 2025-06-25
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.285` to `0.0.289`
+
 ## [0.24.2] - 2025-06-05
+
+### Changed
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.278` to `0.0.285`
