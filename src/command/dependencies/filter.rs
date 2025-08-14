@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}};
 
 use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
@@ -111,8 +111,8 @@ impl<'a> Filter<'a> {
                 // Make sure the node is within our defined max depth:
                 should_keep_node &= nodes_within_max_depth.contains(node_idx);
 
-                should_keep_node &= included_visibilities
-                    .visibility_is_included(node.visibility(self.db, self.edition));
+                should_keep_node &= !included_visibilities
+                    .visibility_is_excluded(node.visibility(self.db, self.edition));
 
                 // Make sure the node's `moduledef` should be retained:
                 should_keep_node &= self.should_retain_moduledef(node.hir);
@@ -424,7 +424,7 @@ impl<'a> Filter<'a> {
 }
 
 #[derive(Debug, PartialEq, Eq, Hash)]
-enum ItemVisibilityFilter {
+enum ExcludedVisibility {
     Crate,
     Modules,
     ModuleWithName(String),
@@ -434,58 +434,58 @@ enum ItemVisibilityFilter {
 }
 
 struct VisibilityFilter {
-    included_visibilities: HashSet<ItemVisibilityFilter>,
+    excluded_visibilities: HashSet<ExcludedVisibility>,
 }
 
 impl VisibilityFilter {
     fn build_from_options(options: &Options) -> Self {
         let mut hs = HashSet::new();
-        if !options.selection.no_private {
-            hs.insert(ItemVisibilityFilter::Private);
+        if options.selection.no_private {
+            hs.insert(ExcludedVisibility::Private);
         }
 
-        if !options.selection.no_pub_crate {
-            hs.insert(ItemVisibilityFilter::Crate);
+        if options.selection.no_pub_crate {
+            hs.insert(ExcludedVisibility::Crate);
         }
 
         if options.selection.no_pub_modules {
-            for mod_name in options.selection.no_pub_module.iter() {
-                hs.insert(ItemVisibilityFilter::ModuleWithName(mod_name.to_string()));
-            }
-        } else {
-            hs.insert(ItemVisibilityFilter::Modules);
+            hs.insert(ExcludedVisibility::Modules);
         }
 
-        if !options.selection.no_pub_super {
-            hs.insert(ItemVisibilityFilter::Super);
+        for mod_name in options.selection.no_pub_module.iter() {
+            hs.insert(ExcludedVisibility::ModuleWithName(mod_name.to_string()));
+        }
+
+        if options.selection.no_pub_super {
+            hs.insert(ExcludedVisibility::Super);
         }
 
         VisibilityFilter {
-            included_visibilities: hs,
+            excluded_visibilities: hs,
         }
     }
 
-    fn visibility_is_included(&self, visibility: ItemVisibility) -> bool {
+    fn visibility_is_excluded(&self, visibility: ItemVisibility) -> bool {
         match visibility {
             ItemVisibility::Crate => self
-                .included_visibilities
-                .contains(&ItemVisibilityFilter::Crate),
+                .excluded_visibilities
+                .contains(&ExcludedVisibility::Crate),
             ItemVisibility::Module(name) => {
-                self.included_visibilities
-                    .contains(&ItemVisibilityFilter::Modules)
+                self.excluded_visibilities
+                    .contains(&ExcludedVisibility::Modules)
                     || self
-                        .included_visibilities
-                        .contains(&ItemVisibilityFilter::ModuleWithName(name))
+                        .excluded_visibilities
+                        .contains(&ExcludedVisibility::ModuleWithName(name))
             }
             ItemVisibility::Private => self
-                .included_visibilities
-                .contains(&ItemVisibilityFilter::Private),
+                .excluded_visibilities
+                .contains(&ExcludedVisibility::Private),
             ItemVisibility::Public => self
-                .included_visibilities
-                .contains(&ItemVisibilityFilter::Public),
+                .excluded_visibilities
+                .contains(&ExcludedVisibility::Public),
             ItemVisibility::Super => self
-                .included_visibilities
-                .contains(&ItemVisibilityFilter::Super),
+                .excluded_visibilities
+                .contains(&ExcludedVisibility::Super),
         }
     }
 }
