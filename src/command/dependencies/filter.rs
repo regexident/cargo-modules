@@ -17,7 +17,7 @@ use petgraph::{
 
 use crate::{
     analyzer::{self, has_test_cfg, is_test_function},
-    graph::{Edge, Graph, GraphWalker, Node, Relationship},
+    graph::{Edge, Graph, GraphWalker, Node, Relationship}, item::ItemVisibility,
 };
 
 use super::options::Options;
@@ -80,6 +80,8 @@ impl<'a> Filter<'a> {
         let nodes_within_max_depth =
             Self::nodes_within_max_depth_from(&graph, max_depth, &focus_node_idxs[..]);
 
+        let included_visibilities = VisibilityFilter::build_from_options(self.options);
+
         debug_assert!(
             nodes_within_max_depth.contains(&root_idx),
             "{}",
@@ -108,6 +110,9 @@ impl<'a> Filter<'a> {
 
                 // Make sure the node is within our defined max depth:
                 should_keep_node &= nodes_within_max_depth.contains(node_idx);
+
+                should_keep_node &= included_visibilities
+                    .visibility_is_included(node.visibility(self.db, self.edition));
 
                 // Make sure the node's `moduledef` should be retained:
                 should_keep_node &= self.should_retain_moduledef(node.hir);
@@ -415,5 +420,72 @@ impl<'a> Filter<'a> {
             nodes_to_keep.extend(ascendants_walker.nodes_visited);
         }
         nodes_to_keep
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Hash)]
+enum ItemVisibilityFilter {
+    Crate,
+    Modules,
+    ModuleWithName(String),
+    Private,
+    Public,
+    Super,
+}
+
+struct VisibilityFilter {
+    included_visibilities: HashSet<ItemVisibilityFilter>,
+}
+
+impl VisibilityFilter {
+    fn build_from_options(options: &Options) -> Self {
+        let mut hs = HashSet::new();
+        if !options.selection.no_private {
+            hs.insert(ItemVisibilityFilter::Private);
+        }
+
+        if !options.selection.no_pub_crate {
+            hs.insert(ItemVisibilityFilter::Crate);
+        }
+
+        if options.selection.no_pub_modules {
+            for mod_name in options.selection.no_pub_module.iter() {
+                hs.insert(ItemVisibilityFilter::ModuleWithName(mod_name.to_string()));
+            }
+        } else {
+            hs.insert(ItemVisibilityFilter::Modules);
+        }
+
+        if !options.selection.no_pub_super {
+            hs.insert(ItemVisibilityFilter::Super);
+        }
+
+        VisibilityFilter {
+            included_visibilities: hs,
+        }
+    }
+
+    fn visibility_is_included(&self, visibility: ItemVisibility) -> bool {
+        match visibility {
+            ItemVisibility::Crate => self
+                .included_visibilities
+                .contains(&ItemVisibilityFilter::Crate),
+            ItemVisibility::Module(name) => {
+                self.included_visibilities
+                    .contains(&ItemVisibilityFilter::Modules)
+                    || self
+                        .included_visibilities
+                        .contains(&ItemVisibilityFilter::ModuleWithName(name))
+            }
+            ItemVisibility::Private => self
+                .included_visibilities
+                .contains(&ItemVisibilityFilter::Private),
+            ItemVisibility::Public => self
+                .included_visibilities
+                .contains(&ItemVisibilityFilter::Public),
+            ItemVisibility::Super => self
+                .included_visibilities
+                .contains(&ItemVisibilityFilter::Super),
+        }
     }
 }
