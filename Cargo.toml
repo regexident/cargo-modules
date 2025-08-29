@@ -26,7 +26,7 @@ clap = { version = "4.5.7", features = ["derive"] }
 dunce = "1.0.4"
 sugar_path = "1.2.0"
 tracing = { version = "0.1.41", features = ["release_max_level_off"] }
-tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 
 ra_ap_base_db = "=0.0.289"
 ra_ap_cfg = "=0.0.289"
