@@ -26,6 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.285` to `0.0.289`
+  - `tracing-subscriber` from `0.3.19` to `0.3.20`
 
 ### Deprecated
 
@@ -45,7 +46,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Security
 
-- n/a
+- Updated `tracing-subscriber` to `0.3.20`, fixing [CVE-2025-58160](https://redirect.github.com/tokio-rs/tracing/security/advisories/GHSA-xwfj-jgwm-7wp5).
 
 ### Other
 
