@@ -20,7 +20,12 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
-- n/a
+- Added support for filtering by visibility level in `dependencies` command:
+  - `--no-private`: filters out `pub(self)` (i.e. private) items
+  - `--no-pub-crate`: filters out `pub(crate)` items
+  - `--no-pub-module <NO_PUB_MODULE>`: filters out `pub(module)` items by their module name
+  - `--no-pub-modules`: filters out `pub(module)` items
+  - `--no-pub-super`: filters out `pub(super)` items
 
 ### Changed
 
