@@ -31,6 +31,11 @@ Options:
       --no-traits                      Filter out traits (e.g. trait, unsafe trait) from graph
       --no-types                       Filter out types (e.g. structs, unions, enums) from graph
       --no-uses                        Filter out "use" edges from graph
+      --no-private                     Filter out `pub(self)` (i.e. private) items
+      --no-pub-crate                   Filter out `pub(crate)` items
+      --no-pub-module <NO_PUB_MODULE>  Filter out `pub(module)` items by their module name
+      --no-pub-modules                 Filter out `pub(module)` items
+      --no-pub-super                   Filter out `pub(super)` items
       --acyclic                        Require graph to be acyclic
       --layout <LAYOUT>                The graph layout algorithm to use (e.g. none, dot, neato, twopi, circo, fdp, sfdp) [default: neato]
       --splines <SPLINES>              The different types to draw lines between nodes (e.g. none, line, spline, ortho) [default: line]
