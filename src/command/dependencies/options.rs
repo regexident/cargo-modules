@@ -174,7 +174,11 @@ pub struct SelectionOptions {
     pub no_pub_crate: bool,
 
     /// Filter out pub(module) items by their module name
-    #[arg(long = "no-pub-module", value_delimiter = ',', conflicts_with = "no_pub_modules")]
+    #[arg(
+        long = "no-pub-module",
+        value_delimiter = ',',
+        conflicts_with = "no_pub_modules"
+    )]
     pub no_pub_module: Vec<String>,
 
     /// Filter out pub(module) items
