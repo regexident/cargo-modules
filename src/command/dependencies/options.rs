@@ -165,15 +165,15 @@ pub struct SelectionOptions {
     #[arg(long = "no-uses")]
     pub no_uses: bool,
 
-    /// Filter out private items
+    /// Filter out `pub(self)` (i.e. private) items
     #[arg(long = "no-private")]
     pub no_private: bool,
 
-    /// Filter out pub(crate) items
+    /// Filter out `pub(crate)` items
     #[arg(long = "no-pub-crate")]
     pub no_pub_crate: bool,
 
-    /// Filter out pub(module) items by their module name
+    /// Filter out `pub(module)` items by their module name
     #[arg(
         long = "no-pub-module",
         value_delimiter = ',',
@@ -181,11 +181,11 @@ pub struct SelectionOptions {
     )]
     pub no_pub_module: Vec<String>,
 
-    /// Filter out pub(module) items
+    /// Filter out `pub(module)` items
     #[arg(long = "no-pub-modules", conflicts_with = "no_pub_module")]
     pub no_pub_modules: bool,
 
-    /// Filter out pub(super) items
+    /// Filter out `pub(super)` items
     #[arg(long = "no-pub-super")]
     pub no_pub_super: bool,
 }
