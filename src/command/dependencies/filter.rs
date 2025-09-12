@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::{collections::{HashMap, HashSet}};
+use std::collections::{HashMap, HashSet};
 
 use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
@@ -17,7 +17,8 @@ use petgraph::{
 
 use crate::{
     analyzer::{self, has_test_cfg, is_test_function},
-    graph::{Edge, Graph, GraphWalker, Node, Relationship}, item::ItemVisibility,
+    graph::{Edge, Graph, GraphWalker, Node, Relationship},
+    item::ItemVisibility,
 };
 
 use super::options::Options;
