@@ -1,22 +1,35 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-        ":approveMajorUpdates",
-        ":dependencyDashboard",
-        ":ignoreModulesAndTests",
-        ":ignoreUnstable",
-        ":preserveSemverRanges",
-        ":separateMajorReleases",
-        "config:recommended",
-        "docker:pinDigests",
-        "group:monorepos",
-        "group:recommended",
-        "replacements:all",
-        "workarounds:all"
-    ],
-    "rangeStrategy": "auto",
-    "schedule": ["before 2am on Tuesday"],
+    "extends": ["config:recommended"],
     "packageRules": [
+        {
+            "allowedVersions": "!/^=/",
+            "matchDepTypes": ["dependencies", "dev-dependencies"],
+            "matchPackageNames": ["*"],
+            "description": "only match non-pinned versions"
+        },
+        {
+            "matchDepTypes": ["dependencies", "dev-dependencies"],
+            "matchUpdateTypes": ["major"],
+            "matchPackageNames": ["*"],
+            "description": "create separate PRs for major upgrades"
+        },
+        {
+            "groupName": "dependencies",
+            "groupSlug": "dependencies",
+            "matchDepTypes": ["dependencies"],
+            "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+            "matchPackageNames": ["*"],
+            "description": "create grouped PRs for non-major dependency upgrades"
+        },
+        {
+            "groupName": "dev-dependencies",
+            "groupSlug": "dev-dependencies",
+            "matchDepTypes": ["dev-dependencies"],
+            "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+            "matchPackageNames": ["*"],
+            "description": "create grouped PRs for non-major dev-dependency upgrades"
+        },
         {
             "groupName": "rust-analyzer dependencies",
             "groupSlug": "rust-analyzer-dependencies",
@@ -24,17 +37,19 @@
             "rangeStrategy": "pin"
         },
         {
-            "allowedVersions": "!/^=/",
-            "groupName": "all other dependencies",
-            "groupSlug": "other-dependencies",
-            "matchPackageNames": ["*", "!/^ra_ap_/"]
+            "extends": ["schedule:automergeMonthly"],
+            "groupName": "cargo-binstall",
+            "groupSlug": "cargo-binstall",
+            "matchPackageNames": ["cargo-binstall"],
+            "automerge": true,
+            "description": "upgrade once a month and auto-merge"
         },
         {
             "groupName": "github actions",
             "groupSlug": "github-actions",
             "matchDepTypes": ["action"],
-            "pinDigests": true
+            "pinDigests": true,
+            "description": "always pin github actions"
         }
-    ],
-    "timezone": "Europe/Berlin"
+    ]
 }
