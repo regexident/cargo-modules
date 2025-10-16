@@ -20,6 +20,40 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Added
 
+- n/a
+
+### Changed
+
+- n/a
+
+### Deprecated
+
+- n/a
+
+### Removed
+
+- n/a
+
+### Fixed
+
+- n/a
+
+### Performance
+
+- n/a
+
+### Security
+
+- n/a
+
+### Other
+
+- n/a
+
+## [0.25.0] - 2025-10-16
+
+### Added
+
 - Added support for filtering by visibility level in `dependencies` command:
   - `--no-private`: filters out `pub(self)` (i.e. private) items
   - `--no-pub-crate`: filters out `pub(crate)` items
@@ -41,29 +75,9 @@ Please make sure to add your changes to the appropriate categories:
   - `tracing-subscriber` from `0.3.19` to `0.3.20`
   - `url` from `2.5.4` -> `2.5.7`
 
-### Deprecated
-
-- n/a
-
-### Removed
-
-- n/a
-
-### Fixed
-
-- n/a
-
-### Performance
-
-- n/a
-
 ### Security
 
 - Updated `tracing-subscriber` to `0.3.20`, fixing [CVE-2025-58160](https://redirect.github.com/tokio-rs/tracing/security/advisories/GHSA-xwfj-jgwm-7wp5).
-
-### Other
-
-- n/a
 
 ## [0.24.3] - 2025-06-25
 
