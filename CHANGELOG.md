@@ -24,7 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Bumped MSRV from `1.86.0` to `1.88.0`
 
 ### Deprecated
 
