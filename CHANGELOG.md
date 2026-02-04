@@ -24,6 +24,14 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
+- Updated dependencies:
+  - `clap` from `4.5.49` to `4.5.57`
+  - `indoc` from `2.0.6` to `2.0.7`
+  - `libc` from `0.2.177` to `0.2.180`
+  - `sugar_path` from `1.2.0` to `1.2.1`
+  - `tracing` from `0.1.41` to `0.1.44`
+  - `tracing` from `0.3.20` to `0.3.22`
+  - `url` from `2.5.7` to `2.5.8`
 - Bumped MSRV from `1.86.0` to `1.88.0`
 
 ### Deprecated
@@ -64,16 +72,16 @@ Please make sure to add your changes to the appropriate categories:
 ### Changed
 
 - Updated dependencies:
-  - `anyhow` from `1.0.98` -> `1.0.100`
-  - `clap` from `4.5.23` -> `4.5.49`
-  - `getopts` from `0.2.21` -> `0.2.24`
-  - `indoc` from `2.0.5` -> `2.0.6`
-  - `libc` from `0.2.174` -> `0.2.177`
-  - `petgraph` from `0.8.1` -> `0.8.3`
+  - `anyhow` from `1.0.98` to `1.0.100`
+  - `clap` from `4.5.23` to `4.5.49`
+  - `getopts` from `0.2.21` to `0.2.24`
+  - `indoc` from `2.0.5` to `2.0.6`
+  - `libc` from `0.2.174` to `0.2.177`
+  - `petgraph` from `0.8.1` to `0.8.3`
   - `rust-analyzer` from `0.0.285` to `0.0.289`
-  - `thread_local` from `1.1.8` -> `1.1.9`
+  - `thread_local` from `1.1.8` to `1.1.9`
   - `tracing-subscriber` from `0.3.19` to `0.3.20`
-  - `url` from `2.5.4` -> `2.5.7`
+  - `url` from `2.5.4` to `2.5.7`
 
 ### Security
 
