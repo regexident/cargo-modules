@@ -45,16 +45,15 @@ impl Command {
         let builder = GraphBuilder::new(db, edition, krate);
         let (graph, crate_node_idx) = builder.build()?;
 
-        if self.options.acyclic {
-            if let Some(cycle) =
+        if self.options.acyclic
+            && let Some(cycle) =
                 TriColorDepthFirstSearch::new(&graph).run_from(crate_node_idx, &mut CycleDetector)
-            {
-                assert!(cycle.len() >= 2);
-                let first = graph[cycle[0]].display_path(db, edition);
-                let last = graph[*cycle.last().unwrap()].display_path(db, edition);
-                let drawing = draw_cycle(&graph, cycle, db, edition);
-                anyhow::bail!("circular dependency between `{first}` and `{last}`.\n\n{drawing}");
-            }
+        {
+            assert!(cycle.len() >= 2);
+            let first = graph[cycle[0]].display_path(db, edition);
+            let last = graph[*cycle.last().unwrap()].display_path(db, edition);
+            let drawing = draw_cycle(&graph, cycle, db, edition);
+            anyhow::bail!("circular dependency between `{first}` and `{last}`.\n\n{drawing}");
         }
 
         if self.options.layout == LayoutAlgorithm::None {
