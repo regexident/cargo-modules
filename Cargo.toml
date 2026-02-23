@@ -24,7 +24,7 @@ yansi = "1.0.1"
 indoc = "2.0.5"
 clap = { version = "4.5.7", features = ["derive"] }
 dunce = "1.0.4"
-sugar_path = "1.2.0"
+sugar_path = "2.0.0"
 tracing = { version = "0.1.41", features = ["release_max_level_off"] }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
