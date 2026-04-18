@@ -28,11 +28,12 @@ Please make sure to add your changes to the appropriate categories:
   - `clap` from `4.5.49` to `4.5.57`
   - `indoc` from `2.0.6` to `2.0.7`
   - `libc` from `0.2.177` to `0.2.180`
+  - `rust-analyzer` from `0.0.289` to `0.0.328`
   - `sugar_path` from `1.2.0` to `1.2.1`
   - `tracing` from `0.1.41` to `0.1.44`
   - `tracing` from `0.3.20` to `0.3.22`
   - `url` from `2.5.7` to `2.5.8`
-- Bumped MSRV from `1.86.0` to `1.88.0`
+- Bumped MSRV from `1.86.0` to `1.91.0`
 
 ### Deprecated
 
