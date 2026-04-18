@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `assert_cmd` from `2.0.14` to `2.2.1`
 
 ### Deprecated
 

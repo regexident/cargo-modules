@@ -48,7 +48,8 @@ pub fn cmd<'a>(dir: &str, args: impl Iterator<Item = &'a String>) -> Command {
     dir_path.push("projects");
     dir_path.push(dir);
 
-    let mut command = Command::cargo_bin("cargo-modules").unwrap();
+    let bin_path = assert_cmd::cargo_bin!("cargo-modules");
+    let mut command = Command::new(bin_path);
 
     command.current_dir(dir_path);
     command.args(args);
