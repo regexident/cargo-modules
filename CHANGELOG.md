@@ -26,6 +26,8 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `assert_cmd` from `2.0.14` to `2.2.1`
+  - `bitflags` from `2.5.0` to `2.11.1`
+  - `insta` from `1.38.0` to `1.47.2`
 
 ### Deprecated
 

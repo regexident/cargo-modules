@@ -58,8 +58,8 @@ url = "2.5.4"          # RUSTSEC-2024-0421
 [dev-dependencies]
 assert_cmd = "2.2.1"
 shellwords = "1.1"
-insta = "1.38.0"
-bitflags = "2.5.0"
+insta = "1.47.2"
+bitflags = "2.11.1"
 
 [profile.dev-opt]
 inherits = "dev"
