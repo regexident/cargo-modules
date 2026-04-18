@@ -1,7 +1,6 @@
 ---
 source: tests/dependencies.rs
 expression: output
-snapshot_kind: text
 ---
 COMMAND:
 dependencies
@@ -160,8 +159,6 @@ digraph {
     "smoke::functions" -> "smoke::functions::inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::functions" -> "smoke::functions::outputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::functions::Crate" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::functions::body" -> "smoke::functions::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::functions::body" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::inputs" -> "smoke::functions::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::inputs" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::outputs" -> "smoke::functions::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
@@ -191,8 +188,6 @@ digraph {
     "smoke::methods::Dummy" -> "smoke::methods::Dummy::body" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::methods::Dummy" -> "smoke::methods::Dummy::inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::methods::Dummy" -> "smoke::methods::Dummy::outputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::methods::Dummy::body" -> "smoke::methods::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::methods::Dummy::body" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::inputs" -> "smoke::methods::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::inputs" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::outputs" -> "smoke::methods::Local" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge

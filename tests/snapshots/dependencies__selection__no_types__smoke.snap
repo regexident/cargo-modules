@@ -1,7 +1,6 @@
 ---
 source: tests/dependencies.rs
 expression: output
-snapshot_kind: text
 ---
 COMMAND:
 dependencies
@@ -48,7 +47,7 @@ digraph {
     "core::ops" [label="external mod|core::ops", fillcolor="#81c169"]; // "mod" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
     "smoke::derives" [label="pub(crate) mod|smoke::derives", fillcolor="#f8c04c"]; // "mod" node
-    "smoke::derives::Dummy::clone" [label="pub(self) fn|smoke::derives::Dummy::clone", fillcolor="#db5367"]; // "fn" node
+    "smoke::derives::Dummy::clone" [label="pub fn|smoke::derives::Dummy::clone", fillcolor="#81c169"]; // "fn" node
     "smoke::functions" [label="pub(crate) mod|smoke::functions", fillcolor="#f8c04c"]; // "mod" node
     "smoke::functions::body" [label="pub(self) fn|smoke::functions::body", fillcolor="#db5367"]; // "fn" node
     "smoke::functions::inputs" [label="pub(self) fn|smoke::functions::inputs", fillcolor="#db5367"]; // "fn" node
@@ -124,8 +123,6 @@ digraph {
     "smoke::functions" -> "smoke::functions::inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::functions" -> "smoke::functions::outputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::functions" -> "smoke::target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::functions::body" -> "smoke::functions" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::functions::body" -> "smoke::target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::inputs" -> "smoke::functions" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::inputs" -> "smoke::target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::outputs" -> "smoke::functions" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
@@ -142,8 +139,6 @@ digraph {
     "smoke::methods" -> "smoke::methods::Dummy::inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::methods" -> "smoke::methods::Dummy::outputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::methods" -> "smoke::target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::methods::Dummy::body" -> "smoke::methods" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "smoke::methods::Dummy::body" -> "smoke::target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::inputs" -> "smoke::methods" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::inputs" -> "smoke::target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::methods::Dummy::outputs" -> "smoke::methods" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
