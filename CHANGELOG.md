@@ -29,7 +29,7 @@ Please make sure to add your changes to the appropriate categories:
   - `indoc` from `2.0.6` to `2.0.7`
   - `libc` from `0.2.177` to `0.2.180`
   - `rust-analyzer` from `0.0.289` to `0.0.328`
-  - `sugar_path` from `1.2.0` to `1.2.1`
+  - `sugar_path` from `1.2.0` to `2.0.0`
   - `thin-vec` from `0.2.14` to `0.2.16`
   - `tracing` from `0.1.41` to `0.1.44`
   - `tracing-subscriber` from `0.3.20` to `0.3.22`
