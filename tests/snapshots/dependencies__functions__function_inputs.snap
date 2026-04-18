@@ -1,7 +1,6 @@
 ---
 source: tests/dependencies.rs
 expression: output
-snapshot_kind: text
 ---
 COMMAND:
 dependencies
@@ -40,33 +39,27 @@ digraph {
         fontsize="10",
     ];
 
-    "bool" [label="external builtin|bool", fillcolor="#81c169"]; // "builtin" node
-    "char" [label="external builtin|char", fillcolor="#81c169"]; // "builtin" node
-    "f64" [label="external builtin|f64", fillcolor="#81c169"]; // "builtin" node
     "function_inputs" [label="crate|function_inputs", fillcolor="#5397c8"]; // "crate" node
     "function_inputs::Dummy" [label="pub(crate) struct|function_inputs::Dummy", fillcolor="#f8c04c"]; // "struct" node
     "function_inputs::Dummy::method_inputs" [label="pub(crate) fn|function_inputs::Dummy::method_inputs", fillcolor="#f8c04c"]; // "fn" node
     "function_inputs::GenericTargetEnum" [label="pub(crate) enum|function_inputs::GenericTargetEnum", fillcolor="#f8c04c"]; // "enum" node
-    "function_inputs::GenericTargetEnum::clone" [label="pub(crate) fn|function_inputs::GenericTargetEnum::clone", fillcolor="#f8c04c"]; // "fn" node
+    "function_inputs::GenericTargetEnum::clone" [label="pub fn|function_inputs::GenericTargetEnum::clone", fillcolor="#81c169"]; // "fn" node
     "function_inputs::GenericTargetStruct" [label="pub(crate) struct|function_inputs::GenericTargetStruct", fillcolor="#f8c04c"]; // "struct" node
-    "function_inputs::GenericTargetStruct::clone" [label="pub(crate) fn|function_inputs::GenericTargetStruct::clone", fillcolor="#f8c04c"]; // "fn" node
+    "function_inputs::GenericTargetStruct::clone" [label="pub fn|function_inputs::GenericTargetStruct::clone", fillcolor="#81c169"]; // "fn" node
     "function_inputs::GenericTargetUnion" [label="pub(crate) union|function_inputs::GenericTargetUnion", fillcolor="#f8c04c"]; // "union" node
-    "function_inputs::GenericTargetUnion::clone" [label="pub(crate) fn|function_inputs::GenericTargetUnion::clone", fillcolor="#f8c04c"]; // "fn" node
+    "function_inputs::GenericTargetUnion::clone" [label="pub fn|function_inputs::GenericTargetUnion::clone", fillcolor="#81c169"]; // "fn" node
     "function_inputs::GenericTypeAlias" [label="pub(crate) type|function_inputs::GenericTypeAlias", fillcolor="#f8c04c"]; // "type" node
     "function_inputs::TargetEnum" [label="pub(crate) enum|function_inputs::TargetEnum", fillcolor="#f8c04c"]; // "enum" node
-    "function_inputs::TargetEnum::clone" [label="pub(crate) fn|function_inputs::TargetEnum::clone", fillcolor="#f8c04c"]; // "fn" node
+    "function_inputs::TargetEnum::clone" [label="pub fn|function_inputs::TargetEnum::clone", fillcolor="#81c169"]; // "fn" node
     "function_inputs::TargetStruct" [label="pub(crate) struct|function_inputs::TargetStruct", fillcolor="#f8c04c"]; // "struct" node
-    "function_inputs::TargetStruct::clone" [label="pub(crate) fn|function_inputs::TargetStruct::clone", fillcolor="#f8c04c"]; // "fn" node
+    "function_inputs::TargetStruct::clone" [label="pub fn|function_inputs::TargetStruct::clone", fillcolor="#81c169"]; // "fn" node
     "function_inputs::TargetTrait" [label="pub(crate) trait|function_inputs::TargetTrait", fillcolor="#f8c04c"]; // "trait" node
     "function_inputs::TargetUnion" [label="pub(crate) union|function_inputs::TargetUnion", fillcolor="#f8c04c"]; // "union" node
-    "function_inputs::TargetUnion::clone" [label="pub(crate) fn|function_inputs::TargetUnion::clone", fillcolor="#f8c04c"]; // "fn" node
+    "function_inputs::TargetUnion::clone" [label="pub fn|function_inputs::TargetUnion::clone", fillcolor="#81c169"]; // "fn" node
     "function_inputs::TypeAlias" [label="pub(crate) type|function_inputs::TypeAlias", fillcolor="#f8c04c"]; // "type" node
     "function_inputs::function" [label="pub(crate) fn|function_inputs::function", fillcolor="#f8c04c"]; // "fn" node
     "function_inputs::function_inputs" [label="pub(crate) fn|function_inputs::function_inputs", fillcolor="#f8c04c"]; // "fn" node
     "function_inputs::generic_function" [label="pub(crate) fn|function_inputs::generic_function", fillcolor="#f8c04c"]; // "fn" node
-    "isize" [label="external builtin|isize", fillcolor="#81c169"]; // "builtin" node
-    "str" [label="external builtin|str", fillcolor="#81c169"]; // "builtin" node
-    "usize" [label="external builtin|usize", fillcolor="#81c169"]; // "builtin" node
 
     "function_inputs" -> "function_inputs::Dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_inputs" -> "function_inputs::GenericTargetEnum" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -82,9 +75,6 @@ digraph {
     "function_inputs" -> "function_inputs::function_inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_inputs" -> "function_inputs::generic_function" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_inputs::Dummy" -> "function_inputs::Dummy::method_inputs" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_inputs::Dummy::method_inputs" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::Dummy::method_inputs" -> "char" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::Dummy::method_inputs" -> "f64" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::Dummy::method_inputs" -> "function_inputs::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::Dummy::method_inputs" -> "function_inputs::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::Dummy::method_inputs" -> "function_inputs::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
@@ -92,9 +82,6 @@ digraph {
     "function_inputs::Dummy::method_inputs" -> "function_inputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::Dummy::method_inputs" -> "function_inputs::TargetTrait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::Dummy::method_inputs" -> "function_inputs::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::Dummy::method_inputs" -> "isize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::Dummy::method_inputs" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::Dummy::method_inputs" -> "usize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::GenericTargetEnum" -> "function_inputs::GenericTargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_inputs::GenericTargetEnum::clone" -> "function_inputs::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::GenericTargetStruct" -> "function_inputs::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
@@ -109,9 +96,6 @@ digraph {
     "function_inputs::TargetUnion::clone" -> "function_inputs::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::TypeAlias" -> "function_inputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::function" -> "function_inputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::function_inputs" -> "bool" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::function_inputs" -> "char" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::function_inputs" -> "f64" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::function_inputs" -> "function_inputs::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::function_inputs" -> "function_inputs::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::function_inputs" -> "function_inputs::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
@@ -119,8 +103,5 @@ digraph {
     "function_inputs::function_inputs" -> "function_inputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::function_inputs" -> "function_inputs::TargetTrait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::function_inputs" -> "function_inputs::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::function_inputs" -> "isize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::function_inputs" -> "str" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
-    "function_inputs::function_inputs" -> "usize" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 
 }
