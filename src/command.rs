@@ -3,6 +3,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use clap::Parser;
+use ra_ap_hir::db::HirDatabase;
+use ra_ap_ide::RootDatabase;
 
 use crate::{
     analyzer::{LoadOptions, load_workspace},
@@ -64,16 +66,17 @@ impl Command {
 
         let (krate, host, vfs, edition) =
             load_workspace(general_options, project_options, &load_options)?;
-        let db = host.raw_database();
+        let db: &RootDatabase = host.raw_database();
+        let hir_db: &dyn HirDatabase = db;
 
-        match self {
+        ra_ap_hir::attach_db(hir_db, || match self {
             #[allow(unused_variables)]
             Self::Structure(command) => command.run(krate, db, edition),
             #[allow(unused_variables)]
             Self::Dependencies(command) => command.run(krate, db, edition),
             #[allow(unused_variables)]
             Self::Orphans(command) => command.run(krate, db, &vfs, edition),
-        }
+        })
     }
 
     fn general_options(&self) -> &GeneralOptions {
