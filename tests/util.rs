@@ -53,6 +53,12 @@ pub fn cmd<'a>(dir: &str, args: impl Iterator<Item = &'a String>) -> Command {
     command.current_dir(dir_path);
     command.args(args);
 
+    if let Some(var) = std::env::var("RUST_BACKTRACE").ok() {
+        if var != "0" && !var.is_empty() {
+            command.env("RUST_BACKTRACE", var);
+        }
+    }
+
     // Correct the env of the command.
     correct_cmd_env(&mut command);
 
