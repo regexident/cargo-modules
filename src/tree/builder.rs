@@ -2,8 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
-use ra_ap_ide::{self as ide, Edition};
+use ra_ap_ide::Edition;
 
 use crate::{item::Item, tree::Tree};
 
@@ -11,12 +12,12 @@ type Node = Item;
 
 #[derive(Debug)]
 pub struct TreeBuilder<'a> {
-    db: &'a ide::RootDatabase,
+    db: &'a dyn HirDatabase,
     krate: hir::Crate,
 }
 
 impl<'a> TreeBuilder<'a> {
-    pub fn new(db: &'a ide::RootDatabase, krate: hir::Crate) -> Self {
+    pub fn new(db: &'a dyn HirDatabase, krate: hir::Crate) -> Self {
         Self { db, krate }
     }
 
@@ -40,7 +41,7 @@ impl<'a> TreeBuilder<'a> {
         )
         .entered();
 
-        let module = crate_hir.root_module();
+        let module = crate_hir.root_module(self.db);
 
         self.process_module(module)
     }
@@ -66,13 +67,10 @@ impl<'a> TreeBuilder<'a> {
             hir::ModuleDef::Module(module_hir) => self.process_module(module_hir),
             hir::ModuleDef::Function(function_hir) => self.process_function(function_hir),
             hir::ModuleDef::Adt(adt_hir) => self.process_adt(adt_hir),
-            hir::ModuleDef::Variant(variant_hir) => self.process_variant(variant_hir),
+            hir::ModuleDef::EnumVariant(variant_hir) => self.process_variant(variant_hir),
             hir::ModuleDef::Const(const_hir) => self.process_const(const_hir),
             hir::ModuleDef::Static(static_hir) => self.process_static(static_hir),
             hir::ModuleDef::Trait(trait_hir) => self.process_trait(trait_hir),
-            hir::ModuleDef::TraitAlias(trait_alias_hir) => {
-                self.process_trait_alias(trait_alias_hir)
-            }
             hir::ModuleDef::TypeAlias(type_alias_hir) => self.process_type_alias(type_alias_hir),
             hir::ModuleDef::BuiltinType(builtin_type_hir) => {
                 self.process_builtin_type(builtin_type_hir)
@@ -176,7 +174,7 @@ impl<'a> TreeBuilder<'a> {
         self.simple_node(hir::ModuleDef::Adt(hir::Adt::Union(union_hir)))
     }
 
-    fn process_variant(&mut self, variant_hir: hir::Variant) -> Option<Tree<Node>> {
+    fn process_variant(&mut self, variant_hir: hir::EnumVariant) -> Option<Tree<Node>> {
         let _span = tracing::trace_span!(
             "variant",
             variant = variant_hir
@@ -224,19 +222,6 @@ impl<'a> TreeBuilder<'a> {
         .entered();
 
         self.simple_node(hir::ModuleDef::Trait(trait_hir))
-    }
-
-    fn process_trait_alias(&mut self, trait_alias_hir: hir::TraitAlias) -> Option<Tree<Node>> {
-        let _span = tracing::trace_span!(
-            "trait alias",
-            trait_alias = trait_alias_hir
-                .name(self.db)
-                .display(self.db, Edition::CURRENT)
-                .to_string()
-        )
-        .entered();
-
-        self.simple_node(hir::ModuleDef::TraitAlias(trait_alias_hir))
     }
 
     fn process_type_alias(&mut self, type_alias_hir: hir::TypeAlias) -> Option<Tree<Node>> {

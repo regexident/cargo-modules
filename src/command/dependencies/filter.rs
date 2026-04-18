@@ -4,8 +4,9 @@
 
 use std::collections::{HashMap, HashSet};
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
-use ra_ap_ide::{self as ide};
+use ra_ap_ide::Edition;
 use ra_ap_syntax::ast;
 
 use petgraph::{
@@ -26,16 +27,16 @@ use super::options::Options;
 #[derive(Debug)]
 pub struct Filter<'a> {
     options: &'a Options,
-    db: &'a ide::RootDatabase,
-    edition: ide::Edition,
+    db: &'a dyn HirDatabase,
+    edition: Edition,
     krate: hir::Crate,
 }
 
 impl<'a> Filter<'a> {
     pub fn new(
         options: &'a Options,
-        db: &'a ide::RootDatabase,
-        edition: ide::Edition,
+        db: &'a dyn HirDatabase,
+        edition: Edition,
         krate: hir::Crate,
     ) -> Self {
         Self {
@@ -278,13 +279,10 @@ impl<'a> Filter<'a> {
             hir::ModuleDef::Module(module_hir) => self.should_retain_module(module_hir),
             hir::ModuleDef::Function(function_hir) => self.should_retain_function(function_hir),
             hir::ModuleDef::Adt(adt_hir) => self.should_retain_adt(adt_hir),
-            hir::ModuleDef::Variant(variant_hir) => self.should_retain_variant(variant_hir),
+            hir::ModuleDef::EnumVariant(variant_hir) => self.should_retain_variant(variant_hir),
             hir::ModuleDef::Const(const_hir) => self.should_retain_const(const_hir),
             hir::ModuleDef::Static(static_hir) => self.should_retain_static(static_hir),
             hir::ModuleDef::Trait(trait_hir) => self.should_retain_trait(trait_hir),
-            hir::ModuleDef::TraitAlias(trait_alias_hir) => {
-                self.should_retain_trait_alias(trait_alias_hir)
-            }
             hir::ModuleDef::TypeAlias(type_alias_hir) => {
                 self.should_retain_type_alias(type_alias_hir)
             }
@@ -298,7 +296,7 @@ impl<'a> Filter<'a> {
     fn should_retain_module(&self, module_hir: hir::Module) -> bool {
         if self.options.selection.no_modules {
             // Always keep a crate's root module:
-            return module_hir.is_crate_root();
+            return module_hir.is_crate_root(self.db);
         }
         true
     }
@@ -323,7 +321,7 @@ impl<'a> Filter<'a> {
         true
     }
 
-    fn should_retain_variant(&self, _variant_hir: hir::Variant) -> bool {
+    fn should_retain_variant(&self, _variant_hir: hir::EnumVariant) -> bool {
         false
     }
 
@@ -336,14 +334,6 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_trait(&self, _trait_hir: hir::Trait) -> bool {
-        if self.options.selection.no_traits {
-            return false;
-        }
-
-        true
-    }
-
-    fn should_retain_trait_alias(&self, _trait_alias_hir: hir::TraitAlias) -> bool {
         if self.options.selection.no_traits {
             return false;
         }
@@ -378,7 +368,7 @@ impl<'a> Filter<'a> {
             module_def_hir.module(self.db)
         };
 
-        let Some(import_krate) = module.map(|module| module.krate()) else {
+        let Some(import_krate) = module.map(|module| module.krate(self.db)) else {
             return true;
         };
 

@@ -5,7 +5,7 @@
 use std::path::{Path, PathBuf};
 
 use ra_ap_cfg::{self as cfg};
-use ra_ap_hir::{self as hir, AsAssocItem as _, HasAttrs as _};
+use ra_ap_hir::{self as hir, AsAssocItem as _, HasAttrs as _, db::HirDatabase};
 use ra_ap_ide::{self as ide};
 use ra_ap_ide_db::{self as ide_db};
 use ra_ap_load_cargo::{self as load_cargo};
@@ -140,8 +140,6 @@ pub fn cargo_config(
     // Target triple
     let target = project_options.target.clone();
 
-    let target_dir = None;
-
     // Setup RUSTC_WRAPPER to point to `rust-analyzer` binary itself.
     // (We use that to compile only proc macros and build scripts
     // during the initial `cargo check`.)
@@ -161,7 +159,8 @@ pub fn cargo_config(
         set_test,
         sysroot_src,
         sysroot,
-        target_dir,
+        target_dir_config: project_model::TargetDirectoryConfig::default(),
+        metadata_extra_args: vec![],
         target,
         wrap_rustc_in_build_scripts,
     }
@@ -176,6 +175,8 @@ pub fn load_config() -> load_cargo::LoadCargoConfig {
         load_out_dirs_from_check,
         prefill_caches,
         with_proc_macro_server,
+        num_worker_threads: 1,
+        proc_macro_processes: 1,
     }
 }
 
@@ -426,7 +427,7 @@ pub fn find_crate(
     krate.ok_or_else(|| anyhow::anyhow!("Crate not found"))
 }
 
-pub(crate) fn crate_name(krate: hir::Crate, db: &ide::RootDatabase) -> String {
+pub(crate) fn crate_name(krate: hir::Crate, db: &dyn HirDatabase) -> String {
     // Obtain the crate's declaration name:
     let display_name = krate.display_name(db).unwrap().to_string();
 
@@ -434,14 +435,11 @@ pub(crate) fn crate_name(krate: hir::Crate, db: &ide::RootDatabase) -> String {
     display_name.replace('-', "_")
 }
 
-pub(crate) fn krate(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<hir::Crate> {
-    module(module_def_hir, db).map(|module| module.krate())
+pub(crate) fn krate(module_def_hir: hir::ModuleDef, db: &dyn HirDatabase) -> Option<hir::Crate> {
+    module(module_def_hir, db).map(|module| module.krate(db))
 }
 
-pub(crate) fn module(
-    module_def_hir: hir::ModuleDef,
-    db: &ide::RootDatabase,
-) -> Option<hir::Module> {
+pub(crate) fn module(module_def_hir: hir::ModuleDef, db: &dyn HirDatabase) -> Option<hir::Module> {
     match module_def_hir {
         hir::ModuleDef::Module(module) => Some(module),
         module_def_hir => module_def_hir.module(db),
@@ -450,13 +448,13 @@ pub(crate) fn module(
 
 pub(crate) fn display_name(
     module_def_hir: hir::ModuleDef,
-    db: &ide::RootDatabase,
+    db: &dyn HirDatabase,
     edition: ide::Edition,
 ) -> String {
     match module_def_hir {
         hir::ModuleDef::Module(module_hir) => {
-            if module_hir.is_crate_root() {
-                crate_name(module_hir.krate(), db)
+            if module_hir.is_crate_root(db) {
+                crate_name(module_hir.krate(db), db)
             } else {
                 module_hir
                     .name(db)
@@ -480,7 +478,7 @@ pub(crate) fn display_name(
 
 pub(crate) fn name(
     module_def_hir: hir::ModuleDef,
-    db: &ide::RootDatabase,
+    db: &dyn HirDatabase,
     edition: ide::Edition,
 ) -> Option<String> {
     module_def_hir
@@ -490,7 +488,7 @@ pub(crate) fn name(
 
 pub(crate) fn display_path(
     module_def_hir: hir::ModuleDef,
-    db: &ide::RootDatabase,
+    db: &dyn HirDatabase,
     edition: ide::Edition,
 ) -> String {
     path(module_def_hir, db, edition).unwrap_or_else(|| "<anonymous>".to_owned())
@@ -498,7 +496,7 @@ pub(crate) fn display_path(
 
 pub(crate) fn path(
     module_def_hir: hir::ModuleDef,
-    db: &ide::RootDatabase,
+    db: &dyn HirDatabase,
     edition: ide::Edition,
 ) -> Option<String> {
     let mut path = String::new();
@@ -551,7 +549,7 @@ pub(crate) fn path(
 
 fn assoc_item_path(
     assoc_item_hir: hir::AssocItem,
-    db: &ide::RootDatabase,
+    db: &dyn HirDatabase,
     edition: ide::Edition,
 ) -> Option<String> {
     let name = match assoc_item_hir {
@@ -667,34 +665,32 @@ fn tree_contains_self(tree: &ast::UseTree) -> bool {
         .unwrap_or(false)
 }
 
-pub(crate) fn has_test_cfg(hir: hir::ModuleDef, db: &ide::RootDatabase) -> bool {
+pub(crate) fn has_test_cfg(hir: hir::ModuleDef, db: &dyn HirDatabase) -> bool {
     let Some(attrs) = hir.attrs(db) else {
         return false;
     };
 
     let test_key = hir::Symbol::intern("test");
-    let cfg_exprs: Vec<_> = attrs.cfgs().collect();
+    let Some(cfg_expr) = attrs.cfgs(db) else {
+        return false;
+    };
 
-    cfg_exprs.into_iter().any(|cfg_expr| {
-        cfg_expr
-            .fold(&|cfg| {
-                use ra_ap_cfg::CfgAtom;
-                match cfg {
-                    CfgAtom::Flag(symbol) => symbol == &test_key,
-                    CfgAtom::KeyValue { .. } => false,
-                }
-            })
-            .unwrap_or_default()
-    })
+    cfg_expr
+        .fold(&|cfg| {
+            use ra_ap_cfg::CfgAtom;
+            match cfg {
+                CfgAtom::Flag(symbol) => *symbol == test_key,
+                CfgAtom::KeyValue { .. } => false,
+            }
+        })
+        .unwrap_or_default()
 }
 
-pub(crate) fn is_test_function(function: hir::Function, db: &ide::RootDatabase) -> bool {
-    let attrs = function.attrs(db);
-    let key = hir::Symbol::intern("test");
-    attrs.by_key(key).exists()
+pub(crate) fn is_test_function(function: hir::Function, db: &dyn HirDatabase) -> bool {
+    function.attrs(db).is_test()
 }
 
-pub fn cfgs(hir: hir::ModuleDef, db: &ide::RootDatabase) -> Vec<cfg::CfgExpr> {
+pub fn cfgs(hir: hir::ModuleDef, db: &dyn HirDatabase) -> Vec<cfg::CfgExpr> {
     let cfg = match cfg(hir, db) {
         Some(cfg) => cfg,
         None => return vec![],
@@ -709,30 +705,29 @@ pub fn cfgs(hir: hir::ModuleDef, db: &ide::RootDatabase) -> Vec<cfg::CfgExpr> {
     }
 }
 
-pub fn cfg(hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<cfg::CfgExpr> {
+pub fn cfg(hir: hir::ModuleDef, db: &dyn HirDatabase) -> Option<cfg::CfgExpr> {
     match hir {
-        hir::ModuleDef::Module(r#mod) => r#mod.attrs(db).cfg(),
-        hir::ModuleDef::Function(r#fn) => r#fn.attrs(db).cfg(),
-        hir::ModuleDef::Adt(adt) => adt.attrs(db).cfg(),
-        hir::ModuleDef::Variant(r#variant) => r#variant.attrs(db).cfg(),
-        hir::ModuleDef::Const(r#const) => r#const.attrs(db).cfg(),
-        hir::ModuleDef::Static(r#static) => r#static.attrs(db).cfg(),
-        hir::ModuleDef::Trait(r#trait) => r#trait.attrs(db).cfg(),
-        hir::ModuleDef::TraitAlias(trait_type) => trait_type.attrs(db).cfg(),
-        hir::ModuleDef::TypeAlias(type_alias) => type_alias.attrs(db).cfg(),
+        hir::ModuleDef::Module(r#mod) => r#mod.attrs(db).cfgs(db).cloned(),
+        hir::ModuleDef::Function(r#fn) => r#fn.attrs(db).cfgs(db).cloned(),
+        hir::ModuleDef::Adt(adt) => adt.attrs(db).cfgs(db).cloned(),
+        hir::ModuleDef::EnumVariant(r#variant) => r#variant.attrs(db).cfgs(db).cloned(),
+        hir::ModuleDef::Const(r#const) => r#const.attrs(db).cfgs(db).cloned(),
+        hir::ModuleDef::Static(r#static) => r#static.attrs(db).cfgs(db).cloned(),
+        hir::ModuleDef::Trait(r#trait) => r#trait.attrs(db).cfgs(db).cloned(),
+        hir::ModuleDef::TypeAlias(type_alias) => type_alias.attrs(db).cfgs(db).cloned(),
         hir::ModuleDef::BuiltinType(_builtin_type) => None,
         hir::ModuleDef::Macro(_) => None,
     }
 }
 
-pub fn cfg_attrs(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Vec<ItemCfgAttr> {
+pub fn cfg_attrs(module_def_hir: hir::ModuleDef, db: &dyn HirDatabase) -> Vec<ItemCfgAttr> {
     cfgs(module_def_hir, db)
         .iter()
         .filter_map(ItemCfgAttr::new)
         .collect()
 }
 
-pub fn test_attr(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Option<ItemTestAttr> {
+pub fn test_attr(module_def_hir: hir::ModuleDef, db: &dyn HirDatabase) -> Option<ItemTestAttr> {
     let function = match module_def_hir {
         hir::ModuleDef::Function(function) => function,
         _ => return None,
@@ -745,7 +740,7 @@ pub fn test_attr(module_def_hir: hir::ModuleDef, db: &ide::RootDatabase) -> Opti
     }
 }
 
-pub fn module_file(module: hir::Module, db: &ide::RootDatabase, vfs: &vfs::Vfs) -> Option<PathBuf> {
+pub fn module_file(module: hir::Module, db: &dyn HirDatabase, vfs: &vfs::Vfs) -> Option<PathBuf> {
     let module_source = module.definition_source(db);
     let is_file_module: bool = match &module_source.value {
         hir::ModuleSource::SourceFile(_) => true,
@@ -772,9 +767,9 @@ pub fn module_file(module: hir::Module, db: &ide::RootDatabase, vfs: &vfs::Vfs) 
     Some(path.to_owned())
 }
 
-pub fn moduledef_is_crate(module_def_hir: hir::ModuleDef, _db: &ide::RootDatabase) -> bool {
+pub fn moduledef_is_crate(module_def_hir: hir::ModuleDef, db: &dyn HirDatabase) -> bool {
     let hir::ModuleDef::Module(module) = module_def_hir else {
         return false;
     };
-    module.is_crate_root()
+    module.is_crate_root(db)
 }

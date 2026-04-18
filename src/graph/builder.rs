@@ -4,10 +4,9 @@
 
 use std::collections::{HashMap, HashSet};
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
-use ra_ap_hir_def::{self as hir_def};
-use ra_ap_hir_ty::{self as hir_ty, TyExt as _, db::HirDatabase as _, from_assoc_type_id};
-use ra_ap_ide::{self as ide, Edition};
+use ra_ap_ide::Edition;
 
 use petgraph::graph::{EdgeIndex, NodeIndex};
 
@@ -26,8 +25,8 @@ struct Dependency {
 
 #[derive(Debug)]
 pub struct GraphBuilder<'a> {
-    db: &'a ide::RootDatabase,
-    edition: ide::Edition,
+    db: &'a dyn HirDatabase,
+    edition: Edition,
     krate: hir::Crate,
     graph: Graph<Node, Edge>,
     nodes: HashMap<hir::ModuleDef, NodeIndex>,
@@ -35,7 +34,7 @@ pub struct GraphBuilder<'a> {
 }
 
 impl<'a> GraphBuilder<'a> {
-    pub fn new(db: &'a ide::RootDatabase, edition: ide::Edition, krate: hir::Crate) -> Self {
+    pub fn new(db: &'a dyn HirDatabase, edition: Edition, krate: hir::Crate) -> Self {
         let graph = Graph::default();
         let nodes = HashMap::default();
         let edges = HashMap::default();
@@ -70,7 +69,7 @@ impl<'a> GraphBuilder<'a> {
         )
         .entered();
 
-        let module = crate_hir.root_module();
+        let module = crate_hir.root_module(self.db);
 
         let node_idx = self.process_moduledef(module.into());
 
@@ -150,7 +149,7 @@ impl<'a> GraphBuilder<'a> {
                 self.process_function(function_hir, &mut push_dependencies)
             }
             hir::ModuleDef::Adt(adt_hir) => self.process_adt(adt_hir, &mut push_dependencies),
-            hir::ModuleDef::Variant(variant_hir) => {
+            hir::ModuleDef::EnumVariant(variant_hir) => {
                 self.process_variant(variant_hir, &mut push_dependencies)
             }
             hir::ModuleDef::Const(const_hir) => {
@@ -161,9 +160,6 @@ impl<'a> GraphBuilder<'a> {
             }
             hir::ModuleDef::Trait(trait_hir) => {
                 self.process_trait(trait_hir, &mut push_dependencies)
-            }
-            hir::ModuleDef::TraitAlias(trait_alias_hir) => {
-                self.process_trait_alias(trait_alias_hir, &mut push_dependencies)
             }
             hir::ModuleDef::TypeAlias(type_alias_hir) => {
                 self.process_type_alias(type_alias_hir, &mut push_dependencies)
@@ -270,30 +266,6 @@ impl<'a> GraphBuilder<'a> {
             dependencies_callback,
         );
 
-        let def_with_body = hir::DefWithBody::from(function_hir);
-        let def_with_body_id: hir_def::DefWithBodyId = def_with_body.into();
-        let inference_result = self.db.infer(def_with_body_id);
-
-        for (_id, ty) in inference_result.type_of_binding.iter() {
-            Self::walk_and_push_ty(ty.clone(), self.db, self.edition, dependencies_callback);
-        }
-
-        for (_id, ty) in inference_result.type_of_expr.iter() {
-            Self::walk_and_push_ty(ty.clone(), self.db, self.edition, dependencies_callback);
-        }
-
-        for (_id, ty) in inference_result.type_of_for_iterator.iter() {
-            Self::walk_and_push_ty(ty.clone(), self.db, self.edition, dependencies_callback);
-        }
-
-        for (_id, ty) in inference_result.type_of_pat.iter() {
-            Self::walk_and_push_ty(ty.clone(), self.db, self.edition, dependencies_callback);
-        }
-
-        for (_id, ty) in inference_result.type_of_rpit.iter() {
-            Self::walk_and_push_ty(ty.clone(), self.db, self.edition, dependencies_callback);
-        }
-
         Some(node_idx)
     }
 
@@ -326,7 +298,7 @@ impl<'a> GraphBuilder<'a> {
 
         for field_hir in struct_hir.fields(self.db) {
             Self::walk_and_push_type(
-                field_hir.ty(self.db).strip_references(),
+                field_hir.ty(self.db).to_type(self.db).strip_references(),
                 self.db,
                 self.edition,
                 dependencies_callback,
@@ -353,7 +325,7 @@ impl<'a> GraphBuilder<'a> {
         for variant_hir in enum_hir.variants(self.db) {
             for field_hir in variant_hir.fields(self.db) {
                 Self::walk_and_push_type(
-                    field_hir.ty(self.db).strip_references(),
+                    field_hir.ty(self.db).to_type(self.db).strip_references(),
                     self.db,
                     self.edition,
                     dependencies_callback,
@@ -382,7 +354,7 @@ impl<'a> GraphBuilder<'a> {
 
         for field_hir in union_hir.fields(self.db) {
             Self::walk_and_push_type(
-                field_hir.ty(self.db).strip_references(),
+                field_hir.ty(self.db).to_type(self.db).strip_references(),
                 self.db,
                 self.edition,
                 dependencies_callback,
@@ -394,7 +366,7 @@ impl<'a> GraphBuilder<'a> {
 
     fn process_variant(
         &mut self,
-        variant_hir: hir::Variant,
+        variant_hir: hir::EnumVariant,
         dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
     ) -> Option<NodeIndex> {
         let _span = tracing::trace_span!(
@@ -408,7 +380,7 @@ impl<'a> GraphBuilder<'a> {
 
         for field_hir in variant_hir.fields(self.db) {
             Self::walk_and_push_type(
-                field_hir.ty(self.db),
+                field_hir.ty(self.db).to_type(self.db),
                 self.db,
                 self.edition,
                 dependencies_callback,
@@ -475,28 +447,6 @@ impl<'a> GraphBuilder<'a> {
         .entered();
 
         let node_idx = self.add_node_if_necessary(hir::ModuleDef::Trait(trait_hir));
-
-        // TODO: walk types?
-
-        #[allow(clippy::let_and_return)]
-        node_idx
-    }
-
-    fn process_trait_alias(
-        &mut self,
-        trait_alias_hir: hir::TraitAlias,
-        _dependencies_callback: &mut dyn FnMut(hir::ModuleDef),
-    ) -> Option<NodeIndex> {
-        let _span = tracing::trace_span!(
-            "trait alias",
-            trait_alias = trait_alias_hir
-                .name(self.db)
-                .display(self.db, Edition::CURRENT)
-                .to_string()
-        )
-        .entered();
-
-        let node_idx = self.add_node_if_necessary(hir::ModuleDef::TraitAlias(trait_alias_hir));
 
         // TODO: walk types?
 
@@ -573,10 +523,10 @@ impl<'a> GraphBuilder<'a> {
         None
     }
 
-    pub(super) fn walk_and_push_type(
-        ty: hir::Type,
-        db: &ide::RootDatabase,
-        _edition: ide::Edition,
+    pub(super) fn walk_and_push_type<'db>(
+        ty: hir::Type<'db>,
+        db: &'db dyn HirDatabase,
+        _edition: Edition,
         visit: &mut dyn FnMut(hir::ModuleDef),
     ) {
         // tracing::trace!(
@@ -595,168 +545,6 @@ impl<'a> GraphBuilder<'a> {
                 visit(trait_.into());
             }
         });
-    }
-
-    fn walk_and_push_ty(
-        ty: hir_ty::Ty,
-        db: &ide::RootDatabase,
-        edition: ide::Edition,
-        visit: &mut dyn FnMut(hir::ModuleDef),
-    ) {
-        // tracing::trace!(
-        //     "Walking type {ty}...",
-        //     ty = ty.display(db, edition).to_string()
-        // );
-
-        use hir_ty::TyKind;
-
-        match ty.kind(hir_ty::Interner) {
-            TyKind::Adt(adt_id, substitution) => {
-                let adt_hir = hir::Adt::from(adt_id.0);
-                visit(hir::ModuleDef::Adt(adt_hir));
-                Self::walk_and_push_substitution(substitution.clone(), db, edition, visit);
-            }
-            TyKind::AssociatedType(assoc_type_id, substitution) => {
-                let associated_ty = db.associated_ty_data(from_assoc_type_id(*assoc_type_id));
-                Self::walk_and_push_binders(
-                    associated_ty.binders.binders.iter(hir_ty::Interner),
-                    db,
-                    edition,
-                    visit,
-                );
-                Self::walk_and_push_substitution(substitution.clone(), db, edition, visit);
-            }
-            TyKind::Scalar(_scalar) => {
-                let builtin = ty.as_builtin().expect("builtin type");
-                let builtin_hir = hir::BuiltinType::from(builtin);
-                visit(hir::ModuleDef::BuiltinType(builtin_hir));
-            }
-            TyKind::Tuple(_usize, substitution) => {
-                Self::walk_and_push_substitution(substitution.clone(), db, edition, visit);
-            }
-            TyKind::Array(ty, konst) => {
-                Self::walk_and_push_ty(ty.clone(), db, edition, visit);
-                Self::walk_and_push_ty(konst.data(hir_ty::Interner).ty.clone(), db, edition, visit);
-            }
-            TyKind::Slice(ty) => {
-                Self::walk_and_push_ty(ty.clone(), db, edition, visit);
-            }
-            TyKind::Raw(_mutability, ty) => {
-                Self::walk_and_push_ty(ty.clone(), db, edition, visit);
-            }
-            TyKind::Ref(_mutability, _lifetime, ty) => {
-                Self::walk_and_push_ty(ty.clone(), db, edition, visit);
-            }
-            TyKind::OpaqueType(_opaque_ty_id, substitution) => {
-                Self::walk_and_push_substitution(substitution.clone(), db, edition, visit);
-            }
-            TyKind::FnDef(_fn_def_id, substitution) => {
-                Self::walk_and_push_substitution(substitution.clone(), db, edition, visit);
-            }
-            TyKind::Str => {
-                let builtin_hir = hir::BuiltinType::str();
-                visit(hir::ModuleDef::BuiltinType(builtin_hir));
-            }
-            TyKind::Never => {
-                // nothing to do here
-            }
-            TyKind::Closure(_closure_id, substitution) => {
-                Self::walk_and_push_substitution(substitution.clone(), db, edition, visit);
-            }
-            TyKind::Coroutine(_coroutine_id, substitution) => {
-                Self::walk_and_push_substitution(substitution.clone(), db, edition, visit);
-            }
-            TyKind::CoroutineWitness(_generator_id, substitution) => {
-                Self::walk_and_push_substitution(substitution.clone(), db, edition, visit);
-            }
-            TyKind::Foreign(_foreign_def_id) => {
-                // FIXME: Anything to do here?
-            }
-            TyKind::Error => {
-                // nothing to do here
-            }
-            TyKind::Placeholder(_placeholder_index) => {
-                // Do not walk the placeholder or the stack overflows in an infinite loop!
-            }
-            TyKind::Dyn(dyn_ty) => {
-                Self::walk_and_push_binders(
-                    dyn_ty.bounds.binders.iter(hir_ty::Interner),
-                    db,
-                    edition,
-                    visit,
-                );
-            }
-            TyKind::Alias(alias_ty) => match alias_ty {
-                hir_ty::AliasTy::Projection(projection) => {
-                    Self::walk_and_push_substitution(
-                        projection.substitution.clone(),
-                        db,
-                        edition,
-                        visit,
-                    );
-                }
-                hir_ty::AliasTy::Opaque(opaque) => {
-                    Self::walk_and_push_substitution(
-                        opaque.substitution.clone(),
-                        db,
-                        edition,
-                        visit,
-                    );
-                }
-            },
-            TyKind::Function(fn_pointer) => {
-                Self::walk_and_push_substitution(
-                    fn_pointer.substitution.0.clone(),
-                    db,
-                    edition,
-                    visit,
-                );
-            }
-            TyKind::BoundVar(bound_var) => {
-                Self::walk_and_push_ty(bound_var.to_ty(hir_ty::Interner), db, edition, visit);
-            }
-            TyKind::InferenceVar(inference_var, _ty_variable_kind) => {
-                Self::walk_and_push_ty(
-                    inference_var.to_ty(hir_ty::Interner, hir_ty::TyVariableKind::General),
-                    db,
-                    edition,
-                    visit,
-                );
-            }
-        }
-    }
-
-    fn walk_and_push_substitution(
-        substitution: hir_ty::Substitution,
-        db: &ide::RootDatabase,
-        edition: ide::Edition,
-        visit: &mut dyn FnMut(hir::ModuleDef),
-    ) {
-        // tracing::trace!("Walking substitution {substitution:?}...");
-
-        for ty in substitution
-            .iter(hir_ty::Interner)
-            .filter_map(|a| a.ty(hir_ty::Interner))
-        {
-            Self::walk_and_push_ty(ty.clone(), db, edition, visit);
-        }
-    }
-
-    fn walk_and_push_binders<'b>(
-        binders: impl Iterator<Item = &'b hir_ty::VariableKind>,
-        db: &ide::RootDatabase,
-        edition: ide::Edition,
-        visit: &mut dyn FnMut(hir::ModuleDef),
-    ) {
-        for binder in binders {
-            match binder {
-                hir_ty::VariableKind::Ty(_ty_variable_kind) => {}
-                hir_ty::VariableKind::Lifetime => {}
-                hir_ty::VariableKind::Const(ty) => {
-                    Self::walk_and_push_ty(ty.clone(), db, edition, visit);
-                }
-            }
-        }
     }
 
     fn add_dependencies<I>(&mut self, depender_idx: NodeIndex, dependencies: I)

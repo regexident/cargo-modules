@@ -4,8 +4,8 @@
 
 use core::fmt;
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
-use ra_ap_ide::{self as ide};
 
 use super::Item;
 
@@ -13,10 +13,10 @@ use super::Item;
 pub struct ItemKindDisplayName(String);
 
 impl ItemKindDisplayName {
-    pub fn new(item: &Item, db: &ide::RootDatabase) -> Self {
+    pub fn new(item: &Item, db: &dyn HirDatabase) -> Self {
         Self(match item.hir {
             hir::ModuleDef::Module(hir) => {
-                if hir.is_crate_root() {
+                if hir.is_crate_root(db) {
                     "crate".to_owned()
                 } else {
                     "mod".to_owned()
@@ -34,7 +34,7 @@ impl ItemKindDisplayName {
                 // Technically this should be the caller's edition,
                 // but for our purposes we should be fine with taking the
                 // callee's edition instead:
-                let edition = hir.module(db).krate().edition(db);
+                let edition = hir.module(db).krate(db).edition(db);
                 if hir.is_unsafe_to_call(db, caller, edition) {
                     keywords.push("unsafe");
                 }
@@ -44,7 +44,7 @@ impl ItemKindDisplayName {
             hir::ModuleDef::Adt(hir::Adt::Struct(_hir)) => "struct".to_owned(),
             hir::ModuleDef::Adt(hir::Adt::Union(_hir)) => "union".to_owned(),
             hir::ModuleDef::Adt(hir::Adt::Enum(_hir)) => "enum".to_owned(),
-            hir::ModuleDef::Variant(_hir) => "variant".to_owned(),
+            hir::ModuleDef::EnumVariant(_hir) => "variant".to_owned(),
             hir::ModuleDef::Const(_hir) => "const".to_owned(),
             hir::ModuleDef::Static(_hir) => "static".to_owned(),
             hir::ModuleDef::Trait(hir) => {
@@ -55,7 +55,6 @@ impl ItemKindDisplayName {
                 keywords.push("trait");
                 keywords.join(" ")
             }
-            hir::ModuleDef::TraitAlias(_hir) => "trait".to_owned(),
             hir::ModuleDef::TypeAlias(_hir) => "type".to_owned(),
             hir::ModuleDef::BuiltinType(_hir) => "builtin".to_owned(),
             hir::ModuleDef::Macro(_hir) => "macro".to_owned(),

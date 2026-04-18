@@ -8,8 +8,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
-use ra_ap_ide::{self as ide};
+use ra_ap_ide::Edition;
 use ra_ap_vfs::{self as vfs};
 
 use crate::analyzer;
@@ -18,18 +19,18 @@ use super::orphan::Orphan;
 
 #[derive(Debug)]
 pub struct Scanner<'a> {
-    db: &'a ide::RootDatabase,
+    db: &'a dyn HirDatabase,
     vfs: &'a vfs::Vfs,
     krate: hir::Crate,
-    edition: ide::Edition,
+    edition: Edition,
 }
 
 impl<'a> Scanner<'a> {
     pub fn new(
-        db: &'a ide::RootDatabase,
+        db: &'a dyn HirDatabase,
         vfs: &'a vfs::Vfs,
         krate: hir::Crate,
-        edition: ide::Edition,
+        edition: Edition,
     ) -> Self {
         Self {
             db,
@@ -53,7 +54,7 @@ impl<'a> Scanner<'a> {
             orphans.insert(orphan);
         };
 
-        let root_module = krate.root_module();
+        let root_module = krate.root_module(self.db);
         self.process_module(root_module, &mut callback);
 
         orphans

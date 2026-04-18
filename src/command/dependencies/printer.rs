@@ -6,8 +6,9 @@
 
 use std::fmt::{self, Write};
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
-use ra_ap_ide::{self as ide};
+use ra_ap_ide::Edition;
 
 use petgraph::{
     graph::NodeIndex,
@@ -30,16 +31,16 @@ const INDENTATION: &str = "    ";
 pub struct Printer<'a> {
     options: &'a Options,
     member_krate: hir::Crate,
-    db: &'a ide::RootDatabase,
-    edition: ide::Edition,
+    db: &'a dyn HirDatabase,
+    edition: Edition,
 }
 
 impl<'a> Printer<'a> {
     pub fn new(
         options: &'a Options,
         member_krate: hir::Crate,
-        db: &'a ide::RootDatabase,
-        edition: ide::Edition,
+        db: &'a dyn HirDatabase,
+        edition: Edition,
     ) -> Self {
         Self {
             options,

@@ -4,8 +4,9 @@
 
 use std::{cmp::Ordering, fmt};
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir, HasVisibility as _};
-use ra_ap_ide::{self as ide};
+use ra_ap_ide::Edition;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum ItemVisibility {
@@ -17,7 +18,7 @@ pub enum ItemVisibility {
 }
 
 impl ItemVisibility {
-    pub fn new(hir: hir::ModuleDef, db: &ide::RootDatabase, edition: ide::Edition) -> Self {
+    pub fn new(hir: hir::ModuleDef, db: &dyn HirDatabase, edition: Edition) -> Self {
         let visibility = hir.visibility(db);
 
         let parent_module = match hir.module(db) {
@@ -26,7 +27,7 @@ impl ItemVisibility {
         };
 
         let grandparent_module = parent_module.parent(db);
-        let krate_module = parent_module.krate().root_module();
+        let krate_module = parent_module.krate(db).root_module(db);
 
         match visibility {
             hir::Visibility::Module(visibility_module_id, _visibility_explicity) => {

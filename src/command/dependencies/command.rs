@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 
@@ -40,6 +41,8 @@ impl Command {
         db: &ide::RootDatabase,
         edition: ide::Edition,
     ) -> anyhow::Result<()> {
+        let db: &dyn HirDatabase = db;
+
         tracing::trace!("Building graph ...");
 
         let builder = GraphBuilder::new(db, edition, krate);
@@ -90,7 +93,7 @@ impl Command {
 fn draw_cycle(
     graph: &Graph<Node, Edge>,
     cycle: Vec<NodeIndex>,
-    db: &ide::RootDatabase,
+    db: &dyn HirDatabase,
     edition: ide::Edition,
 ) -> String {
     assert!(!cycle.is_empty());

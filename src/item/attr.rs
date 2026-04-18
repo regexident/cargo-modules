@@ -4,8 +4,9 @@
 
 use std::fmt;
 
+use hir::db::HirDatabase;
 use ra_ap_cfg::{self as cfg};
-use ra_ap_ide::{self as ide};
+use ra_ap_hir::{self as hir};
 
 use crate::{analyzer, item::Item};
 
@@ -91,7 +92,7 @@ pub struct ItemAttrs {
 }
 
 impl ItemAttrs {
-    pub fn new(item: &Item, db: &ide::RootDatabase) -> ItemAttrs {
+    pub fn new(item: &Item, db: &dyn HirDatabase) -> ItemAttrs {
         let cfgs: Vec<_> = analyzer::cfg_attrs(item.hir, db);
         let test = analyzer::test_attr(item.hir, db);
         Self { cfgs, test }
