@@ -617,6 +617,7 @@ pub(crate) fn use_tree_matches_path(use_tree: &ast::UseTree, path: &ast::Path) -
 
     if let Some(use_tree_path) = use_tree.path() {
         for use_tree_segment in use_tree_path.segments() {
+            #[allow(clippy::collapsible_match)]
             match path_segments_iter.next() {
                 Some(path_segment) => {
                     if use_tree_segment.syntax().text() == path_segment.syntax().text() {
