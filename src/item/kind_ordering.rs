@@ -4,8 +4,8 @@
 
 use std::cmp::Ordering;
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
-use ra_ap_ide::{self as ide};
 
 use super::Item;
 
@@ -28,24 +28,23 @@ pub(crate) enum ItemKindOrdering {
     Trait {
         is_unsafe: bool,
     },
-    TraitAlias,
     TypeAlias,
     BuiltinType,
     Macro,
 }
 
 impl ItemKindOrdering {
-    pub fn new(item: &Item, db: &ide::RootDatabase) -> Self {
+    pub fn new(item: &Item, db: &dyn HirDatabase) -> Self {
         match item.hir {
             hir::ModuleDef::Module(module_def_hir) => Self::Module {
-                is_crate_root: module_def_hir.is_crate_root(),
+                is_crate_root: module_def_hir.is_crate_root(db),
             },
             hir::ModuleDef::Function(function_def) => {
                 let caller = None;
                 // Technically this should be the caller's edition,
                 // but for our purposes we should be fine with taking the
                 // callee's edition instead:
-                let edition = function_def.module(db).krate().edition(db);
+                let edition = function_def.module(db).krate(db).edition(db);
                 Self::Function {
                     is_const: function_def.is_const(db),
                     is_async: function_def.is_async(db),
@@ -57,13 +56,12 @@ impl ItemKindOrdering {
                 hir::Adt::Union(_) => Self::Union,
                 hir::Adt::Enum(_) => Self::Enum,
             },
-            hir::ModuleDef::Variant(_) => Self::Variant,
+            hir::ModuleDef::EnumVariant(_) => Self::Variant,
             hir::ModuleDef::Const(_) => Self::Const,
             hir::ModuleDef::Static(_) => Self::Static,
             hir::ModuleDef::Trait(trait_def) => Self::Trait {
                 is_unsafe: trait_def.is_unsafe(db),
             },
-            hir::ModuleDef::TraitAlias(_) => Self::TraitAlias,
             hir::ModuleDef::TypeAlias(_) => Self::TypeAlias,
             hir::ModuleDef::BuiltinType(_) => Self::BuiltinType,
             hir::ModuleDef::Macro(_) => Self::Macro,
@@ -74,7 +72,6 @@ impl ItemKindOrdering {
         match self {
             Self::Module { .. } => 0,
             Self::Trait { .. } => 1,
-            Self::TraitAlias => 1,
             Self::TypeAlias => 2,
             Self::Struct => 3,
             Self::Enum => 4,
@@ -175,7 +172,6 @@ impl Ord for ItemKindOrdering {
 
                 Ordering::Equal
             }
-            (Self::TraitAlias, _) => ord,
             (Self::TypeAlias, _) => ord,
             (Self::BuiltinType, _) => ord,
             (Self::Macro, _) => ord,

@@ -2,8 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
-use ra_ap_ide::{self as ide};
+use ra_ap_ide::Edition;
 
 use crate::analyzer;
 
@@ -29,35 +30,31 @@ impl Item {
         Self { hir }
     }
 
-    pub fn visibility(&self, db: &ide::RootDatabase, edition: ide::Edition) -> ItemVisibility {
+    pub fn visibility(&self, db: &dyn HirDatabase, edition: Edition) -> ItemVisibility {
         ItemVisibility::new(self.hir, db, edition)
     }
 
-    pub fn attrs(&self, db: &ide::RootDatabase, _edition: ide::Edition) -> ItemAttrs {
+    pub fn attrs(&self, db: &dyn HirDatabase, _edition: Edition) -> ItemAttrs {
         ItemAttrs::new(self, db)
     }
 
-    pub fn kind_ordering(
-        &self,
-        db: &ide::RootDatabase,
-        _edition: ide::Edition,
-    ) -> ItemKindOrdering {
+    pub fn kind_ordering(&self, db: &dyn HirDatabase, _edition: Edition) -> ItemKindOrdering {
         ItemKindOrdering::new(self, db)
     }
 
     pub fn kind_display_name(
         &self,
-        db: &ide::RootDatabase,
-        _edition: ide::Edition,
+        db: &dyn HirDatabase,
+        _edition: Edition,
     ) -> ItemKindDisplayName {
         ItemKindDisplayName::new(self, db)
     }
 
-    pub fn display_name(&self, db: &ide::RootDatabase, edition: ide::Edition) -> String {
+    pub fn display_name(&self, db: &dyn HirDatabase, edition: Edition) -> String {
         analyzer::display_name(self.hir, db, edition)
     }
 
-    pub fn display_path(&self, db: &ide::RootDatabase, edition: ide::Edition) -> String {
+    pub fn display_path(&self, db: &dyn HirDatabase, edition: Edition) -> String {
         analyzer::display_path(self.hir, db, edition)
     }
 }

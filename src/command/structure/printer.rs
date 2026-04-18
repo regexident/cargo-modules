@@ -6,7 +6,9 @@
 
 use std::fmt;
 
-use ra_ap_ide::{self as ide};
+use hir::db::HirDatabase;
+use ra_ap_hir::{self as hir};
+use ra_ap_ide::Edition;
 
 use yansi::Paint as _;
 
@@ -26,12 +28,12 @@ struct Twig {
 pub struct Printer<'a> {
     #[allow(dead_code)]
     options: &'a Options,
-    db: &'a ide::RootDatabase,
-    edition: ide::Edition,
+    db: &'a dyn HirDatabase,
+    edition: Edition,
 }
 
 impl<'a> Printer<'a> {
-    pub fn new(options: &'a Options, db: &'a ide::RootDatabase, edition: ide::Edition) -> Self {
+    pub fn new(options: &'a Options, db: &'a dyn HirDatabase, edition: Edition) -> Self {
         Self {
             options,
             db,

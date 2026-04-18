@@ -4,8 +4,6 @@
 
 //! Printer for displaying module structure as a tree.
 
-use ra_ap_ide::{self as ide};
-
 use sugar_path::SugarPath as _;
 use yansi::Paint as _;
 
@@ -14,13 +12,11 @@ use super::{options::Options, orphan::Orphan, theme::styles};
 pub struct Printer<'a> {
     #[allow(dead_code)]
     options: &'a Options,
-    #[allow(dead_code)]
-    db: &'a ide::RootDatabase,
 }
 
 impl<'a> Printer<'a> {
-    pub fn new(options: &'a Options, db: &'a ide::RootDatabase) -> Self {
-        Self { options, db }
+    pub fn new(options: &'a Options) -> Self {
+        Self { options }
     }
 
     pub fn fmt(&self, f: &mut dyn std::io::Write, orphans: &[Orphan]) -> Result<(), anyhow::Error> {

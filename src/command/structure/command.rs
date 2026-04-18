@@ -4,6 +4,7 @@
 
 use std::fmt::Write;
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 
@@ -33,6 +34,8 @@ impl Command {
         db: &ide::RootDatabase,
         edition: ide::Edition,
     ) -> anyhow::Result<()> {
+        let db: &dyn HirDatabase = db;
+
         tracing::trace!("Building tree ...");
 
         let builder = TreeBuilder::new(db, krate);

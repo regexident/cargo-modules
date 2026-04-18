@@ -4,6 +4,7 @@
 
 use clap::Parser;
 
+use hir::db::HirDatabase;
 use ra_ap_hir::{self as hir};
 use ra_ap_ide::{self as ide};
 use ra_ap_vfs::{self as vfs};
@@ -35,6 +36,8 @@ impl Command {
         vfs: &vfs::Vfs,
         edition: ide::Edition,
     ) -> anyhow::Result<()> {
+        let db: &dyn HirDatabase = db;
+
         tracing::trace!("Building tree ...");
 
         let crate_name = analyzer::crate_name(krate, db);
@@ -45,7 +48,7 @@ impl Command {
         orphans.sort_by_cached_key(|orphan| orphan.file_path.clone());
 
         let mut stdout = std::io::stdout();
-        let printer = Printer::new(&self.options, db);
+        let printer = Printer::new(&self.options);
         printer.fmt(&mut stdout, &orphans[..])?;
 
         if orphans.is_empty() {
