@@ -1,55 +1,51 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": ["config:recommended"],
+    "extends": ["config:best-practices"],
     "packageRules": [
         {
-            "allowedVersions": "!/^=/",
-            "matchDepTypes": ["dependencies", "dev-dependencies"],
-            "matchPackageNames": ["*"],
-            "description": "only match non-pinned versions"
+            "description": "skip cargo deps that are explicitly pinned with '='",
+            "matchDepTypes": ["dependencies", "dev-dependencies", "build-dependencies"],
+            "allowedVersions": "!/^=/"
         },
         {
-            "matchDepTypes": ["dependencies", "dev-dependencies"],
-            "matchUpdateTypes": ["major"],
-            "matchPackageNames": ["*"],
-            "description": "create separate PRs for major upgrades"
-        },
-        {
+            "description": "group non-major dependency upgrades",
             "groupName": "dependencies",
             "groupSlug": "dependencies",
             "matchDepTypes": ["dependencies"],
-            "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-            "matchPackageNames": ["*"],
-            "description": "create grouped PRs for non-major dependency upgrades"
+            "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
         },
         {
+            "description": "group non-major dev-dependency upgrades",
             "groupName": "dev-dependencies",
             "groupSlug": "dev-dependencies",
             "matchDepTypes": ["dev-dependencies"],
-            "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-            "matchPackageNames": ["*"],
-            "description": "create grouped PRs for non-major dev-dependency upgrades"
+            "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
         },
         {
+            "description": "pin rust-analyzer crates (fast-moving, reproducibility critical)",
             "groupName": "rust-analyzer dependencies",
             "groupSlug": "rust-analyzer-dependencies",
             "matchPackageNames": ["/^ra_ap_/"],
             "rangeStrategy": "pin"
         },
         {
-            "extends": ["schedule:automergeMonthly"],
+            "description": "upgrade cargo-binstall monthly and auto-merge after a 14-day release-age buffer",
+            "extends": ["schedule:monthly"],
             "groupName": "cargo-binstall",
             "groupSlug": "cargo-binstall",
             "matchPackageNames": ["cargo-binstall"],
-            "automerge": true,
-            "description": "upgrade once a month and auto-merge"
+            "minimumReleaseAge": "14 days",
+            "automerge": true
         },
         {
+            "description": "batch github actions monthly and silently auto-merge after a 14-day release-age buffer",
+            "extends": ["schedule:monthly"],
             "groupName": "github actions",
             "groupSlug": "github-actions",
-            "matchDepTypes": ["action"],
-            "pinDigests": true,
-            "description": "always pin github actions"
+            "matchManagers": ["github-actions"],
+            "minimumReleaseAge": "14 days",
+            "automerge": true,
+            "automergeType": "branch"
         }
     ]
 }
