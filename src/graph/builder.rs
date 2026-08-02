@@ -298,7 +298,7 @@ impl<'a> GraphBuilder<'a> {
 
         for field_hir in struct_hir.fields(self.db) {
             Self::walk_and_push_type(
-                field_hir.ty(self.db).to_type(self.db).strip_references(),
+                field_hir.ty(self.db).strip_references(),
                 self.db,
                 self.edition,
                 dependencies_callback,
@@ -325,7 +325,7 @@ impl<'a> GraphBuilder<'a> {
         for variant_hir in enum_hir.variants(self.db) {
             for field_hir in variant_hir.fields(self.db) {
                 Self::walk_and_push_type(
-                    field_hir.ty(self.db).to_type(self.db).strip_references(),
+                    field_hir.ty(self.db).strip_references(),
                     self.db,
                     self.edition,
                     dependencies_callback,
@@ -354,7 +354,7 @@ impl<'a> GraphBuilder<'a> {
 
         for field_hir in union_hir.fields(self.db) {
             Self::walk_and_push_type(
-                field_hir.ty(self.db).to_type(self.db).strip_references(),
+                field_hir.ty(self.db).strip_references(),
                 self.db,
                 self.edition,
                 dependencies_callback,
@@ -380,7 +380,7 @@ impl<'a> GraphBuilder<'a> {
 
         for field_hir in variant_hir.fields(self.db) {
             Self::walk_and_push_type(
-                field_hir.ty(self.db).to_type(self.db),
+                field_hir.ty(self.db),
                 self.db,
                 self.edition,
                 dependencies_callback,
