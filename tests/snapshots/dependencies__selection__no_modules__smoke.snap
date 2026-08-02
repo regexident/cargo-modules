@@ -176,7 +176,6 @@ digraph {
     "smoke" -> "smoke::visibility::dummy::unions::PubPublic" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke" -> "smoke::visibility::dummy::unions::PubSuper" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::derives::Dummy" -> "smoke::derives::Dummy::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::derives::Dummy::clone" -> "smoke::derives::Dummy" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::Crate" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::Std" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::inputs" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge

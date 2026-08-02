@@ -158,7 +158,6 @@ digraph {
     "smoke" -> "smoke::visibility" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::derives" -> "smoke::derives::Dummy" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::derives::Dummy" -> "smoke::derives::Dummy::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "smoke::derives::Dummy::clone" -> "smoke::derives::Dummy" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions" -> "smoke::functions::Core" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::functions" -> "smoke::functions::Crate" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "smoke::functions" -> "smoke::functions::Local" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge

@@ -76,17 +76,11 @@ digraph {
     "function_body" -> "function_body::generic_function" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_body::Dummy" -> "function_body::Dummy::method_body" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "function_body::GenericTargetEnum" -> "function_body::GenericTargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::GenericTargetEnum::clone" -> "function_body::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::GenericTargetStruct" -> "function_body::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::GenericTargetStruct::clone" -> "function_body::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::GenericTargetUnion" -> "function_body::GenericTargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::GenericTargetUnion::clone" -> "function_body::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::TargetEnum" -> "function_body::TargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::TargetEnum::clone" -> "function_body::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::TargetStruct" -> "function_body::TargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::TargetStruct::clone" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::TargetUnion" -> "function_body::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_body::TargetUnion::clone" -> "function_body::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::TypeAlias" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_body::function" -> "function_body::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
 
