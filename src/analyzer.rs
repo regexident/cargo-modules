@@ -161,6 +161,7 @@ pub fn cargo_config(
         sysroot,
         target_dir_config: project_model::TargetDirectoryConfig::default(),
         metadata_extra_args: vec![],
+        config_path: None,
         target,
         wrap_rustc_in_build_scripts,
     }
@@ -667,9 +668,7 @@ fn tree_contains_self(tree: &ast::UseTree) -> bool {
 }
 
 pub(crate) fn has_test_cfg(hir: hir::ModuleDef, db: &dyn HirDatabase) -> bool {
-    let Some(attrs) = hir.attrs(db) else {
-        return false;
-    };
+    let attrs = hir.attrs(db);
 
     let test_key = hir::Symbol::intern("test");
     let Some(cfg_expr) = attrs.cfgs(db) else {
