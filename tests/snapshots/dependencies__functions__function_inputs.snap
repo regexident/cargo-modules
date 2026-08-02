@@ -83,17 +83,11 @@ digraph {
     "function_inputs::Dummy::method_inputs" -> "function_inputs::TargetTrait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::Dummy::method_inputs" -> "function_inputs::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::GenericTargetEnum" -> "function_inputs::GenericTargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_inputs::GenericTargetEnum::clone" -> "function_inputs::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::GenericTargetStruct" -> "function_inputs::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_inputs::GenericTargetStruct::clone" -> "function_inputs::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::GenericTargetUnion" -> "function_inputs::GenericTargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_inputs::GenericTargetUnion::clone" -> "function_inputs::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::TargetEnum" -> "function_inputs::TargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_inputs::TargetEnum::clone" -> "function_inputs::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::TargetStruct" -> "function_inputs::TargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_inputs::TargetStruct::clone" -> "function_inputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::TargetUnion" -> "function_inputs::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "function_inputs::TargetUnion::clone" -> "function_inputs::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::TypeAlias" -> "function_inputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::function" -> "function_inputs::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "function_inputs::function_inputs" -> "function_inputs::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge

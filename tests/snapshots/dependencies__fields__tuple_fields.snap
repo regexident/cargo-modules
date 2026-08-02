@@ -70,18 +70,12 @@ digraph {
     "tuple_fields" -> "tuple_fields::Tuple" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "tuple_fields" -> "tuple_fields::TypeAlias" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
     "tuple_fields::GenericTargetEnum" -> "tuple_fields::GenericTargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "tuple_fields::GenericTargetEnum::clone" -> "tuple_fields::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "tuple_fields::GenericTargetStruct" -> "tuple_fields::GenericTargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "tuple_fields::GenericTargetStruct::clone" -> "tuple_fields::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "tuple_fields::GenericTargetUnion" -> "tuple_fields::GenericTargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "tuple_fields::GenericTargetUnion::clone" -> "tuple_fields::GenericTargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "tuple_fields::TargetEnum" -> "tuple_fields::TargetEnum::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "tuple_fields::TargetEnum::clone" -> "tuple_fields::TargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "tuple_fields::TargetStruct" -> "tuple_fields::TargetStruct::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "tuple_fields::TargetStruct::clone" -> "tuple_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "tuple_fields::TargetUnion" -> "tuple_fields::TargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "tuple_fields::TargetUnion" -> "tuple_fields::TargetUnion::clone" [label="owns", color="#000000", style="solid"] [constraint=true]; // "owns" edge
-    "tuple_fields::TargetUnion::clone" -> "tuple_fields::TargetUnion" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "tuple_fields::Tuple" -> "tuple_fields::DynTrait" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "tuple_fields::Tuple" -> "tuple_fields::GenericTargetEnum" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "tuple_fields::Tuple" -> "tuple_fields::GenericTargetStruct" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge

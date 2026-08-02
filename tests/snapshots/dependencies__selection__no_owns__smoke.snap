@@ -47,8 +47,6 @@ digraph {
     "core::marker::Sized" [label="external trait|core::marker::Sized", fillcolor="#81c169"]; // "trait" node
     "core::ops" [label="external mod|core::ops", fillcolor="#81c169"]; // "mod" node
     "smoke" [label="crate|smoke", fillcolor="#5397c8"]; // "crate" node
-    "smoke::derives::Dummy" [label="pub(self) struct|smoke::derives::Dummy", fillcolor="#db5367"]; // "struct" node
-    "smoke::derives::Dummy::clone" [label="pub fn|smoke::derives::Dummy::clone", fillcolor="#81c169"]; // "fn" node
     "smoke::functions::Crate" [label="pub(self) type|smoke::functions::Crate", fillcolor="#db5367"]; // "type" node
     "smoke::functions::Local" [label="pub(self) struct|smoke::functions::Local", fillcolor="#db5367"]; // "struct" node
     "smoke::functions::Std" [label="pub(self) type|smoke::functions::Std", fillcolor="#db5367"]; // "type" node
@@ -71,7 +69,6 @@ digraph {
     "smoke::visibility::dummy::kinds::TraitAlias" [label="pub(self) type|smoke::visibility::dummy::kinds::TraitAlias", fillcolor="#db5367"]; // "type" node
     "smoke::visibility::dummy::kinds::TypeAlias" [label="pub(self) type|smoke::visibility::dummy::kinds::TypeAlias", fillcolor="#db5367"]; // "type" node
 
-    "smoke::derives::Dummy::clone" -> "smoke::derives::Dummy" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::Crate" -> "smoke::target::Target" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::Std" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
     "smoke::functions::inputs" -> "alloc::string::String" [label="uses", color="#7f7f7f", style="dashed"] [constraint=false]; // "uses" edge
