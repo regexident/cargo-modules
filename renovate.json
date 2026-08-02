@@ -1,51 +1,16 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": ["config:best-practices"],
+    "extends": [
+        "github>regexident/renovate-config-presets:rust",
+        "github>regexident/renovate-config-presets:github-actions"
+    ],
     "packageRules": [
-        {
-            "description": "skip cargo deps that are explicitly pinned with '='",
-            "matchDepTypes": ["dependencies", "dev-dependencies", "build-dependencies"],
-            "allowedVersions": "!/^=/"
-        },
-        {
-            "description": "group non-major dependency upgrades",
-            "groupName": "dependencies",
-            "groupSlug": "dependencies",
-            "matchDepTypes": ["dependencies"],
-            "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
-        },
-        {
-            "description": "group non-major dev-dependency upgrades",
-            "groupName": "dev-dependencies",
-            "groupSlug": "dev-dependencies",
-            "matchDepTypes": ["dev-dependencies"],
-            "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
-        },
         {
             "description": "pin rust-analyzer crates (fast-moving, reproducibility critical)",
             "groupName": "rust-analyzer dependencies",
             "groupSlug": "rust-analyzer-dependencies",
             "matchPackageNames": ["/^ra_ap_/"],
             "rangeStrategy": "pin"
-        },
-        {
-            "description": "upgrade cargo-binstall monthly and auto-merge after a 14-day release-age buffer",
-            "extends": ["schedule:monthly"],
-            "groupName": "cargo-binstall",
-            "groupSlug": "cargo-binstall",
-            "matchPackageNames": ["cargo-binstall"],
-            "minimumReleaseAge": "14 days",
-            "automerge": true
-        },
-        {
-            "description": "batch github actions monthly and silently auto-merge after a 14-day release-age buffer",
-            "extends": ["schedule:monthly"],
-            "groupName": "github actions",
-            "groupSlug": "github-actions",
-            "matchManagers": ["github-actions"],
-            "minimumReleaseAge": "14 days",
-            "automerge": true,
-            "automergeType": "branch"
         }
     ]
 }
