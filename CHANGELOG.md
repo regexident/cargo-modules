@@ -24,13 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `assert_cmd` from `2.0.14` to `2.2.1`
-  - `bitflags` from `2.5.0` to `2.11.1`
-  - `insta` from `1.38.0` to `1.47.2`
-  - `rust-analyzer` from `0.0.328` to `0.0.345`
-  - `sugar_path` from `2.0.0` to `3.0.0`
-- Bumped MSRV from `1.91.0` to `1.95.0`
+- n/a
 
 ### Deprecated
 
@@ -55,6 +49,18 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.27.0] - 2026-08-03
+
+### Changed
+
+- Updated dependencies:
+  - `assert_cmd` from `2.0.14` to `2.2.1`
+  - `bitflags` from `2.5.0` to `2.11.1`
+  - `insta` from `1.38.0` to `1.47.2`
+  - `rust-analyzer` from `0.0.328` to `0.0.345`
+  - `sugar_path` from `2.0.0` to `3.0.0`
+- Bumped MSRV from `1.91.0` to `1.95.0`
 
 ## [0.26.0] - 2026-04-19
 
