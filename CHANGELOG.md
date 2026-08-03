@@ -28,7 +28,7 @@ Please make sure to add your changes to the appropriate categories:
   - `assert_cmd` from `2.0.14` to `2.2.1`
   - `bitflags` from `2.5.0` to `2.11.1`
   - `insta` from `1.38.0` to `1.47.2`
-  - `rust-analyzer` from `0.0.328` to `0.0.344`
+  - `rust-analyzer` from `0.0.328` to `0.0.345`
 - Bumped MSRV from `1.91.0` to `1.95.0`
 
 ### Deprecated
