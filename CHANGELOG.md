@@ -29,6 +29,7 @@ Please make sure to add your changes to the appropriate categories:
   - `bitflags` from `2.5.0` to `2.11.1`
   - `insta` from `1.38.0` to `1.47.2`
   - `rust-analyzer` from `0.0.328` to `0.0.345`
+  - `sugar_path` from `2.0.0` to `3.0.0`
 - Bumped MSRV from `1.91.0` to `1.95.0`
 
 ### Deprecated
