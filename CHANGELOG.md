@@ -36,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- n/a
+- `orphans` now reports orphan modules whose file names contain underscores.
 
 ### Performance
 
