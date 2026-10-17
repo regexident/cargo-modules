@@ -1,0 +1,63 @@
+---
+source: tests/orphans.rs
+expression: output
+---
+COMMAND:
+orphans
+
+STDERR:
+Error: Found 5 orphans in crate 'orphan_underscores'
+
+STDOUT:
+
+5 orphans found:
+
+warning: orphaned module `_stray` at src/_stray.rs
+  --> src/lib.rs
+   |  ^^^^^^^^^^ orphan module not loaded from file
+   |
+ help: consider loading `_stray` from module `orphan_underscores`
+   |
+   |  mod _stray;
+   |  +++++++++++
+   |
+
+warning: orphaned module `a_b` at src/a_b.rs
+  --> src/lib.rs
+   |  ^^^^^^^^^^ orphan module not loaded from file
+   |
+ help: consider loading `a_b` from module `orphan_underscores`
+   |
+   |  mod a_b;
+   |  ++++++++
+   |
+
+warning: orphaned module `nested_name` at src/nested_name/mod.rs
+  --> src/lib.rs
+   |  ^^^^^^^^^^ orphan module not loaded from file
+   |
+ help: consider loading `nested_name` from module `orphan_underscores`
+   |
+   |  mod nested_name;
+   |  ++++++++++++++++
+   |
+
+warning: orphaned module `stray_` at src/stray_.rs
+  --> src/lib.rs
+   |  ^^^^^^^^^^ orphan module not loaded from file
+   |
+ help: consider loading `stray_` from module `orphan_underscores`
+   |
+   |  mod stray_;
+   |  +++++++++++
+   |
+
+warning: orphaned module `zz_stray` at src/zz_stray.rs
+  --> src/lib.rs
+   |  ^^^^^^^^^^ orphan module not loaded from file
+   |
+ help: consider loading `zz_stray` from module `orphan_underscores`
+   |
+   |  mod zz_stray;
+   |  +++++++++++++
+   |

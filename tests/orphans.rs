@@ -57,3 +57,12 @@ mod orphans {
         project: orphans
     );
 }
+
+mod underscore_names {
+    test_cmd!(
+        args: "orphans",
+        success: false,
+        color_mode: ColorMode::Plain,
+        project: orphan_underscores
+    );
+}

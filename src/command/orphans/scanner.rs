@@ -162,7 +162,7 @@ pub struct PossibleOrphan {
 
 fn possible_orphans_in(read_dir: ReadDir) -> impl Iterator<Item = PossibleOrphan> {
     fn is_possible_identifier(name: &str) -> bool {
-        name.chars().all(|c| c.is_alphanumeric())
+        name != "_" && name.chars().all(|c| c.is_alphanumeric() || c == '_')
     }
 
     read_dir.into_iter().filter_map(|dir_entry| {
