@@ -24,10 +24,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- Updated dependencies:
-  - `rust-analyzer` from `0.0.345` to `0.0.358`
-  - `libc` from `0.2.189` to `0.2.191`
-- Bumped MSRV from `1.95.0` to `1.98.0`
+- n/a
 
 ### Deprecated
 
@@ -39,7 +36,7 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Fixed
 
-- `orphans` now reports orphan modules whose file names contain underscores.
+- n/a
 
 ### Performance
 
@@ -52,6 +49,19 @@ Please make sure to add your changes to the appropriate categories:
 ### Other
 
 - n/a
+
+## [0.28.0] - 2026-10-18
+
+### Changed
+
+- Updated dependencies:
+  - `rust-analyzer` from `0.0.345` to `0.0.358`
+  - `libc` from `0.2.189` to `0.2.191`
+- Bumped MSRV from `1.95.0` to `1.98.0`
+
+### Fixed
+
+- `orphans` now reports orphan modules whose file names contain underscores.
 
 ## [0.27.0] - 2026-08-03
 
