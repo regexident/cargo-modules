@@ -26,6 +26,7 @@ Please make sure to add your changes to the appropriate categories:
 
 - Updated dependencies:
   - `rust-analyzer` from `0.0.345` to `0.0.358`
+  - `libc` from `0.2.189` to `0.2.191`
 - Bumped MSRV from `1.95.0` to `1.98.0`
 
 ### Deprecated
