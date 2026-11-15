@@ -153,11 +153,7 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_adt(&self, _adt_hir: hir::Adt) -> bool {
-        if self.options.selection.no_types {
-            return false;
-        }
-
-        true
+        !self.options.selection.no_types
     }
 
     fn should_retain_variant(&self, _variant_hir: hir::EnumVariant) -> bool {
@@ -173,27 +169,15 @@ impl<'a> Filter<'a> {
     }
 
     fn should_retain_trait(&self, _trait_hir: hir::Trait) -> bool {
-        if self.options.selection.no_traits {
-            return false;
-        }
-
-        true
+        !self.options.selection.no_traits
     }
 
     fn should_retain_type_alias(&self, _type_alias_hir: hir::TypeAlias) -> bool {
-        if self.options.selection.no_types {
-            return false;
-        }
-
-        true
+        !self.options.selection.no_types
     }
 
     fn should_retain_builtin_type(&self, _builtin_type_hir: hir::BuiltinType) -> bool {
-        if self.options.selection.no_types {
-            return false;
-        }
-
-        true
+        !self.options.selection.no_types
     }
 
     fn should_retain_macro(&self, _macro_hir: hir::Macro) -> bool {
