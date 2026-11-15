@@ -24,7 +24,8 @@ Please make sure to add your changes to the appropriate categories:
 
 ### Changed
 
-- n/a
+- Updated dependencies:
+  - `pulldown-cmark` from `0.13.4` to `0.13.6`
 
 ### Deprecated
 
